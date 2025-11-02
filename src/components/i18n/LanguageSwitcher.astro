@@ -1,0 +1,63 @@
+---
+import {
+  supportedLanguages,
+  languageNames,
+  localizeUrl,
+  delocalizeUrl,
+} from '@lib/i18n/config';
+import { createTranslator } from '@lib/i18n/translations';
+
+const currentLang = Astro.locals.lang || 'en';
+const t = createTranslator(currentLang);
+const currentPath = delocalizeUrl(Astro.url.pathname);
+---
+
+{
+  supportedLanguages.length > 1 && (
+    <div class="language-switcher">
+      <label for="language-select" class="visually-hidden">
+        {t('aria.language_switcher')}
+      </label>
+      <select
+        id="language-select"
+        aria-label={t('aria.language_switcher')}
+        onchange="window.location.href = this.value"
+      >
+        {supportedLanguages.map((lang) => (
+          <option
+            value={localizeUrl(currentPath, lang)}
+            selected={lang === currentLang}
+          >
+            {languageNames[lang]}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
+<style>
+  .language-switcher {
+    position: relative;
+  }
+
+  select {
+    padding: var(--space-xs) var(--space-sm);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    border: var(--border-width-thin) solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: border-color var(--transition-fast);
+  }
+
+  select:hover {
+    border-color: var(--color-primary);
+  }
+
+  select:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+</style>

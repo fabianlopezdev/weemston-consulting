@@ -1,0 +1,107 @@
+---
+import { client } from '@lib/sanity/client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import { createTranslator } from '@lib/i18n/translations';
+
+const currentLang = Astro.locals.lang || 'en';
+const t = createTranslator(currentLang);
+
+const settings = await client.fetch(siteSettingsQuery);
+const footerLinks = settings?.footer?.links || [];
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-text">
+        <p>{settings?.footer?.text || ''}</p>
+        <p>&copy; {currentYear}. {t('footer.all_rights_reserved')}</p>
+      </div>
+
+      {
+        footerLinks.length > 0 && (
+          <nav aria-label={t('aria.footer_navigation')}>
+            <ul class="footer-links">
+              {footerLinks.map(
+                (link: { text: string; href: string; external?: boolean }) => (
+                  <li>
+                    <a
+                      href={link.href}
+                      {...(link.external && {
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        'aria-label': `${link.text} (${t('aria.external_link')})`,
+                      })}
+                    >
+                      {link.text}
+                    </a>
+                  </li>
+                )
+              )}
+            </ul>
+          </nav>
+        )
+      }
+    </div>
+
+    <div class="footer-credit">
+      <p>
+        {t('footer.developed_by')}
+        <a
+          href="https://fabapps.dev/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Fabulous Apps (${t('aria.external_link')})`}
+          >Fabulous Apps</a
+        >
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background-color: var(--color-surface);
+    border-block-start: var(--border-width-thin) solid var(--color-border);
+    padding-block: var(--space-xl);
+    margin-block-start: var(--space-3xl);
+  }
+
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    margin-block-end: var(--space-lg);
+  }
+
+  .footer-text p {
+    margin-block-end: var(--space-sm);
+  }
+
+  .footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    list-style: none;
+  }
+
+  .footer-credit {
+    padding-block-start: var(--space-md);
+    border-block-start: var(--border-width-thin) solid var(--color-border);
+    text-align: center;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  .footer-credit a {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+  }
+
+  @media (max-width: 768px) {
+    .footer-content {
+      flex-direction: column;
+    }
+  }
+</style>

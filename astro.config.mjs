@@ -9,6 +9,13 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en'], // Add more: ['en', 'es', 'fr']
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
   integrations: [
     sitemap({
       i18n: {

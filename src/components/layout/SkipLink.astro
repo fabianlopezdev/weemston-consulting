@@ -1,0 +1,10 @@
+---
+import { createTranslator } from '@lib/i18n/translations';
+
+const currentLang = Astro.locals.lang || 'en';
+const t = createTranslator(currentLang);
+---
+
+<a href="#main-content" class="skip-link">
+  {t('common.skip_to_content')}
+</a>

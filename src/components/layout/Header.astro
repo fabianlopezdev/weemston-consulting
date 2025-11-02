@@ -1,0 +1,106 @@
+---
+import { client } from '@lib/sanity/client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import { createTranslator } from '@lib/i18n/translations';
+import LanguageSwitcher from '@components/i18n/LanguageSwitcher.astro';
+
+const currentLang = Astro.locals.lang || 'en';
+const t = createTranslator(currentLang);
+
+const settings = await client.fetch(siteSettingsQuery);
+const navigation = settings?.navigation || [];
+---
+
+<header class="site-header">
+  <div class="container">
+    <nav aria-label={t('aria.main_navigation')}>
+      <a href="/" class="logo">
+        {settings?.title || 'Site Title'}
+      </a>
+      <div class="nav-actions">
+        <ul class="nav-list">
+          {
+            navigation.map(
+              (item: { text: string; href: string; external?: boolean }) => (
+                <li>
+                  <a
+                    href={item.href}
+                    {...(item.external && {
+                      target: '_blank',
+                      rel: 'noopener noreferrer',
+                      'aria-label': `${item.text} (${t('aria.external_link')})`,
+                    })}
+                  >
+                    {item.text}
+                  </a>
+                </li>
+              )
+            )
+          }
+        </ul>
+        <LanguageSwitcher />
+      </div>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    background-color: var(--color-surface);
+    border-block-end: var(--border-width-thin) solid var(--color-border);
+    padding-block: var(--space-md);
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--z-sticky);
+  }
+
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-lg);
+  }
+
+  .logo {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .nav-list {
+    display: flex;
+    gap: var(--space-md);
+    list-style: none;
+  }
+
+  .nav-list a {
+    transition: color var(--transition-fast);
+  }
+
+  .nav-list a:hover {
+    color: var(--color-primary);
+  }
+
+  @media (max-width: 768px) {
+    nav {
+      flex-direction: column;
+    }
+
+    .nav-actions {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .nav-list {
+      flex-direction: column;
+      text-align: center;
+      width: 100%;
+    }
+  }
+</style>
