@@ -1,0 +1,30 @@
+# Robots.txt
+# This is the production configuration
+# For staging/dev environments, consider blocking all crawlers
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://example.com/sitemap-index.xml
+
+# Common bot-specific rules
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+# Disallow crawling of API endpoints
+Disallow: /api/
+
+# Note: Update the Sitemap URL with your actual domain
