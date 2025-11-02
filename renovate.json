@@ -1,0 +1,48 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["before 6am on Monday"],
+  "timezone": "UTC",
+  "labels": ["dependencies"],
+  "assignees": ["@me"],
+  "packageRules": [
+    {
+      "groupName": "Astro core packages",
+      "matchPackagePatterns": ["^@astrojs/", "^astro$"],
+      "schedule": ["before 6am on Monday"]
+    },
+    {
+      "groupName": "Sanity packages",
+      "matchPackagePatterns": ["^@sanity/", "^sanity$"],
+      "schedule": ["before 6am on Monday"]
+    },
+    {
+      "groupName": "ESLint and related",
+      "matchPackagePatterns": ["eslint", "^@typescript-eslint/"],
+      "schedule": ["before 6am on Monday"]
+    },
+    {
+      "groupName": "Testing tools",
+      "matchPackagePatterns": ["vitest", "playwright", "@axe-core"],
+      "schedule": ["before 6am on Monday"]
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "assignees": ["@me"]
+  },
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2
+}

@@ -1,0 +1,12 @@
+# Default owners for everything in the repo
+* @owner
+
+# Sanity schemas require review
+/sanity/schemas/ @owner
+
+# CI/CD configurations require review
+/.github/ @owner
+/renovate.json @owner
+
+# Environment and security
+/.env.example @owner
