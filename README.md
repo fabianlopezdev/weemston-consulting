@@ -4,8 +4,9 @@ A production-ready Astro + TypeScript + Sanity boilerplate with built-in i18n, a
 
 ## Features
 
-- **Framework:** Astro 5.x with hybrid rendering
+- **Framework:** Astro 5.x with static rendering
 - **CMS:** Sanity v3 with hybrid i18n approach
+- **Architecture:** Monorepo with npm workspaces (complete dependency isolation)
 - **Styling:** Modern CSS with light-dark() for automatic dark mode
 - **Internationalization:** JSON-based UI translations + Sanity content localization
 - **TypeScript:** Strict mode with full type safety
@@ -16,6 +17,21 @@ A production-ready Astro + TypeScript + Sanity boilerplate with built-in i18n, a
 - **SEO:** Structured data, hreflang, sitemaps, OG images
 - **Security:** CSP headers, secrets detection, form bot protection
 - **Package Manager:** Bun (mandatory)
+
+## Architecture
+
+This boilerplate uses an **npm workspaces monorepo** architecture for complete dependency isolation:
+
+- **`/frontend`** - Astro application (no React dependencies)
+- **`/studio`** - Sanity Studio (React-based CMS)
+
+**Why this architecture?**
+
+- ✅ React isolated to Studio workspace only - zero bloat in frontend
+- ✅ Smallest possible Astro bundle size
+- ✅ Framework flexibility - easy to swap Astro for another framework
+- ✅ Independent deployment cycles
+- ✅ Follows Sanity official template patterns
 
 ## Quick Start
 
@@ -32,18 +48,19 @@ A production-ready Astro + TypeScript + Sanity boilerplate with built-in i18n, a
 git clone <repository-url>
 cd weemston-consulting
 
-# Install dependencies
+# Install dependencies for all workspaces
 bun install
 
 # Set up environment variables
 cp .env.example .env
 # Edit .env with your values
 
-# Start development server
+# Start both dev servers (frontend + studio)
 bun dev
 
-# In another terminal, start Sanity Studio
-bun sanity:dev
+# Or start individually:
+# bun dev:frontend  # Astro (localhost:4321)
+# bun dev:studio    # Sanity Studio (localhost:3333)
 ```
 
 ### Environment Variables
@@ -75,11 +92,12 @@ EMAIL_TO=hello@example.com
 ## Development
 
 ```bash
-# Start dev server (localhost:4321)
+# Start both servers concurrently
 bun dev
 
-# Start Sanity Studio (localhost:3333)
-bun sanity:dev
+# Or start individually:
+bun dev:frontend      # Astro dev server (localhost:4321)
+bun dev:studio        # Sanity Studio (localhost:3333)
 
 # Type checking
 bun check
@@ -92,69 +110,80 @@ bun lint:fix
 bun test              # Unit tests
 bun test:e2e          # E2E tests
 bun test:e2e:ui       # E2E tests with UI
-bun unlighthouse      # Performance tests
+bun test:lighthouse   # Performance tests
 ```
 
 ## Building for Production
 
 ```bash
-# Build the site
+# Build frontend (Astro)
 bun build
 
 # Preview production build
 bun preview
 
-# Build Sanity Studio
-bun sanity:build
-bun sanity:deploy
+# Build and deploy Sanity Studio
+bun build:studio
+bun studio:deploy
+
+# Or build both
+bun build:frontend && bun build:studio
 ```
 
 ## Project Structure
 
 ```
 .
-├── .github/              # GitHub Actions, templates
-├── .husky/               # Git hooks
-├── public/               # Static assets
-├── sanity/               # Sanity Studio & schemas
-│   ├── lib/              # Sanity utilities
-│   ├── schemas/          # Content schemas
-│   └── sanity.config.ts  # Studio configuration
-├── src/
-│   ├── assets/           # Styles and design tokens
-│   ├── components/       # Astro components
-│   │   ├── forms/        # Form components
-│   │   ├── i18n/         # Language switcher
-│   │   ├── layout/       # Header, footer, skip link
-│   │   ├── media/        # Image, video components
-│   │   └── seo/          # SEO and structured data
-│   ├── i18n/             # Translation files
-│   │   └── locales/      # JSON translations per language
-│   ├── layouts/          # Page layouts
-│   ├── lib/              # Utilities and libraries
-│   │   ├── env/          # Environment validation
-│   │   ├── forms/        # Form handler with bot protection
-│   │   ├── i18n/         # i18n utilities
-│   │   ├── sanity/       # Sanity client and queries
-│   │   └── utils/        # General utilities
-│   ├── middleware.ts     # Language detection
-│   ├── pages/            # Astro pages
-│   │   ├── api/          # API endpoints
-│   │   ├── blog/         # Blog pages
-│   │   ├── case-studies/ # Case study pages
-│   │   └── services/     # Service pages
-│   └── env.d.ts          # TypeScript definitions
-├── tests/
-│   ├── e2e/              # Playwright E2E tests
-│   ├── unit/             # Vitest unit tests
-│   ├── setup.ts          # Test setup
-│   └── TESTING.md        # Testing documentation
-├── astro.config.mjs      # Astro configuration
-├── package.json          # Dependencies and scripts
-├── tsconfig.json         # TypeScript configuration
-├── vitest.config.ts      # Vitest configuration
-├── playwright.config.ts  # Playwright configuration
-└── unlighthouse.config.ts # Performance testing
+├── .github/                 # GitHub Actions, templates
+├── .husky/                  # Git hooks
+├── frontend/                # Astro workspace (no React)
+│   ├── public/              # Static assets
+│   ├── src/
+│   │   ├── assets/          # Styles and design tokens
+│   │   ├── components/      # Astro components
+│   │   │   ├── forms/       # Form components
+│   │   │   ├── i18n/        # Language switcher
+│   │   │   ├── layout/      # Header, footer, skip link
+│   │   │   ├── media/       # Image, video components
+│   │   │   └── seo/         # SEO and structured data
+│   │   ├── i18n/            # Translation files
+│   │   │   └── locales/     # JSON translations per language
+│   │   ├── layouts/         # Page layouts
+│   │   ├── lib/             # Utilities and libraries
+│   │   │   ├── env/         # Environment validation
+│   │   │   ├── forms/       # Form handler with bot protection
+│   │   │   ├── i18n/        # i18n utilities
+│   │   │   ├── sanity/      # Sanity client and queries
+│   │   │   └── utils/       # General utilities
+│   │   ├── middleware.ts    # Language detection
+│   │   ├── pages/           # Astro pages
+│   │   │   ├── api/         # API endpoints
+│   │   │   ├── blog/        # Blog pages
+│   │   │   ├── case-studies/# Case study pages
+│   │   │   └── services/    # Service pages
+│   │   └── env.d.ts         # TypeScript definitions
+│   ├── tests/
+│   │   ├── e2e/             # Playwright E2E tests
+│   │   ├── unit/            # Vitest unit tests
+│   │   ├── setup.ts         # Test setup
+│   │   └── TESTING.md       # Testing documentation
+│   ├── astro.config.mjs     # Astro configuration
+│   ├── package.json         # Frontend dependencies
+│   ├── tsconfig.json        # TypeScript configuration
+│   ├── vitest.config.ts     # Vitest configuration
+│   ├── playwright.config.ts # Playwright configuration
+│   └── unlighthouse.config.ts # Performance testing
+├── studio/                  # Sanity Studio workspace (React)
+│   ├── lib/                 # Sanity utilities
+│   ├── migrations/          # Data migrations
+│   ├── schemas/             # Content schemas
+│   ├── seed/                # Seed data
+│   ├── sanity.cli.ts        # CLI configuration
+│   ├── sanity.config.ts     # Studio configuration
+│   ├── package.json         # Studio dependencies (React, etc.)
+│   └── tsconfig.json        # TypeScript configuration
+├── package.json             # Root workspace orchestration
+└── tsconfig.json            # Root TypeScript project references
 ```
 
 ## Internationalization (i18n)
@@ -369,12 +398,12 @@ import PortableText from '@components/sanity/PortableText.astro';
 
 To add new content types (e.g., Team Members, Testimonials):
 
-1. Create schema in `sanity/schemas/documents/teamMember.ts`
-2. Export in `sanity/schemas/index.ts`
-3. Add GROQ query in `src/lib/sanity/queries.ts`
-4. Create page template in `src/pages/team.astro`
+1. Create schema in `studio/schemas/documents/teamMember.ts`
+2. Export in `studio/schemas/index.ts`
+3. Add GROQ query in `frontend/src/lib/sanity/queries.ts`
+4. Create page template in `frontend/src/pages/team.astro`
 
-See `sanity/schemas/documents/blogPost.ts` as a reference for document-level i18n patterns.
+See `studio/schemas/documents/blogPost.ts` as a reference for document-level i18n patterns.
 
 ## Content Management (Sanity)
 
@@ -392,15 +421,22 @@ See `sanity/schemas/documents/blogPost.ts` as a reference for document-level i18
 Access the Studio at `http://localhost:3333` during development.
 
 ```bash
-# Start Studio
-bun sanity:dev
+# Start Studio (part of bun dev, or separately)
+bun dev:studio
 
-# Deploy Studio to Sanity
-bun sanity:deploy
+# Deploy Studio to Sanity hosting
+bun studio:deploy
 
-# Manage datasets
-bun sanity dataset list
-bun sanity dataset create staging
+# Run migrations
+bun studio:migrate
+
+# Seed initial data
+bun studio:seed
+
+# Manage datasets (run from studio workspace)
+cd studio
+sanity dataset list
+sanity dataset create staging
 ```
 
 ## Testing

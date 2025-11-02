@@ -17,11 +17,24 @@ export default [
       },
     },
   },
-  ...tseslint.configs.strict,
+  ...tseslint.configs.strict.map((config) => ({
+    ...config,
+    files: config.files || ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'],
+  })),
   ...eslintPluginAstro.configs.recommended,
   {
+    files: ['**/*.astro'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+  },
+  {
+    files: ['**/*.{js,mjs,cjs,ts}'],
     plugins: {
       'jsx-a11y': jsxA11y,
+      '@typescript-eslint': tseslint.plugin,
     },
     rules: {
       ...jsxA11y.configs.recommended.rules,
@@ -46,7 +59,9 @@ export default [
       'dist/',
       '.astro/',
       'node_modules/',
-      'sanity/dist/',
+      'frontend/dist/',
+      'frontend/.astro/',
+      'studio/dist/',
       '*.config.js',
       '*.config.ts',
       '*.config.mjs',

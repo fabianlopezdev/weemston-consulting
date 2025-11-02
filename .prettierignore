@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+.astro/
+**/dist/
+**/.astro/
+
+# Coverage
+coverage/
+
+# Misc
+*.log
+.DS_Store
+pnpm-lock.yaml
+bun.lockb
+package-lock.json
+yarn.lock
