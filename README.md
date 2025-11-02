@@ -188,11 +188,193 @@ Page content, blog posts, and dynamic content use Sanity:
 
 ### Adding a New Language
 
-1. Add language to `src/lib/i18n/config.ts`
-2. Create translation file: `src/i18n/locales/{lang}.json`
-3. Add language to `sanity/lib/i18n.ts`
-4. Create content in Sanity Studio for the new language
-5. Update `astro.config.mjs` i18n configuration
+The boilerplate starts with English but is fully ready for additional languages:
+
+**1. Update configuration files:**
+
+```typescript
+// src/lib/i18n/config.ts
+export const supportedLanguages = [
+  { id: 'en', title: 'English' },
+  { id: 'es', title: 'Español' }, // Add Spanish
+  { id: 'fr', title: 'Français' }, // Add French
+] as const;
+
+// sanity/lib/i18n.ts
+export const supportedLanguages = [
+  { id: 'en', title: 'English', isDefault: true },
+  { id: 'es', title: 'Español', isDefault: false },
+  { id: 'fr', title: 'Français', isDefault: false },
+];
+```
+
+**2. Create translation file:** Copy `src/i18n/locales/en.json` to `es.json` and translate all strings
+
+**3. Update Astro config:**
+
+```javascript
+// astro.config.mjs
+export default defineConfig({
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'es', 'fr'], // Add new languages
+  },
+});
+```
+
+**4. Create content in Sanity:** Open Studio at `http://localhost:3333` and create content with the language field set to your new language
+
+**URL structure after adding languages:**
+
+- `/` → English (default)
+- `/es` → Spanish
+- `/fr/blog` → French blog
+
+## Extending the Boilerplate
+
+The boilerplate is architected to support features that aren't configured by default:
+
+### Switching Deployment Adapters
+
+Currently uses `@astrojs/node`. Switch to other platforms:
+
+**Vercel:**
+
+```bash
+bun remove @astrojs/node && bun add @astrojs/vercel
+
+# Update astro.config.mjs
+import vercel from '@astrojs/vercel/serverless';
+export default defineConfig({
+  adapter: vercel(),
+});
+```
+
+**Netlify:**
+
+```bash
+bun remove @astrojs/node && bun add @astrojs/netlify
+
+# Update astro.config.mjs
+import netlify from '@astrojs/netlify';
+export default defineConfig({
+  adapter: netlify(),
+});
+```
+
+**Cloudflare Pages:**
+
+```bash
+bun remove @astrojs/node && bun add @astrojs/cloudflare
+
+# Update astro.config.mjs
+import cloudflare from '@astrojs/cloudflare';
+export default defineConfig({
+  adapter: cloudflare(),
+});
+```
+
+**Static (no SSR):**
+
+```javascript
+// astro.config.mjs - remove adapter completely
+export default defineConfig({
+  output: 'static', // Changed from 'hybrid'
+});
+```
+
+### Email Provider Configuration
+
+The form handler supports multiple providers. Configure in `.env`:
+
+**Resend (recommended):**
+
+```env
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=re_xxxxxxxxxxxx
+EMAIL_FROM=noreply@yourdomain.com
+EMAIL_TO=hello@yourdomain.com
+```
+
+**SendGrid:**
+
+```env
+EMAIL_PROVIDER=sendgrid
+SENDGRID_API_KEY=SG.xxxxxxxxxxxx
+```
+
+**Postmark:**
+
+```env
+EMAIL_PROVIDER=postmark
+POSTMARK_API_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+### Adding Analytics
+
+**Google Analytics:**
+
+```env
+PUBLIC_GA_ID=G-XXXXXXXXXX
+```
+
+Then add to `src/layouts/BaseLayout.astro` in the `<head>`:
+
+```html
+<!-- Google Analytics -->
+<script
+  async
+  src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+```
+
+**Plausible (privacy-friendly):**
+
+```html
+<script
+  defer
+  data-domain="yourdomain.com"
+  src="https://plausible.io/js/script.js"
+></script>
+```
+
+### Portable Text Rendering
+
+Sanity content uses Portable Text. To render it:
+
+```bash
+bun add @portabletext/astro @portabletext/types
+```
+
+Create component `src/components/sanity/PortableText.astro` and import `@portabletext/astro` to render rich text content.
+
+Use in pages:
+
+```typescript
+import PortableText from '@components/sanity/PortableText.astro';
+
+// In template
+<PortableText content={post.content} />
+```
+
+### Adding Custom Content Types
+
+To add new content types (e.g., Team Members, Testimonials):
+
+1. Create schema in `sanity/schemas/documents/teamMember.ts`
+2. Export in `sanity/schemas/index.ts`
+3. Add GROQ query in `src/lib/sanity/queries.ts`
+4. Create page template in `src/pages/team.astro`
+
+See `sanity/schemas/documents/blogPost.ts` as a reference for document-level i18n patterns.
 
 ## Content Management (Sanity)
 
