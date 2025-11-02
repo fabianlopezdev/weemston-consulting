@@ -1,0 +1,192 @@
+---
+import { createTranslator } from '@lib/i18n/translations';
+
+const currentLang = Astro.locals.lang || 'en';
+const t = createTranslator(currentLang);
+---
+
+<form
+  class="contact-form"
+  method="POST"
+  action="/api/contact"
+  data-contact-form
+>
+  <!-- Honeypot field (hidden) -->
+  <input
+    type="text"
+    name="website"
+    class="visually-hidden"
+    tabindex="-1"
+    autocomplete="off"
+  />
+
+  <!-- Time-trap field (hidden) -->
+  <input type="hidden" name="timestamp" value={Date.now()} />
+
+  <div class="form-group">
+    <label for="name"
+      >{t('form.name')} <span aria-label="required">*</span></label
+    >
+    <input
+      type="text"
+      id="name"
+      name="name"
+      required
+      autocomplete="name"
+      aria-required="true"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="email"
+      >{t('form.email')} <span aria-label="required">*</span></label
+    >
+    <input
+      type="email"
+      id="email"
+      name="email"
+      required
+      autocomplete="email"
+      aria-required="true"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="message"
+      >{t('form.message')} <span aria-label="required">*</span></label
+    >
+    <textarea id="message" name="message" rows="5" required aria-required="true"
+    ></textarea>
+  </div>
+
+  <button type="submit" class="submit-button">
+    <span class="button-text">{t('form.submit')}</span>
+    <span class="button-text-loading" hidden>{t('form.submitting')}</span>
+  </button>
+
+  <div class="form-message" role="status" aria-live="polite" hidden></div>
+</form>
+
+<style>
+  .contact-form {
+    max-inline-size: 600px;
+  }
+
+  .form-group {
+    margin-block-end: var(--space-md);
+  }
+
+  label {
+    display: block;
+    margin-block-end: var(--space-xs);
+    font-weight: var(--font-weight-medium);
+  }
+
+  input,
+  textarea {
+    inline-size: 100%;
+    padding: var(--space-sm);
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    background-color: var(--color-background);
+    border: var(--border-width-thin) solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    transition: border-color var(--transition-fast);
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+
+  .submit-button {
+    padding: var(--space-sm) var(--space-lg);
+    font-weight: var(--font-weight-semibold);
+    color: white;
+    background-color: var(--color-primary);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+  }
+
+  .submit-button:hover {
+    background-color: var(--color-secondary);
+  }
+
+  .submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .form-message {
+    margin-block-start: var(--space-md);
+    padding: var(--space-sm);
+    border-radius: var(--border-radius-sm);
+  }
+
+  .form-message.success {
+    color: var(--color-success);
+    background-color: light-dark(#e8f5e9, #1b5e20);
+  }
+
+  .form-message.error {
+    color: var(--color-error);
+    background-color: light-dark(#ffebee, #b71c1c);
+  }
+</style>
+
+<script>
+  const form = document.querySelector('[data-contact-form]');
+  if (form instanceof HTMLFormElement) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const button = form.querySelector('button[type="submit"]');
+      const buttonText = button?.querySelector('.button-text');
+      const buttonTextLoading = button?.querySelector('.button-text-loading');
+      const messageEl = form.querySelector('.form-message');
+
+      if (button instanceof HTMLButtonElement) button.disabled = true;
+      if (buttonText) buttonText.setAttribute('hidden', '');
+      if (buttonTextLoading) buttonTextLoading.removeAttribute('hidden');
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (messageEl) {
+          messageEl.textContent = result.message;
+          messageEl.className = result.success
+            ? 'form-message success'
+            : 'form-message error';
+          messageEl.removeAttribute('hidden');
+        }
+
+        if (result.success) {
+          form.reset();
+        }
+      } catch {
+        if (messageEl) {
+          messageEl.textContent = 'Something went wrong. Please try again.';
+          messageEl.className = 'form-message error';
+          messageEl.removeAttribute('hidden');
+        }
+      } finally {
+        if (button instanceof HTMLButtonElement) button.disabled = false;
+        if (buttonText) buttonText.removeAttribute('hidden');
+        if (buttonTextLoading) buttonTextLoading.setAttribute('hidden', '');
+      }
+    });
+  }
+</script>

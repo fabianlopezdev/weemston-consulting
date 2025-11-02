@@ -1,0 +1,84 @@
+---
+import { getAbsoluteUrl } from '@lib/utils/url';
+
+export interface Props {
+  type: 'Organization' | 'Website' | 'Article' | 'BreadcrumbList';
+  data?: Record<string, unknown>;
+}
+
+const { type, data = {} } = Astro.props;
+
+// Organization schema
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: data.name || 'Organization Name',
+  url: getAbsoluteUrl('/'),
+  logo: data.logo ? getAbsoluteUrl(data.logo as string) : undefined,
+  sameAs: data.socialLinks || [],
+  contactPoint: data.contactPoint || undefined,
+};
+
+// Website schema
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: data.name || 'Website Name',
+  url: getAbsoluteUrl('/'),
+  description: data.description || '',
+  publisher: {
+    '@type': 'Organization',
+    name: data.publisherName || 'Organization Name',
+  },
+};
+
+// Article schema
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: data.headline || '',
+  description: data.description || '',
+  image: data.image ? getAbsoluteUrl(data.image as string) : undefined,
+  datePublished: data.datePublished || '',
+  dateModified: data.dateModified || data.datePublished || '',
+  author: {
+    '@type': 'Person',
+    name: data.authorName || 'Author',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: data.publisherName || 'Organization Name',
+    logo: {
+      '@type': 'ImageObject',
+      url: data.publisherLogo
+        ? getAbsoluteUrl(data.publisherLogo as string)
+        : undefined,
+    },
+  },
+};
+
+// Breadcrumb schema
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: (
+    (data.items as Array<{ name: string; url: string }>) || []
+  ).map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.name,
+    item: getAbsoluteUrl(item.url),
+  })),
+};
+
+const schemas = {
+  Organization: organizationSchema,
+  Website: websiteSchema,
+  Article: articleSchema,
+  BreadcrumbList: breadcrumbSchema,
+};
+
+const schema = schemas[type];
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

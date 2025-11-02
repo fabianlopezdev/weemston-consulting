@@ -1,0 +1,57 @@
+---
+export interface Props {
+  src: string;
+  poster?: string;
+  caption?: string;
+  controls?: boolean;
+  autoplay?: boolean;
+  loop?: boolean;
+  muted?: boolean;
+  class?: string;
+}
+
+const {
+  src,
+  poster,
+  caption,
+  controls = true,
+  autoplay = false,
+  loop = false,
+  muted = false,
+  class: className,
+} = Astro.props;
+---
+
+<figure class={className}>
+  <video
+    src={src}
+    poster={poster}
+    controls={controls}
+    autoplay={autoplay}
+    loop={loop}
+    muted={muted}
+    playsinline
+  >
+    <track kind="captions" />
+    Your browser does not support the video tag.
+  </video>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  figure {
+    margin: 0;
+  }
+
+  video {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+
+  figcaption {
+    margin-block-start: var(--space-sm);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+</style>
