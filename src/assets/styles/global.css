@@ -18,6 +18,12 @@ html {
 body {
   min-block-size: 100vh;
   min-block-size: 100dvh;
+
+  /* CSS Grid for sticky footer layout */
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 100%;
+
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
