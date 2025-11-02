@@ -1,4 +1,4 @@
-import { groq } from '@sanity/client';
+import groq from 'groq';
 
 // Site Settings (field-level i18n)
 export const siteSettingsQuery = groq`
