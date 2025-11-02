@@ -1,0 +1,75 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { client } from '@lib/sanity/client';
+import { blogPostQuery, allBlogPostsQuery } from '@lib/sanity/queries';
+import Image from '@components/media/Image.astro';
+
+export const getStaticPaths = (async () => {
+  const posts = await client.fetch(allBlogPostsQuery, { language: 'en' });
+  return posts.map((post) => ({
+    params: { slug: post.slug.current },
+  }));
+}) satisfies GetStaticPaths;
+
+const { slug } = Astro.params;
+const lang = Astro.locals.lang || 'en';
+const post = await client.fetch(blogPostQuery, { slug, language: lang });
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+---
+
+<BaseLayout
+  title={post.seo?.metaTitle || post.title}
+  description={post.seo?.metaDescription || post.excerpt}
+  image={post.mainImage ? post.mainImage.asset._ref : undefined}
+  article={{
+    publishedTime: post.publishedAt,
+    authors: post.author ? [post.author.name] : undefined,
+    tags: post.categories?.map((cat) => cat.title),
+  }}
+>
+  <article class="container">
+    {
+      post.mainImage && (
+        <Image
+          image={post.mainImage}
+          alt={post.mainImage.alt}
+          width={1200}
+          class="featured-image"
+        />
+      )
+    }
+
+    <header>
+      <h1>{post.title}</h1>
+      <div class="meta">
+        <time datetime={post.publishedAt}>
+          {new Date(post.publishedAt).toLocaleDateString()}
+        </time>
+        {post.author && <span> • {post.author.name}</span>}
+      </div>
+    </header>
+
+    <!-- Render portable text content here -->
+  </article>
+</BaseLayout>
+
+<style>
+  .featured-image {
+    margin-block-end: var(--space-xl);
+    border-radius: var(--border-radius-lg);
+  }
+
+  header {
+    margin-block-end: var(--space-xl);
+  }
+
+  .meta {
+    margin-block-start: var(--space-sm);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+</style>

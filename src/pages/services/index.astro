@@ -1,0 +1,43 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { client } from '@lib/sanity/client';
+import { allServicesQuery } from '@lib/sanity/queries';
+import { createTranslator } from '@lib/i18n/translations';
+
+const lang = Astro.locals.lang || 'en';
+const t = createTranslator(lang);
+const services = await client.fetch(allServicesQuery, { language: lang });
+---
+
+<BaseLayout title={t('seo.services_title')}>
+  <div class="container">
+    <h1>{t('nav.services')}</h1>
+    <div class="services-grid">
+      {
+        services.map((service) => (
+          <article class="service-card">
+            <h2>
+              <a href={`/services/${service.slug.current}`}>{service.title}</a>
+            </h2>
+            <p>{service.description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-lg);
+    margin-block-start: var(--space-xl);
+  }
+
+  .service-card {
+    padding: var(--space-lg);
+    border: var(--border-width-thin) solid var(--color-border);
+    border-radius: var(--border-radius-md);
+  }
+</style>

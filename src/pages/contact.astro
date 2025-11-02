@@ -1,0 +1,21 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ContactForm from '@components/forms/ContactForm.astro';
+import { createTranslator } from '@lib/i18n/translations';
+
+const lang = Astro.locals.lang || 'en';
+const t = createTranslator(lang);
+---
+
+<BaseLayout title={t('seo.contact_title')}>
+  <div class="container">
+    <h1>{t('nav.contact')}</h1>
+    <ContactForm />
+  </div>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-block-end: var(--space-xl);
+  }
+</style>

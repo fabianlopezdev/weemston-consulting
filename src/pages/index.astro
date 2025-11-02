@@ -1,0 +1,28 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { client } from '@lib/sanity/client';
+import { pageQuery } from '@lib/sanity/queries';
+
+const lang = Astro.locals.lang || 'en';
+const page = await client.fetch(pageQuery, { slug: 'home', language: lang });
+
+if (!page) {
+  return Astro.redirect('/404');
+}
+---
+
+<BaseLayout
+  title={page.seo?.metaTitle || page.title}
+  description={page.seo?.metaDescription}
+>
+  <div class="container">
+    <h1>{page.title}</h1>
+    <!-- Render portable text content here -->
+  </div>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-block-end: var(--space-lg);
+  }
+</style>
