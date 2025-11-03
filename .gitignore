@@ -46,6 +46,7 @@ blob-report/
 
 # Sanity
 sanity/dist/
+.sanity/
 
 # Misc
 *.tsbuildinfo
