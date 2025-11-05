@@ -1,8 +1,8 @@
 import imageUrlBuilder from '@sanity/image-url';
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
-import { client } from '@lib/sanity/client';
+import { sanityClient } from 'sanity:client';
 
-const builder = imageUrlBuilder(client);
+const builder = imageUrlBuilder(sanityClient);
 
 export interface ImageOptions {
   width?: number;

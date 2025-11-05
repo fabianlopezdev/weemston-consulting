@@ -1,7 +1,7 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { client } from '@lib/sanity/client';
+import { sanityClient as client } from 'sanity:client';
 import { blogPostQuery, allBlogPostsQuery } from '@lib/sanity/queries';
 import Image from '@components/media/Image.astro';
 

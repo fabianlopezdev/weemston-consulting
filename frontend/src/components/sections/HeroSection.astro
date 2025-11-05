@@ -1,0 +1,136 @@
+---
+import { urlForImage } from '@lib/sanity/image';
+
+interface Props {
+  tagline?: string;
+  heading: string;
+  subheading?: string;
+  ctaButton?: {
+    text: string;
+    href: string;
+    external?: boolean;
+  };
+  backgroundImage?: any;
+}
+
+const { tagline, heading, subheading, ctaButton, backgroundImage } =
+  Astro.props;
+
+const bgImageUrl = backgroundImage
+  ? urlForImage(backgroundImage).width(1920).height(1080).url()
+  : null;
+---
+
+<section class="hero">
+  {
+    bgImageUrl && (
+      <div class="hero__background">
+        <img
+          src={bgImageUrl}
+          alt={backgroundImage.alt || ''}
+          class="hero__image"
+        />
+      </div>
+    )
+  }
+  <div class="hero__content container">
+    {tagline && <p class="hero__tagline">{tagline}</p>}
+    <h1 class="hero__heading">{heading}</h1>
+    {subheading && <p class="hero__subheading">{subheading}</p>}
+    {
+      ctaButton && (
+        <a
+          href={ctaButton.href}
+          class="hero__cta"
+          target={ctaButton.external ? '_blank' : undefined}
+          rel={ctaButton.external ? 'noopener noreferrer' : undefined}
+        >
+          {ctaButton.text}
+        </a>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: var(--space-2xl) 0;
+  }
+
+  .hero__background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .hero__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 800px;
+  }
+
+  .hero__tagline {
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-block-end: var(--space-sm);
+    opacity: 0.8;
+  }
+
+  .hero__heading {
+    font-size: var(--font-size-3xl);
+    margin-block-end: var(--space-md);
+    line-height: 1.2;
+  }
+
+  .hero__subheading {
+    font-size: var(--font-size-lg);
+    margin-block-end: var(--space-lg);
+    opacity: 0.9;
+  }
+
+  .hero__cta {
+    display: inline-block;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-primary, #0066cc);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--border-radius, 4px);
+    font-weight: 600;
+    transition:
+      transform 0.2s,
+      background 0.2s;
+  }
+
+  .hero__cta:hover {
+    transform: translateY(-2px);
+    background: var(--color-primary-dark, #0052a3);
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      min-height: 50vh;
+    }
+
+    .hero__heading {
+      font-size: var(--font-size-2xl);
+    }
+
+    .hero__subheading {
+      font-size: var(--font-size-base);
+    }
+  }
+</style>

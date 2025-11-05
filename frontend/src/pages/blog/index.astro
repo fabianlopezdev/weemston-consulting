@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { client } from '@lib/sanity/client';
+import { sanityClient as client } from 'sanity:client';
 import { allBlogPostsQuery } from '@lib/sanity/queries';
 import { createTranslator } from '@lib/i18n/translations';
 import Image from '@components/media/Image.astro';

@@ -1,0 +1,163 @@
+---
+import { urlForImage } from '@lib/sanity/image';
+
+interface CaseStudy {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  client: string;
+  mainImage?: any;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  caseStudies: CaseStudy[];
+  showAllLink?: boolean;
+}
+
+const { title, description, caseStudies, showAllLink } = Astro.props;
+---
+
+<section class="case-studies-section">
+  <div class="container">
+    <div class="case-studies-section__header">
+      <h2 class="case-studies-section__title">{title}</h2>
+      {
+        description && (
+          <p class="case-studies-section__description">{description}</p>
+        )
+      }
+    </div>
+
+    <div class="case-studies-grid">
+      {
+        caseStudies.map((caseStudy) => {
+          const imageUrl = caseStudy.mainImage
+            ? urlForImage(caseStudy.mainImage).width(600).height(400).url()
+            : null;
+
+          return (
+            <a
+              href={`/case-studies/${caseStudy.slug.current}`}
+              class="case-study-card"
+            >
+              {imageUrl && (
+                <div class="case-study-card__image">
+                  <img
+                    src={imageUrl}
+                    alt={caseStudy.mainImage.alt || caseStudy.title}
+                  />
+                </div>
+              )}
+              <div class="case-study-card__content">
+                <p class="case-study-card__client">{caseStudy.client}</p>
+                <h3 class="case-study-card__title">{caseStudy.title}</h3>
+              </div>
+            </a>
+          );
+        })
+      }
+    </div>
+
+    {
+      showAllLink && (
+        <div class="case-studies-section__footer">
+          <a href="/case-studies" class="case-studies-section__link">
+            View All Case Studies →
+          </a>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .case-studies-section {
+    padding: var(--space-2xl) 0;
+    background: var(--color-background-alt, #f9f9f9);
+  }
+
+  .case-studies-section__header {
+    text-align: center;
+    margin-block-end: var(--space-xl);
+  }
+
+  .case-studies-section__title {
+    font-size: var(--font-size-2xl);
+    margin-block-end: var(--space-md);
+  }
+
+  .case-studies-section__description {
+    font-size: var(--font-size-lg);
+    max-width: 600px;
+    margin-inline: auto;
+    opacity: 0.8;
+  }
+
+  .case-studies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-lg);
+    margin-block-end: var(--space-xl);
+  }
+
+  .case-study-card {
+    background: white;
+    border-radius: var(--border-radius, 8px);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .case-study-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .case-study-card__image {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+  }
+
+  .case-study-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .case-study-card__content {
+    padding: var(--space-lg);
+  }
+
+  .case-study-card__client {
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    margin-block-end: var(--space-xs);
+  }
+
+  .case-study-card__title {
+    font-size: var(--font-size-lg);
+  }
+
+  .case-studies-section__footer {
+    text-align: center;
+  }
+
+  .case-studies-section__link {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-primary, #0066cc);
+    text-decoration: none;
+  }
+
+  .case-studies-section__link:hover {
+    text-decoration: underline;
+  }
+</style>

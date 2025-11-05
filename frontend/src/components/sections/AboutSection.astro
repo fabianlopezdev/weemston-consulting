@@ -1,0 +1,135 @@
+---
+import { urlForImage } from '@lib/sanity/image';
+
+interface Image {
+  _key: string;
+  asset: any;
+  alt: string;
+  caption?: string;
+}
+
+interface Props {
+  title: string;
+  content: any; // Portable text content
+  images?: Image[];
+}
+
+const { title, content, images } = Astro.props;
+
+// TODO: Implement proper portable text rendering
+// For now, we'll extract plain text from portable text
+const getPlainText = (blocks: any[]) => {
+  if (!blocks || !Array.isArray(blocks)) return '';
+  return blocks
+    .filter((block) => block._type === 'block')
+    .map((block) => {
+      return block.children?.map((child: any) => child.text).join('');
+    })
+    .join('\n\n');
+};
+
+const plainText = getPlainText(content);
+---
+
+<section class="about-section">
+  <div class="container">
+    <h2 class="about-section__title">{title}</h2>
+
+    <div class="about-section__content">
+      <div class="about-section__text">
+        {
+          plainText
+            .split('\n\n')
+            .map((paragraph) => (
+              <p class="about-section__paragraph">{paragraph}</p>
+            ))
+        }
+      </div>
+
+      {
+        images && images.length > 0 && (
+          <div class="about-section__gallery">
+            {images.map((image) => {
+              const imageUrl = urlForImage(image).width(600).height(400).url();
+              return (
+                <figure class="about-section__image">
+                  <img src={imageUrl} alt={image.alt} />
+                  {image.caption && (
+                    <figcaption class="about-section__caption">
+                      {image.caption}
+                    </figcaption>
+                  )}
+                </figure>
+              );
+            })}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-section {
+    padding: var(--space-2xl) 0;
+  }
+
+  .about-section__title {
+    font-size: var(--font-size-2xl);
+    text-align: center;
+    margin-block-end: var(--space-xl);
+  }
+
+  .about-section__content {
+    max-width: 900px;
+    margin-inline: auto;
+  }
+
+  .about-section__text {
+    margin-block-end: var(--space-xl);
+  }
+
+  .about-section__paragraph {
+    font-size: var(--font-size-base);
+    line-height: 1.8;
+    margin-block-end: var(--space-md);
+  }
+
+  .about-section__paragraph:last-child {
+    margin-block-end: 0;
+  }
+
+  .about-section__gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .about-section__image {
+    margin: 0;
+  }
+
+  .about-section__image img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: var(--border-radius, 8px);
+  }
+
+  .about-section__caption {
+    font-size: var(--font-size-sm);
+    margin-block-start: var(--space-xs);
+    opacity: 0.7;
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    .about-section__gallery {
+      grid-template-columns: 1fr;
+    }
+
+    .about-section__image img {
+      height: 250px;
+    }
+  }
+</style>

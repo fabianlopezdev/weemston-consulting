@@ -4,6 +4,14 @@ import portableText from './objects/portableText';
 import media from './objects/media';
 import link from './objects/link';
 
+// Section types
+import heroSection from './objects/sections/heroSection';
+import featuredServicesSection from './objects/sections/featuredServicesSection';
+import featuredCaseStudiesSection from './objects/sections/featuredCaseStudiesSection';
+import testimonialsSection from './objects/sections/testimonialsSection';
+import faqSection from './objects/sections/faqSection';
+import aboutSection from './objects/sections/aboutSection';
+
 // Document types
 import page from './documents/page';
 import blogPost from './documents/blogPost';
@@ -12,9 +20,11 @@ import caseStudy from './documents/caseStudy';
 import legal from './documents/legal';
 import author from './documents/author';
 import category from './documents/category';
+import testimonial from './documents/testimonial';
 
 // Singletons
 import siteSettings from './singletons/siteSettings';
+import homepage from './singletons/homepage';
 
 export const schemaTypes = [
   // Objects
@@ -22,6 +32,13 @@ export const schemaTypes = [
   portableText,
   media,
   link,
+  // Sections
+  heroSection,
+  featuredServicesSection,
+  featuredCaseStudiesSection,
+  testimonialsSection,
+  faqSection,
+  aboutSection,
   // Documents
   page,
   blogPost,
@@ -30,6 +47,8 @@ export const schemaTypes = [
   legal,
   author,
   category,
+  testimonial,
   // Singletons
   siteSettings,
+  homepage,
 ];

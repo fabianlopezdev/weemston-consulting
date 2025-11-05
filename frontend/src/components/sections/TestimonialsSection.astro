@@ -1,0 +1,124 @@
+---
+import { urlForImage } from '@lib/sanity/image';
+
+interface Testimonial {
+  _id: string;
+  name: string;
+  position: string;
+  company?: string;
+  quote: string;
+  avatar?: any;
+}
+
+interface Props {
+  title: string;
+  testimonials: Testimonial[];
+}
+
+const { title, testimonials } = Astro.props;
+---
+
+<section class="testimonials-section">
+  <div class="container">
+    <h2 class="testimonials-section__title">{title}</h2>
+
+    <div class="testimonials-grid">
+      {
+        testimonials.map((testimonial) => {
+          const avatarUrl = testimonial.avatar
+            ? urlForImage(testimonial.avatar).width(80).height(80).url()
+            : null;
+
+          return (
+            <div class="testimonial-card">
+              <blockquote class="testimonial-card__quote">
+                "{testimonial.quote}"
+              </blockquote>
+              <div class="testimonial-card__author">
+                {avatarUrl && (
+                  <img
+                    src={avatarUrl}
+                    alt={testimonial.avatar.alt || testimonial.name}
+                    class="testimonial-card__avatar"
+                  />
+                )}
+                <div class="testimonial-card__info">
+                  <p class="testimonial-card__name">{testimonial.name}</p>
+                  <p class="testimonial-card__position">
+                    {testimonial.position}
+                    {testimonial.company && ` at ${testimonial.company}`}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .testimonials-section {
+    padding: var(--space-2xl) 0;
+  }
+
+  .testimonials-section__title {
+    font-size: var(--font-size-2xl);
+    text-align: center;
+    margin-block-end: var(--space-xl);
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .testimonial-card {
+    padding: var(--space-lg);
+    background: var(--color-background-alt, #f9f9f9);
+    border-radius: var(--border-radius, 8px);
+    border-left: 4px solid var(--color-primary, #0066cc);
+  }
+
+  .testimonial-card__quote {
+    font-size: var(--font-size-base);
+    line-height: 1.8;
+    margin: 0 0 var(--space-lg) 0;
+    font-style: italic;
+  }
+
+  .testimonial-card__author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .testimonial-card__avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .testimonial-card__info {
+    flex: 1;
+  }
+
+  .testimonial-card__name {
+    font-weight: 600;
+    margin-block-end: var(--space-xs);
+  }
+
+  .testimonial-card__position {
+    font-size: var(--font-size-sm);
+    opacity: 0.7;
+  }
+
+  @media (max-width: 768px) {
+    .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

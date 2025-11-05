@@ -1,10 +1,38 @@
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 import sitemap from '@astrojs/sitemap';
+import sanity from '@sanity/astro';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// Load environment variables from .env file
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const envPath = join(__dirname, '.env');
+let env = {};
+
+try {
+  const envFile = readFileSync(envPath, 'utf-8');
+  envFile.split('\n').forEach((line) => {
+    const match = line.match(/^([^=:#]+?)\s*=\s*(.*)$/);
+    if (match) {
+      const key = match[1].trim();
+      let value = match[2].trim();
+      // Remove quotes if present
+      value = value.replace(/^["'](.*)["']$/, '$1');
+      env[key] = value;
+    }
+  });
+} catch (error) {
+  console.warn('Could not load .env file:', error.message);
+}
+
+// Merge with process.env (process.env takes precedence)
+env = { ...env, ...process.env };
 
 // https://astro.build/config
 export default defineConfig({
-  site: process.env.PUBLIC_SITE_URL || 'https://example.com',
+  site: env.PUBLIC_SITE_URL || 'https://example.com',
   output: 'static',
   adapter: node({
     mode: 'standalone',
@@ -17,6 +45,13 @@ export default defineConfig({
     },
   },
   integrations: [
+    sanity({
+      projectId: env.PUBLIC_SANITY_PROJECT_ID,
+      dataset: env.PUBLIC_SANITY_DATASET,
+      apiVersion: env.PUBLIC_SANITY_API_VERSION || '2024-05-01',
+      useCdn: process.env.NODE_ENV === 'production',
+      studioBasePath: '/studio',
+    }),
     sitemap({
       i18n: {
         defaultLocale: 'en',
@@ -29,11 +64,6 @@ export default defineConfig({
       },
     }),
   ],
-  vite: {
-    ssr: {
-      noExternal: ['@sanity/client', '@sanity/image-url'],
-    },
-  },
   security: {
     checkOrigin: true,
   },

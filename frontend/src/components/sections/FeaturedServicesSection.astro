@@ -1,0 +1,151 @@
+---
+import { urlForImage } from '@lib/sanity/image';
+
+interface Service {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  description?: string;
+  icon?: any;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  services: Service[];
+  showAllLink?: boolean;
+}
+
+const { title, description, services, showAllLink } = Astro.props;
+---
+
+<section class="services-section">
+  <div class="container">
+    <div class="services-section__header">
+      <h2 class="services-section__title">{title}</h2>
+      {
+        description && (
+          <p class="services-section__description">{description}</p>
+        )
+      }
+    </div>
+
+    <div class="services-grid">
+      {
+        services.map((service) => {
+          const iconUrl = service.icon
+            ? urlForImage(service.icon).width(100).height(100).url()
+            : null;
+
+          return (
+            <a href={`/services/${service.slug.current}`} class="service-card">
+              {iconUrl && (
+                <div class="service-card__icon">
+                  <img src={iconUrl} alt="" />
+                </div>
+              )}
+              <h3 class="service-card__title">{service.title}</h3>
+              {service.description && (
+                <p class="service-card__description">{service.description}</p>
+              )}
+            </a>
+          );
+        })
+      }
+    </div>
+
+    {
+      showAllLink && (
+        <div class="services-section__footer">
+          <a href="/services" class="services-section__link">
+            View All Services →
+          </a>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .services-section {
+    padding: var(--space-2xl) 0;
+  }
+
+  .services-section__header {
+    text-align: center;
+    margin-block-end: var(--space-xl);
+  }
+
+  .services-section__title {
+    font-size: var(--font-size-2xl);
+    margin-block-end: var(--space-md);
+  }
+
+  .services-section__description {
+    font-size: var(--font-size-lg);
+    max-width: 600px;
+    margin-inline: auto;
+    opacity: 0.8;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
+    margin-block-end: var(--space-xl);
+  }
+
+  .service-card {
+    padding: var(--space-lg);
+    border: 1px solid var(--color-border, #e0e0e0);
+    border-radius: var(--border-radius, 8px);
+    text-decoration: none;
+    color: inherit;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .service-card__icon {
+    width: 60px;
+    height: 60px;
+    margin-block-end: var(--space-md);
+  }
+
+  .service-card__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .service-card__title {
+    font-size: var(--font-size-lg);
+    margin-block-end: var(--space-sm);
+  }
+
+  .service-card__description {
+    font-size: var(--font-size-sm);
+    opacity: 0.8;
+    line-height: 1.6;
+  }
+
+  .services-section__footer {
+    text-align: center;
+  }
+
+  .services-section__link {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-primary, #0066cc);
+    text-decoration: none;
+  }
+
+  .services-section__link:hover {
+    text-decoration: underline;
+  }
+</style>

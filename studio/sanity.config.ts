@@ -3,6 +3,10 @@ import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './schemas';
 
+// Singleton configuration
+const singletonActions = new Set(['publish', 'discardChanges', 'restore']);
+const singletonTypes = new Set(['siteSettings', 'homepage']);
+
 export default defineConfig({
   name: 'default',
   title: 'Website Boilerplate',
@@ -24,6 +28,30 @@ export default defineConfig({
                   .schemaType('siteSettings')
                   .documentId('siteSettings')
               ),
+            // Singleton - Homepage (per language)
+            S.listItem()
+              .title('Homepage')
+              .child(
+                S.list()
+                  .title('Homepage by Language')
+                  .items([
+                    S.listItem()
+                      .title('English')
+                      .child(
+                        S.document()
+                          .schemaType('homepage')
+                          .documentId('homepage-en')
+                      ),
+                    // Add more languages as needed
+                    // S.listItem()
+                    //   .title('Spanish')
+                    //   .child(
+                    //     S.document()
+                    //       .schemaType('homepage')
+                    //       .documentId('homepage-es')
+                    //   ),
+                  ])
+              ),
             S.divider(),
             // Pages
             S.listItem()
@@ -37,6 +65,10 @@ export default defineConfig({
             S.listItem()
               .title('Case Studies')
               .child(S.documentTypeList('caseStudy').title('Case Studies')),
+            // Testimonials
+            S.listItem()
+              .title('Testimonials')
+              .child(S.documentTypeList('testimonial').title('Testimonials')),
             // Blog
             S.listItem()
               .title('Blog')
@@ -71,5 +103,16 @@ export default defineConfig({
 
   schema: {
     types: schemaTypes,
+    // Filter out singleton types from "Create new" menu
+    templates: (templates) =>
+      templates.filter(({ schemaType }) => !singletonTypes.has(schemaType)),
+  },
+
+  document: {
+    // Filter out actions that shouldn't be available for singletons
+    actions: (input, context) =>
+      singletonTypes.has(context.schemaType)
+        ? input.filter(({ action }) => action && singletonActions.has(action))
+        : input,
   },
 });

@@ -1,0 +1,38 @@
+---
+import HeroSection from './HeroSection.astro';
+import FeaturedServicesSection from './FeaturedServicesSection.astro';
+import FeaturedCaseStudiesSection from './FeaturedCaseStudiesSection.astro';
+import TestimonialsSection from './TestimonialsSection.astro';
+import FaqSection from './FaqSection.astro';
+import AboutSection from './AboutSection.astro';
+
+interface Props {
+  section: any;
+}
+
+const { section } = Astro.props;
+
+// Only render if section is enabled
+if (!section.enabled) {
+  return null;
+}
+---
+
+{section._type === 'heroSection' && <HeroSection {...section} />}
+{
+  section._type === 'featuredServicesSection' && (
+    <FeaturedServicesSection {...section} />
+  )
+}
+{
+  section._type === 'featuredCaseStudiesSection' && (
+    <FeaturedCaseStudiesSection {...section} />
+  )
+}
+{
+  section._type === 'testimonialsSection' && (
+    <TestimonialsSection {...section} />
+  )
+}
+{section._type === 'faqSection' && <FaqSection {...section} />}
+{section._type === 'aboutSection' && <AboutSection {...section} />}

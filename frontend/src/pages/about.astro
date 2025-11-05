@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { client } from '@lib/sanity/client';
+import { sanityClient as client } from 'sanity:client';
 import { pageQuery } from '@lib/sanity/queries';
 
 const lang = Astro.locals.lang || 'en';

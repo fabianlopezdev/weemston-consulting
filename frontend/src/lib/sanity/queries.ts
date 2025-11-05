@@ -199,3 +199,94 @@ export const legalPageQuery = groq`
     lastUpdated
   }
 `;
+
+// Homepage (singleton per language)
+export const homepageQuery = groq`
+  *[_type == "homepage" && language == $language][0] {
+    _id,
+    title,
+    language,
+    hero {
+      enabled,
+      tagline,
+      heading,
+      subheading,
+      ctaButton {
+        text,
+        href,
+        external
+      },
+      backgroundImage {
+        asset,
+        alt
+      }
+    },
+    sections[] {
+      _type,
+      enabled,
+      _type == "featuredServicesSection" => {
+        title,
+        description,
+        services[]-> {
+          _id,
+          title,
+          slug,
+          description,
+          icon
+        },
+        showAllLink
+      },
+      _type == "featuredCaseStudiesSection" => {
+        title,
+        description,
+        caseStudies[]-> {
+          _id,
+          title,
+          slug,
+          client,
+          mainImage {
+            asset,
+            alt
+          }
+        },
+        showAllLink
+      },
+      _type == "testimonialsSection" => {
+        title,
+        testimonials[]-> {
+          _id,
+          name,
+          position,
+          company,
+          quote,
+          avatar {
+            asset,
+            alt
+          }
+        }
+      },
+      _type == "faqSection" => {
+        title,
+        faqs[] {
+          question,
+          answer
+        }
+      },
+      _type == "aboutSection" => {
+        title,
+        content,
+        images[] {
+          _key,
+          asset,
+          alt,
+          caption
+        }
+      }
+    },
+    seo {
+      metaTitle,
+      metaDescription,
+      ogImage
+    }
+  }
+`;

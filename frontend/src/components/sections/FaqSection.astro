@@ -1,0 +1,108 @@
+---
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  title: string;
+  faqs: FaqItem[];
+}
+
+const { title, faqs } = Astro.props;
+---
+
+<section class="faq-section">
+  <div class="container">
+    <h2 class="faq-section__title">{title}</h2>
+
+    <div class="faq-list">
+      {
+        faqs.map((faq, index) => (
+          <details class="faq-item" id={`faq-${index}`}>
+            <summary class="faq-item__question">{faq.question}</summary>
+            <div class="faq-item__answer">
+              <p>{faq.answer}</p>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-section {
+    padding: var(--space-2xl) 0;
+    background: var(--color-background-alt, #f9f9f9);
+  }
+
+  .faq-section__title {
+    font-size: var(--font-size-2xl);
+    text-align: center;
+    margin-block-end: var(--space-xl);
+  }
+
+  .faq-list {
+    max-width: 800px;
+    margin-inline: auto;
+  }
+
+  .faq-item {
+    background: white;
+    border: 1px solid var(--color-border, #e0e0e0);
+    border-radius: var(--border-radius, 8px);
+    margin-block-end: var(--space-md);
+    overflow: hidden;
+  }
+
+  .faq-item__question {
+    padding: var(--space-lg);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    transition: background 0.2s;
+    position: relative;
+    padding-inline-end: var(--space-2xl);
+  }
+
+  .faq-item__question:hover {
+    background: var(--color-background-alt, #f9f9f9);
+  }
+
+  .faq-item__question::after {
+    content: '+';
+    position: absolute;
+    right: var(--space-lg);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: var(--font-size-xl);
+    transition: transform 0.2s;
+  }
+
+  .faq-item[open] .faq-item__question::after {
+    transform: translateY(-50%) rotate(45deg);
+  }
+
+  .faq-item__answer {
+    padding: 0 var(--space-lg) var(--space-lg) var(--space-lg);
+    line-height: 1.7;
+  }
+
+  .faq-item__answer p {
+    margin: 0;
+  }
+
+  /* Remove default details marker */
+  .faq-item__question::-webkit-details-marker {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .faq-item__question {
+      font-size: var(--font-size-base);
+    }
+  }
+</style>
