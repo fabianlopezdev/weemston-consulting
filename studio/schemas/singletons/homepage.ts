@@ -7,6 +7,11 @@ export default defineType({
   type: 'document',
   fields: [
     {
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+    },
+    {
       name: 'title',
       title: 'Page Title',
       type: 'string',
@@ -34,11 +39,6 @@ export default defineType({
         { type: 'faqSection' },
         { type: 'aboutSection' },
       ],
-    },
-    {
-      name: 'seo',
-      title: 'SEO',
-      type: 'seo',
     },
   ],
   preview: {
