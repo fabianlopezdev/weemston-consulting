@@ -21,7 +21,7 @@ const visibleSections =
   title={homepage.seo?.metaTitle || homepage.title}
   description={homepage.seo?.metaDescription}
 >
-  {homepage.hero && homepage.hero.enabled && <HeroSection {...homepage.hero} />}
+  {homepage.hero && <HeroSection {...homepage.hero} />}
 
   {visibleSections.map((section: any) => <SectionRenderer section={section} />)}
 </BaseLayout>

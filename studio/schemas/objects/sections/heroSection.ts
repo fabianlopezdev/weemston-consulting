@@ -6,19 +6,11 @@ export default defineType({
   type: 'object',
   fields: [
     {
-      name: 'enabled',
-      title: 'Show hero section',
-      type: 'boolean',
-      initialValue: true,
-      description: 'Toggle to hide/show the hero section',
-    },
-    {
       name: 'tagline',
       title: 'Tagline',
       type: 'string',
       description: 'Small text above the main heading',
       validation: (Rule) => Rule.required(),
-      hidden: ({ parent }) => !parent?.enabled,
     },
     {
       name: 'heading',
@@ -26,7 +18,6 @@ export default defineType({
       type: 'string',
       description: 'The primary headline of your homepage',
       validation: (Rule) => Rule.required(),
-      hidden: ({ parent }) => !parent?.enabled,
     },
     {
       name: 'subheading',
@@ -34,14 +25,12 @@ export default defineType({
       type: 'text',
       rows: 2,
       description: 'Supporting text below the main heading',
-      hidden: ({ parent }) => !parent?.enabled,
     },
     {
       name: 'ctaButton',
       title: 'Call to Action Button',
       type: 'link',
       description: 'Primary action button',
-      hidden: ({ parent }) => !parent?.enabled,
     },
     {
       name: 'backgroundImage',
@@ -60,24 +49,18 @@ export default defineType({
         },
       ],
       validation: (Rule) => Rule.required(),
-      hidden: ({ parent }) => !parent?.enabled,
     },
   ],
   preview: {
     select: {
       heading: 'heading',
       tagline: 'tagline',
-      enabled: 'enabled',
       media: 'backgroundImage',
     },
-    prepare({ heading, tagline, enabled, media }) {
-      const status = enabled ? '✓' : '✗';
-      const displayTitle = heading || 'Hero Section';
-      const subtitle = enabled ? tagline || 'Hero section' : 'Hidden from site';
-
+    prepare({ heading, tagline, media }) {
       return {
-        title: `${status} ${displayTitle}`,
-        subtitle,
+        title: heading || 'Hero Section',
+        subtitle: tagline || 'Hero section',
         media,
       };
     },
