@@ -2,6 +2,7 @@ import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './schemas';
+import { supportedLanguages, baseLanguage, isMultiLanguage } from './lib/i18n';
 
 // Singleton configuration
 const singletonActions = new Set(['publish', 'discardChanges', 'restore']);
@@ -28,29 +29,30 @@ export default defineConfig({
                   .schemaType('siteSettings')
                   .documentId('siteSettings')
               ),
-            // Singleton - Homepage (per language)
+            // Singleton - Homepage (conditional structure based on language count)
             S.listItem()
               .title('Homepage')
+              .id('homepage-singleton')
               .child(
-                S.list()
-                  .title('Homepage by Language')
-                  .items([
-                    S.listItem()
-                      .title('English')
-                      .child(
-                        S.document()
-                          .schemaType('homepage')
-                          .documentId('homepage-en')
-                      ),
-                    // Add more languages as needed
-                    // S.listItem()
-                    //   .title('Spanish')
-                    //   .child(
-                    //     S.document()
-                    //       .schemaType('homepage')
-                    //       .documentId('homepage-es')
-                    //   ),
-                  ])
+                isMultiLanguage
+                  ? // Multi-language: show nested structure with language options
+                    S.list()
+                      .title('Homepage by Language')
+                      .items(
+                        supportedLanguages.map((lang) =>
+                          S.listItem()
+                            .title(lang.title)
+                            .child(
+                              S.document()
+                                .schemaType('homepage')
+                                .documentId(`homepage-${lang.id}`)
+                            )
+                        )
+                      )
+                  : // Single language: direct link to singleton
+                    S.document()
+                      .schemaType('homepage')
+                      .documentId(`homepage-${baseLanguage?.id || 'en'}`)
               ),
             S.divider(),
             // Pages

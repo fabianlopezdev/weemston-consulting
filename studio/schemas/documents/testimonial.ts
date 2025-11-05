@@ -1,5 +1,5 @@
 import { defineType } from 'sanity';
-import { supportedLanguages, baseLanguage } from '../../lib/i18n';
+import { defineLanguageField } from '../../lib/i18n';
 
 export default defineType({
   name: 'testimonial',
@@ -52,19 +52,7 @@ export default defineType({
         },
       ],
     },
-    {
-      name: 'language',
-      title: 'Language',
-      type: 'string',
-      options: {
-        list: supportedLanguages.map((lang) => ({
-          title: lang.title,
-          value: lang.id,
-        })),
-      },
-      initialValue: baseLanguage?.id,
-      validation: (Rule) => Rule.required(),
-    },
+    defineLanguageField(),
     {
       name: 'featured',
       title: 'Featured',
