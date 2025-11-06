@@ -1,27 +1,29 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { sanityClient as client } from 'sanity:client';
-import { aboutPageQuery } from '@lib/sanity/queries';
+import { caseStudiesPageQuery } from '@lib/sanity/queries';
 import HeroSection from '@components/sections/HeroSection.astro';
 import SectionRenderer from '@components/sections/SectionRenderer.astro';
 
 const lang = Astro.locals.lang || 'en';
-const aboutPage = await client.fetch(aboutPageQuery, { language: lang });
+const caseStudiesPage = await client.fetch(caseStudiesPageQuery, {
+  language: lang,
+});
 
-if (!aboutPage) {
+if (!caseStudiesPage) {
   return Astro.redirect('/404');
 }
 
 // Filter enabled sections
 const visibleSections =
-  aboutPage.sections?.filter((section: any) => section.enabled) || [];
+  caseStudiesPage.sections?.filter((section: any) => section.enabled) || [];
 ---
 
 <BaseLayout
-  title={aboutPage.seo?.metaTitle || aboutPage.title}
-  description={aboutPage.seo?.metaDescription}
+  title={caseStudiesPage.seo?.metaTitle || caseStudiesPage.title}
+  description={caseStudiesPage.seo?.metaDescription}
 >
-  {aboutPage.hero && <HeroSection {...aboutPage.hero} />}
+  {caseStudiesPage.hero && <HeroSection {...caseStudiesPage.hero} />}
 
   {visibleSections.map((section: any) => <SectionRenderer section={section} />)}
 </BaseLayout>

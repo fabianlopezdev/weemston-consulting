@@ -6,7 +6,15 @@ import { supportedLanguages, baseLanguage, isMultiLanguage } from './lib/i18n';
 
 // Singleton configuration
 const singletonActions = new Set(['publish', 'discardChanges', 'restore']);
-const singletonTypes = new Set(['siteSettings', 'homepage']);
+const singletonTypes = new Set([
+  'siteSettings',
+  'homepage',
+  'servicesPage',
+  'caseStudiesPage',
+  'blogPage',
+  'contactPage',
+  'aboutPage',
+]);
 
 export default defineConfig({
   name: 'default',
@@ -29,14 +37,14 @@ export default defineConfig({
                   .schemaType('siteSettings')
                   .documentId('siteSettings')
               ),
-            // Singleton - Homepage (conditional structure based on language count)
+            S.divider(),
+            // Homepage
             S.listItem()
               .title('Homepage')
               .id('homepage-singleton')
               .child(
                 isMultiLanguage
-                  ? // Multi-language: show nested structure with language options
-                    S.list()
+                  ? S.list()
                       .title('Homepage by Language')
                       .items(
                         supportedLanguages.map((lang) =>
@@ -49,16 +57,130 @@ export default defineConfig({
                             )
                         )
                       )
-                  : // Single language: direct link to singleton
-                    S.document()
+                  : S.document()
                       .schemaType('homepage')
                       .documentId(`homepage-${baseLanguage?.id || 'en'}`)
               ),
-            S.divider(),
-            // Pages
+            // Services Page
             S.listItem()
-              .title('Pages')
-              .child(S.documentTypeList('page').title('Pages')),
+              .title('Services Page')
+              .id('servicesPage-singleton')
+              .child(
+                isMultiLanguage
+                  ? S.list()
+                      .title('Services Page by Language')
+                      .items(
+                        supportedLanguages.map((lang) =>
+                          S.listItem()
+                            .title(lang.title)
+                            .child(
+                              S.document()
+                                .schemaType('servicesPage')
+                                .documentId(`servicesPage-${lang.id}`)
+                            )
+                        )
+                      )
+                  : S.document()
+                      .schemaType('servicesPage')
+                      .documentId(`servicesPage-${baseLanguage?.id || 'en'}`)
+              ),
+            // Case Studies Page
+            S.listItem()
+              .title('Case Studies Page')
+              .id('caseStudiesPage-singleton')
+              .child(
+                isMultiLanguage
+                  ? S.list()
+                      .title('Case Studies Page by Language')
+                      .items(
+                        supportedLanguages.map((lang) =>
+                          S.listItem()
+                            .title(lang.title)
+                            .child(
+                              S.document()
+                                .schemaType('caseStudiesPage')
+                                .documentId(`caseStudiesPage-${lang.id}`)
+                            )
+                        )
+                      )
+                  : S.document()
+                      .schemaType('caseStudiesPage')
+                      .documentId(`caseStudiesPage-${baseLanguage?.id || 'en'}`)
+              ),
+            // Blog Page
+            S.listItem()
+              .title('Blog Page')
+              .id('blogPage-singleton')
+              .child(
+                isMultiLanguage
+                  ? S.list()
+                      .title('Blog Page by Language')
+                      .items(
+                        supportedLanguages.map((lang) =>
+                          S.listItem()
+                            .title(lang.title)
+                            .child(
+                              S.document()
+                                .schemaType('blogPage')
+                                .documentId(`blogPage-${lang.id}`)
+                            )
+                        )
+                      )
+                  : S.document()
+                      .schemaType('blogPage')
+                      .documentId(`blogPage-${baseLanguage?.id || 'en'}`)
+              ),
+            // Contact Page
+            S.listItem()
+              .title('Contact Page')
+              .id('contactPage-singleton')
+              .child(
+                isMultiLanguage
+                  ? S.list()
+                      .title('Contact Page by Language')
+                      .items(
+                        supportedLanguages.map((lang) =>
+                          S.listItem()
+                            .title(lang.title)
+                            .child(
+                              S.document()
+                                .schemaType('contactPage')
+                                .documentId(`contactPage-${lang.id}`)
+                            )
+                        )
+                      )
+                  : S.document()
+                      .schemaType('contactPage')
+                      .documentId(`contactPage-${baseLanguage?.id || 'en'}`)
+              ),
+            // About Page
+            S.listItem()
+              .title('About Page')
+              .id('aboutPage-singleton')
+              .child(
+                isMultiLanguage
+                  ? S.list()
+                      .title('About Page by Language')
+                      .items(
+                        supportedLanguages.map((lang) =>
+                          S.listItem()
+                            .title(lang.title)
+                            .child(
+                              S.document()
+                                .schemaType('aboutPage')
+                                .documentId(`aboutPage-${lang.id}`)
+                            )
+                        )
+                      )
+                  : S.document()
+                      .schemaType('aboutPage')
+                      .documentId(`aboutPage-${baseLanguage?.id || 'en'}`)
+              ),
+            // Legal Pages
+            S.listItem()
+              .title('Legal Pages')
+              .child(S.documentTypeList('legal').title('Legal Pages')),
+            S.divider(),
             // Services
             S.listItem()
               .title('Services')
@@ -93,11 +215,6 @@ export default defineConfig({
                       ),
                   ])
               ),
-            S.divider(),
-            // Legal
-            S.listItem()
-              .title('Legal Pages')
-              .child(S.documentTypeList('legal').title('Legal Pages')),
           ]),
     }),
     visionTool(),

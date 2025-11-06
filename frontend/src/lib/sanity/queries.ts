@@ -43,31 +43,6 @@ export const siteSettingsQuery = groq`
   }
 `;
 
-// Pages (document-level i18n)
-export const pageQuery = groq`
-  *[_type == "page" && slug.current == $slug && language == $language][0] {
-    _id,
-    title,
-    slug,
-    language,
-    content,
-    seo {
-      metaTitle,
-      metaDescription,
-      ogImage
-    }
-  }
-`;
-
-export const allPagesQuery = groq`
-  *[_type == "page" && language == $language] {
-    _id,
-    title,
-    slug,
-    language
-  }
-`;
-
 // Blog Posts (document-level i18n)
 export const blogPostQuery = groq`
   *[_type == "blogPost" && slug.current == $slug && language == $language][0] {
@@ -200,6 +175,72 @@ export const legalPageQuery = groq`
   }
 `;
 
+// Helper for page sections query (reusable across all pages)
+const pageSectionsQuery = `
+  sections[] {
+    _type,
+    enabled,
+    _type == "featuredServicesSection" => {
+      title,
+      description,
+      services[]-> {
+        _id,
+        title,
+        slug,
+        description,
+        icon
+      },
+      showAllLink
+    },
+    _type == "featuredCaseStudiesSection" => {
+      title,
+      description,
+      caseStudies[]-> {
+        _id,
+        title,
+        slug,
+        client,
+        mainImage {
+          asset,
+          alt
+        }
+      },
+      showAllLink
+    },
+    _type == "testimonialsSection" => {
+      title,
+      testimonials[]-> {
+        _id,
+        name,
+        position,
+        company,
+        quote,
+        avatar {
+          asset,
+          alt
+        }
+      }
+    },
+    _type == "faqSection" => {
+      title,
+      faqs[] {
+        question,
+        answer
+      }
+    },
+    _type == "aboutSection" => {
+      title,
+      content,
+      images[] {
+        _key,
+        asset,
+        alt,
+        caption
+      }
+    }
+  }
+`;
+
 // Homepage (singleton per language)
 export const homepageQuery = groq`
   *[_type == "homepage" && language == $language][0] {
@@ -221,68 +262,152 @@ export const homepageQuery = groq`
         alt
       }
     },
-    sections[] {
-      _type,
-      enabled,
-      _type == "featuredServicesSection" => {
-        title,
-        description,
-        services[]-> {
-          _id,
-          title,
-          slug,
-          description,
-          icon
-        },
-        showAllLink
+    ${pageSectionsQuery},
+    seo {
+      metaTitle,
+      metaDescription,
+      ogImage
+    }
+  }
+`;
+
+// Services Page (singleton per language)
+export const servicesPageQuery = groq`
+  *[_type == "servicesPage" && language == $language][0] {
+    _id,
+    title,
+    language,
+    hero {
+      tagline,
+      heading,
+      subheading,
+      ctaButton {
+        text,
+        href,
+        external
       },
-      _type == "featuredCaseStudiesSection" => {
-        title,
-        description,
-        caseStudies[]-> {
-          _id,
-          title,
-          slug,
-          client,
-          mainImage {
-            asset,
-            alt
-          }
-        },
-        showAllLink
-      },
-      _type == "testimonialsSection" => {
-        title,
-        testimonials[]-> {
-          _id,
-          name,
-          position,
-          company,
-          quote,
-          avatar {
-            asset,
-            alt
-          }
-        }
-      },
-      _type == "faqSection" => {
-        title,
-        faqs[] {
-          question,
-          answer
-        }
-      },
-      _type == "aboutSection" => {
-        title,
-        content,
-        images[] {
-          _key,
-          asset,
-          alt,
-          caption
-        }
+      backgroundImage {
+        asset,
+        alt
       }
     },
+    ${pageSectionsQuery},
+    seo {
+      metaTitle,
+      metaDescription,
+      ogImage
+    }
+  }
+`;
+
+// Case Studies Page (singleton per language)
+export const caseStudiesPageQuery = groq`
+  *[_type == "caseStudiesPage" && language == $language][0] {
+    _id,
+    title,
+    language,
+    hero {
+      tagline,
+      heading,
+      subheading,
+      ctaButton {
+        text,
+        href,
+        external
+      },
+      backgroundImage {
+        asset,
+        alt
+      }
+    },
+    ${pageSectionsQuery},
+    seo {
+      metaTitle,
+      metaDescription,
+      ogImage
+    }
+  }
+`;
+
+// Blog Page (singleton per language)
+export const blogPageQuery = groq`
+  *[_type == "blogPage" && language == $language][0] {
+    _id,
+    title,
+    language,
+    hero {
+      tagline,
+      heading,
+      subheading,
+      ctaButton {
+        text,
+        href,
+        external
+      },
+      backgroundImage {
+        asset,
+        alt
+      }
+    },
+    ${pageSectionsQuery},
+    seo {
+      metaTitle,
+      metaDescription,
+      ogImage
+    }
+  }
+`;
+
+// Contact Page (singleton per language)
+export const contactPageQuery = groq`
+  *[_type == "contactPage" && language == $language][0] {
+    _id,
+    title,
+    language,
+    hero {
+      tagline,
+      heading,
+      subheading,
+      ctaButton {
+        text,
+        href,
+        external
+      },
+      backgroundImage {
+        asset,
+        alt
+      }
+    },
+    ${pageSectionsQuery},
+    seo {
+      metaTitle,
+      metaDescription,
+      ogImage
+    }
+  }
+`;
+
+// About Page (singleton per language)
+export const aboutPageQuery = groq`
+  *[_type == "aboutPage" && language == $language][0] {
+    _id,
+    title,
+    language,
+    hero {
+      tagline,
+      heading,
+      subheading,
+      ctaButton {
+        text,
+        href,
+        external
+      },
+      backgroundImage {
+        asset,
+        alt
+      }
+    },
+    ${pageSectionsQuery},
     seo {
       metaTitle,
       metaDescription,

@@ -1,21 +1,27 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import ContactForm from '@components/forms/ContactForm.astro';
-import { createTranslator } from '@lib/i18n/translations';
+import { sanityClient as client } from 'sanity:client';
+import { contactPageQuery } from '@lib/sanity/queries';
+import HeroSection from '@components/sections/HeroSection.astro';
+import SectionRenderer from '@components/sections/SectionRenderer.astro';
 
 const lang = Astro.locals.lang || 'en';
-const t = createTranslator(lang);
+const contactPage = await client.fetch(contactPageQuery, { language: lang });
+
+if (!contactPage) {
+  return Astro.redirect('/404');
+}
+
+// Filter enabled sections
+const visibleSections =
+  contactPage.sections?.filter((section: any) => section.enabled) || [];
 ---
 
-<BaseLayout title={t('seo.contact_title')}>
-  <div class="container">
-    <h1>{t('nav.contact')}</h1>
-    <ContactForm />
-  </div>
-</BaseLayout>
+<BaseLayout
+  title={contactPage.seo?.metaTitle || contactPage.title}
+  description={contactPage.seo?.metaDescription}
+>
+  {contactPage.hero && <HeroSection {...contactPage.hero} />}
 
-<style>
-  h1 {
-    margin-block-end: var(--space-xl);
-  }
-</style>
+  {visibleSections.map((section: any) => <SectionRenderer section={section} />)}
+</BaseLayout>

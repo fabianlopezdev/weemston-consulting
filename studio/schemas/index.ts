@@ -13,7 +13,6 @@ import faqSection from './objects/sections/faqSection';
 import aboutSection from './objects/sections/aboutSection';
 
 // Document types
-import page from './documents/page';
 import blogPost from './documents/blogPost';
 import service from './documents/service';
 import caseStudy from './documents/caseStudy';
@@ -25,6 +24,11 @@ import testimonial from './documents/testimonial';
 // Singletons
 import siteSettings from './singletons/siteSettings';
 import homepage from './singletons/homepage';
+import servicesPage from './singletons/servicesPage';
+import caseStudiesPage from './singletons/caseStudiesPage';
+import blogPage from './singletons/blogPage';
+import contactPage from './singletons/contactPage';
+import aboutPage from './singletons/aboutPage';
 
 export const schemaTypes = [
   // Objects
@@ -40,7 +44,6 @@ export const schemaTypes = [
   faqSection,
   aboutSection,
   // Documents
-  page,
   blogPost,
   service,
   caseStudy,
@@ -51,4 +54,9 @@ export const schemaTypes = [
   // Singletons
   siteSettings,
   homepage,
+  servicesPage,
+  caseStudiesPage,
+  blogPage,
+  contactPage,
+  aboutPage,
 ];
