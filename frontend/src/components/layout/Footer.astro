@@ -2,6 +2,7 @@
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import { createTranslator } from '@lib/i18n/translations';
+import { resolveLinkUrl } from '@lib/sanity/linkResolver';
 
 const currentLang = Astro.locals.lang || 'en';
 const t = createTranslator(currentLang);
@@ -22,12 +23,15 @@ const currentYear = new Date().getFullYear();
         footerLinks.length > 0 && (
           <nav aria-label={t('aria.footer_navigation')}>
             <ul class="footer-links">
-              {footerLinks.map(
-                (link: { text: string; href: string; external?: boolean }) => (
+              {footerLinks.map((link: any) => {
+                const href = resolveLinkUrl(link);
+                const isExternal =
+                  link.openInNewTab || link.linkType === 'external';
+                return (
                   <li>
                     <a
-                      href={link.href}
-                      {...(link.external && {
+                      href={href}
+                      {...(isExternal && {
                         target: '_blank',
                         rel: 'noopener noreferrer',
                         'aria-label': `${link.text} (${t('aria.external_link')})`,
@@ -36,8 +40,8 @@ const currentYear = new Date().getFullYear();
                       {link.text}
                     </a>
                   </li>
-                )
-              )}
+                );
+              })}
             </ul>
           </nav>
         )

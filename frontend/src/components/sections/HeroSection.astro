@@ -1,15 +1,31 @@
 ---
 import { urlForImage } from '@lib/sanity/image';
+import { resolveLinkUrl } from '@lib/sanity/linkResolver';
+
+interface LinkData {
+  linkType: 'internal' | 'external';
+  internalPageType?:
+    | 'homepage'
+    | 'servicesPage'
+    | 'caseStudiesPage'
+    | 'contactPage'
+    | 'aboutPage'
+    | 'service'
+    | 'caseStudy'
+    | 'legal';
+  serviceReference?: { slug: { current: string } };
+  caseStudyReference?: { slug: { current: string } };
+  legalReference?: { slug: { current: string } };
+  externalUrl?: string;
+  text: string;
+  openInNewTab?: boolean;
+}
 
 interface Props {
   tagline?: string;
   heading: string;
   subheading?: string;
-  ctaButton?: {
-    text: string;
-    href: string;
-    external?: boolean;
-  };
+  ctaButton?: LinkData;
   backgroundImage?: any;
 }
 
@@ -19,6 +35,10 @@ const { tagline, heading, subheading, ctaButton, backgroundImage } =
 const bgImageUrl = backgroundImage
   ? urlForImage(backgroundImage).width(1920).height(1080).url()
   : null;
+
+const ctaHref = ctaButton ? resolveLinkUrl(ctaButton) : null;
+const ctaOpenInNewTab =
+  ctaButton?.openInNewTab || ctaButton?.linkType === 'external';
 ---
 
 <section class="hero">
@@ -38,12 +58,12 @@ const bgImageUrl = backgroundImage
     {tagline && <p class="hero__subheading">{tagline}</p>}
     {subheading && <p class="hero__intro">{subheading}</p>}
     {
-      ctaButton && (
+      ctaButton && ctaHref && (
         <a
-          href={ctaButton.href}
+          href={ctaHref}
           class="hero__cta"
-          target={ctaButton.external ? '_blank' : undefined}
-          rel={ctaButton.external ? 'noopener noreferrer' : undefined}
+          target={ctaOpenInNewTab ? '_blank' : undefined}
+          rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
         >
           {ctaButton.text}
         </a>

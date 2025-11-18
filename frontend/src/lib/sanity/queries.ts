@@ -1,5 +1,17 @@
 import groq from 'groq';
 
+// Helper for link projection (reusable across all queries)
+const linkProjection = `
+  text,
+  linkType,
+  internalPageType,
+  serviceReference-> { slug },
+  caseStudyReference-> { slug },
+  legalReference-> { slug },
+  externalUrl,
+  openInNewTab
+`;
+
 // Site Settings (field-level i18n)
 export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0] {
@@ -21,17 +33,13 @@ export const siteSettingsQuery = groq`
     },
     navigation[] {
       _key,
-      text,
-      href,
-      external
+      ${linkProjection}
     },
     footer {
       text,
       links[] {
         _key,
-        text,
-        href,
-        external
+        ${linkProjection}
       }
     }
   }
@@ -200,9 +208,7 @@ export const homepageQuery = groq`
       heading,
       subheading,
       ctaButton {
-        text,
-        href,
-        external
+        ${linkProjection}
       },
       backgroundImage {
         asset,
@@ -229,9 +235,7 @@ export const servicesPageQuery = groq`
       heading,
       subheading,
       ctaButton {
-        text,
-        href,
-        external
+        ${linkProjection}
       },
       backgroundImage {
         asset,
@@ -258,9 +262,7 @@ export const caseStudiesPageQuery = groq`
       heading,
       subheading,
       ctaButton {
-        text,
-        href,
-        external
+        ${linkProjection}
       },
       backgroundImage {
         asset,
@@ -287,9 +289,7 @@ export const contactPageQuery = groq`
       heading,
       subheading,
       ctaButton {
-        text,
-        href,
-        external
+        ${linkProjection}
       },
       backgroundImage {
         asset,
@@ -316,9 +316,7 @@ export const aboutPageQuery = groq`
       heading,
       subheading,
       ctaButton {
-        text,
-        href,
-        external
+        ${linkProjection}
       },
       backgroundImage {
         asset,

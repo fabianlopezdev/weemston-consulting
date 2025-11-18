@@ -3,6 +3,7 @@ import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import { createTranslator } from '@lib/i18n/translations';
 import { urlForImage } from '@lib/sanity/image';
+import { resolveLinkUrl } from '@lib/sanity/linkResolver';
 import LanguageSwitcher from '@components/i18n/LanguageSwitcher.astro';
 
 const currentLang = Astro.locals.lang || 'en';
@@ -48,12 +49,15 @@ const showText =
       <div class="nav-actions">
         <ul class="nav-list">
           {
-            navigation.map(
-              (item: { text: string; href: string; external?: boolean }) => (
+            navigation.map((item: any) => {
+              const href = resolveLinkUrl(item);
+              const isExternal =
+                item.openInNewTab || item.linkType === 'external';
+              return (
                 <li>
                   <a
-                    href={item.href}
-                    {...(item.external && {
+                    href={href}
+                    {...(isExternal && {
                       target: '_blank',
                       rel: 'noopener noreferrer',
                       'aria-label': `${item.text} (${t('aria.external_link')})`,
@@ -62,8 +66,8 @@ const showText =
                     {item.text}
                   </a>
                 </li>
-              )
-            )
+              );
+            })
           }
         </ul>
         <LanguageSwitcher />
