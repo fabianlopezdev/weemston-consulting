@@ -43,7 +43,11 @@ export const siteSettingsQuery = groq`
         value
       }
     },
-    buttonBorderRadius,
+    buttonStyles {
+      borderRadius,
+      verticalPadding,
+      horizontalPadding
+    },
     social[] {
       platform,
       url

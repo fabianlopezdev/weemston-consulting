@@ -32,9 +32,13 @@ const customStyles = [
     `--color-secondary: ${settings.colors.secondary.value}`,
   settings?.colors?.accent?.value &&
     `--color-accent: ${settings.colors.accent.value}`,
-  // Button Border Radius
-  settings?.buttonBorderRadius !== undefined &&
-    `--button-border-radius: ${settings.buttonBorderRadius}px`,
+  // Button Styles
+  settings?.buttonStyles?.borderRadius !== undefined &&
+    `--button-border-radius: ${settings.buttonStyles.borderRadius}px`,
+  settings?.buttonStyles?.verticalPadding !== undefined &&
+    `--button-padding-vertical: ${settings.buttonStyles.verticalPadding}px`,
+  settings?.buttonStyles?.horizontalPadding !== undefined &&
+    `--button-padding-horizontal: ${settings.buttonStyles.horizontalPadding}px`,
 ]
   .filter(Boolean)
   .join('; ');

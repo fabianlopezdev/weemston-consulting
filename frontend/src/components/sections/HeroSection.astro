@@ -133,7 +133,8 @@ const ctaColor = ctaButton
 
   .hero__cta {
     display: inline-block;
-    padding: var(--space-md) var(--space-lg);
+    padding: var(--button-padding-vertical, var(--space-md))
+      var(--button-padding-horizontal, var(--space-lg));
     background: var(--color-primary, #0066cc);
     color: white;
     text-decoration: none;
