@@ -42,6 +42,23 @@ const colorStyles = settings?.colors
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href={faviconUrl} />
+
+    <!-- Preload critical font weights for optimal performance -->
+    <link
+      rel="preload"
+      href="/fonts/now/Now-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/now/Now-Bold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
     <SEO
       title={title}
       description={description}

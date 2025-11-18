@@ -8,17 +8,12 @@ import {
   HiHome,
   HiCollection,
   HiChartBar,
-  HiDocumentText,
   HiMail,
   HiInformationCircle,
   HiClipboardList,
   HiBriefcase,
   HiTrendingUp,
   HiChatAlt,
-  HiNewspaper,
-  HiDocument,
-  HiUser,
-  HiTag,
 } from 'react-icons/hi';
 
 // Singleton configuration
@@ -28,7 +23,6 @@ const singletonTypes = new Set([
   'homepage',
   'servicesPage',
   'caseStudiesPage',
-  'blogPage',
   'contactPage',
   'aboutPage',
 ]);
@@ -128,30 +122,6 @@ export default defineConfig({
                       .schemaType('caseStudiesPage')
                       .documentId(`caseStudiesPage-${baseLanguage?.id || 'en'}`)
               ),
-            // Blog Page
-            S.listItem()
-              .title('Blog Page')
-              .icon(HiDocumentText)
-              .id('blogPage-singleton')
-              .child(
-                isMultiLanguage
-                  ? S.list()
-                      .title('Blog Page by Language')
-                      .items(
-                        supportedLanguages.map((lang) =>
-                          S.listItem()
-                            .title(lang.title)
-                            .child(
-                              S.document()
-                                .schemaType('blogPage')
-                                .documentId(`blogPage-${lang.id}`)
-                            )
-                        )
-                      )
-                  : S.document()
-                      .schemaType('blogPage')
-                      .documentId(`blogPage-${baseLanguage?.id || 'en'}`)
-              ),
             // Contact Page
             S.listItem()
               .title('Contact Page')
@@ -221,32 +191,6 @@ export default defineConfig({
               .title('Testimonials')
               .icon(HiChatAlt)
               .child(S.documentTypeList('testimonial').title('Testimonials')),
-            // Blog
-            S.listItem()
-              .title('Blog')
-              .icon(HiNewspaper)
-              .child(
-                S.list()
-                  .title('Blog')
-                  .items([
-                    S.listItem()
-                      .title('Blog Posts')
-                      .icon(HiDocument)
-                      .child(
-                        S.documentTypeList('blogPost').title('Blog Posts')
-                      ),
-                    S.listItem()
-                      .title('Authors')
-                      .icon(HiUser)
-                      .child(S.documentTypeList('author').title('Authors')),
-                    S.listItem()
-                      .title('Categories')
-                      .icon(HiTag)
-                      .child(
-                        S.documentTypeList('category').title('Categories')
-                      ),
-                  ])
-              ),
           ]),
     }),
     visionTool(),

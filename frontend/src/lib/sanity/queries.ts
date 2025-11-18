@@ -37,53 +37,6 @@ export const siteSettingsQuery = groq`
   }
 `;
 
-// Blog Posts (document-level i18n)
-export const blogPostQuery = groq`
-  *[_type == "blogPost" && slug.current == $slug && language == $language][0] {
-    _id,
-    title,
-    slug,
-    language,
-    publishedAt,
-    author-> {
-      name,
-      image
-    },
-    categories[]-> {
-      title,
-      slug
-    },
-    mainImage,
-    excerpt,
-    content,
-    seo {
-      metaTitle,
-      metaDescription,
-      ogImage
-    }
-  }
-`;
-
-export const allBlogPostsQuery = groq`
-  *[_type == "blogPost" && language == $language] | order(publishedAt desc) {
-    _id,
-    title,
-    slug,
-    language,
-    publishedAt,
-    author-> {
-      name,
-      image
-    },
-    categories[]-> {
-      title,
-      slug
-    },
-    mainImage,
-    excerpt
-  }
-`;
-
 // Services (document-level i18n)
 export const serviceQuery = groq`
   *[_type == "service" && slug.current == $slug && language == $language][0] {
@@ -297,35 +250,6 @@ export const servicesPageQuery = groq`
 // Case Studies Page (singleton per language)
 export const caseStudiesPageQuery = groq`
   *[_type == "caseStudiesPage" && language == $language][0] {
-    _id,
-    title,
-    language,
-    hero {
-      tagline,
-      heading,
-      subheading,
-      ctaButton {
-        text,
-        href,
-        external
-      },
-      backgroundImage {
-        asset,
-        alt
-      }
-    },
-    ${pageSectionsQuery},
-    seo {
-      metaTitle,
-      metaDescription,
-      ogImage
-    }
-  }
-`;
-
-// Blog Page (singleton per language)
-export const blogPageQuery = groq`
-  *[_type == "blogPage" && language == $language][0] {
     _id,
     title,
     language,
