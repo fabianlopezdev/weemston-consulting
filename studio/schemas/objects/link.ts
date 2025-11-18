@@ -12,6 +12,12 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     },
     {
+      name: 'buttonColor',
+      title: 'Button Color (optional)',
+      type: 'buttonColor',
+      description: 'Defaults to accent color if not specified',
+    },
+    {
       name: 'linkType',
       title: 'Linked to',
       type: 'string',

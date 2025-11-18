@@ -3,6 +3,13 @@ import groq from 'groq';
 // Helper for link projection (reusable across all queries)
 const linkProjection = `
   text,
+  buttonColor {
+    colorType,
+    customColor {
+      label,
+      value
+    }
+  },
   linkType,
   internalPageType,
   serviceReference-> { slug },
@@ -23,9 +30,18 @@ export const siteSettingsQuery = groq`
     },
     favicon,
     colors {
-      primary,
-      secondary,
-      accent
+      primary {
+        label,
+        value
+      },
+      secondary {
+        label,
+        value
+      },
+      accent {
+        label,
+        value
+      }
     },
     social[] {
       platform,

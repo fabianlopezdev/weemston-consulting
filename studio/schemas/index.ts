@@ -3,6 +3,7 @@ import seo from './objects/seo';
 import portableText from './objects/portableText';
 import media from './objects/media';
 import link from './objects/link';
+import buttonColor from './objects/buttonColor';
 
 // Section types
 import heroSection from './objects/sections/heroSection';
@@ -32,6 +33,7 @@ export const schemaTypes = [
   portableText,
   media,
   link,
+  buttonColor,
   // Sections
   heroSection,
   featuredServicesSection,

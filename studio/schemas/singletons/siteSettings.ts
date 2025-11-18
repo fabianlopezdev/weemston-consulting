@@ -75,18 +75,17 @@ export default defineType({
         {
           name: 'primary',
           title: 'Primary Color (optional)',
-          type: 'string',
-          description: 'Hex color code',
+          type: 'simplerColor',
         },
         {
           name: 'secondary',
           title: 'Secondary Color (optional)',
-          type: 'string',
+          type: 'simplerColor',
         },
         {
           name: 'accent',
           title: 'Accent Color (optional)',
-          type: 'string',
+          type: 'simplerColor',
         },
       ],
     },

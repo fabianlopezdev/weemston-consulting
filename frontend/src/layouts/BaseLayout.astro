@@ -26,10 +26,12 @@ const faviconUrl = settings?.favicon
 // Build inline styles to override CSS variables with Sanity colors
 const colorStyles = settings?.colors
   ? [
-      settings.colors.primary && `--color-primary: ${settings.colors.primary}`,
-      settings.colors.secondary &&
-        `--color-secondary: ${settings.colors.secondary}`,
-      settings.colors.accent && `--color-accent: ${settings.colors.accent}`,
+      settings.colors.primary?.value &&
+        `--color-primary: ${settings.colors.primary.value}`,
+      settings.colors.secondary?.value &&
+        `--color-secondary: ${settings.colors.secondary.value}`,
+      settings.colors.accent?.value &&
+        `--color-accent: ${settings.colors.accent.value}`,
     ]
       .filter(Boolean)
       .join('; ')

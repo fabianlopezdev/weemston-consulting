@@ -1,6 +1,9 @@
 ---
 import { urlForImage } from '@lib/sanity/image';
 import { resolveLinkUrl } from '@lib/sanity/linkResolver';
+import { resolveButtonColor } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
 
 interface LinkData {
   linkType: 'internal' | 'external';
@@ -19,6 +22,7 @@ interface LinkData {
   externalUrl?: string;
   text: string;
   openInNewTab?: boolean;
+  buttonColor?: any;
 }
 
 interface Props {
@@ -39,6 +43,12 @@ const bgImageUrl = backgroundImage
 const ctaHref = ctaButton ? resolveLinkUrl(ctaButton) : null;
 const ctaOpenInNewTab =
   ctaButton?.openInNewTab || ctaButton?.linkType === 'external';
+
+// Fetch site settings for button colors
+const settings = await client.fetch(siteSettingsQuery);
+const ctaColor = ctaButton
+  ? resolveButtonColor(ctaButton.buttonColor, settings?.colors)
+  : null;
 ---
 
 <section class="hero">
@@ -62,6 +72,7 @@ const ctaOpenInNewTab =
         <a
           href={ctaHref}
           class="hero__cta"
+          style={ctaColor ? `background: ${ctaColor}` : undefined}
           target={ctaOpenInNewTab ? '_blank' : undefined}
           rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
         >
