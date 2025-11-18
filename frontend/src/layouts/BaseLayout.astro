@@ -23,23 +23,25 @@ const faviconUrl = settings?.favicon
   ? urlForImage(settings.favicon).width(512).url()
   : '/favicon.svg';
 
-// Build inline styles to override CSS variables with Sanity colors
-const colorStyles = settings?.colors
-  ? [
-      settings.colors.primary?.value &&
-        `--color-primary: ${settings.colors.primary.value}`,
-      settings.colors.secondary?.value &&
-        `--color-secondary: ${settings.colors.secondary.value}`,
-      settings.colors.accent?.value &&
-        `--color-accent: ${settings.colors.accent.value}`,
-    ]
-      .filter(Boolean)
-      .join('; ')
-  : '';
+// Build inline styles to override CSS variables with Sanity settings
+const customStyles = [
+  // Colors
+  settings?.colors?.primary?.value &&
+    `--color-primary: ${settings.colors.primary.value}`,
+  settings?.colors?.secondary?.value &&
+    `--color-secondary: ${settings.colors.secondary.value}`,
+  settings?.colors?.accent?.value &&
+    `--color-accent: ${settings.colors.accent.value}`,
+  // Button Border Radius
+  settings?.buttonBorderRadius !== undefined &&
+    `--button-border-radius: ${settings.buttonBorderRadius}px`,
+]
+  .filter(Boolean)
+  .join('; ');
 ---
 
 <!doctype html>
-<html lang="en" style={colorStyles}>
+<html lang="en" style={customStyles}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

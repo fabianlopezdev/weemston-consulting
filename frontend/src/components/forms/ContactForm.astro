@@ -107,7 +107,7 @@ const t = createTranslator(currentLang);
     color: white;
     background-color: var(--color-primary);
     border: none;
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--button-border-radius, var(--border-radius-sm));
     cursor: pointer;
     transition: background-color var(--transition-fast);
   }

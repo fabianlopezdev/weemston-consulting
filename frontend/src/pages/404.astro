@@ -36,7 +36,7 @@ const t = createTranslator(lang);
     padding: var(--space-sm) var(--space-lg);
     background-color: var(--color-accent);
     color: white;
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--button-border-radius, var(--border-radius-sm));
     font-weight: var(--font-weight-semibold);
     transition: opacity var(--transition-fast);
   }

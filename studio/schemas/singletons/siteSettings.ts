@@ -1,5 +1,6 @@
 import { defineType } from 'sanity';
 import { createI18nField } from '../../lib/i18n';
+import { BorderRadiusInput } from '../../components/BorderRadiusInput';
 
 export default defineType({
   name: 'siteSettings',
@@ -88,6 +89,17 @@ export default defineType({
           type: 'simplerColor',
         },
       ],
+    },
+    {
+      name: 'buttonBorderRadius',
+      title: 'Button Border Radius',
+      type: 'number',
+      description: 'Adjust the roundness of button corners (0-50px)',
+      initialValue: 4,
+      components: {
+        input: BorderRadiusInput,
+      },
+      validation: (Rule) => Rule.min(0).max(50).integer(),
     },
     {
       name: 'navigation',
