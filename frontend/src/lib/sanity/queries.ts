@@ -33,15 +33,6 @@ export const siteSettingsQuery = groq`
         href,
         external
       }
-    },
-    analyticsEnabled,
-    analyticsId,
-    cookieConsentEnabled,
-    redirects[] {
-      _key,
-      from,
-      to,
-      permanent
     }
   }
 `;

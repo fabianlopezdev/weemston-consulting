@@ -158,68 +158,6 @@ export default defineType({
         },
       ],
     },
-    {
-      name: 'analyticsEnabled',
-      title: 'Enable Analytics (optional)',
-      type: 'boolean',
-      initialValue: false,
-    },
-    {
-      name: 'analyticsId',
-      title: 'Analytics ID (optional)',
-      type: 'string',
-      hidden: ({ document }) => !document?.analyticsEnabled,
-    },
-    {
-      name: 'cookieConsentEnabled',
-      title: 'Enable Cookie Consent (optional)',
-      type: 'boolean',
-      initialValue: true,
-      description: 'Required for EU/EEA/UK visitors',
-    },
-    {
-      name: 'redirects',
-      title: 'URL Redirects',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            {
-              name: 'from',
-              title: 'From Path',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: 'to',
-              title: 'To Path',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: 'permanent',
-              title: 'Permanent (301) (optional)',
-              type: 'boolean',
-              initialValue: false,
-            },
-          ],
-          preview: {
-            select: {
-              from: 'from',
-              to: 'to',
-              permanent: 'permanent',
-            },
-            prepare({ from, to, permanent }) {
-              return {
-                title: `${from} → ${to}`,
-                subtitle: permanent ? '301 Permanent' : '302 Temporary',
-              };
-            },
-          },
-        },
-      ],
-    },
   ],
   preview: {
     prepare() {
