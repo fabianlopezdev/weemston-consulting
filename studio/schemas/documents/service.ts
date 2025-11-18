@@ -25,14 +25,14 @@ export default defineType({
     defineLanguageField(),
     {
       name: 'description',
-      title: 'Short Description',
+      title: 'Short Description (optional)',
       type: 'text',
       rows: 2,
       validation: (Rule) => Rule.max(200),
     },
     {
       name: 'icon',
-      title: 'Icon',
+      title: 'Icon (optional)',
       type: 'image',
       options: {
         hotspot: true,
@@ -40,18 +40,18 @@ export default defineType({
     },
     {
       name: 'features',
-      title: 'Key Features',
+      title: 'Key Features (optional)',
       type: 'array',
       of: [{ type: 'string' }],
     },
     {
       name: 'content',
-      title: 'Content',
+      title: 'Content (optional)',
       type: 'portableText',
     },
     {
       name: 'seo',
-      title: 'SEO',
+      title: 'SEO (optional)',
       type: 'seo',
     },
   ],

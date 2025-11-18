@@ -22,7 +22,7 @@ export default defineType({
     },
     {
       name: 'description',
-      title: 'Section Description',
+      title: 'Section Description (optional)',
       type: 'text',
       rows: 3,
       hidden: ({ parent }) => !parent?.enabled,
@@ -42,7 +42,7 @@ export default defineType({
     },
     {
       name: 'showAllLink',
-      title: 'Show "View All Services" Link',
+      title: 'Show "View All Services" Link (optional)',
       type: 'boolean',
       description: 'Display a link to view all services',
       initialValue: true,

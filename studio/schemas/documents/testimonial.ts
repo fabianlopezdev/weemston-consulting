@@ -22,7 +22,7 @@ export default defineType({
     },
     {
       name: 'company',
-      title: 'Company',
+      title: 'Company (optional)',
       type: 'string',
       description: 'Company or organization name',
     },
@@ -36,7 +36,7 @@ export default defineType({
     },
     {
       name: 'avatar',
-      title: 'Avatar',
+      title: 'Avatar (optional)',
       type: 'image',
       description: 'Photo of the person',
       options: {
@@ -55,7 +55,7 @@ export default defineType({
     defineLanguageField(),
     {
       name: 'featured',
-      title: 'Featured',
+      title: 'Featured (optional)',
       type: 'boolean',
       description: 'Mark as featured to easily filter testimonials',
       initialValue: false,

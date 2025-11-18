@@ -2,6 +2,7 @@
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import { createTranslator } from '@lib/i18n/translations';
+import { urlForImage } from '@lib/sanity/image';
 import LanguageSwitcher from '@components/i18n/LanguageSwitcher.astro';
 
 const currentLang = Astro.locals.lang || 'en';
@@ -9,13 +10,40 @@ const t = createTranslator(currentLang);
 
 const settings = await client.fetch(siteSettingsQuery);
 const navigation = settings?.navigation || [];
+
+// Header display logic
+const displayMode = settings?.header?.displayMode || 'text';
+const hasLogo = !!settings?.header?.logo;
+const logoUrl = hasLogo
+  ? urlForImage(settings.header.logo).width(200).url()
+  : null;
+const showLogo = (displayMode === 'logo' || displayMode === 'both') && hasLogo;
+const showText =
+  displayMode === 'text' ||
+  displayMode === 'both' ||
+  (displayMode === 'logo' && !hasLogo);
 ---
 
 <header class="site-header">
   <div class="container">
     <nav aria-label={t('aria.main_navigation')}>
       <a href="/" class="logo">
-        {settings?.title || 'Site Title'}
+        {
+          showLogo && (
+            <img
+              src={logoUrl}
+              alt={settings?.title || 'Site Logo'}
+              class="logo-image"
+              width="200"
+              height="auto"
+            />
+          )
+        }
+        {
+          showText && (
+            <span class="logo-text">{settings?.title || 'Site Title'}</span>
+          )
+        }
       </a>
       <div class="nav-actions">
         <ul class="nav-list">
@@ -46,8 +74,7 @@ const navigation = settings?.navigation || [];
 
 <style>
   .site-header {
-    background-color: var(--color-surface);
-    border-block-end: var(--border-width-thin) solid var(--color-border);
+    background-color: var(--color-primary);
     padding-block: var(--space-md);
     position: sticky;
     inset-block-start: 0;
@@ -62,9 +89,22 @@ const navigation = settings?.navigation || [];
   }
 
   .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: white;
+  }
+
+  .logo-image {
+    display: block;
+    max-height: 3rem;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .logo-text {
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-bold);
-    color: var(--color-text);
   }
 
   .nav-actions {
@@ -80,11 +120,12 @@ const navigation = settings?.navigation || [];
   }
 
   .nav-list a {
-    transition: color var(--transition-fast);
+    color: white;
+    transition: opacity var(--transition-fast);
   }
 
   .nav-list a:hover {
-    color: var(--color-primary);
+    opacity: 0.8;
   }
 
   @media (max-width: 768px) {

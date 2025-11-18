@@ -34,14 +34,14 @@ const t = createTranslator(lang);
   .button {
     display: inline-block;
     padding: var(--space-sm) var(--space-lg);
-    background-color: var(--color-primary);
+    background-color: var(--color-accent);
     color: white;
     border-radius: var(--border-radius-sm);
     font-weight: var(--font-weight-semibold);
-    transition: background-color var(--transition-fast);
+    transition: opacity var(--transition-fast);
   }
 
   .button:hover {
-    background-color: var(--color-secondary);
+    opacity: 0.9;
   }
 </style>

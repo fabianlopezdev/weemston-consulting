@@ -68,8 +68,8 @@ const currentYear = new Date().getFullYear();
 
 <style>
   .site-footer {
-    background-color: var(--color-surface);
-    border-block-start: var(--border-width-thin) solid var(--color-border);
+    background-color: var(--color-primary);
+    color: white;
     padding-block-start: var(--space-xl);
     padding-block-end: var(--space-sm);
   }
@@ -92,14 +92,23 @@ const currentYear = new Date().getFullYear();
     list-style: none;
   }
 
+  .footer-links a {
+    color: white;
+    transition: opacity var(--transition-fast);
+  }
+
+  .footer-links a:hover {
+    opacity: 0.8;
+  }
+
   .footer-credit {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     padding-block-start: var(--space-xs);
-    border-block-start: var(--border-width-thin) solid var(--color-border);
+    border-block-start: var(--border-width-thin) solid rgba(255, 255, 255, 0.2);
     font-size: 0.625rem;
-    color: var(--color-text-muted);
+    color: rgba(255, 255, 255, 0.8);
   }
 
   .footer-credit p {

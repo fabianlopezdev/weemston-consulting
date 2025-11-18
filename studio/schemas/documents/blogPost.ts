@@ -31,19 +31,19 @@ export default defineType({
     },
     {
       name: 'author',
-      title: 'Author',
+      title: 'Author (optional)',
       type: 'reference',
       to: [{ type: 'author' }],
     },
     {
       name: 'categories',
-      title: 'Categories',
+      title: 'Categories (optional)',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'category' }] }],
     },
     {
       name: 'mainImage',
-      title: 'Main Image',
+      title: 'Main Image (optional)',
       type: 'image',
       options: {
         hotspot: true,
@@ -59,19 +59,19 @@ export default defineType({
     },
     {
       name: 'excerpt',
-      title: 'Excerpt',
+      title: 'Excerpt (optional)',
       type: 'text',
       rows: 3,
       validation: (Rule) => Rule.max(200),
     },
     {
       name: 'content',
-      title: 'Content',
+      title: 'Content (optional)',
       type: 'portableText',
     },
     {
       name: 'seo',
-      title: 'SEO',
+      title: 'SEO (optional)',
       type: 'seo',
     },
   ],

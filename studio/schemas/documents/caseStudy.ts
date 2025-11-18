@@ -31,7 +31,7 @@ export default defineType({
     },
     {
       name: 'industry',
-      title: 'Industry',
+      title: 'Industry (optional)',
       type: 'string',
     },
     {
@@ -42,13 +42,13 @@ export default defineType({
     },
     {
       name: 'featured',
-      title: 'Featured',
+      title: 'Featured (optional)',
       type: 'boolean',
       initialValue: false,
     },
     {
       name: 'mainImage',
-      title: 'Main Image',
+      title: 'Main Image (optional)',
       type: 'image',
       options: {
         hotspot: true,
@@ -64,45 +64,45 @@ export default defineType({
     },
     {
       name: 'challenge',
-      title: 'The Challenge',
+      title: 'The Challenge (optional)',
       type: 'portableText',
     },
     {
       name: 'solution',
-      title: 'The Solution',
+      title: 'The Solution (optional)',
       type: 'portableText',
     },
     {
       name: 'results',
-      title: 'The Results',
+      title: 'The Results (optional)',
       type: 'portableText',
     },
     {
       name: 'testimonial',
-      title: 'Client Testimonial',
+      title: 'Client Testimonial (optional)',
       type: 'object',
       fields: [
         {
           name: 'quote',
-          title: 'Quote',
+          title: 'Quote (optional)',
           type: 'text',
           rows: 3,
         },
         {
           name: 'author',
-          title: 'Author Name',
+          title: 'Author Name (optional)',
           type: 'string',
         },
         {
           name: 'position',
-          title: 'Author Position',
+          title: 'Author Position (optional)',
           type: 'string',
         },
       ],
     },
     {
       name: 'gallery',
-      title: 'Image Gallery',
+      title: 'Image Gallery (optional)',
       type: 'array',
       of: [
         {
@@ -119,7 +119,7 @@ export default defineType({
             },
             {
               name: 'caption',
-              title: 'Caption',
+              title: 'Caption (optional)',
               type: 'string',
             },
           ],
@@ -128,7 +128,7 @@ export default defineType({
     },
     {
       name: 'seo',
-      title: 'SEO',
+      title: 'SEO (optional)',
       type: 'seo',
     },
   ],

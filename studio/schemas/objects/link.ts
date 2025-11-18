@@ -22,7 +22,7 @@ export default defineType({
     },
     {
       name: 'external',
-      title: 'External Link',
+      title: 'External Link (optional)',
       type: 'boolean',
       description: 'Opens in a new tab',
       initialValue: false,

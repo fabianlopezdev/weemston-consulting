@@ -23,7 +23,7 @@ export default defineType({
     },
     {
       name: 'image',
-      title: 'Image',
+      title: 'Image (optional)',
       type: 'image',
       options: {
         hotspot: true,
@@ -31,7 +31,7 @@ export default defineType({
     },
     {
       name: 'bio',
-      title: 'Bio',
+      title: 'Bio (optional)',
       type: 'text',
       rows: 3,
     },

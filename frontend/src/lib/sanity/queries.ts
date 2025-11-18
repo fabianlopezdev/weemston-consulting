@@ -5,8 +5,11 @@ export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0] {
     _id,
     title,
-    description,
-    logo,
+    header {
+      displayMode,
+      logo
+    },
+    favicon,
     colors {
       primary,
       secondary,

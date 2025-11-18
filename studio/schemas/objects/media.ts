@@ -7,7 +7,7 @@ export default defineType({
   fields: [
     {
       name: 'mediaType',
-      title: 'Media Type',
+      title: 'Media Type (optional)',
       type: 'string',
       options: {
         list: [
@@ -35,7 +35,7 @@ export default defineType({
         },
         {
           name: 'caption',
-          title: 'Caption',
+          title: 'Caption (optional)',
           type: 'string',
         },
       ],
@@ -66,14 +66,14 @@ export default defineType({
     },
     {
       name: 'videoPoster',
-      title: 'Video Poster Image',
+      title: 'Video Poster Image (optional)',
       type: 'image',
       description: 'Thumbnail shown before video plays',
       hidden: ({ parent }) => parent?.mediaType !== 'video',
     },
     {
       name: 'videoCaption',
-      title: 'Video Caption',
+      title: 'Video Caption (optional)',
       type: 'string',
       hidden: ({ parent }) => parent?.mediaType !== 'video',
     },

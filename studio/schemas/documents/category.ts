@@ -23,7 +23,7 @@ export default defineType({
     },
     {
       name: 'description',
-      title: 'Description',
+      title: 'Description (optional)',
       type: 'text',
       rows: 2,
     },

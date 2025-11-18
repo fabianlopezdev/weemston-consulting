@@ -8,7 +8,7 @@ export default defineType({
   fields: [
     {
       name: 'seo',
-      title: 'SEO',
+      title: 'SEO (optional)',
       type: 'seo',
     },
     {
@@ -28,7 +28,7 @@ export default defineType({
     },
     {
       name: 'sections',
-      title: 'Page Sections',
+      title: 'Page Sections (optional)',
       type: 'array',
       description:
         'Drag to reorder sections. Toggle enabled/disabled for each section.',

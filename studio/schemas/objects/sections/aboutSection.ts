@@ -29,7 +29,7 @@ export default defineType({
     },
     {
       name: 'images',
-      title: 'Image Gallery',
+      title: 'Image Gallery (optional)',
       type: 'array',
       of: [
         {
@@ -47,7 +47,7 @@ export default defineType({
             },
             {
               name: 'caption',
-              title: 'Caption',
+              title: 'Caption (optional)',
               type: 'string',
             },
           ],

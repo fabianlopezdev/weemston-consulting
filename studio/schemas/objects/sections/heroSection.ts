@@ -21,20 +21,20 @@ export default defineType({
     },
     {
       name: 'subheading',
-      title: 'Subheading',
+      title: 'Subheading (optional)',
       type: 'text',
       rows: 2,
       description: 'Supporting text below the main heading',
     },
     {
       name: 'ctaButton',
-      title: 'Call to Action Button',
+      title: 'Call to Action Button (optional)',
       type: 'link',
       description: 'Primary action button',
     },
     {
       name: 'backgroundImage',
-      title: 'Background Image',
+      title: 'Background Image (optional)',
       type: 'image',
       options: {
         hotspot: true,
@@ -48,7 +48,6 @@ export default defineType({
           validation: (Rule) => Rule.required(),
         },
       ],
-      validation: (Rule) => Rule.required(),
     },
   ],
   preview: {

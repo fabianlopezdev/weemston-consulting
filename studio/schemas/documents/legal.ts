@@ -25,7 +25,7 @@ export default defineType({
     defineLanguageField(),
     {
       name: 'content',
-      title: 'Content',
+      title: 'Content (optional)',
       type: 'portableText',
     },
     {
