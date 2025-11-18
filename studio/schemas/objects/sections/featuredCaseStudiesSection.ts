@@ -17,7 +17,12 @@ export default defineType({
       title: 'Section Title',
       type: 'string',
       initialValue: 'Case Studies',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const parent = context.parent as { enabled?: boolean };
+          if (!parent?.enabled) return true;
+          return value ? true : 'Title is required when section is enabled';
+        }),
       hidden: ({ parent }) => !parent?.enabled,
     },
     {
@@ -37,7 +42,19 @@ export default defineType({
           to: [{ type: 'caseStudy' }],
         },
       ],
-      validation: (Rule) => Rule.max(6).required().min(1),
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const parent = context.parent as { enabled?: boolean };
+          if (!parent?.enabled) return true;
+
+          if (!value || value.length === 0) {
+            return 'At least 1 case study required when section is enabled';
+          }
+          if (value.length > 6) {
+            return 'Maximum 6 case studies allowed';
+          }
+          return true;
+        }),
       hidden: ({ parent }) => !parent?.enabled,
     },
     {

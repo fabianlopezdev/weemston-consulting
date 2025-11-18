@@ -17,14 +17,24 @@ export default defineType({
       title: 'Section Title',
       type: 'string',
       initialValue: 'About Us',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const parent = context.parent as { enabled?: boolean };
+          if (!parent?.enabled) return true;
+          return value ? true : 'Title is required when section is enabled';
+        }),
       hidden: ({ parent }) => !parent?.enabled,
     },
     {
       name: 'content',
       title: 'Content',
       type: 'portableText',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const parent = context.parent as { enabled?: boolean };
+          if (!parent?.enabled) return true;
+          return value ? true : 'Content is required when section is enabled';
+        }),
       hidden: ({ parent }) => !parent?.enabled,
     },
     {

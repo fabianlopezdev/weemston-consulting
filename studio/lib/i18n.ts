@@ -41,7 +41,14 @@ export function defineLanguageField() {
       })),
     },
     initialValue: baseLanguage?.id,
-    validation: (Rule) => Rule.required(),
+    validation: (Rule) =>
+      Rule.custom((value) => {
+        // Only require language field in multi-language setups where it's visible
+        if (isMultiLanguage && !value) {
+          return 'Language is required';
+        }
+        return true;
+      }),
     readOnly: true,
     hidden: !isMultiLanguage,
     description: isMultiLanguage

@@ -17,7 +17,12 @@ export default defineType({
       title: 'Section Title',
       type: 'string',
       initialValue: 'Frequently Asked Questions',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const parent = context.parent as { enabled?: boolean };
+          if (!parent?.enabled) return true;
+          return value ? true : 'Title is required when section is enabled';
+        }),
       hidden: ({ parent }) => !parent?.enabled,
     },
     {
@@ -59,7 +64,16 @@ export default defineType({
           },
         },
       ],
-      validation: (Rule) => Rule.required().min(1),
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const parent = context.parent as { enabled?: boolean };
+          if (!parent?.enabled) return true;
+
+          if (!value || value.length === 0) {
+            return 'At least 1 FAQ item required when section is enabled';
+          }
+          return true;
+        }),
       hidden: ({ parent }) => !parent?.enabled,
     },
   ],

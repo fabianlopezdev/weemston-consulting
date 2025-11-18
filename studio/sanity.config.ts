@@ -18,7 +18,6 @@ import {
 } from 'react-icons/hi';
 
 // Singleton configuration
-const singletonActions = new Set(['publish', 'discardChanges', 'restore']);
 const singletonTypes = new Set([
   'siteSettings',
   'homepage',
@@ -207,9 +206,16 @@ export default defineConfig({
 
   document: {
     // Filter out actions that shouldn't be available for singletons
-    actions: (input, context) =>
-      singletonTypes.has(context.schemaType)
-        ? input.filter(({ action }) => action && singletonActions.has(action))
-        : input,
+    actions: (input, context) => {
+      if (!singletonTypes.has(context.schemaType)) {
+        return input;
+      }
+
+      // For singletons, block problematic actions instead of restricting to only specific ones
+      const blockedActions = ['duplicate', 'delete', 'unpublish'];
+      return input.filter(
+        ({ action }) => action && !blockedActions.includes(action)
+      );
+    },
   },
 });
