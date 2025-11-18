@@ -34,9 +34,9 @@ const bgImageUrl = backgroundImage
     )
   }
   <div class="hero__content container">
-    {tagline && <p class="hero__tagline">{tagline}</p>}
     <h1 class="hero__heading">{heading}</h1>
-    {subheading && <p class="hero__subheading">{subheading}</p>}
+    {tagline && <p class="hero__subheading">{tagline}</p>}
+    {subheading && <p class="hero__intro">{subheading}</p>}
     {
       ctaButton && (
         <a
@@ -82,14 +82,6 @@ const bgImageUrl = backgroundImage
     max-width: 800px;
   }
 
-  .hero__tagline {
-    font-size: var(--font-size-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-block-end: var(--space-sm);
-    opacity: 0.8;
-  }
-
   .hero__heading {
     font-size: var(--font-size-3xl);
     margin-block-end: var(--space-md);
@@ -98,8 +90,14 @@ const bgImageUrl = backgroundImage
 
   .hero__subheading {
     font-size: var(--font-size-lg);
-    margin-block-end: var(--space-lg);
+    margin-block-end: var(--space-md);
     opacity: 0.9;
+  }
+
+  .hero__intro {
+    font-size: var(--font-size-base);
+    margin-block-end: var(--space-lg);
+    opacity: 0.8;
   }
 
   .hero__cta {
@@ -131,6 +129,10 @@ const bgImageUrl = backgroundImage
 
     .hero__subheading {
       font-size: var(--font-size-base);
+    }
+
+    .hero__intro {
+      font-size: var(--font-size-sm);
     }
   }
 </style>

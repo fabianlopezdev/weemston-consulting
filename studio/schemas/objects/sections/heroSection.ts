@@ -6,13 +6,6 @@ export default defineType({
   type: 'object',
   fields: [
     {
-      name: 'tagline',
-      title: 'Tagline',
-      type: 'string',
-      description: 'Small text above the main heading',
-      validation: (Rule) => Rule.required(),
-    },
-    {
       name: 'heading',
       title: 'Main Heading',
       type: 'string',
@@ -20,11 +13,17 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     },
     {
-      name: 'subheading',
+      name: 'tagline',
       title: 'Subheading (optional)',
+      type: 'string',
+      description: 'Secondary headline below the main heading',
+    },
+    {
+      name: 'subheading',
+      title: 'Intro Paragraph (optional)',
       type: 'text',
-      rows: 2,
-      description: 'Supporting text below the main heading',
+      rows: 3,
+      description: 'Supporting paragraph text below the subheading',
     },
     {
       name: 'ctaButton',
