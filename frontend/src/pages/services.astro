@@ -6,7 +6,9 @@ import HeroSection from '@components/sections/HeroSection.astro';
 import SectionRenderer from '@components/sections/SectionRenderer.astro';
 
 const lang = Astro.locals.lang || 'en';
-const servicesPage = await client.fetch(servicesPageQuery, { language: lang });
+const servicesPage = await client.fetch(servicesPageQuery, {
+  documentId: `servicesPage-${lang}`,
+});
 
 if (!servicesPage) {
   return Astro.redirect('/404');

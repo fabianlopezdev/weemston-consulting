@@ -190,7 +190,7 @@ const pageSectionsQuery = `
 
 // Homepage (singleton per language)
 export const homepageQuery = groq`
-  *[_type == "homepage" && language == $language][0] {
+  *[_id == $documentId][0] {
     _id,
     title,
     language,
@@ -220,7 +220,7 @@ export const homepageQuery = groq`
 
 // Services Page (singleton per language)
 export const servicesPageQuery = groq`
-  *[_type == "servicesPage" && language == $language][0] {
+  *[_id == $documentId][0] {
     _id,
     title,
     language,
@@ -249,7 +249,7 @@ export const servicesPageQuery = groq`
 
 // Case Studies Page (singleton per language)
 export const caseStudiesPageQuery = groq`
-  *[_type == "caseStudiesPage" && language == $language][0] {
+  *[_id == $documentId][0] {
     _id,
     title,
     language,
@@ -278,7 +278,7 @@ export const caseStudiesPageQuery = groq`
 
 // Contact Page (singleton per language)
 export const contactPageQuery = groq`
-  *[_type == "contactPage" && language == $language][0] {
+  *[_id == $documentId][0] {
     _id,
     title,
     language,
@@ -307,7 +307,7 @@ export const contactPageQuery = groq`
 
 // About Page (singleton per language)
 export const aboutPageQuery = groq`
-  *[_type == "aboutPage" && language == $language][0] {
+  *[_id == $documentId][0] {
     _id,
     title,
     language,
