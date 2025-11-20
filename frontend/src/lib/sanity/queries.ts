@@ -233,6 +233,10 @@ const pageSectionsQuery = `
           }
         }
       }
+    },
+    _type == "ourApproachSection" => {
+      title,
+      content
     }
   }
 `;
