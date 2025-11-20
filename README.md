@@ -1,6 +1,6 @@
-# Website Boilerplate
+# Weemston Consulting
 
-A production-ready Astro + TypeScript + Sanity boilerplate with built-in i18n, accessibility, and comprehensive testing.
+The official website for Weemston Consulting, built with Astro, TypeScript, and Sanity CMS.
 
 ## Features
 
@@ -20,7 +20,7 @@ A production-ready Astro + TypeScript + Sanity boilerplate with built-in i18n, a
 
 ## Architecture
 
-This boilerplate uses an **npm workspaces monorepo** architecture for complete dependency isolation:
+This project uses an **npm workspaces monorepo** architecture for complete dependency isolation:
 
 - **`/frontend`** - Astro application (no React dependencies)
 - **`/studio`** - Sanity Studio (React-based CMS)
@@ -188,7 +188,7 @@ bun build:frontend && bun build:studio
 
 ## Internationalization (i18n)
 
-This boilerplate uses a **hybrid i18n approach**:
+This project uses a **hybrid i18n approach**:
 
 ### UI Strings (JSON)
 
@@ -217,7 +217,7 @@ Page content, blog posts, and dynamic content use Sanity:
 
 ### Adding a New Language
 
-The boilerplate starts with English but is fully ready for additional languages:
+The project starts with English but is fully ready for additional languages:
 
 **1. Update configuration files:**
 
@@ -259,9 +259,9 @@ export default defineConfig({
 - `/es` → Spanish
 - `/fr/blog` → French blog
 
-## Extending the Boilerplate
+## Extending the Project
 
-The boilerplate is architected to support features that aren't configured by default:
+The project is architected to support additional features:
 
 ### Switching Deployment Adapters
 
@@ -462,7 +462,7 @@ Comprehensive testing strategy with multiple tools. See [tests/TESTING.md](tests
 
 ## Accessibility
 
-This boilerplate is WCAG 2.1 AA compliant:
+This project is WCAG 2.1 AA compliant:
 
 - Semantic HTML5
 - ARIA labels and descriptions

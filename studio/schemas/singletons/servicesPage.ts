@@ -21,24 +21,9 @@ export default defineType({
     defineLanguageField(),
     {
       name: 'hero',
-      title: 'Hero Section',
+      title: 'Hero Section (optional)',
       type: 'heroSection',
       description: 'Main hero section at the top of the services page',
-      validation: (Rule) => Rule.required(),
-    },
-    {
-      name: 'sections',
-      title: 'Page Sections (optional)',
-      type: 'array',
-      description:
-        'Drag to reorder sections. Toggle enabled/disabled for each section.',
-      of: [
-        { type: 'featuredServicesSection' },
-        { type: 'featuredCaseStudiesSection' },
-        { type: 'testimonialsSection' },
-        { type: 'faqSection' },
-        { type: 'aboutSection' },
-      ],
     },
   ],
   preview: {

@@ -31,7 +31,7 @@ const singletonTypes = new Set([
 
 export default defineConfig({
   name: 'default',
-  title: 'Website Boilerplate',
+  title: 'Weemston Consulting',
 
   projectId: process.env.SANITY_STUDIO_PROJECT_ID || '',
   dataset: process.env.SANITY_STUDIO_DATASET || 'production',

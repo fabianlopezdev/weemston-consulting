@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "description": "Astro frontend for website boilerplate",
+  "description": "Astro frontend for Weemston Consulting",
   "type": "module",
   "private": true,
   "scripts": {

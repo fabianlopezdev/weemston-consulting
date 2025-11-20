@@ -1,7 +1,7 @@
 {
-  "name": "website-boilerplate",
+  "name": "weemston-consulting",
   "version": "0.1.0",
-  "description": "Astro + TypeScript + Sanity boilerplate for rapid website development",
+  "description": "Weemston Consulting website built with Astro, TypeScript, and Sanity CMS",
   "type": "module",
   "private": true,
   "workspaces": [

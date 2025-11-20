@@ -1,7 +1,7 @@
 {
   "name": "studio",
   "version": "0.1.0",
-  "description": "Sanity Studio for website boilerplate",
+  "description": "Sanity Studio for Weemston Consulting",
   "type": "module",
   "private": true,
   "scripts": {
