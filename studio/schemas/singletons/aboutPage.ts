@@ -27,18 +27,10 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     },
     {
-      name: 'sections',
-      title: 'Page Sections (optional)',
-      type: 'array',
-      description:
-        'Drag to reorder sections. Toggle enabled/disabled for each section.',
-      of: [
-        { type: 'featuredServicesSection' },
-        { type: 'featuredCaseStudiesSection' },
-        { type: 'testimonialsSection' },
-        { type: 'faqSection' },
-        { type: 'aboutSection' },
-      ],
+      name: 'content',
+      title: 'Page Content (optional)',
+      type: 'portableText',
+      description: 'Main content for the about page',
     },
   ],
   preview: {

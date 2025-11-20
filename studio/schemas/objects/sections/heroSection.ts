@@ -7,29 +7,15 @@ export default defineType({
   fields: [
     {
       name: 'heading',
-      title: 'Main Heading',
+      title: 'Main Heading (optional)',
       type: 'string',
-      description: 'The primary headline of your homepage',
-      validation: (Rule) => Rule.required(),
+      description: 'The primary headline for this page',
     },
     {
       name: 'tagline',
-      title: 'Subheading (optional)',
+      title: 'Tagline (optional)',
       type: 'string',
       description: 'Secondary headline below the main heading',
-    },
-    {
-      name: 'subheading',
-      title: 'Intro Paragraph (optional)',
-      type: 'text',
-      rows: 3,
-      description: 'Supporting paragraph text below the subheading',
-    },
-    {
-      name: 'ctaButton',
-      title: 'Call to Action Button (optional)',
-      type: 'link',
-      description: 'Primary action button',
     },
     {
       name: 'backgroundImage',
