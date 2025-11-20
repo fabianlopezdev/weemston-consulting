@@ -112,17 +112,12 @@ export default defineType({
       description: 'Must start with http:// or https://',
       hidden: ({ parent }) => parent?.linkType !== 'external',
       validation: (Rule) =>
-        Rule.custom((value, context) => {
+        Rule.uri({
+          scheme: ['http', 'https'],
+        }).custom((value, context) => {
           const parent = context.parent as { linkType?: string };
           if (parent?.linkType === 'external' && !value) {
             return 'External URL is required';
-          }
-          if (parent?.linkType === 'external' && value) {
-            // Validate URL format
-            const urlRule = Rule.uri({
-              scheme: ['http', 'https'],
-            });
-            return urlRule.validate(value);
           }
           return true;
         }),
