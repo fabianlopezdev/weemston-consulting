@@ -360,16 +360,12 @@ export const aboutPageQuery = groq`
     hero {
       tagline,
       heading,
-      subheading,
-      ctaButton {
-        ${linkProjection}
-      },
       backgroundImage {
         asset,
         alt
       }
     },
-    ${pageSectionsQuery},
+    content,
     seo {
       metaTitle,
       metaDescription,
