@@ -67,32 +67,13 @@ export const siteSettingsQuery = groq`
 `;
 
 // Services (document-level i18n)
-export const serviceQuery = groq`
-  *[_type == "service" && slug.current == $slug && language == $language][0] {
-    _id,
-    title,
-    slug,
-    language,
-    description,
-    features[],
-    icon,
-    content,
-    seo {
-      metaTitle,
-      metaDescription,
-      ogImage
-    }
-  }
-`;
-
 export const allServicesQuery = groq`
   *[_type == "service" && language == $language] | order(_createdAt desc) {
     _id,
     title,
-    slug,
     language,
-    description,
-    icon
+    icon,
+    content
   }
 `;
 
@@ -162,9 +143,8 @@ const pageSectionsQuery = `
       services[]-> {
         _id,
         title,
-        slug,
-        description,
-        icon
+        icon,
+        content
       },
       showAllLink
     },
@@ -287,6 +267,13 @@ export const servicesPageQuery = groq`
         asset,
         alt
       }
+    },
+    intro,
+    services[]-> {
+      _id,
+      title,
+      icon,
+      content
     },
     ${pageSectionsQuery},
     seo {

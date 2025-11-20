@@ -25,6 +25,25 @@ export default defineType({
       type: 'heroSection',
       description: 'Main hero section at the top of the services page',
     },
+    {
+      name: 'intro',
+      title: 'Intro Text',
+      type: 'text',
+      description: 'Introduction text displayed before the services list',
+      rows: 4,
+    },
+    {
+      name: 'services',
+      title: 'Services',
+      type: 'array',
+      description: 'Select and order the services to display on this page',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'service' }],
+        },
+      ],
+    },
   ],
   preview: {
     select: {

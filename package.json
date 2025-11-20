@@ -71,5 +71,8 @@
     "*.{ts,js,astro,json}": [
       ".husky/check-secrets.sh"
     ]
+  },
+  "dependencies": {
+    "astro-portabletext": "^0.12.0"
   }
 }
