@@ -15,9 +15,9 @@ export default defineType({
     },
     {
       name: 'iconOrImage',
-      title: 'Icon or Image',
+      title: 'Icon or Image (optional)',
       type: 'iconOrImage',
-      validation: (Rule) => Rule.required(),
+      description: 'Add an icon or image to display with this card',
     },
     {
       name: 'title',
