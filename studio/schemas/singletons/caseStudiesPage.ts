@@ -21,23 +21,27 @@ export default defineType({
     defineLanguageField(),
     {
       name: 'hero',
-      title: 'Hero Section',
+      title: 'Hero Section (optional)',
       type: 'heroSection',
       description: 'Main hero section at the top of the case studies page',
-      validation: (Rule) => Rule.required(),
     },
     {
-      name: 'sections',
-      title: 'Page Sections (optional)',
+      name: 'intro',
+      title: 'Intro Text',
+      type: 'text',
+      description: 'Introduction text displayed before the case studies list',
+      rows: 4,
+    },
+    {
+      name: 'caseStudies',
+      title: 'Case Studies',
       type: 'array',
-      description:
-        'Drag to reorder sections. Toggle enabled/disabled for each section.',
+      description: 'Select and order the case studies to display on this page',
       of: [
-        { type: 'featuredServicesSection' },
-        { type: 'featuredCaseStudiesSection' },
-        { type: 'testimonialsSection' },
-        { type: 'faqSection' },
-        { type: 'aboutSection' },
+        {
+          type: 'reference',
+          to: [{ type: 'caseStudy' }],
+        },
       ],
     },
   ],
