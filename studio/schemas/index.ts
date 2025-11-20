@@ -3,6 +3,7 @@ import seo from './objects/seo';
 import portableText from './objects/portableText';
 import media from './objects/media';
 import link from './objects/link';
+import navigationLink from './objects/navigationLink';
 import buttonColor from './objects/buttonColor';
 import iconOrImage from './objects/iconOrImage';
 import experienceCard from './objects/experienceCard';
@@ -37,6 +38,7 @@ export const schemaTypes = [
   portableText,
   media,
   link,
+  navigationLink,
   buttonColor,
   iconOrImage,
   experienceCard,

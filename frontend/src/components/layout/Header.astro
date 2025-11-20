@@ -53,16 +53,16 @@ const showText =
               const href = resolveLinkUrl(item);
               const isExternal =
                 item.openInNewTab || item.linkType === 'external';
+              const externalAttrs = isExternal
+                ? {
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    'aria-label': `${item.text} (${t('aria.external_link')})`,
+                  }
+                : {};
               return (
                 <li>
-                  <a
-                    href={href}
-                    {...(isExternal && {
-                      target: '_blank',
-                      rel: 'noopener noreferrer',
-                      'aria-label': `${item.text} (${t('aria.external_link')})`,
-                    })}
-                  >
+                  <a href={href} {...externalAttrs}>
                     {item.text}
                   </a>
                 </li>
