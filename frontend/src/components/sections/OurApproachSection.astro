@@ -1,10 +1,11 @@
 ---
 interface Props {
   title: string;
+  intro?: string;
   content: any; // Portable text content
 }
 
-const { title, content } = Astro.props;
+const { title, intro, content } = Astro.props;
 
 // TODO: Implement proper portable text rendering
 // For now, we'll extract plain text from portable text
@@ -24,6 +25,8 @@ const plainText = getPlainText(content);
 <section class="our-approach-section">
   <div class="container">
     <h2 class="our-approach-section__title">{title}</h2>
+
+    {intro && <p class="our-approach-section__intro">{intro}</p>}
 
     <div class="our-approach-section__content">
       {
@@ -46,7 +49,16 @@ const plainText = getPlainText(content);
   .our-approach-section__title {
     font-size: var(--font-size-2xl);
     text-align: center;
+    margin-block-end: var(--space-md);
+  }
+
+  .our-approach-section__intro {
+    font-size: var(--font-size-lg);
+    text-align: center;
+    max-width: 800px;
+    margin-inline: auto;
     margin-block-end: var(--space-xl);
+    opacity: 0.8;
   }
 
   .our-approach-section__content {

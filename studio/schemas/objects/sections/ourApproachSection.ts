@@ -26,6 +26,14 @@ export default defineType({
       hidden: ({ parent }) => !parent?.enabled,
     },
     {
+      name: 'intro',
+      title: 'Intro Line (optional)',
+      type: 'text',
+      rows: 2,
+      description: 'A brief introductory line that appears below the title',
+      hidden: ({ parent }) => !parent?.enabled,
+    },
+    {
       name: 'content',
       title: 'Content',
       type: 'portableText',

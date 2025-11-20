@@ -236,6 +236,7 @@ const pageSectionsQuery = `
     },
     _type == "ourApproachSection" => {
       title,
+      intro,
       content
     }
   }
