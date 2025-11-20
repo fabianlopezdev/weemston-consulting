@@ -1,3 +1,5 @@
+import { createElement } from 'react';
+import { Icon } from '@iconify/react';
 import { defineType } from 'sanity';
 
 export default defineType({
@@ -69,13 +71,20 @@ export default defineType({
       alt: 'image.alt',
     },
     prepare({ type, iconName, image, alt }) {
+      let media;
+      if (type === 'image' && image) {
+        media = image;
+      } else if (type === 'icon' && iconName) {
+        media = createElement(Icon, { icon: iconName });
+      }
+
       return {
         title: type === 'icon' ? 'Icon' : 'Image',
         subtitle:
           type === 'icon'
             ? iconName || 'No icon selected'
             : alt || 'No alt text',
-        media: type === 'image' ? image : undefined,
+        media,
       };
     },
   },

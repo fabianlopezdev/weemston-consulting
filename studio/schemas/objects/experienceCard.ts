@@ -1,3 +1,5 @@
+import { createElement } from 'react';
+import { Icon } from '@iconify/react';
 import { defineType } from 'sanity';
 
 export default defineType({
@@ -46,15 +48,23 @@ export default defineType({
       image: 'iconOrImage.image',
       iconName: 'iconOrImage.icon.name',
     },
-    prepare({ title, number, description, iconType, image, _iconName }) {
+    prepare({ title, number, description, iconType, image, iconName }) {
       const subtitle = number
         ? `${number} - ${description?.substring(0, 40) || 'No description'}${description && description.length > 40 ? '...' : ''}`
         : description?.substring(0, 60) || 'No description';
 
+      // Determine media based on type
+      let media;
+      if (iconType === 'image' && image) {
+        media = image;
+      } else if (iconType === 'icon' && iconName) {
+        media = createElement(Icon, { icon: iconName });
+      }
+
       return {
         title: title || 'Untitled card',
         subtitle,
-        media: iconType === 'image' ? image : undefined,
+        media,
       };
     },
   },

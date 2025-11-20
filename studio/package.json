@@ -12,6 +12,7 @@
     "seed": "sanity exec seed/initial.ts --with-user-token"
   },
   "dependencies": {
+    "@iconify/react": "^6.0.2",
     "@sanity/ui": "^3.1.11",
     "@sanity/vision": "^4.13.0",
     "react": "^18.3.1",
