@@ -213,6 +213,26 @@ const pageSectionsQuery = `
         alt,
         caption
       }
+    },
+    _type == "experienceSection" => {
+      title,
+      description,
+      cards[] {
+        _key,
+        number,
+        title,
+        description,
+        iconOrImage {
+          type,
+          icon {
+            name
+          },
+          image {
+            asset,
+            alt
+          }
+        }
+      }
     }
   }
 `;

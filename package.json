@@ -9,9 +9,10 @@
     "studio"
   ],
   "scripts": {
-    "dev": "concurrently \"npm:dev:*\"",
+    "dev": "concurrently \"npm:dev:frontend\" \"npm:dev:studio\" \"npm:dev:open\"",
     "dev:frontend": "npm run dev --workspace=frontend",
     "dev:studio": "npm run dev --workspace=studio",
+    "dev:open": "sleep 3 && open -a 'Brave Browser' http://localhost:4321 http://localhost:3333",
     "build": "npm run build --workspace=frontend",
     "build:frontend": "npm run build --workspace=frontend",
     "build:studio": "npm run build --workspace=studio",

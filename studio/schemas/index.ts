@@ -4,6 +4,8 @@ import portableText from './objects/portableText';
 import media from './objects/media';
 import link from './objects/link';
 import buttonColor from './objects/buttonColor';
+import iconOrImage from './objects/iconOrImage';
+import experienceCard from './objects/experienceCard';
 
 // Section types
 import heroSection from './objects/sections/heroSection';
@@ -12,6 +14,7 @@ import featuredCaseStudiesSection from './objects/sections/featuredCaseStudiesSe
 import testimonialsSection from './objects/sections/testimonialsSection';
 import faqSection from './objects/sections/faqSection';
 import aboutSection from './objects/sections/aboutSection';
+import experienceSection from './objects/sections/experienceSection';
 
 // Document types
 import service from './documents/service';
@@ -34,6 +37,8 @@ export const schemaTypes = [
   media,
   link,
   buttonColor,
+  iconOrImage,
+  experienceCard,
   // Sections
   heroSection,
   featuredServicesSection,
@@ -41,6 +46,7 @@ export const schemaTypes = [
   testimonialsSection,
   faqSection,
   aboutSection,
+  experienceSection,
   // Documents
   service,
   caseStudy,

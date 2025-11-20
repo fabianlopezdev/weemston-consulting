@@ -1,0 +1,205 @@
+---
+import { Icon } from 'astro-icon/components';
+import { urlForImage } from '@lib/sanity/image';
+
+interface IconData {
+  name: string;
+}
+
+interface ImageData {
+  asset: any;
+  alt?: string;
+}
+
+interface IconOrImage {
+  type: 'icon' | 'image';
+  icon?: IconData;
+  image?: ImageData;
+}
+
+interface ExperienceCard {
+  _key: string;
+  number: string;
+  title: string;
+  description: string;
+  iconOrImage: IconOrImage;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  cards: ExperienceCard[];
+}
+
+const { title, description, cards } = Astro.props;
+---
+
+<section class="experience-section">
+  <div class="container">
+    <div class="experience-section__header">
+      <h2 class="experience-section__title">{title}</h2>
+      {
+        description && (
+          <p class="experience-section__description">{description}</p>
+        )
+      }
+    </div>
+
+    <div class="experience-grid">
+      {
+        cards.map((card) => {
+          const hasIcon =
+            card.iconOrImage?.type === 'icon' && card.iconOrImage.icon?.name;
+          const hasImage =
+            card.iconOrImage?.type === 'image' && card.iconOrImage.image;
+
+          const imageUrl = hasImage
+            ? urlForImage(card.iconOrImage.image).width(100).height(100).url()
+            : null;
+
+          return (
+            <div class="experience-card">
+              <div class="experience-card__visual">
+                {hasIcon && (
+                  <div class="experience-card__icon">
+                    <Icon name={card.iconOrImage.icon.name} />
+                  </div>
+                )}
+                {hasImage && imageUrl && (
+                  <img
+                    src={imageUrl}
+                    alt={card.iconOrImage.image.alt || card.title}
+                    class="experience-card__image"
+                  />
+                )}
+                <div class="experience-card__number">{card.number}</div>
+              </div>
+              <div class="experience-card__content">
+                <h3 class="experience-card__title">{card.title}</h3>
+                <p class="experience-card__description">{card.description}</p>
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .experience-section {
+    padding: var(--space-2xl) 0;
+    background: var(--color-background-alt, #f9f9f9);
+  }
+
+  .experience-section__header {
+    text-align: center;
+    margin-block-end: var(--space-xl);
+  }
+
+  .experience-section__title {
+    font-size: var(--font-size-2xl);
+    margin-block-end: var(--space-md);
+  }
+
+  .experience-section__description {
+    font-size: var(--font-size-lg);
+    max-width: 600px;
+    margin-inline: auto;
+    opacity: 0.8;
+  }
+
+  .experience-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .experience-card {
+    padding: var(--space-lg);
+    background: white;
+    border: 1px solid var(--color-border, #e0e0e0);
+    border-radius: var(--border-radius, 8px);
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .experience-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .experience-card__visual {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-block-end: var(--space-md);
+  }
+
+  .experience-card__icon,
+  .experience-card__image {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+
+  .experience-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary, #0066cc);
+  }
+
+  .experience-card__icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .experience-card__image {
+    object-fit: contain;
+    border-radius: var(--border-radius-sm, 4px);
+  }
+
+  .experience-card__number {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--color-primary, #0066cc);
+    line-height: 1;
+  }
+
+  .experience-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .experience-card__title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .experience-card__description {
+    font-size: var(--font-size-sm);
+    opacity: 0.8;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .experience-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .experience-card__number {
+      font-size: var(--font-size-xl);
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .experience-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

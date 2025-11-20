@@ -5,6 +5,7 @@ import FeaturedCaseStudiesSection from './FeaturedCaseStudiesSection.astro';
 import TestimonialsSection from './TestimonialsSection.astro';
 import FaqSection from './FaqSection.astro';
 import AboutSection from './AboutSection.astro';
+import ExperienceSection from './ExperienceSection.astro';
 
 interface Props {
   section: any;
@@ -36,3 +37,4 @@ if (!section.enabled) {
 }
 {section._type === 'faqSection' && <FaqSection {...section} />}
 {section._type === 'aboutSection' && <AboutSection {...section} />}
+{section._type === 'experienceSection' && <ExperienceSection {...section} />}

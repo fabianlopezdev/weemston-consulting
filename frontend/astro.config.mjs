@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 import sitemap from '@astrojs/sitemap';
 import sanity from '@sanity/astro';
+import icon from 'astro-icon';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -37,6 +38,9 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
+  server: {
+    open: true,
+  },
   i18n: {
     defaultLocale: 'en',
     locales: ['en'], // Add more: ['en', 'es', 'fr']
@@ -45,6 +49,7 @@ export default defineConfig({
     },
   },
   integrations: [
+    icon(),
     sanity({
       projectId: env.PUBLIC_SANITY_PROJECT_ID,
       dataset: env.PUBLIC_SANITY_DATASET,
