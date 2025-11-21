@@ -1,9 +1,9 @@
-/* Forum Font Family - Headings */
+/* Lora Font Family - Headings */
 
 @font-face {
-  font-family: 'Forum';
-  src: url('/fonts/forum/Forum-regular.woff2') format('woff2');
-  font-weight: 400;
+  font-family: 'Lora';
+  src: url('/fonts/lora/Lora-VariableFont_wght.woff2') format('woff2');
+  font-weight: 400 700;
   font-style: normal;
   font-display: swap;
 }

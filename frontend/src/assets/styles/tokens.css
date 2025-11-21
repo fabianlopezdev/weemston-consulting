@@ -19,7 +19,7 @@
   --font-sans:
     'Now', system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial',
     sans-serif;
-  --font-heading: 'Forum', var(--font-sans);
+  --font-heading: 'Lora', var(--font-sans);
   --font-mono: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
 
   --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
