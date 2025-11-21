@@ -218,6 +218,23 @@ const pageSectionsQuery = `
       title,
       intro,
       content
+    },
+    _type == "howWeWorkSection" => {
+      title,
+      description,
+      cards[] {
+        _key,
+        title,
+        description,
+        type,
+        icon {
+          name
+        },
+        image {
+          asset,
+          alt
+        }
+      }
     }
   }
 `;
