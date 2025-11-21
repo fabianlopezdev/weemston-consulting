@@ -15,16 +15,22 @@ export default defineType({
     },
     {
       name: 'position',
-      title: 'Position',
+      title: 'Position (optional)',
       type: 'string',
       description: 'Job title or role',
-      validation: (Rule) => Rule.required(),
     },
     {
       name: 'company',
       title: 'Company (optional)',
       type: 'string',
       description: 'Company or organization name',
+    },
+    {
+      name: 'websiteUrl',
+      title: 'Website URL (optional)',
+      type: 'url',
+      description:
+        'Link to company website - if provided, company name will be clickable',
     },
     {
       name: 'quote',

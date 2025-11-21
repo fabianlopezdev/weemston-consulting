@@ -4,8 +4,9 @@ import { urlForImage } from '@lib/sanity/image';
 interface Testimonial {
   _id: string;
   name: string;
-  position: string;
+  position?: string;
   company?: string;
+  websiteUrl?: string;
   quote: string;
   avatar?: any;
 }
@@ -45,8 +46,26 @@ const { title, testimonials } = Astro.props;
                 <div class="testimonial-card__info">
                   <p class="testimonial-card__name">{testimonial.name}</p>
                   <p class="testimonial-card__position">
-                    {testimonial.position}
-                    {testimonial.company && ` at ${testimonial.company}`}
+                    {testimonial.position && testimonial.position}
+                    {testimonial.company &&
+                      (testimonial.websiteUrl ? (
+                        <>
+                          {testimonial.position && ' at '}
+                          <a
+                            href={testimonial.websiteUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="testimonial-card__company-link"
+                          >
+                            {testimonial.company}
+                          </a>
+                        </>
+                      ) : (
+                        <>
+                          {testimonial.position && ' at '}
+                          {testimonial.company}
+                        </>
+                      ))}
                   </p>
                 </div>
               </div>
@@ -114,6 +133,16 @@ const { title, testimonials } = Astro.props;
   .testimonial-card__position {
     font-size: var(--font-size-sm);
     opacity: 0.7;
+  }
+
+  .testimonial-card__company-link {
+    color: var(--color-primary, #0066cc);
+    text-decoration: none;
+    transition: text-decoration var(--transition-fast, 150ms);
+  }
+
+  .testimonial-card__company-link:hover {
+    text-decoration: underline;
   }
 
   @media (max-width: 768px) {

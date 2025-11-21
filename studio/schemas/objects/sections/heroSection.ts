@@ -18,6 +18,19 @@ export default defineType({
       description: 'Secondary headline below the main heading',
     },
     {
+      name: 'subheading',
+      title: 'Intro Paragraph (optional)',
+      type: 'text',
+      rows: 3,
+      description: 'Supporting paragraph text below the subheading',
+    },
+    {
+      name: 'ctaButton',
+      title: 'Call to Action Button (optional)',
+      type: 'link',
+      description: 'Primary action button',
+    },
+    {
       name: 'backgroundImage',
       title: 'Background Image (optional)',
       type: 'image',

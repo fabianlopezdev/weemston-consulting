@@ -170,6 +170,7 @@ const pageSectionsQuery = `
         name,
         position,
         company,
+        websiteUrl,
         quote,
         avatar {
           asset,
