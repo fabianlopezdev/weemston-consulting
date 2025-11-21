@@ -22,6 +22,13 @@ export default defineType({
       },
     },
     {
+      name: 'homepageText',
+      title: 'Homepage Text',
+      type: 'portableText',
+      description:
+        'Text to display when this service is featured on the homepage',
+    },
+    {
       name: 'content',
       title: 'Content (optional)',
       type: 'portableText',

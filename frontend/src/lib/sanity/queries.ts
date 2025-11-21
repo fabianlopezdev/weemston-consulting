@@ -144,7 +144,7 @@ const pageSectionsQuery = `
         _id,
         title,
         icon,
-        content
+        homepageText
       },
       showAllLink
     },

@@ -1,11 +1,11 @@
 ---
 import { urlForImage } from '@lib/sanity/image';
+import PortableText from '@components/sanity/PortableText.astro';
 
 interface Service {
   _id: string;
   title: string;
-  slug: { current: string };
-  description?: string;
+  homepageText?: any;
   icon?: any;
 }
 
@@ -38,15 +38,17 @@ const { title, description, services, showAllLink } = Astro.props;
             : null;
 
           return (
-            <a href={`/services/${service.slug.current}`} class="service-card">
+            <a href="/services" class="service-card">
               {iconUrl && (
                 <div class="service-card__icon">
                   <img src={iconUrl} alt="" />
                 </div>
               )}
               <h3 class="service-card__title">{service.title}</h3>
-              {service.description && (
-                <p class="service-card__description">{service.description}</p>
+              {service.homepageText && (
+                <div class="service-card__description">
+                  <PortableText content={service.homepageText} />
+                </div>
               )}
             </a>
           );
