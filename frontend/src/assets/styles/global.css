@@ -41,7 +41,8 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: var(--font-weight-bold);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-normal);
   line-height: var(--line-height-tight);
   text-wrap: balance;
 }

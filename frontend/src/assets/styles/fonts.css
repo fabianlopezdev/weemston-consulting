@@ -1,3 +1,13 @@
+/* Forum Font Family - Headings */
+
+@font-face {
+  font-family: 'Forum';
+  src: url('/fonts/forum/Forum-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Now Font Family - Body Text */
 
 @font-face {
