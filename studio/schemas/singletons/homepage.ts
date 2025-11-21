@@ -39,6 +39,7 @@ export default defineType({
         { type: 'aboutSection' },
         { type: 'experienceSection' },
         { type: 'ourApproachSection' },
+        { type: 'howWeWorkSection' },
       ],
     },
   ],

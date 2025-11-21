@@ -7,6 +7,7 @@ import navigationLink from './objects/navigationLink';
 import buttonColor from './objects/buttonColor';
 import iconOrImage from './objects/iconOrImage';
 import experienceCard from './objects/experienceCard';
+import howWeWorkCard from './objects/howWeWorkCard';
 
 // Section types
 import heroSection from './objects/sections/heroSection';
@@ -17,6 +18,7 @@ import faqSection from './objects/sections/faqSection';
 import aboutSection from './objects/sections/aboutSection';
 import experienceSection from './objects/sections/experienceSection';
 import ourApproachSection from './objects/sections/ourApproachSection';
+import howWeWorkSection from './objects/sections/howWeWorkSection';
 
 // Document types
 import service from './documents/service';
@@ -42,6 +44,7 @@ export const schemaTypes = [
   buttonColor,
   iconOrImage,
   experienceCard,
+  howWeWorkCard,
   // Sections
   heroSection,
   featuredServicesSection,
@@ -51,6 +54,7 @@ export const schemaTypes = [
   aboutSection,
   experienceSection,
   ourApproachSection,
+  howWeWorkSection,
   // Documents
   service,
   caseStudy,

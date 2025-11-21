@@ -1,0 +1,189 @@
+---
+import { Icon } from 'astro-icon/components';
+import { urlForImage } from '@lib/sanity/image';
+
+interface IconData {
+  name: string;
+}
+
+interface ImageData {
+  asset: any;
+  alt?: string;
+}
+
+interface HowWeWorkCard {
+  _key: string;
+  title: string;
+  description: string;
+  type?: 'none' | 'icon' | 'image';
+  icon?: IconData;
+  image?: ImageData;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  cards: HowWeWorkCard[];
+}
+
+const { title, description, cards } = Astro.props;
+---
+
+<section class="how-we-work-section">
+  <div class="container">
+    <div class="how-we-work-section__header">
+      <h2 class="how-we-work-section__title">{title}</h2>
+      {
+        description && (
+          <p class="how-we-work-section__description">{description}</p>
+        )
+      }
+    </div>
+
+    <div class="how-we-work-grid">
+      {
+        cards.map((card) => {
+          const hasIcon = card.type === 'icon' && card.icon?.name;
+          const hasImage = card.type === 'image' && card.image;
+
+          const imageUrl = hasImage
+            ? urlForImage(card.image).width(100).height(100).url()
+            : null;
+
+          return (
+            <div class="how-we-work-card">
+              {(hasIcon || hasImage) && (
+                <div class="how-we-work-card__visual">
+                  {hasIcon && (
+                    <div class="how-we-work-card__icon">
+                      <Icon name={card.icon.name} />
+                    </div>
+                  )}
+                  {hasImage && imageUrl && (
+                    <img
+                      src={imageUrl}
+                      alt={card.image.alt || card.title}
+                      class="how-we-work-card__image"
+                    />
+                  )}
+                </div>
+              )}
+              <div class="how-we-work-card__content">
+                <h3 class="how-we-work-card__title">{card.title}</h3>
+                <p class="how-we-work-card__description">{card.description}</p>
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .how-we-work-section {
+    padding: var(--space-2xl) 0;
+    background: var(--color-background-alt, #f9f9f9);
+  }
+
+  .how-we-work-section__header {
+    text-align: center;
+    margin-block-end: var(--space-xl);
+  }
+
+  .how-we-work-section__title {
+    font-size: var(--font-size-2xl);
+    margin-block-end: var(--space-md);
+  }
+
+  .how-we-work-section__description {
+    font-size: var(--font-size-lg);
+    max-width: 600px;
+    margin-inline: auto;
+    opacity: 0.8;
+  }
+
+  .how-we-work-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .how-we-work-card {
+    padding: var(--space-lg);
+    background: white;
+    border: 1px solid var(--color-border, #e0e0e0);
+    border-radius: var(--border-radius, 8px);
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .how-we-work-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .how-we-work-card__visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-block-end: var(--space-md);
+  }
+
+  .how-we-work-card__icon,
+  .how-we-work-card__image {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+  }
+
+  .how-we-work-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary, #0066cc);
+  }
+
+  .how-we-work-card__icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .how-we-work-card__image {
+    object-fit: contain;
+    border-radius: var(--border-radius-sm, 4px);
+  }
+
+  .how-we-work-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    text-align: center;
+  }
+
+  .how-we-work-card__title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .how-we-work-card__description {
+    font-size: var(--font-size-sm);
+    opacity: 0.8;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .how-we-work-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .how-we-work-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
