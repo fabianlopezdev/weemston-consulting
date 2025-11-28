@@ -5,6 +5,8 @@ const linkProjection = `
   text,
   buttonColor {
     colorType,
+    shade,
+    useBaseTextColor,
     customColor {
       label,
       value

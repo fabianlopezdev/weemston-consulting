@@ -14,8 +14,95 @@ interface SiteColors {
 }
 
 interface ButtonColorData {
-  colorType: 'primary' | 'secondary' | 'accent' | 'custom';
+  colorType: string;
+  shade?: number;
+  useBaseTextColor?: boolean;
+  // Legacy fields for backwards compatibility
   customColor?: ColorData;
+}
+
+/**
+ * Lightens a hex color by mixing with white
+ * @param hex - Hex color string (with or without #)
+ * @param amount - Amount to lighten (0-1, default 0.3 = 30%)
+ */
+export function lighten(hex: string, amount = 0.3): string {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return hex;
+
+  const r = Math.round(rgb.r + (255 - rgb.r) * amount);
+  const g = Math.round(rgb.g + (255 - rgb.g) * amount);
+  const b = Math.round(rgb.b + (255 - rgb.b) * amount);
+
+  return rgbToHex(r, g, b);
+}
+
+/**
+ * Darkens a hex color by mixing with black
+ * @param hex - Hex color string (with or without #)
+ * @param amount - Amount to darken (0-1, default 0.2 = 20%)
+ */
+export function darken(hex: string, amount = 0.2): string {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return hex;
+
+  const r = Math.round(rgb.r * (1 - amount));
+  const g = Math.round(rgb.g * (1 - amount));
+  const b = Math.round(rgb.b * (1 - amount));
+
+  return rgbToHex(r, g, b);
+}
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const cleanHex = hex.replace('#', '');
+  if (cleanHex.length !== 6) return null;
+
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return null;
+
+  return { r, g, b };
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  const toHex = (n: number) =>
+    Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+/**
+ * Gets the base color for a color type
+ */
+function getBaseColor(
+  colorType: string,
+  siteColors: SiteColors | null | undefined
+): string {
+  // Extract base color type (handle legacy '-light' and '-dark' suffixes)
+  const baseType = colorType.replace(/-light$/, '').replace(/-dark$/, '');
+
+  switch (baseType) {
+    case 'primary':
+      return siteColors?.primary?.value || '#0066cc';
+    case 'secondary':
+      return siteColors?.secondary?.value || '#6c757d';
+    case 'accent':
+    default:
+      return siteColors?.accent?.value || '#4ecdc4';
+  }
+}
+
+/**
+ * Resolves button text color based on useBaseTextColor setting
+ * @param buttonColor - The button color object from Sanity
+ * @returns CSS color value (hex string)
+ */
+export function resolveButtonTextColor(
+  buttonColor: ButtonColorData | null | undefined
+): string {
+  // true = base (dark text), false/undefined = contrast (white text)
+  return buttonColor?.useBaseTextColor ? '#1a1a1a' : '#ffffff';
 }
 
 /**
@@ -30,21 +117,34 @@ export function resolveButtonColor(
 ): string {
   // Default to accent color if no button color specified
   if (!buttonColor) {
-    return siteColors?.accent?.value || 'var(--color-accent, #0066cc)';
+    return siteColors?.accent?.value || 'var(--color-accent, #4ecdc4)';
   }
 
-  const { colorType, customColor } = buttonColor;
+  const { colorType, shade, customColor } = buttonColor;
 
-  switch (colorType) {
-    case 'primary':
-      return siteColors?.primary?.value || 'var(--color-primary, #0066cc)';
-    case 'secondary':
-      return siteColors?.secondary?.value || 'var(--color-secondary, #6c757d)';
-    case 'accent':
-      return siteColors?.accent?.value || 'var(--color-accent, #0066cc)';
-    case 'custom':
-      return customColor?.value || 'var(--color-accent, #0066cc)';
-    default:
-      return siteColors?.accent?.value || 'var(--color-accent, #0066cc)';
+  // Handle legacy 'custom' color type
+  if (colorType === 'custom' && customColor?.value) {
+    return customColor.value;
   }
+
+  // Get base color
+  const baseColor = getBaseColor(colorType, siteColors);
+
+  // Handle legacy '-light' and '-dark' suffixes (backwards compatibility)
+  if (colorType.endsWith('-light')) {
+    return lighten(baseColor, 0.3); // 30% lighter
+  }
+  if (colorType.endsWith('-dark')) {
+    return baseColor; // Dark was the base, so just return base
+  }
+
+  // Handle new shade system (0 = base, 100 = lightest)
+  const shadeValue = shade ?? 0;
+  if (shadeValue > 0) {
+    // 0 = no change, 100 = 50% lighter
+    const amount = shadeValue / 200;
+    return lighten(baseColor, amount);
+  }
+
+  return baseColor;
 }

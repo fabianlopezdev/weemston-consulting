@@ -1,7 +1,10 @@
 ---
 import { urlForImage } from '@lib/sanity/image';
 import { resolveLinkUrl } from '@lib/sanity/linkResolver';
-import { resolveButtonColor } from '@lib/sanity/colorResolver';
+import {
+  resolveButtonColor,
+  resolveButtonTextColor,
+} from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 
@@ -49,20 +52,25 @@ const settings = await client.fetch(siteSettingsQuery);
 const ctaColor = ctaButton
   ? resolveButtonColor(ctaButton.buttonColor, settings?.colors)
   : null;
+const ctaTextColor = ctaButton
+  ? resolveButtonTextColor(ctaButton.buttonColor)
+  : null;
 ---
 
 <section class="hero">
-  {
-    bgImageUrl && (
-      <div class="hero__background">
+  <div class="hero__background">
+    {
+      bgImageUrl ? (
         <img
           src={bgImageUrl}
           alt={backgroundImage.alt || ''}
           class="hero__image"
         />
-      </div>
-    )
-  }
+      ) : (
+        <div class="hero__fallback" />
+      )
+    }
+  </div>
   <div class="hero__content container">
     <h1 class="hero__heading">{heading}</h1>
     {tagline && <p class="hero__subheading">{tagline}</p>}
@@ -72,7 +80,11 @@ const ctaColor = ctaButton
         <a
           href={ctaHref}
           class="hero__cta"
-          style={ctaColor ? `background: ${ctaColor}` : undefined}
+          style={
+            ctaColor || ctaTextColor
+              ? `${ctaColor ? `background: ${ctaColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
+              : undefined
+          }
           target={ctaOpenInNewTab ? '_blank' : undefined}
           rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
         >
@@ -85,19 +97,60 @@ const ctaColor = ctaButton
 
 <style>
   .hero {
-    position: relative;
-    min-height: 60vh;
+    /* Base values */
+    --hero-margin-inline: var(--space-lg);
+    --hero-margin-block: var(--space-lg);
+    --hero-radius: var(--border-radius-lg);
+
+    /* Dynamic values based on scroll progress (0 to 1) */
+    /* When progress is 0 (top), we use full margin/radius. */
+    /* When progress is 1 (scrolled), we use 0 margin/radius. */
+    margin-inline: calc(
+      var(--hero-margin-inline) * (1 - var(--scroll-progress, 0))
+    );
+    /* margin-block-end kept fixed to preserve distance */
+    border-radius: calc(var(--hero-radius) * (1 - var(--scroll-progress, 0)));
+
+    height: calc(100dvh - var(--header-height) - var(--space-lg));
     display: flex;
     align-items: center;
-    justify-content: center;
     overflow: hidden;
-    padding: var(--space-2xl) 0;
+    background-color: var(--color-primary);
+    position: relative; /* Ensure positioning context */
+    will-change: margin, border-radius; /* Optimize for animation */
   }
 
   .hero__background {
     position: absolute;
     inset: 0;
     z-index: 0;
+    transform: scale(var(--hero-scale, 1));
+    will-change: transform;
+    transform-origin: center center;
+  }
+
+  /* Gradient Overlay */
+  .hero__background::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.1),
+      rgba(0, 0, 0, 0.5)
+    );
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .hero__fallback {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      135deg,
+      var(--color-primary) 30%,
+      var(--color-accent) 120%
+    );
   }
 
   .hero__image {
@@ -108,15 +161,33 @@ const ctaColor = ctaButton
 
   .hero__content {
     position: relative;
-    z-index: 1;
+    z-index: 2; /* Ensure content is above overlay */
     text-align: center;
-    max-width: 800px;
+    color: white; /* Ensure text is white on dark overlay/gradient */
+    max-width: 800px; /* Constrain width for better readability */
+    margin-inline: auto;
+
+    /* Entry Animation */
+    animation: slideUpFade 0.8s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  @keyframes slideUpFade {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .hero__heading {
-    font-size: var(--font-size-3xl);
+    font-family: var(--font-heading); /* Lora */
+    font-size: var(--font-size-4xl);
     margin-block-end: var(--space-md);
-    line-height: 1.2;
+    line-height: 1.1;
+    font-weight: 400;
+    text-wrap: balance;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .hero__subheading {
@@ -126,9 +197,12 @@ const ctaColor = ctaButton
   }
 
   .hero__intro {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-lg);
     margin-block-end: var(--space-lg);
-    opacity: 0.8;
+    opacity: 0.9;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    max-width: 60ch;
+    margin-inline: auto;
   }
 
   .hero__cta {
@@ -136,13 +210,14 @@ const ctaColor = ctaButton
     padding: var(--button-padding-vertical, var(--space-md))
       var(--button-padding-horizontal, var(--space-lg));
     background: var(--color-primary, #0066cc);
-    color: white;
+    color: white; /* Default, overridden by inline style when buttonColor is set */
     text-decoration: none;
     border-radius: var(--button-border-radius, 4px);
     font-weight: 600;
     transition:
       transform 0.2s,
-      background 0.2s;
+      background 0.2s,
+      color 0.2s;
   }
 
   .hero__cta:hover {
@@ -152,6 +227,7 @@ const ctaColor = ctaButton
 
   @media (max-width: 768px) {
     .hero {
+      height: auto;
       min-height: 50vh;
     }
 
@@ -168,3 +244,45 @@ const ctaColor = ctaButton
     }
   }
 </style>
+
+<script>
+  // Scroll-driven animation for Hero section
+  const hero = document.querySelector('.hero') as HTMLElement;
+
+  if (hero) {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const maxScroll = 200; // Pixels to scroll before fully expanded
+
+      // Calculate progress: 0 at top, 1 at maxScroll
+      const progress = Math.min(scrollY / maxScroll, 1);
+
+      // Calculate zoom scale (starts at 1, increases slowly)
+      // 0.0005 factor means at 1000px scroll, scale is 1.5
+      const scale = 1 + scrollY * 0.0005;
+
+      // Update CSS variables
+      hero.style.setProperty('--scroll-progress', progress.toString());
+      hero.style.setProperty('--hero-scale', scale.toString());
+    };
+
+    // Use requestAnimationFrame for smooth performance
+    let ticking = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            handleScroll();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      },
+      { passive: true }
+    );
+
+    // Initial check
+    handleScroll();
+  }
+</script>
