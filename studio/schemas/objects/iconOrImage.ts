@@ -40,16 +40,34 @@ export default defineType({
       name: 'image',
       title: 'Upload Image',
       type: 'image',
+      description:
+        'For best performance, use WebP format. Convert at anywebp.com or squoosh.app',
       options: {
         hotspot: true,
       },
+      fieldsets: [
+        {
+          name: 'seoFilename',
+          title: 'SEO Filename (optional)',
+          options: { collapsible: true, collapsed: true },
+        },
+      ],
       fields: [
         {
           name: 'alt',
           title: 'Alt Text',
           type: 'string',
-          description: 'Important for accessibility',
+          description:
+            'Describes the image for screen readers and search engines. Be specific and include relevant keywords naturally.',
           validation: (Rule) => Rule.required(),
+        },
+        {
+          name: 'seoFilename',
+          title: 'Custom Filename',
+          type: 'string',
+          description:
+            'Improves image SEO by giving Google a descriptive filename instead of "IMG_1234". Use lowercase with hyphens, no spaces or special characters.',
+          fieldset: 'seoFilename',
         },
       ],
       hidden: ({ parent }) => parent?.type !== 'image',

@@ -90,7 +90,11 @@ export const caseStudyQuery = groq`
     industry,
     publishedAt,
     featured,
-    mainImage,
+    mainImage {
+      asset,
+      alt,
+      seoFilename
+    },
     challenge,
     solution,
     results,
@@ -118,7 +122,11 @@ export const allCaseStudiesQuery = groq`
     industry,
     publishedAt,
     featured,
-    mainImage
+    mainImage {
+      asset,
+      alt,
+      seoFilename
+    }
   }
 `;
 
@@ -150,7 +158,8 @@ const backgroundSettingsProjection = `
     backgroundType,
     image {
       asset,
-      alt
+      alt,
+      seoFilename
     },
     colorMode,
     solidColorType,
@@ -197,7 +206,8 @@ const pageSectionsQuery = `
         client,
         mainImage {
           asset,
-          alt
+          alt,
+          seoFilename
         }
       },
       showAllLink
@@ -213,7 +223,8 @@ const pageSectionsQuery = `
         quote,
         avatar {
           asset,
-          alt
+          alt,
+          seoFilename
         }
       }
     },
@@ -231,6 +242,7 @@ const pageSectionsQuery = `
         _key,
         asset,
         alt,
+        seoFilename,
         caption
       }
     },
@@ -249,7 +261,8 @@ const pageSectionsQuery = `
           },
           image {
             asset,
-            alt
+            alt,
+            seoFilename
           }
         }
       }
@@ -272,7 +285,8 @@ const pageSectionsQuery = `
         },
         image {
           asset,
-          alt
+          alt,
+          seoFilename
         }
       }
     }

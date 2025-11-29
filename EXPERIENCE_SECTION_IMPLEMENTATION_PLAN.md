@@ -1,0 +1,895 @@
+# Experience at a Glance Section - Complete Implementation Plan
+
+## Overview
+
+Redesign the Experience Section on the homepage to match the Claura website's Services section (https://claura.framer.ai/#services). This creates an interactive two-column layout where hovering service titles on the left switches the visible detail card on the right.
+
+---
+
+## Reference Design Analysis
+
+### Visual Layout (Desktop)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Services                                                        │
+│  We handle everything so you don't have to.                     │
+│  [description text]                                              │
+├─────────────────────────────┬───────────────────────────────────┤
+│                             │  ┌─────────────────────────────┐  │
+│  Discover⁰¹                 │  │                             │  │
+│                             │  │      [Large Image]          │  │
+│  ┌─────────────────────┐    │  │      with color tint        │  │
+│  │ Build⁰²             │    │  │                             │  │
+│  └─────────────────────┘    │  └─────────────────────────────┘  │
+│   ↑ active item has         │                                   │
+│     cream background        │  Build                            │
+│                             │  Custom automation designed...    │
+│  Deploy⁰³                   │                                   │
+│                             │  ↳ Book a free call               │
+│  Optimize⁰⁴                 │                                   │
+│                             │                                   │
+└─────────────────────────────┴───────────────────────────────────┘
+```
+
+### Key Interactions
+
+1. **Hover** on a nav item (Discover, Build, etc.) → switches the active card on the right
+2. **Active nav item** gets a light cream pill background + darker text
+3. **Inactive nav items** have muted gray text, no background
+4. **Card transition** uses opacity crossfade (0 ↔ 1), ~400ms
+5. **Each card image** has a unique color tint via CSS hue-rotate filter
+
+### Mobile Layout (Accordion)
+
+```
+┌─────────────────────────────┐
+│  Services                   │
+│  We handle everything...    │
+├─────────────────────────────┤
+│  ┌───────────────────────┐  │
+│  │ Discover⁰¹         ＋ │  │
+│  └───────────────────────┘  │
+│  ┌───────────────────────┐  │
+│  │ Build⁰²            － │  │ ← expanded
+│  ├───────────────────────┤  │
+│  │ [Image]               │  │
+│  │ Description text...   │  │
+│  │ ↳ Book a free call    │  │
+│  └───────────────────────┘  │
+│  ┌───────────────────────┐  │
+│  │ Deploy⁰³           ＋ │  │
+│  └───────────────────────┘  │
+│  ┌───────────────────────┐  │
+│  │ Optimize⁰⁴         ＋ │  │
+│  └───────────────────────┘  │
+└─────────────────────────────┘
+```
+
+---
+
+## Exact CSS Values from Claura Reference
+
+### Colors
+
+- **Page background**: `rgb(246, 240, 233)` - cream/beige
+- **Active nav pill background**: `rgb(246, 240, 233)` - same cream
+- **Active text color**: `rgb(43, 24, 10)` - dark brown
+- **Inactive text color**: `rgb(148, 135, 124)` - muted brown/gray
+- **Card border-radius**: `28px`
+- **Nav pill border-radius**: `24px`
+
+### Typography
+
+- **Nav title font-size**: `56px` (desktop), scale down for mobile
+- **Nav title font-weight**: `400` (normal)
+- **Nav title font-family**: Serif font (use project's `--font-serif`)
+
+### Spacing
+
+- **Nav item padding**: `16px 0px 20px 32px` (active), `16px 0px 20px 16px` (inactive)
+- **Gap between columns**: Large gap, approximately `64px`
+
+### Filters
+
+- **Image saturation**: `filter: saturate(1.75)` for vibrancy
+- **Image hue-rotate**: Different per card for color tinting
+
+### Transitions
+
+- **All transitions**: `transition: all 0.3s ease` or `transition: all 0.4s ease`
+- **Card opacity transition**: `0.4s ease`
+
+---
+
+## Files to Modify
+
+### 1. Main Component
+
+**File**: `src/components/sections/ExperienceSection.astro`
+
+### 2. Animation Utilities (already exists, just import)
+
+**File**: `src/lib/animation/utils.ts` - contains `setupAnimationLifecycle`
+**File**: `src/lib/animation/presets.ts` - contains `createFadeIn`
+
+### 3. Sanity Schema (may need larger image support)
+
+**File**: `../studio/schemas/objects/sections/experienceSection.ts`
+
+---
+
+## Complete Implementation
+
+### Step 1: Replace ExperienceSection.astro
+
+Replace the entire contents of `src/components/sections/ExperienceSection.astro` with:
+
+```astro
+---
+import { Icon } from 'astro-icon/components';
+import { urlForImage } from '@lib/sanity/image';
+
+interface IconData {
+  name: string;
+}
+
+interface ImageData {
+  asset: any;
+  alt?: string;
+}
+
+interface IconOrImage {
+  type: 'icon' | 'image';
+  icon?: IconData;
+  image?: ImageData;
+}
+
+interface ExperienceCard {
+  _key: string;
+  number: string;
+  title: string;
+  description: string;
+  iconOrImage: IconOrImage;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  cards: ExperienceCard[];
+}
+
+const { title, description, cards } = Astro.props;
+
+// Generate image URLs - use larger size for the new layout
+const cardImages = cards.map((card) => {
+  const hasImage = card.iconOrImage?.type === 'image' && card.iconOrImage.image;
+  return hasImage
+    ? urlForImage(card.iconOrImage.image).width(800).height(600).url()
+    : null;
+});
+---
+
+<section class="experience-section">
+  <div class="experience-section__container">
+    <!-- Header -->
+    <header class="experience-section__header">
+      <span class="experience-section__label">Experience at a Glance</span>
+      <h2 class="experience-section__title">{title}</h2>
+      {
+        description && (
+          <p class="experience-section__description">{description}</p>
+        )
+      }
+    </header>
+
+    <!-- Desktop: Two-column layout -->
+    <div class="experience-section__content">
+      <!-- Left Column: Navigation Items -->
+      <nav class="experience-nav" aria-label="Service navigation">
+        {
+          cards.map((card, index) => (
+            <button
+              type="button"
+              class="experience-nav__item"
+              data-index={index}
+              data-active={index === 0 ? 'true' : 'false'}
+              aria-pressed={index === 0 ? 'true' : 'false'}
+            >
+              <span class="experience-nav__title">{card.title}</span>
+              <span class="experience-nav__number">{card.number}</span>
+            </button>
+          ))
+        }
+      </nav>
+
+      <!-- Right Column: Detail Cards -->
+      <div class="experience-cards">
+        {
+          cards.map((card, index) => (
+            <article
+              class="experience-card"
+              data-index={index}
+              data-active={index === 0 ? 'true' : 'false'}
+              aria-hidden={index !== 0 ? 'true' : 'false'}
+            >
+              <div class="experience-card__image-wrapper">
+                {cardImages[index] ? (
+                  <img
+                    src={cardImages[index]}
+                    alt={card.iconOrImage?.image?.alt || card.title}
+                    class="experience-card__image"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="experience-card__image-placeholder">
+                    {card.iconOrImage?.type === 'icon' &&
+                      card.iconOrImage.icon?.name && (
+                        <Icon name={card.iconOrImage.icon.name} />
+                      )}
+                  </div>
+                )}
+              </div>
+              <div class="experience-card__content">
+                <h3 class="experience-card__title">{card.title}</h3>
+                <p class="experience-card__description">{card.description}</p>
+              </div>
+              <a href="/contact" class="experience-card__cta">
+                <span class="experience-card__cta-icon">↳</span>
+                Book a free call
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Mobile: Accordion layout -->
+    <div class="experience-accordion">
+      {
+        cards.map((card, index) => (
+          <div
+            class="experience-accordion__item"
+            data-index={index}
+            data-active={index === 0 ? 'true' : 'false'}
+          >
+            <button
+              type="button"
+              class="experience-accordion__header"
+              aria-expanded={index === 0 ? 'true' : 'false'}
+            >
+              <span class="experience-accordion__title">{card.title}</span>
+              <span class="experience-accordion__number">{card.number}</span>
+              <span class="experience-accordion__icon" aria-hidden="true">
+                +
+              </span>
+            </button>
+            <div class="experience-accordion__content">
+              <div class="experience-accordion__image-wrapper">
+                {cardImages[index] ? (
+                  <img
+                    src={cardImages[index]}
+                    alt={card.iconOrImage?.image?.alt || card.title}
+                    class="experience-accordion__image"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="experience-accordion__image-placeholder">
+                    {card.iconOrImage?.type === 'icon' &&
+                      card.iconOrImage.icon?.name && (
+                        <Icon name={card.iconOrImage.icon.name} />
+                      )}
+                  </div>
+                )}
+              </div>
+              <p class="experience-accordion__description">
+                {card.description}
+              </p>
+              <a href="/contact" class="experience-accordion__cta">
+                <span class="experience-accordion__cta-icon">↳</span>
+                Book a free call
+              </a>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ========================================
+     BASE SECTION STYLES
+     ======================================== */
+  .experience-section {
+    padding: var(--space-3xl, 6rem) 0;
+    background: var(--color-background, #f6f0e9);
+  }
+
+  .experience-section__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--space-lg, 2rem);
+  }
+
+  /* ========================================
+     HEADER STYLES
+     ======================================== */
+  .experience-section__header {
+    text-align: center;
+    margin-block-end: var(--space-2xl, 4rem);
+  }
+
+  .experience-section__label {
+    display: inline-block;
+    padding: var(--space-xs, 0.5rem) var(--space-md, 1rem);
+    background: white;
+    border-radius: 100px;
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-muted, #94877c);
+    margin-block-end: var(--space-md, 1rem);
+  }
+
+  .experience-section__title {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 400;
+    color: var(--color-text, #2b180a);
+    margin: 0 0 var(--space-md, 1rem) 0;
+    line-height: 1.2;
+  }
+
+  .experience-section__description {
+    font-size: var(--font-size-lg, 1.125rem);
+    color: var(--color-text-muted, #94877c);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ========================================
+     DESKTOP: TWO-COLUMN LAYOUT
+     ======================================== */
+  .experience-section__content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2xl, 4rem);
+    align-items: start;
+  }
+
+  /* ----------------------------------------
+     Left Column: Navigation
+     ---------------------------------------- */
+  .experience-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .experience-nav__item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm, 0.5rem);
+    padding: 16px 32px 20px 16px;
+    border: none;
+    border-radius: 24px;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition:
+      background-color 0.3s ease,
+      padding 0.3s ease;
+  }
+
+  .experience-nav__item[data-active='true'] {
+    background: rgba(246, 240, 233, 1);
+    padding-left: 32px;
+  }
+
+  .experience-nav__item:focus-visible {
+    outline: 2px solid var(--color-primary, #2b180a);
+    outline-offset: 2px;
+  }
+
+  .experience-nav__title {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 400;
+    color: var(--color-text-muted, #94877c);
+    transition: color 0.3s ease;
+    line-height: 1.1;
+  }
+
+  .experience-nav__item[data-active='true'] .experience-nav__title {
+    color: var(--color-text, #2b180a);
+  }
+
+  .experience-nav__number {
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-muted, #94877c);
+    vertical-align: super;
+    margin-left: 4px;
+  }
+
+  /* ----------------------------------------
+     Right Column: Cards
+     ---------------------------------------- */
+  .experience-cards {
+    position: relative;
+    min-height: 550px;
+  }
+
+  .experience-card {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .experience-card[data-active='true'] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .experience-card__image-wrapper {
+    border-radius: 28px;
+    overflow: hidden;
+    margin-block-end: var(--space-lg, 1.5rem);
+    aspect-ratio: 4 / 3;
+  }
+
+  .experience-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Image color tinting per card */
+  .experience-card[data-index='0'] .experience-card__image-wrapper {
+    filter: saturate(1.5) hue-rotate(280deg); /* Purple/violet */
+  }
+  .experience-card[data-index='1'] .experience-card__image-wrapper {
+    filter: saturate(1.5) hue-rotate(40deg); /* Yellow/orange */
+  }
+  .experience-card[data-index='2'] .experience-card__image-wrapper {
+    filter: saturate(1.5) hue-rotate(160deg); /* Teal/cyan */
+  }
+  .experience-card[data-index='3'] .experience-card__image-wrapper {
+    filter: saturate(1.5) hue-rotate(320deg); /* Pink/magenta */
+  }
+
+  .experience-card__image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e0d5c9 0%, #c9bfb3 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted, #94877c);
+  }
+
+  .experience-card__image-placeholder :global(svg) {
+    width: 64px;
+    height: 64px;
+  }
+
+  .experience-card__content {
+    flex: 1;
+  }
+
+  .experience-card__title {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: var(--font-size-xl, 1.5rem);
+    font-weight: 500;
+    color: var(--color-text, #2b180a);
+    margin: 0 0 var(--space-sm, 0.5rem) 0;
+  }
+
+  .experience-card__description {
+    font-size: var(--font-size-md, 1rem);
+    color: var(--color-text-muted, #94877c);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .experience-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs, 0.25rem);
+    margin-top: var(--space-lg, 1.5rem);
+    font-size: var(--font-size-md, 1rem);
+    color: var(--color-text, #2b180a);
+    text-decoration: none;
+    transition: gap 0.2s ease;
+  }
+
+  .experience-card__cta:hover {
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .experience-card__cta-icon {
+    font-size: 1.2em;
+  }
+
+  /* ========================================
+     MOBILE: ACCORDION LAYOUT
+     ======================================== */
+  .experience-accordion {
+    display: none;
+  }
+
+  .experience-accordion__item {
+    border-bottom: 1px solid rgba(148, 135, 124, 0.2);
+  }
+
+  .experience-accordion__item:first-child {
+    border-top: 1px solid rgba(148, 135, 124, 0.2);
+  }
+
+  .experience-accordion__header {
+    display: flex;
+    align-items: baseline;
+    width: 100%;
+    padding: var(--space-lg, 1.5rem) 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .experience-accordion__title {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: clamp(1.5rem, 6vw, 2rem);
+    font-weight: 400;
+    color: var(--color-text-muted, #94877c);
+    flex: 1;
+    transition: color 0.3s ease;
+  }
+
+  .experience-accordion__item[data-active='true'] .experience-accordion__title {
+    color: var(--color-text, #2b180a);
+  }
+
+  .experience-accordion__number {
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-muted, #94877c);
+    margin-left: var(--space-xs, 0.25rem);
+    margin-right: auto;
+  }
+
+  .experience-accordion__icon {
+    font-size: 1.5rem;
+    color: var(--color-text-muted, #94877c);
+    transition: transform 0.3s ease;
+    margin-left: var(--space-md, 1rem);
+  }
+
+  .experience-accordion__item[data-active='true'] .experience-accordion__icon {
+    transform: rotate(45deg);
+  }
+
+  .experience-accordion__content {
+    max-height: 0;
+    overflow: hidden;
+    transition:
+      max-height 0.4s ease,
+      padding 0.4s ease;
+    padding: 0;
+  }
+
+  .experience-accordion__item[data-active='true']
+    .experience-accordion__content {
+    max-height: 600px;
+    padding-bottom: var(--space-lg, 1.5rem);
+  }
+
+  .experience-accordion__image-wrapper {
+    border-radius: 20px;
+    overflow: hidden;
+    margin-block-end: var(--space-md, 1rem);
+    aspect-ratio: 4 / 3;
+  }
+
+  .experience-accordion__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Accordion image color tinting */
+  .experience-accordion__item[data-index='0']
+    .experience-accordion__image-wrapper {
+    filter: saturate(1.5) hue-rotate(280deg);
+  }
+  .experience-accordion__item[data-index='1']
+    .experience-accordion__image-wrapper {
+    filter: saturate(1.5) hue-rotate(40deg);
+  }
+  .experience-accordion__item[data-index='2']
+    .experience-accordion__image-wrapper {
+    filter: saturate(1.5) hue-rotate(160deg);
+  }
+  .experience-accordion__item[data-index='3']
+    .experience-accordion__image-wrapper {
+    filter: saturate(1.5) hue-rotate(320deg);
+  }
+
+  .experience-accordion__image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e0d5c9 0%, #c9bfb3 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .experience-accordion__description {
+    font-size: var(--font-size-md, 1rem);
+    color: var(--color-text-muted, #94877c);
+    line-height: 1.6;
+    margin: 0 0 var(--space-md, 1rem) 0;
+  }
+
+  .experience-accordion__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs, 0.25rem);
+    font-size: var(--font-size-md, 1rem);
+    color: var(--color-text, #2b180a);
+    text-decoration: none;
+  }
+
+  .experience-accordion__cta-icon {
+    font-size: 1.2em;
+  }
+
+  /* ========================================
+     RESPONSIVE BREAKPOINTS
+     ======================================== */
+  @media (max-width: 900px) {
+    /* Hide desktop layout, show accordion */
+    .experience-section__content {
+      display: none;
+    }
+
+    .experience-accordion {
+      display: block;
+    }
+  }
+
+  @media (min-width: 901px) {
+    /* Ensure accordion is hidden on desktop */
+    .experience-accordion {
+      display: none;
+    }
+  }
+
+  /* Tablet adjustments */
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .experience-section__content {
+      gap: var(--space-xl, 3rem);
+    }
+
+    .experience-nav__title {
+      font-size: 2.5rem;
+    }
+
+    .experience-cards {
+      min-height: 450px;
+    }
+  }
+</style>
+
+<script>
+  import { setupAnimationLifecycle, createFadeIn } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    // ========================================
+    // DESKTOP: Hover-based card switching
+    // ========================================
+    const navItems = document.querySelectorAll('.experience-nav__item');
+    const cards = document.querySelectorAll('.experience-card');
+
+    function setActiveCard(index: number) {
+      // Update nav items
+      navItems.forEach((item, i) => {
+        const isActive = i === index;
+        item.setAttribute('data-active', String(isActive));
+        item.setAttribute('aria-pressed', String(isActive));
+      });
+
+      // Update cards
+      cards.forEach((card, i) => {
+        const isActive = i === index;
+        card.setAttribute('data-active', String(isActive));
+        card.setAttribute('aria-hidden', String(!isActive));
+      });
+    }
+
+    // Desktop: Hover to switch
+    navItems.forEach((item, index) => {
+      item.addEventListener('mouseenter', () => setActiveCard(index));
+    });
+
+    // Desktop: Click also works (for accessibility)
+    navItems.forEach((item, index) => {
+      item.addEventListener('click', () => setActiveCard(index));
+    });
+
+    // Keyboard navigation
+    navItems.forEach((item, index) => {
+      item.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          const nextIndex = (index + 1) % navItems.length;
+          setActiveCard(nextIndex);
+          (navItems[nextIndex] as HTMLElement).focus();
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          const prevIndex = (index - 1 + navItems.length) % navItems.length;
+          setActiveCard(prevIndex);
+          (navItems[prevIndex] as HTMLElement).focus();
+        }
+      });
+    });
+
+    // ========================================
+    // MOBILE: Accordion functionality
+    // ========================================
+    const accordionItems = document.querySelectorAll(
+      '.experience-accordion__item'
+    );
+    const accordionHeaders = document.querySelectorAll(
+      '.experience-accordion__header'
+    );
+
+    function setActiveAccordion(index: number) {
+      accordionItems.forEach((item, i) => {
+        const isActive = i === index;
+        const wasActive = item.getAttribute('data-active') === 'true';
+
+        // Toggle: if clicking the already active item, close it
+        if (i === index && wasActive) {
+          item.setAttribute('data-active', 'false');
+          item
+            .querySelector('.experience-accordion__header')
+            ?.setAttribute('aria-expanded', 'false');
+        } else {
+          item.setAttribute('data-active', String(isActive));
+          item
+            .querySelector('.experience-accordion__header')
+            ?.setAttribute('aria-expanded', String(isActive));
+        }
+      });
+    }
+
+    accordionHeaders.forEach((header, index) => {
+      header.addEventListener('click', () => setActiveAccordion(index));
+    });
+
+    // ========================================
+    // GSAP: Entrance animations (optional)
+    // ========================================
+    // Fade in the header
+    createFadeIn('.experience-section__header', { y: 30 });
+
+    // Staggered fade in for nav items (desktop)
+    if (window.innerWidth > 900) {
+      createFadeIn('.experience-nav__item', { y: 20, stagger: 0.1 });
+    }
+
+    // Staggered fade in for accordion items (mobile)
+    if (window.innerWidth <= 900) {
+      createFadeIn('.experience-accordion__item', { y: 20, stagger: 0.08 });
+    }
+  });
+</script>
+```
+
+---
+
+## Step 2: Verify Sanity Schema Supports Images
+
+Check that the experience section schema in `../studio/schemas/objects/sections/experienceSection.ts` has image support. The current schema should already support images via `iconOrImage`, but verify the image is being properly passed.
+
+If needed, the Sanity query in `src/lib/sanity/queries.ts` should include:
+
+```groq
+experienceSection {
+  title,
+  description,
+  cards[] {
+    _key,
+    number,
+    title,
+    description,
+    iconOrImage {
+      type,
+      icon { name },
+      image {
+        asset-> { _id, url },
+        alt
+      }
+    }
+  }
+}
+```
+
+---
+
+## Step 3: Test the Implementation
+
+1. **Run the dev server**: `bun dev`
+2. **Navigate to homepage** and scroll to Experience section
+3. **Test desktop interactions**:
+   - Hover over each nav item (Discover, Build, Deploy, Optimize)
+   - Verify card switches with smooth opacity fade
+   - Verify active nav item has cream background
+   - Verify active nav item text is darker
+   - Verify each card image has different color tint
+   - Test keyboard navigation (Tab, Arrow keys)
+4. **Test mobile interactions** (resize to < 900px):
+   - Tap accordion headers to expand/collapse
+   - Verify only one accordion is open at a time (or toggle behavior)
+   - Verify smooth height animation
+   - Verify CTA buttons work
+
+---
+
+## Color Tint Reference
+
+The hue-rotate values create these color effects on a neutral/warm image:
+
+| Card Index   | Hue Rotate | Result Color        |
+| ------------ | ---------- | ------------------- |
+| 0 (Discover) | 280deg     | Purple/violet tones |
+| 1 (Build)    | 40deg      | Yellow/orange tones |
+| 2 (Deploy)   | 160deg     | Teal/cyan tones     |
+| 3 (Optimize) | 320deg     | Pink/magenta tones  |
+
+These values can be adjusted based on the actual images used. The `saturate(1.5)` ensures vibrant colors.
+
+---
+
+## Troubleshooting
+
+### Cards not switching on hover
+
+- Check that `data-index` attributes are correctly set (0, 1, 2, 3)
+- Check that `data-active` is toggling correctly in browser DevTools
+- Ensure JavaScript is running (check console for errors)
+
+### Images not showing
+
+- Verify `urlForImage` is returning valid URLs
+- Check Sanity has images uploaded for each card
+- Check network tab for 404 errors on image URLs
+
+### Accordion not expanding
+
+- Check `max-height` transition is working
+- Ensure `data-active` attribute is toggling
+- Check for CSS specificity conflicts
+
+### Animation not triggering
+
+- Ensure `@lib/animation` imports are working
+- Check that `setupAnimationLifecycle` is being called
+- Verify GSAP and ScrollTrigger are properly loaded
+
+---
+
+## Summary
+
+This implementation creates:
+
+1. **Desktop**: Two-column hover-switch layout matching Claura's Services section
+2. **Mobile**: Accordion layout for touch-friendly interaction
+3. **Visual polish**: Color-tinted images, smooth transitions, cream pill highlights
+4. **Accessibility**: Keyboard navigation, ARIA attributes, focus states
+5. **CTA buttons**: "Book a free call" link on each card
+
+The entire implementation is contained in `ExperienceSection.astro` - no other files need modification unless Sanity schema changes are required for larger images.

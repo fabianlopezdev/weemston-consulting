@@ -50,18 +50,36 @@ export default defineType({
           name: 'image',
           title: 'Background Image',
           type: 'image',
+          description:
+            'For best performance, use WebP format. Convert images at anywebp.com or squoosh.app',
           hidden: ({ parent }) => parent?.backgroundType !== 'image',
           options: {
             hotspot: true,
             collapsed: false,
           },
+          fieldsets: [
+            {
+              name: 'seoFilename',
+              title: 'SEO Filename (optional)',
+              options: { collapsible: true, collapsed: true },
+            },
+          ],
           fields: [
             {
               name: 'alt',
               title: 'Alt Text',
               type: 'string',
-              description: 'Required for accessibility',
+              description:
+                'Describes the image for screen readers and search engines. Be specific (e.g., "Business consultant presenting strategy" not just "meeting"). Include relevant keywords naturally.',
               validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'seoFilename',
+              title: 'Custom Filename',
+              type: 'string',
+              description:
+                'Improves image SEO by giving Google a descriptive filename (e.g., "business-consulting-hero" instead of "IMG_1234"). Use lowercase with hyphens, no spaces or special characters.',
+              fieldset: 'seoFilename',
             },
           ],
         },

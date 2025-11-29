@@ -44,17 +44,34 @@ export default defineType({
       name: 'avatar',
       title: 'Avatar (optional)',
       type: 'image',
-      description: 'Photo of the person',
+      description:
+        'Photo of the person. For best performance, use WebP format. Convert at anywebp.com or squoosh.app',
       options: {
         hotspot: true,
       },
+      fieldsets: [
+        {
+          name: 'seoFilename',
+          title: 'SEO Filename (optional)',
+          options: { collapsible: true, collapsed: true },
+        },
+      ],
       fields: [
         {
           name: 'alt',
           title: 'Alt Text',
           type: 'string',
-          description: 'Required for accessibility',
+          description:
+            'Describes the image for screen readers and search engines. Be specific (e.g., "John Smith, CEO of Acme Corp"). Include relevant keywords naturally.',
           validation: (Rule) => Rule.required(),
+        },
+        {
+          name: 'seoFilename',
+          title: 'Custom Filename',
+          type: 'string',
+          description:
+            'Improves image SEO by giving Google a descriptive filename (e.g., "john-smith-testimonial" instead of "IMG_1234"). Use lowercase with hyphens, no spaces or special characters.',
+          fieldset: 'seoFilename',
         },
       ],
     },
