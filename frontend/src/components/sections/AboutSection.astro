@@ -150,45 +150,11 @@ const plainText = getPlainText(content);
 </style>
 
 <script>
-  import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  import { SplitText } from 'gsap/SplitText';
+  import { setupAnimationLifecycle, createTextReveal } from '@lib/animation';
 
-  gsap.registerPlugin(ScrollTrigger, SplitText);
-
-  function initAboutAnimation() {
-    const paragraphs = document.querySelectorAll('.about-section__paragraph');
-
-    paragraphs.forEach((paragraph) => {
-      // Split paragraph into lines so each line animates independently
-      const split = new SplitText(paragraph, { type: 'lines' });
-
-      // Animate background position for gradient reveal effect
-      split.lines.forEach((line) => {
-        // Apply gradient styles to the line
-        line.style.background =
-          'linear-gradient(to right, rgb(37, 37, 37) 50%, rgb(200, 200, 200) 50%)';
-        line.style.backgroundSize = '200% 100%';
-        line.style.backgroundPositionX = '100%';
-        line.style.color = 'transparent';
-        line.style.backgroundClip = 'text';
-        line.style.webkitBackgroundClip = 'text';
-
-        gsap.to(line, {
-          backgroundPositionX: 0,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: line,
-            start: 'top bottom-=20%',
-            end: 'bottom bottom-=10%',
-            scrub: 1,
-            markers: false,
-          },
-        });
-      });
+  setupAnimationLifecycle(() => {
+    createTextReveal('.about-section__paragraph', {
+      gradient: 'darkOnLight',
     });
-  }
-
-  document.addEventListener('DOMContentLoaded', initAboutAnimation);
-  document.addEventListener('astro:page-load', initAboutAnimation);
+  });
 </script>
