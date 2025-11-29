@@ -39,10 +39,8 @@ const plainText = getPlainText(content);
       <div class="about-section__text">
         {
           plainText.split('\n\n').map((paragraph) => (
-            <p class="about-section__paragraph">
-              {paragraph.split('').map((char) => (
-                <span class="char">{char}</span>
-              ))}
+            <p class="about-section__paragraph" data-animated="true">
+              {paragraph}
             </p>
           ))
         }
@@ -95,21 +93,25 @@ const plainText = getPlainText(content);
     font-family: var(--font-heading);
     font-size: var(--font-size-3xl);
     text-align: center;
-
     margin-block-end: var(--space-md);
-  }
-
-  .char {
-    opacity: 0.2;
-    transition: opacity 0.6s cubic-bezier(0.75, 0, 0.2, 1);
-  }
-
-  .char.is-active {
-    opacity: 1;
   }
 
   .about-section__paragraph:last-child {
     margin-block-end: 0;
+  }
+
+  /* Gradient text reveal for SplitText line divs */
+  .about-section__paragraph > div {
+    background: linear-gradient(
+      to right,
+      rgb(37, 37, 37) 50%,
+      rgb(200, 200, 200) 50%
+    );
+    background-size: 200% 100%;
+    background-position-x: 100%;
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
   }
 
   .about-section__gallery {
@@ -148,73 +150,45 @@ const plainText = getPlainText(content);
 </style>
 
 <script>
-  const textContainer = document.querySelector('.about-section__text');
-  const chars = Array.from(document.querySelectorAll('.char'));
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
 
-  if (textContainer && chars.length > 0) {
-    // Store character positions
-    let charPositions = [];
+  gsap.registerPlugin(ScrollTrigger, SplitText);
 
-    const measurePositions = () => {
-      charPositions = chars.map((char) => {
-        const rect = char.getBoundingClientRect();
-        const containerRect = textContainer.getBoundingClientRect();
-        return {
-          element: char,
-          top: rect.top + window.scrollY,
-          left: rect.left - containerRect.left,
-        };
+  function initAboutAnimation() {
+    const paragraphs = document.querySelectorAll('.about-section__paragraph');
+
+    paragraphs.forEach((paragraph) => {
+      // Split paragraph into lines so each line animates independently
+      const split = new SplitText(paragraph, { type: 'lines' });
+
+      // Animate background position for gradient reveal effect
+      split.lines.forEach((line) => {
+        // Apply gradient styles to the line
+        line.style.background =
+          'linear-gradient(to right, rgb(37, 37, 37) 50%, rgb(200, 200, 200) 50%)';
+        line.style.backgroundSize = '200% 100%';
+        line.style.backgroundPositionX = '100%';
+        line.style.color = 'transparent';
+        line.style.backgroundClip = 'text';
+        line.style.webkitBackgroundClip = 'text';
+
+        gsap.to(line, {
+          backgroundPositionX: 0,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: line,
+            start: 'top bottom-=20%',
+            end: 'bottom bottom-=10%',
+            scrub: 1,
+            markers: false,
+          },
+        });
       });
-    };
-
-    const handleScroll = () => {
-      const viewportHeight = window.innerHeight;
-      const triggerLine = window.scrollY + viewportHeight * 0.75;
-
-      charPositions.forEach(({ element, top, left }) => {
-        if (top < triggerLine) {
-          // Calculate delay based on horizontal position (left-to-right wipe)
-          // Max delay of ~400ms for the rightmost character in a line
-          const delay = left * 0.75;
-          element.style.transitionDelay = `${delay}ms`;
-          element.classList.add('is-active');
-        } else {
-          // When hiding (scrolling up), reverse the delay (right-to-left)
-          // Find max left position to calculate reverse delay
-          const maxLeft = Math.max(...charPositions.map((p) => p.left));
-          const reverseDelay = (maxLeft - left) * 0.75;
-          element.style.transitionDelay = `${reverseDelay}ms`;
-          element.classList.remove('is-active');
-        }
-      });
-    };
-
-    // Measure on load
-    measurePositions();
-
-    // Re-measure on resize
-    window.addEventListener('resize', () => {
-      measurePositions();
-      handleScroll();
     });
-
-    // Scroll handler with RAF
-    let ticking = false;
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!ticking) {
-          window.requestAnimationFrame(() => {
-            handleScroll();
-            ticking = false;
-          });
-          ticking = true;
-        }
-      },
-      { passive: true }
-    );
-
-    // Initial check
-    handleScroll();
   }
+
+  document.addEventListener('DOMContentLoaded', initAboutAnimation);
+  document.addEventListener('astro:page-load', initAboutAnimation);
 </script>
