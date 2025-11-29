@@ -7,15 +7,43 @@ export default defineType({
   fields: [
     {
       name: 'heading',
-      title: 'Main Heading (optional)',
+      title: 'Main Heading',
       type: 'string',
       description: 'The primary headline for this page',
+    },
+    {
+      name: 'headingColor',
+      title: 'Heading Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'contrast',
     },
     {
       name: 'tagline',
       title: 'Tagline (optional)',
       type: 'string',
       description: 'Secondary headline below the main heading',
+    },
+    {
+      name: 'taglineColor',
+      title: 'Tagline Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'contrast',
     },
     {
       name: 'subheading',
@@ -25,10 +53,31 @@ export default defineType({
       description: 'Supporting paragraph text below the subheading',
     },
     {
+      name: 'subheadingColor',
+      title: 'Intro Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'contrast',
+    },
+    {
       name: 'ctaButton',
       title: 'Call to Action Button (optional)',
       type: 'link',
       description: 'Primary action button',
+    },
+    {
+      name: 'showBackgroundImage',
+      title: 'Show Background Image',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Toggle to show or hide the background image',
     },
     {
       name: 'backgroundImage',

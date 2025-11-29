@@ -145,27 +145,20 @@ const ctaTextColor = ctaButton
 
 <style>
   .hero {
-    /* Base values */
-    --hero-margin-inline: var(--space-lg);
-    --hero-margin-block: var(--space-lg);
+    /* Initial clip values (clipped state - expands on scroll) */
+    --hero-clip: 2vw;
     --hero-radius: var(--border-radius-lg);
 
-    /* Dynamic values based on scroll progress (0 to 1) */
-    /* When progress is 0 (top), we use full margin/radius. */
-    /* When progress is 1 (scrolled), we use 0 margin/radius. */
-    margin-inline: calc(
-      var(--hero-margin-inline) * (1 - var(--scroll-progress, 0))
-    );
-    /* margin-block-end kept fixed to preserve distance */
-    border-radius: calc(var(--hero-radius) * (1 - var(--scroll-progress, 0)));
+    /* Use clip-path for the expand/contract effect */
+    clip-path: inset(var(--hero-clip) round var(--hero-radius));
 
     height: calc(100dvh - var(--header-height) - var(--space-lg));
     display: flex;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
     background-color: var(--color-primary);
     position: relative; /* Ensure positioning context */
-    will-change: margin, border-radius; /* Optimize for animation */
+    will-change: clip-path; /* Optimize for animation */
   }
 
   .hero__background {
@@ -294,43 +287,42 @@ const ctaTextColor = ctaButton
 </style>
 
 <script>
-  // Scroll-driven animation for Hero section
-  const hero = document.querySelector('.hero') as HTMLElement;
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-  if (hero) {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const maxScroll = 200; // Pixels to scroll before fully expanded
+  gsap.registerPlugin(ScrollTrigger);
 
-      // Calculate progress: 0 at top, 1 at maxScroll
-      const progress = Math.min(scrollY / maxScroll, 1);
+  function initHeroAnimation() {
+    const hero = document.querySelector('.hero') as HTMLElement;
+    const heroBg = document.querySelector('.hero__background') as HTMLElement;
 
-      // Calculate zoom scale (starts at 1, increases slowly)
-      // 0.0005 factor means at 1000px scroll, scale is 1.5
-      const scale = 1 + scrollY * 0.0005;
+    if (!hero) return;
 
-      // Update CSS variables
-      hero.style.setProperty('--scroll-progress', progress.toString());
-      hero.style.setProperty('--hero-scale', scale.toString());
+    // Shared scroll trigger config for synchronized animations
+    const sharedScrollTrigger = {
+      trigger: hero,
+      start: 'top top',
+      end: 'bottom center',
+      scrub: 1,
+      markers: false,
     };
 
-    // Use requestAnimationFrame for smooth performance
-    let ticking = false;
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!ticking) {
-          window.requestAnimationFrame(() => {
-            handleScroll();
-            ticking = false;
-          });
-          ticking = true;
-        }
-      },
-      { passive: true }
-    );
+    // Animate clip-path: hero expands outward
+    gsap.to(hero, {
+      scrollTrigger: sharedScrollTrigger,
+      '--hero-clip': '0vw',
+      '--hero-radius': '0rem',
+    });
 
-    // Initial check
-    handleScroll();
+    // Background zoom with same timing/easing
+    if (heroBg) {
+      gsap.to(heroBg, {
+        scrollTrigger: { ...sharedScrollTrigger },
+        scale: 1.15,
+      });
+    }
   }
+
+  document.addEventListener('DOMContentLoaded', initHeroAnimation);
+  document.addEventListener('astro:page-load', initHeroAnimation);
 </script>

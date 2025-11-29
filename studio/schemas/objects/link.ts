@@ -43,7 +43,6 @@ export default defineType({
           { title: 'Case Studies Page', value: 'caseStudiesPage' },
           { title: 'Contact Page', value: 'contactPage' },
           { title: 'About Page', value: 'aboutPage' },
-          { title: 'Individual Service', value: 'service' },
           { title: 'Individual Case Study', value: 'caseStudy' },
           { title: 'Legal Page', value: 'legal' },
         ],
@@ -59,21 +58,6 @@ export default defineType({
         }),
     },
     // Reference fields for document types
-    {
-      name: 'serviceReference',
-      title: 'Select Service',
-      type: 'reference',
-      to: [{ type: 'service' }],
-      hidden: ({ parent }) => parent?.internalPageType !== 'service',
-      validation: (Rule) =>
-        Rule.custom((value, context) => {
-          const parent = context.parent as { internalPageType?: string };
-          if (parent?.internalPageType === 'service' && !value) {
-            return 'Please select a service';
-          }
-          return true;
-        }),
-    },
     {
       name: 'caseStudyReference',
       title: 'Select Case Study',

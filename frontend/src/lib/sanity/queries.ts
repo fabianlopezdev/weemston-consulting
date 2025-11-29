@@ -251,11 +251,15 @@ export const homepageQuery = groq`
     hero {
       enabled,
       tagline,
+      taglineColor,
       heading,
+      headingColor,
       subheading,
+      subheadingColor,
       ctaButton {
         ${linkProjection}
       },
+      showBackgroundImage,
       backgroundImage {
         asset,
         alt
@@ -278,11 +282,15 @@ export const servicesPageQuery = groq`
     language,
     hero {
       tagline,
+      taglineColor,
       heading,
+      headingColor,
       subheading,
+      subheadingColor,
       ctaButton {
         ${linkProjection}
       },
+      showBackgroundImage,
       backgroundImage {
         asset,
         alt
@@ -312,11 +320,15 @@ export const caseStudiesPageQuery = groq`
     language,
     hero {
       tagline,
+      taglineColor,
       heading,
+      headingColor,
       subheading,
+      subheadingColor,
       ctaButton {
         ${linkProjection}
       },
+      showBackgroundImage,
       backgroundImage {
         asset,
         alt
@@ -339,11 +351,15 @@ export const contactPageQuery = groq`
     language,
     hero {
       tagline,
+      taglineColor,
       heading,
+      headingColor,
       subheading,
+      subheadingColor,
       ctaButton {
         ${linkProjection}
       },
+      showBackgroundImage,
       backgroundImage {
         asset,
         alt
@@ -366,7 +382,10 @@ export const aboutPageQuery = groq`
     language,
     hero {
       tagline,
+      taglineColor,
       heading,
+      headingColor,
+      showBackgroundImage,
       backgroundImage {
         asset,
         alt

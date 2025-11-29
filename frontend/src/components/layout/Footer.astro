@@ -73,7 +73,7 @@ const currentYear = new Date().getFullYear();
 <style>
   .site-footer {
     background-color: var(--color-primary);
-    color: white;
+    color: var(--color-text);
     padding-block-start: var(--space-xl);
     padding-block-end: var(--space-sm);
   }
@@ -97,7 +97,7 @@ const currentYear = new Date().getFullYear();
   }
 
   .footer-links a {
-    color: white;
+    color: var(--color-text);
     transition: opacity var(--transition-fast);
   }
 
@@ -110,9 +110,10 @@ const currentYear = new Date().getFullYear();
     justify-content: space-between;
     align-items: flex-start;
     padding-block-start: var(--space-xs);
-    border-block-start: var(--border-width-thin) solid rgba(255, 255, 255, 0.2);
+    border-block-start: var(--border-width-thin) solid
+      var(--color-border, rgba(0, 0, 0, 0.1));
     font-size: 0.625rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--color-text-secondary, rgba(0, 0, 0, 0.6));
   }
 
   .footer-credit p {

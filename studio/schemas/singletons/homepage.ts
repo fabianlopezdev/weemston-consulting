@@ -25,7 +25,7 @@ export default defineType({
     defineLanguageField(),
     {
       name: 'hero',
-      title: 'Hero Section (optional)',
+      title: 'Hero Section',
       type: 'heroSection',
       description: 'Main hero section at the top of the homepage',
     },

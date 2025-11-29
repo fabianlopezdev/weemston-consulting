@@ -10,10 +10,8 @@ interface InternalLink {
     | 'caseStudiesPage'
     | 'contactPage'
     | 'aboutPage'
-    | 'service'
     | 'caseStudy'
     | 'legal';
-  serviceReference?: { slug: { current: string } };
   caseStudyReference?: { slug: { current: string } };
   legalReference?: { slug: { current: string } };
 }
@@ -53,10 +51,6 @@ export function resolveLinkUrl(link: LinkData): string {
   }
 
   // Handle document-based pages with slugs
-  if (internalPageType === 'service' && link.serviceReference) {
-    return `/services/${link.serviceReference.slug.current}`;
-  }
-
   if (internalPageType === 'caseStudy' && link.caseStudyReference) {
     return `/case-studies/${link.caseStudyReference.slug.current}`;
   }

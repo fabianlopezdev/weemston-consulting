@@ -1,5 +1,9 @@
 # Claude Code Standards
 
+## Package Manager
+
+Use `bun` instead of `npm` for all commands (e.g., `bun dev`, `bun install`, `bun run build`).
+
 ## Commit Messages
 
 - **One line only** - No multi-line commit messages

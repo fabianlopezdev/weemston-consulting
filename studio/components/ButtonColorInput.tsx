@@ -236,20 +236,6 @@ export function ButtonColorInput(props: ObjectInputProps) {
         <Inline space={4}>
           <Flex align="center" gap={2}>
             <Radio
-              checked={!useBaseTextColor}
-              onChange={() => handleTextColorChange(false)}
-              name="textColor"
-            />
-            <Text
-              size={1}
-              style={{ cursor: 'pointer' }}
-              onClick={() => handleTextColorChange(false)}
-            >
-              Contrast
-            </Text>
-          </Flex>
-          <Flex align="center" gap={2}>
-            <Radio
               checked={useBaseTextColor}
               onChange={() => handleTextColorChange(true)}
               name="textColor"
@@ -260,6 +246,20 @@ export function ButtonColorInput(props: ObjectInputProps) {
               onClick={() => handleTextColorChange(true)}
             >
               Base
+            </Text>
+          </Flex>
+          <Flex align="center" gap={2}>
+            <Radio
+              checked={!useBaseTextColor}
+              onChange={() => handleTextColorChange(false)}
+              name="textColor"
+            />
+            <Text
+              size={1}
+              style={{ cursor: 'pointer' }}
+              onClick={() => handleTextColorChange(false)}
+            >
+              Contrast
             </Text>
           </Flex>
         </Inline>
