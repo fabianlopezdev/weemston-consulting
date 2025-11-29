@@ -44,5 +44,8 @@ export {
   SplitText,
 } from './utils';
 
+// Lenis smooth scrolling
+export { initLenis, getLenis, destroyLenis } from './lenis';
+
 // Presets
 export { createTextReveal, createHeroReveal, createFadeIn } from './presets';

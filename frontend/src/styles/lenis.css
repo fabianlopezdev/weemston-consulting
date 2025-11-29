@@ -1,0 +1,32 @@
+/**
+ * Lenis Smooth Scroll Styles
+ *
+ * Required CSS for Lenis to work correctly.
+ * Import this file in your base layout.
+ */
+
+/* Ensure proper height handling */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+/* Override native smooth scroll behavior (Lenis handles this) */
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+/* Prevent scroll on elements with data-lenis-prevent attribute */
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+/* Hide overflow when Lenis is stopped (e.g., modal open) */
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Fix iframe pointer events during scroll */
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}

@@ -8,6 +8,7 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
+import { initLenis, destroyLenis } from './lenis';
 
 // Track if plugins have been registered
 let registered = false;
@@ -24,12 +25,13 @@ export function initGSAP(): void {
 }
 
 /**
- * Cleanup all ScrollTrigger instances
+ * Cleanup all ScrollTrigger instances and Lenis
  * Called automatically on Astro page transitions to prevent memory leaks
  */
 export function cleanupAnimations(): void {
   ScrollTrigger.getAll().forEach((st) => st.kill());
   ScrollTrigger.refresh();
+  destroyLenis();
 }
 
 /**
@@ -37,6 +39,7 @@ export function cleanupAnimations(): void {
  *
  * Handles:
  * - GSAP plugin registration
+ * - Lenis smooth scrolling initialization
  * - Initial page load
  * - Astro page transitions (cleanup + reinit)
  *
@@ -49,6 +52,7 @@ export function cleanupAnimations(): void {
  */
 export function setupAnimationLifecycle(initFn: () => void): void {
   initGSAP();
+  initLenis();
 
   // Handle initial page load
   if (document.readyState === 'complete') {
