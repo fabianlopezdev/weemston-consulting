@@ -30,14 +30,29 @@ interface LinkData {
 
 interface Props {
   tagline?: string;
+  taglineColor?: 'base' | 'contrast';
   heading: string;
+  headingColor?: 'base' | 'contrast';
   subheading?: string;
+  subheadingColor?: 'base' | 'contrast';
   ctaButton?: LinkData;
   backgroundImage?: any;
 }
 
-const { tagline, heading, subheading, ctaButton, backgroundImage } =
-  Astro.props;
+const {
+  tagline,
+  taglineColor,
+  heading,
+  headingColor,
+  subheading,
+  subheadingColor,
+  ctaButton,
+  backgroundImage,
+} = Astro.props;
+
+// Helper to resolve text color
+const getTextColor = (color?: 'base' | 'contrast') =>
+  color === 'base' ? '#1a1a1a' : undefined; // undefined = use default white from CSS
 
 const bgImageUrl = backgroundImage
   ? urlForImage(backgroundImage).width(1920).height(1080).url()
@@ -72,9 +87,42 @@ const ctaTextColor = ctaButton
     }
   </div>
   <div class="hero__content container">
-    <h1 class="hero__heading">{heading}</h1>
-    {tagline && <p class="hero__subheading">{tagline}</p>}
-    {subheading && <p class="hero__intro">{subheading}</p>}
+    <h1
+      class="hero__heading"
+      style={getTextColor(headingColor)
+        ? `color: ${getTextColor(headingColor)}`
+        : undefined}
+    >
+      {heading}
+    </h1>
+    {
+      tagline && (
+        <p
+          class="hero__subheading"
+          style={
+            getTextColor(taglineColor)
+              ? `color: ${getTextColor(taglineColor)}`
+              : undefined
+          }
+        >
+          {tagline}
+        </p>
+      )
+    }
+    {
+      subheading && (
+        <p
+          class="hero__intro"
+          style={
+            getTextColor(subheadingColor)
+              ? `color: ${getTextColor(subheadingColor)}`
+              : undefined
+          }
+        >
+          {subheading}
+        </p>
+      )
+    }
     {
       ctaButton && ctaHref && (
         <a

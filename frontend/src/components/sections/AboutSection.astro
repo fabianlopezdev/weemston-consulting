@@ -38,11 +38,13 @@ const plainText = getPlainText(content);
     <div class="about-section__content">
       <div class="about-section__text">
         {
-          plainText
-            .split('\n\n')
-            .map((paragraph) => (
-              <p class="about-section__paragraph">{paragraph}</p>
-            ))
+          plainText.split('\n\n').map((paragraph) => (
+            <p class="about-section__paragraph">
+              {paragraph.split('').map((char) => (
+                <span class="char">{char}</span>
+              ))}
+            </p>
+          ))
         }
       </div>
 
@@ -75,13 +77,13 @@ const plainText = getPlainText(content);
   }
 
   .about-section__title {
+    font-family: var(--font-heading);
     font-size: var(--font-size-2xl);
     text-align: center;
     margin-block-end: var(--space-xl);
   }
 
   .about-section__content {
-    max-width: 900px;
     margin-inline: auto;
   }
 
@@ -90,9 +92,20 @@ const plainText = getPlainText(content);
   }
 
   .about-section__paragraph {
-    font-size: var(--font-size-base);
-    line-height: 1.8;
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3xl);
+    text-align: center;
+
     margin-block-end: var(--space-md);
+  }
+
+  .char {
+    opacity: 0.2;
+    transition: opacity 0.6s cubic-bezier(0.75, 0, 0.2, 1);
+  }
+
+  .char.is-active {
+    opacity: 1;
   }
 
   .about-section__paragraph:last-child {
@@ -133,3 +146,75 @@ const plainText = getPlainText(content);
     }
   }
 </style>
+
+<script>
+  const textContainer = document.querySelector('.about-section__text');
+  const chars = Array.from(document.querySelectorAll('.char'));
+
+  if (textContainer && chars.length > 0) {
+    // Store character positions
+    let charPositions = [];
+
+    const measurePositions = () => {
+      charPositions = chars.map((char) => {
+        const rect = char.getBoundingClientRect();
+        const containerRect = textContainer.getBoundingClientRect();
+        return {
+          element: char,
+          top: rect.top + window.scrollY,
+          left: rect.left - containerRect.left,
+        };
+      });
+    };
+
+    const handleScroll = () => {
+      const viewportHeight = window.innerHeight;
+      const triggerLine = window.scrollY + viewportHeight * 0.75;
+
+      charPositions.forEach(({ element, top, left }) => {
+        if (top < triggerLine) {
+          // Calculate delay based on horizontal position (left-to-right wipe)
+          // Max delay of ~400ms for the rightmost character in a line
+          const delay = left * 0.75;
+          element.style.transitionDelay = `${delay}ms`;
+          element.classList.add('is-active');
+        } else {
+          // When hiding (scrolling up), reverse the delay (right-to-left)
+          // Find max left position to calculate reverse delay
+          const maxLeft = Math.max(...charPositions.map((p) => p.left));
+          const reverseDelay = (maxLeft - left) * 0.75;
+          element.style.transitionDelay = `${reverseDelay}ms`;
+          element.classList.remove('is-active');
+        }
+      });
+    };
+
+    // Measure on load
+    measurePositions();
+
+    // Re-measure on resize
+    window.addEventListener('resize', () => {
+      measurePositions();
+      handleScroll();
+    });
+
+    // Scroll handler with RAF
+    let ticking = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            handleScroll();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      },
+      { passive: true }
+    );
+
+    // Initial check
+    handleScroll();
+  }
+</script>
