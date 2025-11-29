@@ -10,6 +10,10 @@ export default defineType({
       name: 'seo',
       title: 'SEO (optional)',
       type: 'seo',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
     },
     {
       name: 'title',
