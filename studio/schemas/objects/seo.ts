@@ -6,14 +6,6 @@ export default defineType({
   type: 'object',
   fields: [
     {
-      name: 'metaTitle',
-      title: 'Search Results Title (optional)',
-      type: 'string',
-      description:
-        'The title that appears in Google search results and browser tabs. Make it compelling and include important keywords. Keep it under 60 characters so it displays fully in search results. **If left empty:** Your page title will be used instead.',
-      validation: (Rule) => Rule.max(60).warning('Keep under 60 characters'),
-    },
-    {
       name: 'metaDescription',
       title: 'Search Results Description (optional)',
       type: 'text',

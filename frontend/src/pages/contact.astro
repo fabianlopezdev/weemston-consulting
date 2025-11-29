@@ -19,10 +19,7 @@ const visibleSections =
   contactPage.sections?.filter((section: any) => section.enabled) || [];
 ---
 
-<BaseLayout
-  title={contactPage.seo?.metaTitle || contactPage.title}
-  description={contactPage.seo?.metaDescription}
->
+<BaseLayout title={contactPage.title} description={contactPage.metaDescription}>
   {contactPage.hero && <HeroSection {...contactPage.hero} />}
 
   {visibleSections.map((section: any) => <SectionRenderer section={section} />)}

@@ -22,8 +22,8 @@ const visibleSections =
 ---
 
 <BaseLayout
-  title={servicesPage.seo?.metaTitle || servicesPage.title}
-  description={servicesPage.seo?.metaDescription}
+  title={servicesPage.title}
+  description={servicesPage.metaDescription}
 >
   {servicesPage.hero && <HeroSection {...servicesPage.hero} />}
 

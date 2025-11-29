@@ -46,6 +46,11 @@ interface BackgroundSettingsData {
   backgroundType?: 'image' | 'color';
   image?: SanityImageData;
   colorMode?: 'solid' | 'gradient';
+  // Flattened solid color fields
+  solidColorType?: string;
+  solidColorShade?: number;
+  solidCustomColor?: { label?: string; value: string };
+  // Legacy nested structure (backwards compatibility)
   solidColor?: ColorSelectionData;
   gradient?: GradientData;
 }
@@ -235,6 +240,20 @@ export function resolveBackgroundStyle(
   const colorMode = backgroundSettings.colorMode || 'solid';
 
   if (colorMode === 'solid') {
+    // Handle new flattened structure
+    if (backgroundSettings.solidColorType) {
+      const colorSelection: ColorSelectionData = {
+        colorType: backgroundSettings.solidColorType,
+        shade: backgroundSettings.solidColorShade,
+        customColor: backgroundSettings.solidCustomColor,
+      };
+      const solidColor = resolveColorSelection(colorSelection, siteColors);
+      return {
+        type: 'color',
+        css: solidColor,
+      };
+    }
+    // Fallback to legacy nested structure
     const solidColor = resolveColorSelection(
       backgroundSettings.solidColor,
       siteColors

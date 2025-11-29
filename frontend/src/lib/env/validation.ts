@@ -13,7 +13,6 @@ const envSchema = z.object({
   PUBLIC_SITE_URL: z.string().url('Site URL must be a valid URL'),
 
   // Optional
-  PUBLIC_SANITY_PREVIEW_SECRET: z.string().optional(),
   PUBLIC_ANALYTICS_ID: z.string().optional(),
   PUBLIC_SENTRY_DSN: z.string().optional(),
   SENTRY_AUTH_TOKEN: z.string().optional(),

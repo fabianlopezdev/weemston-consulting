@@ -153,8 +153,11 @@ const backgroundSettingsProjection = `
       alt
     },
     colorMode,
-    solidColor {
-      ${colorSelectionProjection}
+    solidColorType,
+    solidColorShade,
+    solidCustomColor {
+      label,
+      value
     },
     gradient {
       direction,
@@ -296,11 +299,8 @@ export const homepageQuery = groq`
       ${backgroundSettingsProjection}
     },
     ${pageSectionsQuery},
-    seo {
-      metaTitle,
-      metaDescription,
-      ogImage
-    }
+    metaDescription,
+    ogImage
   }
 `;
 
@@ -330,11 +330,8 @@ export const servicesPageQuery = groq`
       content
     },
     ${pageSectionsQuery},
-    seo {
-      metaTitle,
-      metaDescription,
-      ogImage
-    }
+    metaDescription,
+    ogImage
   }
 `;
 
@@ -357,11 +354,8 @@ export const caseStudiesPageQuery = groq`
       ${backgroundSettingsProjection}
     },
     ${pageSectionsQuery},
-    seo {
-      metaTitle,
-      metaDescription,
-      ogImage
-    }
+    metaDescription,
+    ogImage
   }
 `;
 
@@ -384,11 +378,8 @@ export const contactPageQuery = groq`
       ${backgroundSettingsProjection}
     },
     ${pageSectionsQuery},
-    seo {
-      metaTitle,
-      metaDescription,
-      ogImage
-    }
+    metaDescription,
+    ogImage
   }
 `;
 
@@ -406,10 +397,7 @@ export const aboutPageQuery = groq`
       ${backgroundSettingsProjection}
     },
     content,
-    seo {
-      metaTitle,
-      metaDescription,
-      ogImage
-    }
+    metaDescription,
+    ogImage
   }
 `;

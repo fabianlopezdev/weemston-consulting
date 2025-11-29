@@ -1,85 +1,35 @@
 import { defineType } from 'sanity';
+import { BackgroundShadeInput } from '../../../components/BackgroundShadeInput';
 
 export default defineType({
   name: 'heroSection',
   title: 'Hero Section',
   type: 'object',
-  fields: [
-    {
-      name: 'heading',
-      title: 'Main Heading',
-      type: 'string',
-      description: 'The primary headline for this page',
-    },
-    {
-      name: 'headingColor',
-      title: 'Heading Color',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Contrast', value: 'contrast' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'contrast',
-    },
+  fieldsets: [
+    { name: 'heading', title: 'Main Heading' },
     {
       name: 'tagline',
       title: 'Tagline (optional)',
-      type: 'string',
-      description: 'Secondary headline below the main heading',
+      options: { collapsible: true, collapsed: true },
     },
     {
-      name: 'taglineColor',
-      title: 'Tagline Color',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Contrast', value: 'contrast' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'contrast',
-    },
-    {
-      name: 'subheading',
+      name: 'intro',
       title: 'Intro Paragraph (optional)',
-      type: 'text',
-      rows: 3,
-      description: 'Supporting paragraph text below the subheading',
+      options: { collapsible: true, collapsed: true },
     },
     {
-      name: 'subheadingColor',
-      title: 'Intro Color',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Contrast', value: 'contrast' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'contrast',
-    },
-    {
-      name: 'ctaButton',
+      name: 'cta',
       title: 'Call to Action Button (optional)',
-      type: 'link',
-      description: 'Primary action button',
+      options: { collapsible: true, collapsed: true },
     },
+  ],
+  fields: [
     {
       name: 'backgroundSettings',
       title: 'Background',
+      description:
+        'If no background is configured, the frontend will default to your primary color from Site Settings.',
       type: 'object',
-      options: {
-        collapsible: true,
-        collapsed: false,
-      },
       fields: [
         {
           name: 'backgroundType',
@@ -98,6 +48,7 @@ export default defineType({
         // Image upload (collapsed: false to show directly)
         {
           name: 'image',
+          title: 'Background Image',
           type: 'image',
           hidden: ({ parent }) => parent?.backgroundType !== 'image',
           options: {
@@ -117,7 +68,7 @@ export default defineType({
         // Color mode selection (flat, no nesting)
         {
           name: 'colorMode',
-          title: 'Color Mode',
+          title: 'Background Color Mode',
           type: 'string',
           hidden: ({ parent }) => parent?.backgroundType !== 'color',
           options: {
@@ -130,44 +81,45 @@ export default defineType({
           },
           initialValue: 'solid',
         },
-        // Solid color fields
+        // Solid color fields (flattened to avoid nested object collapsibles)
         {
-          name: 'solidColor',
-          title: 'Solid Color',
-          type: 'object',
+          name: 'solidColorType',
+          title: 'Color',
+          type: 'string',
           hidden: ({ parent }) =>
             parent?.backgroundType !== 'color' || parent?.colorMode !== 'solid',
-          fields: [
-            {
-              name: 'colorType',
-              title: 'Color',
-              type: 'string',
-              options: {
-                list: [
-                  { title: 'Primary', value: 'primary' },
-                  { title: 'Secondary', value: 'secondary' },
-                  { title: 'Accent', value: 'accent' },
-                  { title: 'Custom', value: 'custom' },
-                ],
-              },
-              initialValue: 'primary',
-            },
-            {
-              name: 'shade',
-              title: 'Shade',
-              type: 'number',
-              initialValue: 0,
-              hidden: ({ parent }) => parent?.colorType === 'custom',
-              validation: (Rule) => Rule.min(0).max(100).integer(),
-              description: '0 = base color, 100 = lightest',
-            },
-            {
-              name: 'customColor',
-              title: 'Custom Color',
-              type: 'simplerColor',
-              hidden: ({ parent }) => parent?.colorType !== 'custom',
-            },
-          ],
+          options: {
+            list: [
+              { title: 'Primary', value: 'primary' },
+              { title: 'Secondary', value: 'secondary' },
+              { title: 'Accent', value: 'accent' },
+              { title: 'Custom', value: 'custom' },
+            ],
+          },
+          initialValue: 'primary',
+        },
+        {
+          name: 'solidColorShade',
+          title: 'Shade',
+          type: 'number',
+          initialValue: 0,
+          hidden: ({ parent }) =>
+            parent?.backgroundType !== 'color' ||
+            parent?.colorMode !== 'solid' ||
+            parent?.solidColorType === 'custom',
+          validation: (Rule) => Rule.min(0).max(100).integer(),
+          components: {
+            input: BackgroundShadeInput,
+          },
+        },
+        {
+          name: 'solidCustomColor',
+          title: 'Custom Color',
+          type: 'simplerColor',
+          hidden: ({ parent }) =>
+            parent?.backgroundType !== 'color' ||
+            parent?.colorMode !== 'solid' ||
+            parent?.solidColorType !== 'custom',
         },
         // Gradient fields
         {
@@ -220,10 +172,13 @@ export default defineType({
                   initialValue: 0,
                   hidden: ({ parent }) => parent?.colorType === 'custom',
                   validation: (Rule) => Rule.min(0).max(100).integer(),
+                  components: {
+                    input: BackgroundShadeInput,
+                  },
                 },
                 {
                   name: 'customColor',
-                  title: 'Custom Color',
+                  title: ' ',
                   type: 'simplerColor',
                   hidden: ({ parent }) => parent?.colorType !== 'custom',
                 },
@@ -255,10 +210,13 @@ export default defineType({
                   initialValue: 0,
                   hidden: ({ parent }) => parent?.colorType === 'custom',
                   validation: (Rule) => Rule.min(0).max(100).integer(),
+                  components: {
+                    input: BackgroundShadeInput,
+                  },
                 },
                 {
                   name: 'customColor',
-                  title: 'Custom Color',
+                  title: ' ',
                   type: 'simplerColor',
                   hidden: ({ parent }) => parent?.colorType !== 'custom',
                 },
@@ -267,6 +225,80 @@ export default defineType({
           ],
         },
       ],
+    },
+    {
+      name: 'heading',
+      title: 'Text',
+      type: 'string',
+      description: 'The primary headline for this page',
+      fieldset: 'heading',
+    },
+    {
+      name: 'headingColor',
+      title: 'Text Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
+      fieldset: 'heading',
+    },
+    {
+      name: 'tagline',
+      title: 'Text',
+      type: 'string',
+      description: 'Secondary headline below the main heading',
+      fieldset: 'tagline',
+    },
+    {
+      name: 'taglineColor',
+      title: 'Text Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
+      fieldset: 'tagline',
+    },
+    {
+      name: 'subheading',
+      title: 'Text',
+      type: 'text',
+      rows: 3,
+      description: 'Supporting paragraph text below the subheading',
+      fieldset: 'intro',
+    },
+    {
+      name: 'subheadingColor',
+      title: 'Text Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
+      fieldset: 'intro',
+    },
+    {
+      name: 'ctaButton',
+      title: 'Button',
+      type: 'link',
+      description: 'Primary action button',
+      fieldset: 'cta',
     },
   ],
   preview: {

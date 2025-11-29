@@ -27,10 +27,7 @@ const getPlainText = (blocks: any[]) => {
 const content = aboutPage.content ? getPlainText(aboutPage.content) : '';
 ---
 
-<BaseLayout
-  title={aboutPage.seo?.metaTitle || aboutPage.title}
-  description={aboutPage.seo?.metaDescription}
->
+<BaseLayout title={aboutPage.title} description={aboutPage.metaDescription}>
   {aboutPage.hero && <HeroSection {...aboutPage.hero} />}
 
   {

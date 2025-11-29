@@ -22,9 +22,7 @@ const currentUrl = Astro.url.pathname;
 const canonicalUrl = getAbsoluteUrl(currentUrl);
 const alternateLinks = getAlternateLinks(currentUrl);
 
-const ogImage = image
-  ? getAbsoluteUrl(image)
-  : getAbsoluteUrl('/og-default.png');
+const ogImage = image ? getAbsoluteUrl(image) : undefined;
 ---
 
 <AstroSEO
@@ -37,13 +35,14 @@ const ogImage = image
     basic: {
       title,
       type: article ? 'article' : 'website',
-      image: ogImage,
+      image: ogImage || '',
       url: canonicalUrl,
     },
     optional: {
       description,
       siteName: title,
     },
+    image: ogImage ? { url: ogImage } : undefined,
     article: article
       ? {
           publishedTime: article.publishedTime,
@@ -53,12 +52,18 @@ const ogImage = image
         }
       : undefined,
   }}
-  twitter={{
-    card: 'summary_large_image',
-    title,
-    description,
-    image: ogImage,
-  }}
+  twitter={ogImage
+    ? {
+        card: 'summary_large_image',
+        title,
+        description,
+        image: ogImage,
+      }
+    : {
+        card: 'summary',
+        title,
+        description,
+      }}
   extend={{
     link: alternateLinks.map((link) => ({
       rel: 'alternate',
