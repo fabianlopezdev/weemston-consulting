@@ -4,6 +4,7 @@ import { resolveLinkUrl } from '@lib/sanity/linkResolver';
 import {
   resolveButtonColor,
   resolveButtonTextColor,
+  resolveBackgroundStyle,
 } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
@@ -28,6 +29,15 @@ interface LinkData {
   buttonColor?: any;
 }
 
+// Flat structure for background settings (no nesting)
+interface BackgroundSettings {
+  backgroundType?: 'image' | 'color';
+  image?: any;
+  colorMode?: 'solid' | 'gradient';
+  solidColor?: any;
+  gradient?: any;
+}
+
 interface Props {
   tagline?: string;
   taglineColor?: 'base' | 'contrast';
@@ -36,7 +46,7 @@ interface Props {
   subheading?: string;
   subheadingColor?: 'base' | 'contrast';
   ctaButton?: LinkData;
-  backgroundImage?: any;
+  backgroundSettings?: BackgroundSettings;
 }
 
 const {
@@ -47,23 +57,29 @@ const {
   subheading,
   subheadingColor,
   ctaButton,
-  backgroundImage,
+  backgroundSettings,
 } = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+
+// Resolve background style
+const bgStyle = resolveBackgroundStyle(backgroundSettings, settings?.colors);
+
+// For image backgrounds, generate the URL
+let bgImageUrl: string | null = null;
+if (bgStyle.type === 'image' && bgStyle.image) {
+  bgImageUrl = urlForImage(bgStyle.image).width(1920).height(1080).url();
+}
 
 // Helper to resolve text color
 const getTextColor = (color?: 'base' | 'contrast') =>
   color === 'base' ? '#1a1a1a' : undefined; // undefined = use default white from CSS
 
-const bgImageUrl = backgroundImage
-  ? urlForImage(backgroundImage).width(1920).height(1080).url()
-  : null;
-
 const ctaHref = ctaButton ? resolveLinkUrl(ctaButton) : null;
 const ctaOpenInNewTab =
   ctaButton?.openInNewTab || ctaButton?.linkType === 'external';
 
-// Fetch site settings for button colors
-const settings = await client.fetch(siteSettingsQuery);
 const ctaColor = ctaButton
   ? resolveButtonColor(ctaButton.buttonColor, settings?.colors)
   : null;
@@ -75,14 +91,18 @@ const ctaTextColor = ctaButton
 <section class="hero">
   <div class="hero__background">
     {
-      bgImageUrl ? (
-        <img
-          src={bgImageUrl}
-          alt={backgroundImage.alt || ''}
-          class="hero__image"
-        />
+      bgStyle.type === 'image' ? (
+        bgImageUrl ? (
+          <img
+            src={bgImageUrl}
+            alt={bgStyle.image?.alt || ''}
+            class="hero__image"
+          />
+        ) : (
+          <div class="hero__fallback" />
+        )
       ) : (
-        <div class="hero__fallback" />
+        <div class="hero__color-bg" style={`background: ${bgStyle.css};`} />
       )
     }
   </div>
@@ -192,6 +212,11 @@ const ctaTextColor = ctaButton
       var(--color-primary) 30%,
       var(--color-accent) 120%
     );
+  }
+
+  .hero__color-bg {
+    width: 100%;
+    height: 100%;
   }
 
   .hero__image {

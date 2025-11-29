@@ -21,6 +21,35 @@ interface ButtonColorData {
   customColor?: ColorData;
 }
 
+interface ColorSelectionData {
+  colorType?: string;
+  shade?: number;
+  customColor?: { label?: string; value: string };
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: ColorSelectionData;
+  endColor?: ColorSelectionData;
+}
+
+// Sanity image reference structure
+interface SanityImageData {
+  asset?: { _ref?: string; _type?: string };
+  alt?: string;
+  hotspot?: { x: number; y: number; height: number; width: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+// Flat structure for background settings (no nesting)
+interface BackgroundSettingsData {
+  backgroundType?: 'image' | 'color';
+  image?: SanityImageData;
+  colorMode?: 'solid' | 'gradient';
+  solidColor?: ColorSelectionData;
+  gradient?: GradientData;
+}
+
 /**
  * Lightens a hex color by mixing with white
  * @param hex - Hex color string (with or without #)
@@ -147,4 +176,83 @@ export function resolveButtonColor(
   }
 
   return baseColor;
+}
+
+/**
+ * Resolves a color selection (used for background colors)
+ * @param colorSelection - The color selection object from Sanity
+ * @param siteColors - The site colors from settings
+ * @returns CSS color value (hex string)
+ */
+function resolveColorSelection(
+  colorSelection: ColorSelectionData | null | undefined,
+  siteColors: SiteColors | null | undefined
+): string {
+  if (!colorSelection) {
+    return siteColors?.primary?.value || '#0066cc';
+  }
+
+  const { colorType, shade, customColor } = colorSelection;
+
+  // Handle custom color
+  if (colorType === 'custom' && customColor?.value) {
+    return customColor.value;
+  }
+
+  // Get base color
+  const baseColor = getBaseColor(colorType || 'primary', siteColors);
+
+  // Apply shade if specified
+  const shadeValue = shade ?? 0;
+  if (shadeValue > 0) {
+    const amount = shadeValue / 200;
+    return lighten(baseColor, amount);
+  }
+
+  return baseColor;
+}
+
+/**
+ * Resolves background settings to CSS background value (flat structure)
+ * @param backgroundSettings - The background settings object from Sanity
+ * @param siteColors - The site colors from settings
+ * @returns Object with backgroundType and CSS background value (or null for image)
+ */
+export function resolveBackgroundStyle(
+  backgroundSettings: BackgroundSettingsData | null | undefined,
+  siteColors: SiteColors | null | undefined
+): { type: 'image' | 'color'; css: string | null; image?: SanityImageData } {
+  // Default to image if no settings
+  if (!backgroundSettings || backgroundSettings.backgroundType === 'image') {
+    return {
+      type: 'image',
+      css: null,
+      image: backgroundSettings?.image,
+    };
+  }
+
+  // Handle color background (flat structure)
+  const colorMode = backgroundSettings.colorMode || 'solid';
+
+  if (colorMode === 'solid') {
+    const solidColor = resolveColorSelection(
+      backgroundSettings.solidColor,
+      siteColors
+    );
+    return {
+      type: 'color',
+      css: solidColor,
+    };
+  }
+
+  // Gradient mode
+  const gradient = backgroundSettings.gradient;
+  const direction = gradient?.direction || '135deg';
+  const startColor = resolveColorSelection(gradient?.startColor, siteColors);
+  const endColor = resolveColorSelection(gradient?.endColor, siteColors);
+
+  return {
+    type: 'color',
+    css: `linear-gradient(${direction}, ${startColor}, ${endColor})`,
+  };
 }

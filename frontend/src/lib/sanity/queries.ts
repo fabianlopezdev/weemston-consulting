@@ -134,6 +134,40 @@ export const legalPageQuery = groq`
   }
 `;
 
+// Helper for color settings projection (reusable for background colors)
+const colorSelectionProjection = `
+  colorType,
+  shade,
+  customColor {
+    label,
+    value
+  }
+`;
+
+// Helper for background settings projection (flat structure)
+const backgroundSettingsProjection = `
+  backgroundSettings {
+    backgroundType,
+    image {
+      asset,
+      alt
+    },
+    colorMode,
+    solidColor {
+      ${colorSelectionProjection}
+    },
+    gradient {
+      direction,
+      startColor {
+        ${colorSelectionProjection}
+      },
+      endColor {
+        ${colorSelectionProjection}
+      }
+    }
+  }
+`;
+
 // Helper for page sections query (reusable across all pages)
 const pageSectionsQuery = `
   sections[] {
@@ -259,11 +293,7 @@ export const homepageQuery = groq`
       ctaButton {
         ${linkProjection}
       },
-      showBackgroundImage,
-      backgroundImage {
-        asset,
-        alt
-      }
+      ${backgroundSettingsProjection}
     },
     ${pageSectionsQuery},
     seo {
@@ -290,11 +320,7 @@ export const servicesPageQuery = groq`
       ctaButton {
         ${linkProjection}
       },
-      showBackgroundImage,
-      backgroundImage {
-        asset,
-        alt
-      }
+      ${backgroundSettingsProjection}
     },
     intro,
     services[]-> {
@@ -328,11 +354,7 @@ export const caseStudiesPageQuery = groq`
       ctaButton {
         ${linkProjection}
       },
-      showBackgroundImage,
-      backgroundImage {
-        asset,
-        alt
-      }
+      ${backgroundSettingsProjection}
     },
     ${pageSectionsQuery},
     seo {
@@ -359,11 +381,7 @@ export const contactPageQuery = groq`
       ctaButton {
         ${linkProjection}
       },
-      showBackgroundImage,
-      backgroundImage {
-        asset,
-        alt
-      }
+      ${backgroundSettingsProjection}
     },
     ${pageSectionsQuery},
     seo {
@@ -385,11 +403,7 @@ export const aboutPageQuery = groq`
       taglineColor,
       heading,
       headingColor,
-      showBackgroundImage,
-      backgroundImage {
-        asset,
-        alt
-      }
+      ${backgroundSettingsProjection}
     },
     content,
     seo {
