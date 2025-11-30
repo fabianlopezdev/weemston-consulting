@@ -175,7 +175,7 @@ export default defineType({
           name: 'links',
           title: 'Footer Links (optional)',
           type: 'array',
-          of: [{ type: 'link' }],
+          of: [{ type: 'navigationLink' }],
         },
       ],
     },
