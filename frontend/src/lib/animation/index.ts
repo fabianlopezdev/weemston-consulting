@@ -48,4 +48,10 @@ export {
 export { initLenis, getLenis, destroyLenis } from './lenis';
 
 // Presets
-export { createTextReveal, createHeroReveal, createFadeIn } from './presets';
+export {
+  createTextReveal,
+  createHeroReveal,
+  createFadeIn,
+  createHeaderThemeSwitcher,
+  registerDarkElements,
+} from './presets';

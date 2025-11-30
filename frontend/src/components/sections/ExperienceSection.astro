@@ -85,7 +85,10 @@ const cardImages = cards.map((card) => {
               data-active={index === 0 ? 'true' : 'false'}
               aria-hidden={index !== 0 ? 'true' : 'false'}
             >
-              <div class="experience-card__image-wrapper">
+              <div
+                class="experience-card__image-wrapper"
+                data-header-theme="dark"
+              >
                 {cardImages[index] ? (
                   <img
                     src={cardImages[index]}
@@ -137,7 +140,10 @@ const cardImages = cards.map((card) => {
               </span>
             </button>
             <div class="experience-accordion__content">
-              <div class="experience-accordion__image-wrapper">
+              <div
+                class="experience-accordion__image-wrapper"
+                data-header-theme="dark"
+              >
                 {cardImages[index] ? (
                   <img
                     src={cardImages[index]}

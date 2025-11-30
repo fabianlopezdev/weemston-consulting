@@ -5,7 +5,7 @@
  * Use these for consistency, or write custom GSAP animations.
  */
 
-import { gsap, SplitText } from './utils';
+import { gsap, SplitText, ScrollTrigger } from './utils';
 import {
   ANIMATION_CONFIG,
   GRADIENT_PRESETS,
@@ -224,4 +224,86 @@ export function createFadeIn(
       }
     );
   });
+}
+
+// Track elements that already have ScrollTriggers for header theme
+const registeredDarkElements = new WeakSet<Element>();
+
+/**
+ * Register dark elements for header theme switching
+ *
+ * Creates ScrollTriggers for elements with dark backgrounds so the header
+ * nav links change to white when overlapping them. Can be called multiple
+ * times - will only create triggers for new elements.
+ *
+ * @param selector - CSS selector for dark elements (default: '[data-header-theme="dark"]')
+ * @param headerSelector - CSS selector for the header element
+ *
+ * @example
+ * // Register all elements with data-header-theme="dark"
+ * registerDarkElements();
+ *
+ * // Register specific elements
+ * registerDarkElements('.my-dark-section');
+ */
+export function registerDarkElements(
+  selector: string = '[data-header-theme="dark"]',
+  headerSelector: string = '.site-header'
+): void {
+  const header = document.querySelector(headerSelector) as HTMLElement;
+  if (!header) return;
+
+  const darkElements = document.querySelectorAll(selector);
+
+  darkElements.forEach((element) => {
+    // Skip if already registered
+    if (registeredDarkElements.has(element)) return;
+    registeredDarkElements.add(element);
+
+    ScrollTrigger.create({
+      trigger: element,
+      // Start when element top meets viewport top (where sticky header is)
+      start: 'top top',
+      // End when element bottom meets viewport top
+      end: 'bottom top',
+      onEnter: () => header.setAttribute('data-theme', 'light'),
+      onLeave: () => header.setAttribute('data-theme', 'dark'),
+      onEnterBack: () => header.setAttribute('data-theme', 'light'),
+      onLeaveBack: () => header.setAttribute('data-theme', 'dark'),
+    });
+  });
+}
+
+/**
+ * Header Theme Switcher
+ *
+ * Automatically switches header nav link colors based on which sections
+ * the header overlaps with. Uses ScrollTrigger for precise detection.
+ *
+ * Sections with dark backgrounds should have data-header-theme="dark"
+ * to trigger light-colored nav links when the header overlaps them.
+ *
+ * @param headerSelector - CSS selector for the header element
+ * @param options - Configuration options
+ *
+ * @example
+ * // Basic usage
+ * createHeaderThemeSwitcher('.site-header');
+ *
+ * // With custom dark section selector
+ * createHeaderThemeSwitcher('.site-header', {
+ *   darkSectionSelector: '.dark-section',
+ * });
+ */
+export function createHeaderThemeSwitcher(
+  headerSelector: string = '.site-header',
+  options: {
+    /** CSS selector for dark background sections */
+    darkSectionSelector?: string;
+  } = {}
+): void {
+  const { darkSectionSelector = '[data-header-theme="dark"]' } = options;
+
+  // Register all dark elements found at this time
+  registerDarkElements(darkSectionSelector, headerSelector);
 }

@@ -5,6 +5,7 @@ import PortableText from '@components/sanity/PortableText.astro';
 interface Service {
   _id: string;
   title: string;
+  label?: string;
   homepageText?: any;
   icon?: any;
 }
@@ -19,135 +20,536 @@ interface Props {
 const { title, description, services, showAllLink } = Astro.props;
 ---
 
-<section class="services-section">
-  <div class="container">
-    <div class="services-section__header">
+<section class="services-section" data-header-theme="dark">
+  <div class="services-section__container">
+    <!-- Left Column: Header -->
+    <header class="services-section__header">
       <h2 class="services-section__title">{title}</h2>
       {
         description && (
           <p class="services-section__description">{description}</p>
         )
       }
-    </div>
-
-    <div class="services-grid">
       {
-        services.map((service) => {
+        showAllLink && (
+          <a href="/services" class="services-section__link">
+            View All Services
+            <span class="services-section__link-arrow">→</span>
+          </a>
+        )
+      }
+    </header>
+
+    <!-- Right Column: Vertical Card Stack (Desktop) -->
+    <div class="services-cards">
+      {
+        services.map((service, index) => {
           const iconUrl = service.icon
             ? urlForImage(service.icon).width(100).height(100).url()
             : null;
 
           return (
-            <a href="/services" class="service-card">
-              {iconUrl && (
-                <div class="service-card__icon">
-                  <img src={iconUrl} alt="" />
-                </div>
-              )}
-              <h3 class="service-card__title">{service.title}</h3>
-              {service.homepageText && (
-                <div class="service-card__description">
-                  <PortableText content={service.homepageText} />
-                </div>
-              )}
-            </a>
+            <article
+              class="services-card"
+              data-index={index}
+              data-expanded={index === 0 ? 'true' : 'false'}
+            >
+              {/* Collapsed State - Shows only label */}
+              <div class="services-card__collapsed">
+                <span class="services-card__label">
+                  {service.label || service.title.split(' ')[0]}
+                </span>
+              </div>
+
+              {/* Expanded State - Shows full content */}
+              <div class="services-card__expanded">
+                <h3 class="services-card__title">{service.title}</h3>
+                {service.homepageText && (
+                  <div class="services-card__description">
+                    <PortableText content={service.homepageText} />
+                  </div>
+                )}
+                <div class="services-card__indicator" aria-hidden="true" />
+              </div>
+            </article>
           );
         })
       }
     </div>
 
-    {
-      showAllLink && (
-        <div class="services-section__footer">
-          <a href="/services" class="services-section__link">
-            View All Services →
-          </a>
-        </div>
-      )
-    }
+    <!-- Mobile: Horizontal Slider -->
+    <div class="services-slider">
+      {
+        services.map((service, index) => {
+          const iconUrl = service.icon
+            ? urlForImage(service.icon).width(100).height(100).url()
+            : null;
+
+          return (
+            <article class="services-slider__card">
+              <h3 class="services-slider__title">{service.title}</h3>
+              {service.homepageText && (
+                <div class="services-slider__description">
+                  <PortableText content={service.homepageText} />
+                </div>
+              )}
+            </article>
+          );
+        })
+      }
+    </div>
   </div>
 </section>
 
 <style>
+  /* ========================================
+     BASE SECTION STYLES
+     ======================================== */
   .services-section {
-    padding: var(--space-2xl) 0;
+    padding: var(--space-3xl, 6rem) 0;
+    background: var(--color-surface, #1a1a1a);
   }
 
+  .services-section__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--space-lg, 2rem);
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: var(--space-2xl, 4rem);
+    align-items: start;
+  }
+
+  /* ========================================
+     HEADER STYLES (Left Column)
+     ======================================== */
   .services-section__header {
-    text-align: center;
-    margin-block-end: var(--space-xl);
+    position: sticky;
+    top: calc(var(--header-height, 5.5rem) + var(--space-lg, 2rem));
   }
 
   .services-section__title {
-    font-size: var(--font-size-2xl);
-    margin-block-end: var(--space-md);
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400;
+    color: var(--color-text, #f5f5f5);
+    margin: 0 0 var(--space-md, 1rem) 0;
+    line-height: 1.2;
   }
 
   .services-section__description {
-    font-size: var(--font-size-lg);
-    max-width: 600px;
-    margin-inline: auto;
-    opacity: 0.8;
-  }
-
-  .services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-lg);
-    margin-block-end: var(--space-xl);
-  }
-
-  .service-card {
-    padding: var(--space-lg);
-    border: 1px solid var(--color-border, #e0e0e0);
-    border-radius: var(--border-radius, 8px);
-    text-decoration: none;
-    color: inherit;
-    transition:
-      transform 0.2s,
-      box-shadow 0.2s;
-  }
-
-  .service-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  }
-
-  .service-card__icon {
-    width: 60px;
-    height: 60px;
-    margin-block-end: var(--space-md);
-  }
-
-  .service-card__icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-
-  .service-card__title {
-    font-size: var(--font-size-lg);
-    margin-block-end: var(--space-sm);
-  }
-
-  .service-card__description {
-    font-size: var(--font-size-sm);
-    opacity: 0.8;
+    font-size: var(--font-size-lg, 1.125rem);
+    color: var(--color-text-muted, #b0b0b0);
     line-height: 1.6;
-  }
-
-  .services-section__footer {
-    text-align: center;
+    margin: 0 0 var(--space-lg, 1.5rem) 0;
+    max-width: 400px;
   }
 
   .services-section__link {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    color: var(--color-primary, #0066cc);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs, 0.5rem);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text, #f5f5f5);
     text-decoration: none;
+    transition: gap 0.2s ease;
   }
 
   .services-section__link:hover {
-    text-decoration: underline;
+    gap: var(--space-sm, 0.75rem);
+  }
+
+  .services-section__link-arrow {
+    transition: transform 0.2s ease;
+  }
+
+  .services-section__link:hover .services-section__link-arrow {
+    transform: translateX(4px);
+  }
+
+  /* ========================================
+     DESKTOP: VERTICAL CARD STACK
+     ======================================== */
+  .services-cards {
+    position: relative;
+    /* Height and child positions set dynamically by JS */
+    /* Gap value (8px) used in JS calculations */
+  }
+
+  .services-card {
+    position: relative;
+    border: 1px solid var(--color-border, #404040);
+    border-radius: 16px;
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+
+  .services-card:hover {
+    border-color: var(--color-text-muted, #666);
+  }
+
+  .services-card:focus-visible {
+    outline: 2px solid var(--color-primary, #4d94ff);
+    outline-offset: 2px;
+  }
+
+  /* Collapsed State */
+  .services-card__collapsed {
+    padding: var(--space-md, 1rem) var(--space-lg, 1.5rem);
+    display: flex;
+    align-items: center;
+  }
+
+  .services-card__label {
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 400;
+    color: var(--color-text-muted, #666);
+    transition: color 0.3s ease;
+    line-height: 1.2;
+  }
+
+  .services-card:hover .services-card__label {
+    color: var(--color-text, #f5f5f5);
+  }
+
+  /* Expanded State */
+  .services-card__expanded {
+    padding: var(--space-md, 1rem) var(--space-lg, 1.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .services-card__title {
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 400;
+    color: var(--color-text, #f5f5f5);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .services-card__description {
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text-muted, #b0b0b0);
+    line-height: 1.6;
+    max-width: 500px;
+  }
+
+  .services-card__description :global(p) {
+    margin: 0;
+  }
+
+  .services-card__indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-primary, #4d94ff);
+    margin-top: var(--space-md, 1rem);
+  }
+
+  /* Card inner elements - GSAP controls visibility via height/opacity */
+  .services-card__collapsed,
+  .services-card__expanded {
+    overflow: hidden;
+  }
+
+  /* ========================================
+     MOBILE: HORIZONTAL SLIDER
+     ======================================== */
+  .services-slider {
+    display: none;
+  }
+
+  .services-slider__card {
+    flex: 0 0 280px;
+    padding: var(--space-lg, 1.5rem);
+    border: 1px solid var(--color-border, #404040);
+    border-radius: 16px;
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(10px);
+    scroll-snap-align: start;
+  }
+
+  .services-slider__title {
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: var(--font-size-xl, 1.5rem);
+    font-weight: 400;
+    color: var(--color-text, #f5f5f5);
+    margin: 0 0 var(--space-sm, 0.5rem) 0;
+    line-height: 1.2;
+  }
+
+  .services-slider__description {
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text-muted, #b0b0b0);
+    line-height: 1.6;
+  }
+
+  .services-slider__description :global(p) {
+    margin: 0;
+  }
+
+  /* ========================================
+     RESPONSIVE BREAKPOINTS
+     ======================================== */
+  @media (max-width: 900px) {
+    /* Hide desktop layout */
+    .services-section__container {
+      display: block;
+    }
+
+    .services-cards {
+      display: none;
+    }
+
+    /* Show mobile slider */
+    .services-slider {
+      display: flex;
+      gap: var(--space-md, 1rem);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: var(--space-lg, 1.5rem) 0;
+      margin: 0 calc(-1 * var(--space-lg, 2rem));
+      padding-left: var(--space-lg, 2rem);
+      padding-right: var(--space-lg, 2rem);
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .services-slider::-webkit-scrollbar {
+      display: none;
+    }
+
+    .services-section__header {
+      position: relative;
+      top: 0;
+      margin-bottom: var(--space-md, 1rem);
+    }
+  }
+
+  /* Tablet adjustments */
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .services-section__container {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-xl, 3rem);
+    }
   }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, gsap, createFadeIn } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    const cardsContainer = document.querySelector(
+      '.services-cards'
+    ) as HTMLElement;
+    const cards = document.querySelectorAll(
+      '.services-card'
+    ) as NodeListOf<HTMLElement>;
+    const isDesktop = window.innerWidth > 900;
+
+    if (!isDesktop || cards.length === 0 || !cardsContainer) return;
+
+    // Track the currently expanded card index
+    let activeIndex = 0;
+
+    // Store measured heights for each card
+    const expandedHeights: number[] = [];
+    const collapsedHeights: number[] = [];
+    const cardPositions: number[] = []; // Store top position for each card
+    const gap = 8; // Gap between cards in pixels
+
+    // Measure all heights on init and set up initial state with absolute positioning
+    function initializeCards() {
+      // First pass: measure all heights
+      cards.forEach((card, index) => {
+        const expandedEl = card.querySelector(
+          '.services-card__expanded'
+        ) as HTMLElement;
+        const collapsedEl = card.querySelector(
+          '.services-card__collapsed'
+        ) as HTMLElement;
+
+        // Temporarily show both to measure
+        gsap.set([expandedEl, collapsedEl], {
+          display: 'flex',
+          height: 'auto',
+        });
+
+        expandedHeights[index] = expandedEl.offsetHeight;
+        collapsedHeights[index] = collapsedEl.offsetHeight;
+      });
+
+      // Calculate total height and positions
+      let currentTop = 0;
+      cards.forEach((card, index) => {
+        cardPositions[index] = currentTop;
+
+        // Add height for next card's position
+        if (index === 0) {
+          currentTop += expandedHeights[0] + gap;
+        } else {
+          currentTop += collapsedHeights[index] + gap;
+        }
+      });
+
+      // Set container height (total minus last gap)
+      const totalHeight = currentTop - gap;
+      cardsContainer.style.height = `${totalHeight}px`;
+      cardsContainer.style.position = 'relative';
+
+      // Second pass: set initial state and absolute positioning
+      cards.forEach((card, index) => {
+        const expandedEl = card.querySelector(
+          '.services-card__expanded'
+        ) as HTMLElement;
+        const collapsedEl = card.querySelector(
+          '.services-card__collapsed'
+        ) as HTMLElement;
+
+        // Set absolute positioning
+        gsap.set(card, {
+          position: 'absolute',
+          top: cardPositions[index],
+          left: 0,
+          right: 0,
+          width: '100%',
+        });
+
+        // Set initial state: first card expanded, others collapsed
+        if (index === 0) {
+          gsap.set(expandedEl, { height: expandedHeights[index], opacity: 1 });
+          gsap.set(collapsedEl, { height: 0, opacity: 0 });
+        } else {
+          gsap.set(expandedEl, { height: 0, opacity: 0 });
+          gsap.set(collapsedEl, {
+            height: collapsedHeights[index],
+            opacity: 1,
+          });
+        }
+      });
+    }
+
+    initializeCards();
+
+    // Calculate new positions when a different card becomes active
+    function calculatePositions(expandedIndex: number): number[] {
+      const positions: number[] = [];
+      let currentTop = 0;
+
+      cards.forEach((_, index) => {
+        positions[index] = currentTop;
+
+        if (index === expandedIndex) {
+          currentTop += expandedHeights[index] + gap;
+        } else {
+          currentTop += collapsedHeights[index] + gap;
+        }
+      });
+
+      return positions;
+    }
+
+    function setActiveCard(newIndex: number) {
+      if (newIndex === activeIndex) return;
+
+      const prevIndex = activeIndex;
+
+      const previousCard = cards[prevIndex];
+      const nextCard = cards[newIndex];
+
+      // Get elements for animation
+      const prevExpanded = previousCard.querySelector(
+        '.services-card__expanded'
+      ) as HTMLElement;
+      const prevCollapsed = previousCard.querySelector(
+        '.services-card__collapsed'
+      ) as HTMLElement;
+      const nextExpanded = nextCard.querySelector(
+        '.services-card__expanded'
+      ) as HTMLElement;
+      const nextCollapsed = nextCard.querySelector(
+        '.services-card__collapsed'
+      ) as HTMLElement;
+
+      // Calculate new positions
+      const newPositions = calculatePositions(newIndex);
+
+      // Create timeline - ALL animations start at position 0 (simultaneous)
+      const tl = gsap.timeline({
+        defaults: { ease: 'power2.out', duration: 0.4 },
+      });
+
+      // Previous card: collapse expanded, show collapsed
+      tl.to(prevExpanded, { height: 0, opacity: 0 }, 0);
+      tl.to(
+        prevCollapsed,
+        { height: collapsedHeights[prevIndex], opacity: 1 },
+        0
+      );
+
+      // Next card: expand expanded, hide collapsed
+      tl.to(nextExpanded, { height: expandedHeights[newIndex], opacity: 1 }, 0);
+      tl.to(nextCollapsed, { height: 0, opacity: 0 }, 0);
+
+      // Animate ONLY the two involved cards' top positions
+      tl.to(previousCard, { top: newPositions[prevIndex] }, 0);
+      tl.to(nextCard, { top: newPositions[newIndex] }, 0);
+
+      // Instantly set new positions for all OTHER cards (no animation)
+      cards.forEach((card, index) => {
+        if (index !== prevIndex && index !== newIndex) {
+          gsap.set(card, { top: newPositions[index] });
+        }
+      });
+
+      // Update data attributes at end
+      tl.call(() => {
+        previousCard.setAttribute('data-expanded', 'false');
+        nextCard.setAttribute('data-expanded', 'true');
+      });
+
+      activeIndex = newIndex;
+    }
+
+    // Add hover listeners to cards
+    cards.forEach((card, index) => {
+      card.addEventListener('mouseenter', () => {
+        setActiveCard(index);
+      });
+
+      // Also support click for accessibility
+      card.addEventListener('click', () => {
+        setActiveCard(index);
+      });
+
+      // Keyboard navigation
+      card.setAttribute('tabindex', '0');
+      card.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setActiveCard(index);
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const nextIdx = (index + 1) % cards.length;
+          setActiveCard(nextIdx);
+          (cards[nextIdx] as HTMLElement).focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prevIdx = (index - 1 + cards.length) % cards.length;
+          setActiveCard(prevIdx);
+          (cards[prevIdx] as HTMLElement).focus();
+        }
+      });
+    });
+
+    // Entrance animations
+    createFadeIn('.services-section__header', { y: 30 });
+    createFadeIn('.services-card', { y: 20, stagger: 0.1 });
+  });
+</script>

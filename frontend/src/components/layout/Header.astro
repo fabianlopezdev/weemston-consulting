@@ -25,7 +25,7 @@ const showText =
   (displayMode === 'logo' && !hasLogo);
 ---
 
-<header class="site-header">
+<header class="site-header" data-theme="light">
   <div class="container">
     <nav aria-label={t('aria.main_navigation')}>
       <a href="/" class="logo">
@@ -140,6 +140,11 @@ const showText =
     opacity: 0.8;
   }
 
+  /* Light theme (when over dark sections) */
+  .site-header[data-theme='light'] .nav-list a {
+    color: #ffffff;
+  }
+
   @media (max-width: 768px) {
     nav {
       flex-direction: column;
@@ -157,3 +162,14 @@ const showText =
     }
   }
 </style>
+
+<script>
+  import {
+    setupAnimationLifecycle,
+    createHeaderThemeSwitcher,
+  } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    createHeaderThemeSwitcher();
+  });
+</script>
