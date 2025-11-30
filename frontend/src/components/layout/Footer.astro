@@ -40,39 +40,33 @@ const footerLogoUrl = footerLogo
         </div>
       )
     }
-    <div class="footer-content">
-      <div class="footer-text">
-        <p>{settings?.footer?.text || ''}</p>
-      </div>
-
-      {
-        footerLinks.length > 0 && (
-          <nav aria-label={t('aria.footer_navigation')}>
-            <ul class="footer-links">
-              {footerLinks.map((link: any) => {
-                const href = resolveLinkUrl(link);
-                const isExternal =
-                  link.openInNewTab || link.linkType === 'external';
-                return (
-                  <li>
-                    <a
-                      href={href}
-                      {...(isExternal && {
-                        target: '_blank',
-                        rel: 'noopener noreferrer',
-                        'aria-label': `${link.text} (${t('aria.external_link')})`,
-                      })}
-                    >
-                      {link.text}
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        )
-      }
-    </div>
+    {
+      footerLinks.length > 0 && (
+        <nav class="footer-content" aria-label={t('aria.footer_navigation')}>
+          <ul class="footer-links">
+            {footerLinks.map((link: any) => {
+              const href = resolveLinkUrl(link);
+              const isExternal =
+                link.openInNewTab || link.linkType === 'external';
+              return (
+                <li>
+                  <a
+                    href={href}
+                    {...(isExternal && {
+                      target: '_blank',
+                      rel: 'noopener noreferrer',
+                      'aria-label': `${link.text} (${t('aria.external_link')})`,
+                    })}
+                  >
+                    {link.text}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      )
+    }
 
     <section class="footer-credit">
       <p>
@@ -100,7 +94,7 @@ const footerLogoUrl = footerLogo
   .site-footer {
     background-color: var(--color-primary);
     color: var(--color-text);
-    padding-block-start: var(--space-xl);
+    padding-block-start: 10rem;
     padding-block-end: var(--space-sm);
   }
 
@@ -117,14 +111,7 @@ const footerLogoUrl = footerLogo
   }
 
   .footer-content {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--space-lg);
     margin-block-end: var(--space-lg);
-  }
-
-  .footer-text p {
-    margin-block-end: var(--space-sm);
   }
 
   .footer-links {

@@ -1,5 +1,4 @@
 import { defineType } from 'sanity';
-import { createI18nField } from '../../lib/i18n';
 import { ButtonStyleInput } from '../../components/ButtonStyleInput';
 
 export default defineType({
@@ -171,11 +170,6 @@ export default defineType({
             ],
           },
           initialValue: 'none',
-        },
-        {
-          name: 'text',
-          title: 'Footer Text (optional)',
-          ...createI18nField('text', { rows: 2 }),
         },
         {
           name: 'links',

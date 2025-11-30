@@ -20,66 +20,102 @@ const { title, testimonials } = Astro.props;
 ---
 
 <section class="testimonials-section">
-  <div class="container">
-    <h2 class="testimonials-section__title">{title}</h2>
+  <div class="testimonials-section__content">
+    <div class="container">
+      <h2 class="testimonials-section__title">{title}</h2>
 
-    <div class="testimonials-grid">
-      {
-        testimonials.map((testimonial) => {
-          const avatarUrl = testimonial.avatar
-            ? urlForImage(testimonial.avatar).width(80).height(80).url()
-            : null;
+      <div class="testimonials-grid">
+        {
+          testimonials.map((testimonial) => {
+            const avatarUrl = testimonial.avatar
+              ? urlForImage(testimonial.avatar).width(80).height(80).url()
+              : null;
 
-          return (
-            <div class="testimonial-card">
-              <blockquote class="testimonial-card__quote">
-                "{testimonial.quote}"
-              </blockquote>
-              <div class="testimonial-card__author">
-                {avatarUrl && (
-                  <img
-                    src={avatarUrl}
-                    alt={testimonial.avatar.alt || testimonial.name}
-                    class="testimonial-card__avatar"
-                  />
-                )}
-                <div class="testimonial-card__info">
-                  <p class="testimonial-card__name">{testimonial.name}</p>
-                  <p class="testimonial-card__position">
-                    {testimonial.position && testimonial.position}
-                    {testimonial.company &&
-                      (testimonial.websiteUrl ? (
-                        <>
-                          {testimonial.position && ' at '}
-                          <a
-                            href={testimonial.websiteUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="testimonial-card__company-link"
-                          >
+            return (
+              <div class="testimonial-card">
+                <blockquote class="testimonial-card__quote">
+                  "{testimonial.quote}"
+                </blockquote>
+                <div class="testimonial-card__author">
+                  {avatarUrl && (
+                    <img
+                      src={avatarUrl}
+                      alt={testimonial.avatar.alt || testimonial.name}
+                      class="testimonial-card__avatar"
+                    />
+                  )}
+                  <div class="testimonial-card__info">
+                    <p class="testimonial-card__name">{testimonial.name}</p>
+                    <p class="testimonial-card__position">
+                      {testimonial.position && testimonial.position}
+                      {testimonial.company &&
+                        (testimonial.websiteUrl ? (
+                          <>
+                            {testimonial.position && ' at '}
+                            <a
+                              href={testimonial.websiteUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="testimonial-card__company-link"
+                            >
+                              {testimonial.company}
+                            </a>
+                          </>
+                        ) : (
+                          <>
+                            {testimonial.position && ' at '}
                             {testimonial.company}
-                          </a>
-                        </>
-                      ) : (
-                        <>
-                          {testimonial.position && ' at '}
-                          {testimonial.company}
-                        </>
-                      ))}
-                  </p>
+                          </>
+                        ))}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })
-      }
+            );
+          })
+        }
+      </div>
     </div>
   </div>
 </section>
 
+<script>
+  import {
+    setupAnimationLifecycle,
+    createSectionContract,
+  } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    createSectionContract('.testimonials-section__content');
+  });
+</script>
+
 <style>
   .testimonials-section {
+    position: relative;
+  }
+
+  /* Primary color background that gets revealed when content shrinks */
+  .testimonials-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-primary);
+    z-index: -1;
+  }
+
+  /* Content wrapper that shrinks with clip-path */
+  .testimonials-section__content {
+    /* Initial clip values (starts expanded, contracts on scroll) */
+    --section-clip: 0vw;
+    --section-radius: 0rem;
+
+    clip-path: inset(
+      var(--section-clip) round 0 0 var(--section-radius) var(--section-radius)
+    );
+    background-color: var(--color-background);
     padding: var(--space-2xl) 0;
+    will-change: clip-path;
   }
 
   .testimonials-section__title {

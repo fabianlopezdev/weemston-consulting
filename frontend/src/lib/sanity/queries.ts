@@ -64,7 +64,6 @@ export const siteSettingsQuery = groq`
     },
     footer {
       logoVariant,
-      text,
       links[] {
         _key,
         ${linkProjection}

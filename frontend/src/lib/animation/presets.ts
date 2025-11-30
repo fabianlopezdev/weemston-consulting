@@ -275,6 +275,63 @@ export function registerDarkElements(
 }
 
 /**
+ * Section Contract Animation
+ *
+ * Creates a clip-path contraction effect - the inverse of createHeroReveal().
+ * The section contracts from full-width to inset/rounded as user scrolls.
+ *
+ * @param sectionSelector - CSS selector for the section
+ * @param options - Configuration options
+ *
+ * @example
+ * // Basic usage
+ * createSectionContract('.testimonials-section');
+ *
+ * // With options
+ * createSectionContract('.my-section', {
+ *   start: 'top top',
+ *   end: 'bottom center',
+ * });
+ */
+export function createSectionContract(
+  sectionSelector: string,
+  options: {
+    /** Override scrub value (default: 1) */
+    scrub?: number;
+    /** Override trigger start position */
+    start?: string;
+    /** Override trigger end position */
+    end?: string;
+  } = {}
+): void {
+  const {
+    scrub = ANIMATION_CONFIG.scrollTrigger.scrub,
+    start: _start = 'top bottom', // Start when section enters viewport
+    end = 'bottom top', // End when section leaves viewport
+  } = options;
+  void _start; // Suppress unused variable warning
+
+  const section = document.querySelector(sectionSelector) as HTMLElement;
+  if (!section) return;
+
+  // Use ScrollTrigger with onUpdate to directly set clip-path
+  ScrollTrigger.create({
+    trigger: section,
+    scrub,
+    start: '25% center', // Start when 25% of section passes viewport center
+    end,
+    markers: ANIMATION_CONFIG.scrollTrigger.markers,
+    onUpdate: (self) => {
+      const progress = self.progress;
+      const clipValue = progress * 2; // 0vw to 2vw
+      const radiusValue = progress * 1.5; // 0rem to 1.5rem
+      // inset(top right bottom left) - top stays 0, only horizontal (left/right) and bottom shrink
+      section.style.clipPath = `inset(0 ${clipValue}vw ${clipValue}vw ${clipValue}vw round 0 0 ${radiusValue}rem ${radiusValue}rem)`;
+    },
+  });
+}
+
+/**
  * Header Theme Switcher
  *
  * Automatically switches header nav link colors based on which sections
