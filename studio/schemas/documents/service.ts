@@ -12,6 +12,15 @@ export default defineType({
       type: 'string',
       validation: (Rule) => Rule.required(),
     },
+    {
+      name: 'label',
+      title: 'Short Label',
+      type: 'string',
+      description:
+        'Short label shown when card is minimized (e.g., "Strategy", "Design")',
+      validation: (Rule) => Rule.required().max(20),
+      placeholder: 'Strategy',
+    },
     defineLanguageField(),
     {
       name: 'icon',

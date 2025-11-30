@@ -26,9 +26,13 @@ export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0] {
     _id,
     title,
+    logos {
+      variant1,
+      variant2
+    },
     header {
       displayMode,
-      logo
+      logoVariant
     },
     favicon,
     colors {
@@ -59,6 +63,7 @@ export const siteSettingsQuery = groq`
       ${linkProjection}
     },
     footer {
+      logoVariant,
       text,
       links[] {
         _key,
@@ -191,6 +196,7 @@ const pageSectionsQuery = `
       services[]-> {
         _id,
         title,
+        label,
         icon,
         homepageText
       },

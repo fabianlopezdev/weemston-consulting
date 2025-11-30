@@ -1,5 +1,4 @@
 ---
-import { urlForImage } from '@lib/sanity/image';
 import PortableText from '@components/sanity/PortableText.astro';
 
 interface Service {
@@ -7,7 +6,6 @@ interface Service {
   title: string;
   label?: string;
   homepageText?: any;
-  icon?: any;
 }
 
 interface Props {
@@ -43,59 +41,44 @@ const { title, description, services, showAllLink } = Astro.props;
     <!-- Right Column: Vertical Card Stack (Desktop) -->
     <div class="services-cards">
       {
-        services.map((service, index) => {
-          const iconUrl = service.icon
-            ? urlForImage(service.icon).width(100).height(100).url()
-            : null;
-
-          return (
-            <article
-              class="services-card"
-              data-index={index}
-              data-expanded={index === 0 ? 'true' : 'false'}
-            >
-              {/* Collapsed State - Shows only label */}
-              <div class="services-card__collapsed">
-                <span class="services-card__label">
-                  {service.label || service.title.split(' ')[0]}
-                </span>
-              </div>
-
-              {/* Expanded State - Shows full content */}
-              <div class="services-card__expanded">
-                <h3 class="services-card__title">{service.title}</h3>
-                {service.homepageText && (
-                  <div class="services-card__description">
-                    <PortableText content={service.homepageText} />
-                  </div>
-                )}
-                <div class="services-card__indicator" aria-hidden="true" />
-              </div>
-            </article>
-          );
-        })
+        services.map((service, index) => (
+          <article
+            class="services-card"
+            data-index={index}
+            data-expanded={index === 0 ? 'true' : 'false'}
+          >
+            <div class="services-card__collapsed">
+              <span class="services-card__label">
+                {service.label || service.title.split(' ')[0]}
+              </span>
+            </div>
+            <div class="services-card__expanded">
+              <h3 class="services-card__title">{service.title}</h3>
+              {service.homepageText && (
+                <div class="services-card__description">
+                  <PortableText content={service.homepageText} />
+                </div>
+              )}
+              <div class="services-card__indicator" aria-hidden="true" />
+            </div>
+          </article>
+        ))
       }
     </div>
 
     <!-- Mobile: Horizontal Slider -->
     <div class="services-slider">
       {
-        services.map((service, index) => {
-          const iconUrl = service.icon
-            ? urlForImage(service.icon).width(100).height(100).url()
-            : null;
-
-          return (
-            <article class="services-slider__card">
-              <h3 class="services-slider__title">{service.title}</h3>
-              {service.homepageText && (
-                <div class="services-slider__description">
-                  <PortableText content={service.homepageText} />
-                </div>
-              )}
-            </article>
-          );
-        })
+        services.map((service) => (
+          <article class="services-slider__card">
+            <h3 class="services-slider__title">{service.title}</h3>
+            {service.homepageText && (
+              <div class="services-slider__description">
+                <PortableText content={service.homepageText} />
+              </div>
+            )}
+          </article>
+        ))
       }
     </div>
   </div>
@@ -219,9 +202,10 @@ const { title, description, services, showAllLink } = Astro.props;
   /* Expanded State */
   .services-card__expanded {
     padding: var(--space-md, 1rem) var(--space-lg, 1.5rem);
+    padding-bottom: var(--space-lg, 1.5rem);
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm, 0.5rem);
+    min-height: 280px;
   }
 
   .services-card__title {
@@ -234,6 +218,7 @@ const { title, description, services, showAllLink } = Astro.props;
   }
 
   .services-card__description {
+    margin-top: auto;
     font-size: var(--font-size-base, 1rem);
     color: var(--color-text-muted, #b0b0b0);
     line-height: 1.6;
@@ -358,53 +343,22 @@ const { title, description, services, showAllLink } = Astro.props;
     // Track the currently expanded card index
     let activeIndex = 0;
 
-    // Store measured heights for each card
-    const expandedHeights: number[] = [];
-    const collapsedHeights: number[] = [];
-    const cardPositions: number[] = []; // Store top position for each card
-    const gap = 8; // Gap between cards in pixels
+    // Fixed dimensions
+    const EXPANDED_HEIGHT = 280;
+    const COLLAPSED_HEIGHT = 68; // Label + padding
+    const GAP = 8;
 
-    // Measure all heights on init and set up initial state with absolute positioning
     function initializeCards() {
-      // First pass: measure all heights
-      cards.forEach((card, index) => {
-        const expandedEl = card.querySelector(
-          '.services-card__expanded'
-        ) as HTMLElement;
-        const collapsedEl = card.querySelector(
-          '.services-card__collapsed'
-        ) as HTMLElement;
+      // Calculate container height
+      const totalHeight =
+        EXPANDED_HEIGHT +
+        (cards.length - 1) * COLLAPSED_HEIGHT +
+        (cards.length - 1) * GAP;
+      cardsContainer.style.height = `${totalHeight}px`;
 
-        // Temporarily show both to measure
-        gsap.set([expandedEl, collapsedEl], {
-          display: 'flex',
-          height: 'auto',
-        });
-
-        expandedHeights[index] = expandedEl.offsetHeight;
-        collapsedHeights[index] = collapsedEl.offsetHeight;
-      });
-
-      // Calculate total height and positions
+      // Set initial state for all cards
       let currentTop = 0;
       cards.forEach((card, index) => {
-        cardPositions[index] = currentTop;
-
-        // Add height for next card's position
-        if (index === 0) {
-          currentTop += expandedHeights[0] + gap;
-        } else {
-          currentTop += collapsedHeights[index] + gap;
-        }
-      });
-
-      // Set container height (total minus last gap)
-      const totalHeight = currentTop - gap;
-      cardsContainer.style.height = `${totalHeight}px`;
-      cardsContainer.style.position = 'relative';
-
-      // Second pass: set initial state and absolute positioning
-      cards.forEach((card, index) => {
         const expandedEl = card.querySelector(
           '.services-card__expanded'
         ) as HTMLElement;
@@ -412,62 +366,55 @@ const { title, description, services, showAllLink } = Astro.props;
           '.services-card__collapsed'
         ) as HTMLElement;
 
-        // Set absolute positioning
+        const isExpanded = index === 0;
+        const cardHeight = isExpanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT;
+
+        // Position the card
         gsap.set(card, {
           position: 'absolute',
-          top: cardPositions[index],
+          top: currentTop,
           left: 0,
-          right: 0,
           width: '100%',
+          height: cardHeight,
         });
 
-        // Set initial state: first card expanded, others collapsed
-        if (index === 0) {
-          gsap.set(expandedEl, { height: expandedHeights[index], opacity: 1 });
-          gsap.set(collapsedEl, { height: 0, opacity: 0 });
+        // Show/hide inner elements
+        if (isExpanded) {
+          gsap.set(collapsedEl, { display: 'none' });
+          gsap.set(expandedEl, { display: 'flex' });
         } else {
-          gsap.set(expandedEl, { height: 0, opacity: 0 });
-          gsap.set(collapsedEl, {
-            height: collapsedHeights[index],
-            opacity: 1,
-          });
+          gsap.set(expandedEl, { display: 'none' });
+          gsap.set(collapsedEl, { display: 'flex' });
         }
+
+        currentTop += cardHeight + GAP;
       });
+    }
+
+    // Calculate top position for a card given which card is expanded
+    function calculateTop(cardIndex: number, expandedIndex: number): number {
+      let top = 0;
+      for (let i = 0; i < cardIndex; i++) {
+        top += (i === expandedIndex ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT) + GAP;
+      }
+      return top;
     }
 
     initializeCards();
-
-    // Calculate new positions when a different card becomes active
-    function calculatePositions(expandedIndex: number): number[] {
-      const positions: number[] = [];
-      let currentTop = 0;
-
-      cards.forEach((_, index) => {
-        positions[index] = currentTop;
-
-        if (index === expandedIndex) {
-          currentTop += expandedHeights[index] + gap;
-        } else {
-          currentTop += collapsedHeights[index] + gap;
-        }
-      });
-
-      return positions;
-    }
 
     function setActiveCard(newIndex: number) {
       if (newIndex === activeIndex) return;
 
       const prevIndex = activeIndex;
+      const goingDown = newIndex > prevIndex;
 
-      const previousCard = cards[prevIndex];
+      const prevCard = cards[prevIndex];
       const nextCard = cards[newIndex];
 
-      // Get elements for animation
-      const prevExpanded = previousCard.querySelector(
+      const prevExpanded = prevCard.querySelector(
         '.services-card__expanded'
       ) as HTMLElement;
-      const prevCollapsed = previousCard.querySelector(
+      const prevCollapsed = prevCard.querySelector(
         '.services-card__collapsed'
       ) as HTMLElement;
       const nextExpanded = nextCard.querySelector(
@@ -477,58 +424,70 @@ const { title, description, services, showAllLink } = Astro.props;
         '.services-card__collapsed'
       ) as HTMLElement;
 
-      // Calculate new positions
-      const newPositions = calculatePositions(newIndex);
+      // Calculate ALL new positions based on newIndex being expanded
+      const newPositions: number[] = [];
+      for (let i = 0; i < cards.length; i++) {
+        newPositions[i] = calculateTop(i, newIndex);
+      }
 
-      // Create timeline - ALL animations start at position 0 (simultaneous)
+      // Immediately show the elements that will animate in
+      gsap.set(prevCollapsed, { display: 'flex', opacity: 0 });
+      gsap.set(nextExpanded, { display: 'flex', opacity: 0 });
+
       const tl = gsap.timeline({
         defaults: { ease: 'power2.out', duration: 0.4 },
+        onComplete: () => {
+          // Hide elements after animation
+          gsap.set(prevExpanded, { display: 'none' });
+          gsap.set(nextCollapsed, { display: 'none' });
+        },
       });
 
-      // Previous card: collapse expanded, show collapsed
-      tl.to(prevExpanded, { height: 0, opacity: 0 }, 0);
-      tl.to(
-        prevCollapsed,
-        { height: collapsedHeights[prevIndex], opacity: 1 },
-        0
-      );
+      if (goingDown) {
+        // Prev (above): collapse UPWARD - top stays fixed
+        tl.to(prevCard, { height: COLLAPSED_HEIGHT }, 0);
+        tl.to(prevExpanded, { opacity: 0 }, 0);
+        tl.to(prevCollapsed, { opacity: 1 }, 0);
 
-      // Next card: expand expanded, hide collapsed
-      tl.to(nextExpanded, { height: expandedHeights[newIndex], opacity: 1 }, 0);
-      tl.to(nextCollapsed, { height: 0, opacity: 0 }, 0);
+        // Next (below): expand UPWARD - bottom stays fixed, top moves up
+        tl.to(
+          nextCard,
+          { top: newPositions[newIndex], height: EXPANDED_HEIGHT },
+          0
+        );
+        tl.to(nextCollapsed, { opacity: 0 }, 0);
+        tl.to(nextExpanded, { opacity: 1 }, 0);
+      } else {
+        // Prev (below): collapse DOWNWARD - bottom stays fixed, top moves down
+        tl.to(
+          prevCard,
+          { top: newPositions[prevIndex], height: COLLAPSED_HEIGHT },
+          0
+        );
+        tl.to(prevExpanded, { opacity: 0 }, 0);
+        tl.to(prevCollapsed, { opacity: 1 }, 0);
 
-      // Animate ONLY the two involved cards' top positions
-      tl.to(previousCard, { top: newPositions[prevIndex] }, 0);
-      tl.to(nextCard, { top: newPositions[newIndex] }, 0);
+        // Next (above): expand DOWNWARD - top stays fixed
+        tl.to(nextCard, { height: EXPANDED_HEIGHT }, 0);
+        tl.to(nextCollapsed, { opacity: 0 }, 0);
+        tl.to(nextExpanded, { opacity: 1 }, 0);
+      }
 
-      // Instantly set new positions for all OTHER cards (no animation)
-      cards.forEach((card, index) => {
-        if (index !== prevIndex && index !== newIndex) {
-          gsap.set(card, { top: newPositions[index] });
-        }
-      });
-
-      // Update data attributes at end
-      tl.call(() => {
-        previousCard.setAttribute('data-expanded', 'false');
-        nextCard.setAttribute('data-expanded', 'true');
-      });
+      // ANIMATE positions for cards BETWEEN prev and next (same timing as main cards)
+      const minIdx = Math.min(prevIndex, newIndex);
+      const maxIdx = Math.max(prevIndex, newIndex);
+      for (let i = minIdx + 1; i < maxIdx; i++) {
+        tl.to(cards[i], { top: newPositions[i] }, 0);
+      }
 
       activeIndex = newIndex;
     }
 
-    // Add hover listeners to cards
+    // Event listeners
     cards.forEach((card, index) => {
-      card.addEventListener('mouseenter', () => {
-        setActiveCard(index);
-      });
+      card.addEventListener('mouseenter', () => setActiveCard(index));
+      card.addEventListener('click', () => setActiveCard(index));
 
-      // Also support click for accessibility
-      card.addEventListener('click', () => {
-        setActiveCard(index);
-      });
-
-      // Keyboard navigation
       card.setAttribute('tabindex', '0');
       card.addEventListener('keydown', (e: KeyboardEvent) => {
         if (e.key === 'Enter' || e.key === ' ') {
