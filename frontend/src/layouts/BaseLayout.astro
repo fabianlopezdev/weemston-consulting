@@ -84,10 +84,30 @@ const customStyles = [
   </head>
   <body>
     <SkipLink />
-    <Header />
-    <main id="main-content">
-      <slot />
-    </main>
+    <div class="page-content">
+      <Header />
+      <main id="main-content">
+        <slot />
+      </main>
+    </div>
     <Footer />
   </body>
 </html>
+
+<script>
+  // Calculate and set footer height as CSS variable
+  function updateFooterHeight() {
+    const footer = document.querySelector('.site-footer');
+    if (footer) {
+      const height = footer.offsetHeight;
+      document.documentElement.style.setProperty(
+        '--footer-height',
+        `${height}px`
+      );
+    }
+  }
+
+  // Run on load and resize
+  updateFooterHeight();
+  window.addEventListener('resize', updateFooterHeight);
+</script>

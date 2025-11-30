@@ -182,3 +182,19 @@ button {
   background-color: var(--color-primary);
   color: white;
 }
+
+/* Footer reveal effect - content slides away to reveal fixed footer */
+.page-content {
+  position: relative;
+  z-index: 1;
+  background-color: var(--color-primary);
+  margin-bottom: var(--footer-height, 400px);
+}
+
+.site-footer {
+  position: fixed !important;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+}

@@ -24,10 +24,13 @@ const footerLogoUrl = footerLogo
 ---
 
 <footer class="site-footer">
+  <!-- Grain texture overlay -->
+  <div class="footer-grain" aria-hidden="true"></div>
+
   <div class="container">
     {
       footerLogoUrl && (
-        <div class="footer-logo">
+        <div class="footer-logo" data-parallax-logo>
           <a href="/">
             <img
               src={footerLogoUrl}
@@ -96,11 +99,28 @@ const footerLogoUrl = footerLogo
     color: var(--color-text);
     padding-block-start: 10rem;
     padding-block-end: var(--space-sm);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Grain texture overlay for premium feel */
+  .footer-grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px 200px;
   }
 
   .footer-logo {
     margin-block-end: var(--space-xl);
     text-align: center;
+    position: relative;
+    z-index: 2;
+    will-change: transform;
   }
 
   .footer-logo-image {
@@ -112,6 +132,18 @@ const footerLogoUrl = footerLogo
 
   .footer-content {
     margin-block-end: var(--space-lg);
+    position: relative;
+    z-index: 2;
+  }
+
+  .footer-credit {
+    position: relative;
+    z-index: 2;
+  }
+
+  .site-footer .container {
+    position: relative;
+    z-index: 2;
   }
 
   .footer-links {
@@ -190,3 +222,32 @@ const footerLogoUrl = footerLogo
     }
   }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    const logo = document.querySelector('[data-parallax-logo]');
+    if (!logo) return;
+
+    // Parallax effect: logo moves slower than scroll, creating depth
+    // Since footer is fixed, we track when the page-content reveals the footer
+    const pageContent = document.querySelector('.page-content');
+    if (!pageContent) return;
+
+    gsap.fromTo(
+      logo,
+      { y: 40 },
+      {
+        y: -20,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: pageContent,
+          start: 'bottom bottom',
+          end: 'bottom top',
+          scrub: 1,
+        },
+      }
+    );
+  });
+</script>
