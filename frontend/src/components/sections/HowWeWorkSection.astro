@@ -33,6 +33,9 @@ const { title, description, cards } = Astro.props;
               <span class="timeline__number">
                 {(index + 1).toString().padStart(2, '0')}
               </span>
+              {index < cards.length - 1 && (
+                <div class="timeline__connector" aria-hidden="true" />
+              )}
             </div>
             <div class="timeline__content">
               <h3 class="timeline__title">{card.title}</h3>
@@ -87,17 +90,6 @@ const { title, description, cards } = Astro.props;
     padding-bottom: 0;
   }
 
-  /* Vertical line connecting items */
-  .timeline__item:not(:last-child)::before {
-    content: '';
-    position: absolute;
-    left: 30px;
-    top: 70px;
-    bottom: 0;
-    width: 2px;
-    background-color: #d1d5db;
-  }
-
   .timeline__marker {
     position: relative;
     z-index: 1;
@@ -110,6 +102,19 @@ const { title, description, cards } = Astro.props;
     border-radius: 50%;
     background-color: #fff;
     border: 2px solid #d1d5db;
+  }
+
+  /* Individual connector line growing from bottom of each circle */
+  .timeline__connector {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: calc(2.5rem + 10px);
+    background-color: #d1d5db;
+    transform-origin: top center;
+    transform: translateX(-50%) scaleY(0);
   }
 
   .timeline__number {
@@ -140,6 +145,10 @@ const { title, description, cards } = Astro.props;
   }
 
   @media (max-width: 480px) {
+    .timeline__line {
+      left: 25px;
+    }
+
     .timeline__item {
       gap: 1rem;
     }
@@ -149,10 +158,49 @@ const { title, description, cards } = Astro.props;
       height: 50px;
       min-width: 50px;
     }
-
-    .timeline__item:not(:last-child)::before {
-      left: 25px;
-      top: 60px;
-    }
   }
 </style>
+
+<script>
+  import {
+    setupAnimationLifecycle,
+    gsap,
+    ANIMATION_CONFIG,
+  } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    // Draw-in line animation (starts and ends BEFORE items)
+    gsap.fromTo(
+      '.timeline__line',
+      { scaleY: 0 },
+      {
+        scaleY: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.timeline',
+          start: 'top 85%',
+          end: 'bottom 70%',
+          scrub: true,
+        },
+      }
+    );
+
+    // Staggered item reveal (starts AFTER line reaches each item)
+    gsap.fromTo(
+      '.timeline__item',
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1,
+        y: 0,
+        stagger: 0.2,
+        ease: ANIMATION_CONFIG.ease.reveal,
+        scrollTrigger: {
+          trigger: '.timeline',
+          start: 'top 75%',
+          end: 'bottom 55%',
+          scrub: 1,
+        },
+      }
+    );
+  });
+</script>
