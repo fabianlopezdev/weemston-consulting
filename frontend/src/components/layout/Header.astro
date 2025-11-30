@@ -14,10 +14,10 @@ const navigation = settings?.navigation || [];
 
 // Header display logic
 const displayMode = settings?.header?.displayMode || 'text';
-const hasLogo = !!settings?.header?.logo;
-const logoUrl = hasLogo
-  ? urlForImage(settings.header.logo).width(200).url()
-  : null;
+const logoVariant = settings?.header?.logoVariant;
+const logo = logoVariant ? settings?.logos?.[logoVariant] : null;
+const hasLogo = !!logo;
+const logoUrl = hasLogo ? urlForImage(logo).width(200).url() : null;
 const showLogo = (displayMode === 'logo' || displayMode === 'both') && hasLogo;
 const showText =
   displayMode === 'text' ||

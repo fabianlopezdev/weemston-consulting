@@ -27,6 +27,27 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     },
     {
+      name: 'logos',
+      title: 'Logos',
+      type: 'object',
+      description:
+        'Upload your logo images. If no logo is provided, the Site Title will be displayed as text instead.',
+      fields: [
+        {
+          name: 'variant1',
+          title: 'Logo Variant 1',
+          type: 'image',
+          options: { hotspot: true },
+        },
+        {
+          name: 'variant2',
+          title: 'Logo Variant 2 (optional)',
+          type: 'image',
+          options: { hotspot: true },
+        },
+      ],
+    },
+    {
       name: 'header',
       title: 'Header',
       type: 'object',
@@ -57,14 +78,18 @@ export default defineType({
           validation: (Rule) => Rule.required(),
         },
         {
-          name: 'logo',
-          title: 'Logo (optional)',
-          type: 'image',
+          name: 'logoVariant',
+          title: 'Logo to Display',
+          type: 'string',
           description:
-            'Upload your logo image. Used when "Logo Only" or "Logo + Site Title" is selected above. If logo is missing and "Logo Only" is selected, site title will be shown as fallback.',
+            'Choose which logo variant to show in the header. Configure logo variants in the Logos section above.',
           options: {
-            hotspot: true,
+            list: [
+              { title: 'Variant 1', value: 'variant1' },
+              { title: 'Variant 2', value: 'variant2' },
+            ],
           },
+          hidden: ({ parent }) => parent?.displayMode === 'text',
         },
       ],
     },
@@ -132,6 +157,21 @@ export default defineType({
       title: 'Footer',
       type: 'object',
       fields: [
+        {
+          name: 'logoVariant',
+          title: 'Logo to Display (optional)',
+          type: 'string',
+          description:
+            'Choose which logo variant to show in the footer. Leave empty for no logo.',
+          options: {
+            list: [
+              { title: 'None', value: 'none' },
+              { title: 'Variant 1', value: 'variant1' },
+              { title: 'Variant 2', value: 'variant2' },
+            ],
+          },
+          initialValue: 'none',
+        },
         {
           name: 'text',
           title: 'Footer Text (optional)',

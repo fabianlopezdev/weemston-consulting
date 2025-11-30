@@ -3,6 +3,7 @@ import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import { createTranslator } from '@lib/i18n/translations';
 import { resolveLinkUrl } from '@lib/sanity/linkResolver';
+import { urlForImage } from '@lib/sanity/image';
 
 const currentLang = Astro.locals.lang || 'en';
 const t = createTranslator(currentLang);
@@ -10,10 +11,35 @@ const t = createTranslator(currentLang);
 const settings = await client.fetch(siteSettingsQuery);
 const footerLinks = settings?.footer?.links || [];
 const currentYear = new Date().getFullYear();
+
+// Footer logo logic
+const footerLogoVariant = settings?.footer?.logoVariant;
+const footerLogo =
+  footerLogoVariant && footerLogoVariant !== 'none'
+    ? settings?.logos?.[footerLogoVariant]
+    : null;
+const footerLogoUrl = footerLogo
+  ? urlForImage(footerLogo).width(800).url()
+  : null;
 ---
 
 <footer class="site-footer">
   <div class="container">
+    {
+      footerLogoUrl && (
+        <div class="footer-logo">
+          <a href="/">
+            <img
+              src={footerLogoUrl}
+              alt={settings?.title || 'Site Logo'}
+              class="footer-logo-image"
+              width="200"
+              height="auto"
+            />
+          </a>
+        </div>
+      )
+    }
     <div class="footer-content">
       <div class="footer-text">
         <p>{settings?.footer?.text || ''}</p>
@@ -76,6 +102,18 @@ const currentYear = new Date().getFullYear();
     color: var(--color-text);
     padding-block-start: var(--space-xl);
     padding-block-end: var(--space-sm);
+  }
+
+  .footer-logo {
+    margin-block-end: var(--space-xl);
+    text-align: center;
+  }
+
+  .footer-logo-image {
+    display: inline-block;
+    max-width: 100%;
+    width: auto;
+    height: auto;
   }
 
   .footer-content {
