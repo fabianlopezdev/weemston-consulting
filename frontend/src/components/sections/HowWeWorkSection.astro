@@ -1,23 +1,8 @@
 ---
-import { Icon } from 'astro-icon/components';
-import { urlForImage } from '@lib/sanity/image';
-
-interface IconData {
-  name: string;
-}
-
-interface ImageData {
-  asset: any;
-  alt?: string;
-}
-
 interface HowWeWorkCard {
   _key: string;
   title: string;
   description: string;
-  type?: 'none' | 'icon' | 'image';
-  icon?: IconData;
-  image?: ImageData;
 }
 
 interface Props {
@@ -40,41 +25,21 @@ const { title, description, cards } = Astro.props;
       }
     </div>
 
-    <div class="how-we-work-grid">
+    <div class="timeline">
       {
-        cards.map((card) => {
-          const hasIcon = card.type === 'icon' && card.icon?.name;
-          const hasImage = card.type === 'image' && card.image;
-
-          const imageUrl = hasImage
-            ? urlForImage(card.image).width(100).height(100).url()
-            : null;
-
-          return (
-            <div class="how-we-work-card">
-              {(hasIcon || hasImage) && (
-                <div class="how-we-work-card__visual">
-                  {hasIcon && (
-                    <div class="how-we-work-card__icon">
-                      <Icon name={card.icon.name} />
-                    </div>
-                  )}
-                  {hasImage && imageUrl && (
-                    <img
-                      src={imageUrl}
-                      alt={card.image.alt || card.title}
-                      class="how-we-work-card__image"
-                    />
-                  )}
-                </div>
-              )}
-              <div class="how-we-work-card__content">
-                <h3 class="how-we-work-card__title">{card.title}</h3>
-                <p class="how-we-work-card__description">{card.description}</p>
-              </div>
+        cards.map((card, index) => (
+          <div class="timeline__item">
+            <div class="timeline__marker">
+              <span class="timeline__number">
+                {(index + 1).toString().padStart(2, '0')}
+              </span>
             </div>
-          );
-        })
+            <div class="timeline__content">
+              <h3 class="timeline__title">{card.title}</h3>
+              <p class="timeline__description">{card.description}</p>
+            </div>
+          </div>
+        ))
       }
     </div>
   </div>
@@ -83,7 +48,7 @@ const { title, description, cards } = Astro.props;
 <style>
   .how-we-work-section {
     padding: var(--space-2xl) 0;
-    background: var(--color-background-alt, #f9f9f9);
+    background: var(--color-surface);
   }
 
   .how-we-work-section__header {
@@ -100,90 +65,94 @@ const { title, description, cards } = Astro.props;
     font-size: var(--font-size-lg);
     max-width: 600px;
     margin-inline: auto;
-    opacity: 0.8;
+    color: var(--color-text-muted);
   }
 
-  .how-we-work-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-lg);
+  .timeline {
+    position: relative;
+    max-width: 600px;
+    margin-inline: auto;
   }
 
-  .how-we-work-card {
-    padding: var(--space-lg);
-    background: white;
-    border: 1px solid var(--color-border, #e0e0e0);
-    border-radius: var(--border-radius, 8px);
-    transition:
-      transform 0.2s,
-      box-shadow 0.2s;
+  .timeline__item {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+    position: relative;
+    padding-bottom: 2.5rem;
   }
 
-  .how-we-work-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  .timeline__item:last-child {
+    padding-bottom: 0;
   }
 
-  .how-we-work-card__visual {
+  /* Vertical line connecting items */
+  .timeline__item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 30px;
+    top: 70px;
+    bottom: 0;
+    width: 2px;
+    background-color: #d1d5db;
+  }
+
+  .timeline__marker {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-block-end: var(--space-md);
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid #d1d5db;
   }
 
-  .how-we-work-card__icon,
-  .how-we-work-card__image {
-    width: 64px;
-    height: 64px;
-    flex-shrink: 0;
+  .timeline__number {
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #6b7280;
   }
 
-  .how-we-work-card__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-primary, #0066cc);
+  .timeline__content {
+    padding-top: 0.75rem;
+    flex: 1;
   }
 
-  .how-we-work-card__icon :global(svg) {
-    width: 100%;
-    height: 100%;
+  .timeline__title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    margin: 0 0 0.5rem;
+    font-family: var(--font-heading);
+    font-style: italic;
   }
 
-  .how-we-work-card__image {
-    object-fit: contain;
-    border-radius: var(--border-radius-sm, 4px);
-  }
-
-  .how-we-work-card__content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    text-align: center;
-  }
-
-  .how-we-work-card__title {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .how-we-work-card__description {
-    font-size: var(--font-size-sm);
-    opacity: 0.8;
+  .timeline__description {
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
     line-height: 1.6;
     margin: 0;
   }
 
-  @media (max-width: 768px) {
-    .how-we-work-grid {
-      grid-template-columns: 1fr;
+  @media (max-width: 480px) {
+    .timeline__item {
+      gap: 1rem;
     }
-  }
 
-  @media (min-width: 769px) and (max-width: 1024px) {
-    .how-we-work-grid {
-      grid-template-columns: repeat(2, 1fr);
+    .timeline__marker {
+      width: 50px;
+      height: 50px;
+      min-width: 50px;
+    }
+
+    .timeline__item:not(:last-child)::before {
+      left: 25px;
+      top: 60px;
     }
   }
 </style>

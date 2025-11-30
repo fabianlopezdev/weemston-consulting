@@ -32,174 +32,654 @@ interface Props {
 }
 
 const { title, description, cards } = Astro.props;
+
+// Generate image URLs - use larger size for the new layout
+const cardImages = cards.map((card) => {
+  const hasImage = card.iconOrImage?.type === 'image' && card.iconOrImage.image;
+  return hasImage
+    ? urlForImage(card.iconOrImage.image).width(800).height(600).url()
+    : null;
+});
 ---
 
 <section class="experience-section">
-  <div class="container">
-    <div class="experience-section__header">
+  <div class="experience-section__container">
+    <!-- Header -->
+    <header class="experience-section__header">
+      <span class="experience-section__label">Experience at a Glance</span>
       <h2 class="experience-section__title">{title}</h2>
       {
         description && (
           <p class="experience-section__description">{description}</p>
         )
       }
-    </div>
+    </header>
 
-    <div class="experience-grid">
-      {
-        cards.map((card) => {
-          const hasIcon =
-            card.iconOrImage?.type === 'icon' && card.iconOrImage.icon?.name;
-          const hasImage =
-            card.iconOrImage?.type === 'image' && card.iconOrImage.image;
+    <!-- Desktop: Two-column layout -->
+    <div class="experience-section__content">
+      <!-- Left Column: Navigation Items -->
+      <nav class="experience-nav" aria-label="Service navigation">
+        {
+          cards.map((card, index) => (
+            <button
+              type="button"
+              class="experience-nav__item"
+              data-index={index}
+              data-active={index === 0 ? 'true' : 'false'}
+              aria-pressed={index === 0 ? 'true' : 'false'}
+            >
+              <span class="experience-nav__number">{card.number}</span>
+              <span class="experience-nav__title">{card.title}</span>
+            </button>
+          ))
+        }
+      </nav>
 
-          const imageUrl = hasImage
-            ? urlForImage(card.iconOrImage.image).width(100).height(100).url()
-            : null;
-
-          return (
-            <div class="experience-card">
-              <div class="experience-card__visual">
-                {hasIcon && (
-                  <div class="experience-card__icon">
-                    <Icon name={card.iconOrImage.icon.name} />
+      <!-- Right Column: Detail Cards -->
+      <div class="experience-cards">
+        {
+          cards.map((card, index) => (
+            <article
+              class="experience-card"
+              data-index={index}
+              data-active={index === 0 ? 'true' : 'false'}
+              aria-hidden={index !== 0 ? 'true' : 'false'}
+            >
+              <div class="experience-card__image-wrapper">
+                {cardImages[index] ? (
+                  <img
+                    src={cardImages[index]}
+                    alt={card.iconOrImage?.image?.alt || card.title}
+                    class="experience-card__image"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="experience-card__image-placeholder">
+                    {card.iconOrImage?.type === 'icon' &&
+                      card.iconOrImage.icon?.name && (
+                        <Icon name={card.iconOrImage.icon.name} />
+                      )}
                   </div>
                 )}
-                {hasImage && imageUrl && (
-                  <img
-                    src={imageUrl}
-                    alt={card.iconOrImage.image.alt || card.title}
-                    class="experience-card__image"
-                  />
-                )}
-                <div class="experience-card__number">{card.number}</div>
               </div>
               <div class="experience-card__content">
                 <h3 class="experience-card__title">{card.title}</h3>
                 <p class="experience-card__description">{card.description}</p>
               </div>
+              <a href="/contact" class="experience-card__cta">
+                <span class="experience-card__cta-icon">↳</span>
+                Book a free call
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Mobile: Accordion layout -->
+    <div class="experience-accordion">
+      {
+        cards.map((card, index) => (
+          <div
+            class="experience-accordion__item"
+            data-index={index}
+            data-active={index === 0 ? 'true' : 'false'}
+          >
+            <button
+              type="button"
+              class="experience-accordion__header"
+              aria-expanded={index === 0 ? 'true' : 'false'}
+            >
+              <span class="experience-accordion__number">{card.number}</span>
+              <span class="experience-accordion__title">{card.title}</span>
+              <span class="experience-accordion__icon" aria-hidden="true">
+                +
+              </span>
+            </button>
+            <div class="experience-accordion__content">
+              <div class="experience-accordion__image-wrapper">
+                {cardImages[index] ? (
+                  <img
+                    src={cardImages[index]}
+                    alt={card.iconOrImage?.image?.alt || card.title}
+                    class="experience-accordion__image"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="experience-accordion__image-placeholder">
+                    {card.iconOrImage?.type === 'icon' &&
+                      card.iconOrImage.icon?.name && (
+                        <Icon name={card.iconOrImage.icon.name} />
+                      )}
+                  </div>
+                )}
+              </div>
+              <p class="experience-accordion__description">
+                {card.description}
+              </p>
+              <a href="/contact" class="experience-accordion__cta">
+                <span class="experience-accordion__cta-icon">↳</span>
+                Book a free call
+              </a>
             </div>
-          );
-        })
+          </div>
+        ))
       }
     </div>
   </div>
 </section>
 
 <style>
+  /* ========================================
+     BASE SECTION STYLES
+     ======================================== */
   .experience-section {
-    padding: var(--space-2xl) 0;
-    background: var(--color-background-alt, #f9f9f9);
+    padding: var(--space-3xl, 6rem) 0;
+    background: var(--color-background, #f6f0e9);
   }
 
+  .experience-section__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--space-lg, 2rem);
+  }
+
+  /* ========================================
+     HEADER STYLES
+     ======================================== */
   .experience-section__header {
     text-align: center;
-    margin-block-end: var(--space-xl);
+    margin-block-end: var(--space-2xl, 4rem);
+  }
+
+  .experience-section__label {
+    display: inline-block;
+    padding: var(--space-xs, 0.5rem) var(--space-md, 1rem);
+    background: white;
+    border-radius: 100px;
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-muted, #94877c);
+    margin-block-end: var(--space-md, 1rem);
   }
 
   .experience-section__title {
-    font-size: var(--font-size-2xl);
-    margin-block-end: var(--space-md);
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 400;
+    color: var(--color-text, #2b180a);
+    margin: 0 0 var(--space-md, 1rem) 0;
+    line-height: 1.2;
   }
 
   .experience-section__description {
-    font-size: var(--font-size-lg);
-    max-width: 600px;
-    margin-inline: auto;
-    opacity: 0.8;
+    font-size: var(--font-size-lg, 1.125rem);
+    color: var(--color-text-muted, #94877c);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
   }
 
-  .experience-grid {
+  /* ========================================
+     DESKTOP: TWO-COLUMN LAYOUT
+     ======================================== */
+  .experience-section__content {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-lg);
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2xl, 4rem);
+    align-items: start;
+  }
+
+  /* ----------------------------------------
+     Left Column: Navigation
+     ---------------------------------------- */
+  .experience-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .experience-nav__item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm, 0.5rem);
+    padding: 16px 32px 20px 16px;
+    border: none;
+    border-radius: 24px;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition:
+      background-color 0.3s ease,
+      padding 0.3s ease;
+  }
+
+  .experience-nav__item[data-active='true'] {
+    background: rgba(246, 240, 233, 1);
+    padding-left: 32px;
+  }
+
+  .experience-nav__item:focus-visible {
+    outline: 2px solid var(--color-primary, #2b180a);
+    outline-offset: 2px;
+  }
+
+  .experience-nav__title {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 400;
+    color: var(--color-text-muted, #94877c);
+    transition: color 0.3s ease;
+    line-height: 1.1;
+  }
+
+  .experience-nav__item[data-active='true'] .experience-nav__title {
+    color: var(--color-text, #2b180a);
+  }
+
+  .experience-nav__number {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 400;
+    color: var(--color-text-muted, #94877c);
+    transition: color 0.3s ease;
+    line-height: 1.1;
+  }
+
+  .experience-nav__item[data-active='true'] .experience-nav__number {
+    color: var(--color-text, #2b180a);
+  }
+
+  /* ----------------------------------------
+     Right Column: Cards
+     ---------------------------------------- */
+  .experience-cards {
+    position: relative;
+    min-height: 550px;
   }
 
   .experience-card {
-    padding: var(--space-lg);
-    background: white;
-    border: 1px solid var(--color-border, #e0e0e0);
-    border-radius: var(--border-radius, 8px);
-    transition:
-      transform 0.2s,
-      box-shadow 0.2s;
-  }
-
-  .experience-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  }
-
-  .experience-card__visual {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
     display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    margin-block-end: var(--space-md);
+    flex-direction: column;
   }
 
-  .experience-card__icon,
+  .experience-card[data-active='true'] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .experience-card__image-wrapper {
+    position: relative;
+    border-radius: 28px;
+    overflow: hidden;
+    margin-block-end: var(--space-lg, 1.5rem);
+    aspect-ratio: 4 / 3;
+  }
+
+  .experience-card__image-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow:
+      inset 0 0 60px 30px rgba(246, 240, 233, 0.5),
+      inset 0 0 120px 60px rgba(246, 240, 233, 0.3);
+    pointer-events: none;
+  }
+
   .experience-card__image {
-    width: 48px;
-    height: 48px;
-    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
-  .experience-card__icon {
+  .experience-card__image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e0d5c9 0%, #c9bfb3 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-primary, #0066cc);
+    color: var(--color-text-muted, #94877c);
   }
 
-  .experience-card__icon :global(svg) {
-    width: 100%;
-    height: 100%;
-  }
-
-  .experience-card__image {
-    object-fit: contain;
-    border-radius: var(--border-radius-sm, 4px);
-  }
-
-  .experience-card__number {
-    font-size: var(--font-size-2xl);
-    font-weight: 700;
-    color: var(--color-primary, #0066cc);
-    line-height: 1;
+  .experience-card__image-placeholder :global(svg) {
+    width: 64px;
+    height: 64px;
   }
 
   .experience-card__content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
+    flex: 1;
   }
 
   .experience-card__title {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    margin: 0;
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: var(--font-size-xl, 1.5rem);
+    font-weight: 500;
+    color: var(--color-text, #2b180a);
+    margin: 0 0 var(--space-sm, 0.5rem) 0;
   }
 
   .experience-card__description {
-    font-size: var(--font-size-sm);
-    opacity: 0.8;
+    font-size: var(--font-size-md, 1rem);
+    color: var(--color-text-muted, #94877c);
     line-height: 1.6;
     margin: 0;
   }
 
-  @media (max-width: 768px) {
-    .experience-grid {
-      grid-template-columns: 1fr;
-    }
+  .experience-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs, 0.25rem);
+    margin-top: var(--space-lg, 1.5rem);
+    font-size: var(--font-size-md, 1rem);
+    color: var(--color-text, #2b180a);
+    text-decoration: none;
+    transition: gap 0.2s ease;
+  }
 
-    .experience-card__number {
-      font-size: var(--font-size-xl);
+  .experience-card__cta:hover {
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .experience-card__cta-icon {
+    font-size: 1.2em;
+  }
+
+  /* ========================================
+     MOBILE: ACCORDION LAYOUT
+     Hidden by default on desktop (>900px)
+     ======================================== */
+  .experience-accordion {
+    display: none !important;
+  }
+
+  @media (max-width: 900px) {
+    .experience-accordion {
+      display: block !important;
     }
   }
 
-  @media (min-width: 769px) and (max-width: 1024px) {
-    .experience-grid {
-      grid-template-columns: repeat(2, 1fr);
+  .experience-accordion__item {
+    border-bottom: 1px solid rgba(148, 135, 124, 0.2);
+  }
+
+  .experience-accordion__item:first-child {
+    border-top: 1px solid rgba(148, 135, 124, 0.2);
+  }
+
+  .experience-accordion__header {
+    display: flex;
+    align-items: baseline;
+    width: 100%;
+    padding: var(--space-lg, 1.5rem) 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .experience-accordion__title {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: clamp(1.5rem, 6vw, 2rem);
+    font-weight: 400;
+    color: var(--color-text-muted, #94877c);
+    flex: 1;
+    transition: color 0.3s ease;
+    text-align: left;
+  }
+
+  .experience-accordion__item[data-active='true'] .experience-accordion__title {
+    color: var(--color-text, #2b180a);
+  }
+
+  .experience-accordion__number {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: clamp(1.5rem, 6vw, 2rem);
+    font-weight: 400;
+    color: var(--color-text-muted, #94877c);
+    transition: color 0.3s ease;
+    margin-right: var(--space-sm, 0.5rem);
+  }
+
+  .experience-accordion__item[data-active='true']
+    .experience-accordion__number {
+    color: var(--color-text, #2b180a);
+  }
+
+  .experience-accordion__icon {
+    font-size: 1.5rem;
+    color: var(--color-text-muted, #94877c);
+    transition: transform 0.3s ease;
+    margin-left: var(--space-md, 1rem);
+  }
+
+  .experience-accordion__item[data-active='true'] .experience-accordion__icon {
+    transform: rotate(45deg);
+  }
+
+  .experience-accordion__content {
+    max-height: 0;
+    overflow: hidden;
+    transition:
+      max-height 0.4s ease,
+      padding 0.4s ease;
+    padding: 0;
+  }
+
+  .experience-accordion__item[data-active='true']
+    .experience-accordion__content {
+    max-height: 600px;
+    padding-bottom: var(--space-lg, 1.5rem);
+  }
+
+  .experience-accordion__image-wrapper {
+    position: relative;
+    border-radius: 24px;
+    margin-block-end: var(--space-md, 1rem);
+    aspect-ratio: 4 / 3;
+    padding: 10px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0.3) 100%
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:
+      0 8px 32px rgba(43, 24, 10, 0.15),
+      0 2px 8px rgba(43, 24, 10, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .experience-accordion__image-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      transparent 50%
+    );
+    pointer-events: none;
+  }
+
+  .experience-accordion__image-wrapper img,
+  .experience-accordion__image-wrapper
+    .experience-accordion__image-placeholder {
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .experience-accordion__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .experience-accordion__image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e0d5c9 0%, #c9bfb3 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .experience-accordion__description {
+    font-size: var(--font-size-md, 1rem);
+    color: var(--color-text-muted, #94877c);
+    line-height: 1.6;
+    margin: 0 0 var(--space-md, 1rem) 0;
+  }
+
+  .experience-accordion__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs, 0.25rem);
+    font-size: var(--font-size-md, 1rem);
+    color: var(--color-text, #2b180a);
+    text-decoration: none;
+  }
+
+  .experience-accordion__cta-icon {
+    font-size: 1.2em;
+  }
+
+  /* ========================================
+     RESPONSIVE BREAKPOINTS
+     ======================================== */
+  @media (max-width: 900px) {
+    /* Hide desktop layout on mobile */
+    .experience-section__content {
+      display: none !important;
+    }
+  }
+
+  /* Tablet adjustments */
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .experience-section__content {
+      gap: var(--space-xl, 3rem);
+    }
+
+    .experience-nav__title {
+      font-size: 2.5rem;
+    }
+
+    .experience-cards {
+      min-height: 450px;
     }
   }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, createFadeIn } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    // ========================================
+    // DESKTOP: Hover-based card switching
+    // ========================================
+    const navItems = document.querySelectorAll('.experience-nav__item');
+    const cards = document.querySelectorAll('.experience-card');
+
+    function setActiveCard(index: number) {
+      // Update nav items
+      navItems.forEach((item, i) => {
+        const isActive = i === index;
+        item.setAttribute('data-active', String(isActive));
+        item.setAttribute('aria-pressed', String(isActive));
+      });
+
+      // Update cards
+      cards.forEach((card, i) => {
+        const isActive = i === index;
+        card.setAttribute('data-active', String(isActive));
+        card.setAttribute('aria-hidden', String(!isActive));
+      });
+    }
+
+    // Desktop: Hover to switch
+    navItems.forEach((item, index) => {
+      item.addEventListener('mouseenter', () => setActiveCard(index));
+    });
+
+    // Desktop: Click also works (for accessibility)
+    navItems.forEach((item, index) => {
+      item.addEventListener('click', () => setActiveCard(index));
+    });
+
+    // Keyboard navigation
+    navItems.forEach((item, index) => {
+      item.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          const nextIndex = (index + 1) % navItems.length;
+          setActiveCard(nextIndex);
+          (navItems[nextIndex] as HTMLElement).focus();
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          const prevIndex = (index - 1 + navItems.length) % navItems.length;
+          setActiveCard(prevIndex);
+          (navItems[prevIndex] as HTMLElement).focus();
+        }
+      });
+    });
+
+    // ========================================
+    // MOBILE: Accordion functionality
+    // ========================================
+    const accordionItems = document.querySelectorAll(
+      '.experience-accordion__item'
+    );
+    const accordionHeaders = document.querySelectorAll(
+      '.experience-accordion__header'
+    );
+
+    function setActiveAccordion(index: number) {
+      accordionItems.forEach((item, i) => {
+        const isActive = i === index;
+        const wasActive = item.getAttribute('data-active') === 'true';
+
+        // Toggle: if clicking the already active item, close it
+        if (i === index && wasActive) {
+          item.setAttribute('data-active', 'false');
+          item
+            .querySelector('.experience-accordion__header')
+            ?.setAttribute('aria-expanded', 'false');
+        } else {
+          item.setAttribute('data-active', String(isActive));
+          item
+            .querySelector('.experience-accordion__header')
+            ?.setAttribute('aria-expanded', String(isActive));
+        }
+      });
+    }
+
+    accordionHeaders.forEach((header, index) => {
+      header.addEventListener('click', () => setActiveAccordion(index));
+    });
+
+    // ========================================
+    // GSAP: Entrance animations (optional)
+    // ========================================
+    // Fade in the header
+    createFadeIn('.experience-section__header', { y: 30 });
+
+    // Staggered fade in for nav items (desktop)
+    if (window.innerWidth > 900) {
+      createFadeIn('.experience-nav__item', { y: 20, stagger: 0.1 });
+    }
+
+    // Staggered fade in for accordion items (mobile)
+    if (window.innerWidth <= 900) {
+      createFadeIn('.experience-accordion__item', { y: 20, stagger: 0.08 });
+    }
+  });
+</script>

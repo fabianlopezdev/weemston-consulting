@@ -237,6 +237,7 @@ const pageSectionsQuery = `
     },
     _type == "aboutSection" => {
       title,
+      showTitle,
       content,
       images[] {
         _key,

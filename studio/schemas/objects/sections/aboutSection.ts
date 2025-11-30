@@ -26,6 +26,15 @@ export default defineType({
       hidden: ({ parent }) => !parent?.enabled,
     },
     {
+      name: 'showTitle',
+      title: 'Show Title',
+      type: 'boolean',
+      initialValue: true,
+      description:
+        'When disabled, the title remains in the HTML for SEO and screen readers but is hidden visually',
+      hidden: ({ parent }) => !parent?.enabled,
+    },
+    {
       name: 'content',
       title: 'Content',
       type: 'portableText',
