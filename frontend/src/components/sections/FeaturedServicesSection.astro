@@ -1,6 +1,14 @@
 ---
 import PortableText from '@components/sanity/PortableText.astro';
 import SectionTitle from '@components/ui/SectionTitle.astro';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
 
 interface Service {
   _id: string;
@@ -14,12 +22,90 @@ interface Props {
   description?: string;
   services: Service[];
   showAllLink?: boolean;
+  // Color settings
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  accentColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  accentColorShade?: number;
+  accentCustomColor?: ColorData;
+  textColor?: 'base' | 'contrast';
 }
 
-const { title, description, services, showAllLink } = Astro.props;
+const {
+  title,
+  description,
+  services,
+  showAllLink,
+  backgroundColorType = 'default',
+  backgroundColorShade = 0,
+  backgroundCustomColor,
+  accentColorType = 'accent',
+  accentColorShade = 0,
+  accentCustomColor,
+  textColor = 'base',
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color (null if default)
+const backgroundColor =
+  backgroundColorType === 'default' || !backgroundColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: backgroundColorType,
+          shade: backgroundColorShade,
+          customColor: backgroundCustomColor,
+        },
+        siteColors
+      );
+
+// Resolve accent color
+const accentColor = resolveColorSelection(
+  {
+    colorType: accentColorType,
+    shade: accentColorShade,
+    customColor: accentCustomColor,
+  },
+  siteColors
+);
+
+// Define CSS variables for dynamic colors
+const cssVars: Record<string, string> = {
+  '--fs-accent': accentColor,
+  '--fs-text':
+    textColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-text)',
+  '--fs-text-muted':
+    textColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-text-muted)',
+};
+
+// Only set background if not default
+if (backgroundColor) {
+  cssVars['--fs-bg'] = backgroundColor;
+}
+
+const cssVarsString = Object.entries(cssVars)
+  .map(([key, value]) => `${key}: ${value}`)
+  .join('; ');
 ---
 
-<section class="services-section" data-header-theme="dark">
+<section
+  class="services-section"
+  data-header-theme="dark"
+  style={cssVarsString}
+>
   <div class="services-section__container">
     <!-- Left Column: Header -->
     <header class="services-section__header">
@@ -95,7 +181,7 @@ const { title, description, services, showAllLink } = Astro.props;
      ======================================== */
   .services-section {
     padding: var(--space-2xl) 0;
-    background: color-mix(in srgb, var(--color-secondary) 60%, white);
+    background: var(--fs-bg, var(--color-background));
   }
 
   .services-section__container {
@@ -122,7 +208,7 @@ const { title, description, services, showAllLink } = Astro.props;
 
   .services-section__description {
     font-size: var(--font-size-lg, 1.125rem);
-    color: white;
+    color: var(--fs-text-muted, var(--color-text-muted));
     line-height: 1.6;
     margin: 0 0 var(--space-lg, 1.5rem) 0;
     max-width: 400px;
@@ -133,7 +219,7 @@ const { title, description, services, showAllLink } = Astro.props;
     align-items: center;
     gap: var(--space-xs, 0.5rem);
     font-size: var(--font-size-base, 1rem);
-    color: var(--color-text, #f5f5f5);
+    color: var(--fs-text, var(--color-text));
     text-decoration: none;
     transition: gap 0.2s ease;
   }
@@ -163,7 +249,11 @@ const { title, description, services, showAllLink } = Astro.props;
     position: relative;
     border: 1px solid var(--color-border, #404040);
     border-radius: 16px;
-    background: color-mix(in srgb, var(--color-accent) 10%, white);
+    background: color-mix(
+      in srgb,
+      var(--fs-accent, var(--color-accent)) 10%,
+      white
+    );
     backdrop-filter: blur(10px);
     overflow: hidden;
     cursor: pointer;
@@ -172,7 +262,7 @@ const { title, description, services, showAllLink } = Astro.props;
 
   .services-card:hover,
   .services-card[data-expanded='true'] {
-    border-color: white;
+    border-color: var(--fs-accent, var(--color-accent));
   }
 
   .services-card:focus-visible {
@@ -212,18 +302,18 @@ const { title, description, services, showAllLink } = Astro.props;
   }
 
   .services-card__label {
-    color: var(--color-text, #f5f5f5);
+    color: var(--fs-text, var(--color-text));
   }
 
   .services-card:hover .services-card__label {
-    color: var(--color-text, #f5f5f5);
+    color: var(--fs-text, var(--color-text));
   }
 
   .services-card__title {
     position: absolute;
     top: 0;
     left: 0;
-    color: var(--color-text, #f5f5f5);
+    color: var(--fs-text, var(--color-text));
     transform: translateY(100%); /* Hidden below */
   }
 
@@ -242,7 +332,7 @@ const { title, description, services, showAllLink } = Astro.props;
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: var(--color-accent, #8b7355);
+    background: var(--fs-accent, var(--color-accent));
     opacity: 0;
     transform: scale(0);
     transition:
@@ -260,7 +350,7 @@ const { title, description, services, showAllLink } = Astro.props;
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    border: 1px solid var(--color-accent, #8b7355);
+    border: 1px solid var(--fs-accent, var(--color-accent));
     opacity: 0;
   }
 
@@ -298,7 +388,7 @@ const { title, description, services, showAllLink } = Astro.props;
     padding-top: var(--space-md, 1rem);
     padding-bottom: var(--space-lg, 1.5rem);
     font-size: var(--font-size-base, 1rem);
-    color: var(--color-text-muted, #b0b0b0);
+    color: var(--fs-text-muted, var(--color-text-muted));
     line-height: 1.6;
     max-width: 500px;
   }
@@ -319,7 +409,11 @@ const { title, description, services, showAllLink } = Astro.props;
     padding: var(--space-lg, 1.5rem);
     border: 1px solid var(--color-border, #404040);
     border-radius: 16px;
-    background: rgba(30, 30, 30, 0.6);
+    background: color-mix(
+      in srgb,
+      var(--fs-accent, var(--color-accent)) 10%,
+      white
+    );
     backdrop-filter: blur(10px);
     scroll-snap-align: start;
   }
@@ -328,14 +422,14 @@ const { title, description, services, showAllLink } = Astro.props;
     font-family: var(--font-heading, Georgia, serif);
     font-size: var(--font-size-xl, 1.5rem);
     font-weight: 400;
-    color: var(--color-text, #f5f5f5);
+    color: var(--fs-text, var(--color-text));
     margin: 0 0 var(--space-sm, 0.5rem) 0;
     line-height: 1.2;
   }
 
   .services-slider__description {
     font-size: var(--font-size-base, 1rem);
-    color: var(--color-text-muted, #b0b0b0);
+    color: var(--fs-text-muted, var(--color-text-muted));
     line-height: 1.6;
   }
 

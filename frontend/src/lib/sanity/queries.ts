@@ -192,6 +192,13 @@ const pageSectionsQuery = `
     _type == "featuredServicesSection" => {
       title,
       description,
+      backgroundColorType,
+      backgroundColorShade,
+      backgroundCustomColor { label, value },
+      accentColorType,
+      accentColorShade,
+      accentCustomColor { label, value },
+      textColor,
       services[]-> {
         _id,
         title,
