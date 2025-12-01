@@ -75,11 +75,11 @@ export const ANIMATION_CONFIG = {
  */
 export const GRADIENT_PRESETS = {
   /**
-   * Dark text revealing from light gray (for light backgrounds)
+   * Dark text revealing from washed-out primary (for light backgrounds)
    */
   darkOnLight: {
     revealed: 'rgb(37, 37, 37)',
-    hidden: 'rgb(200, 200, 200)',
+    hidden: 'color-mix(in srgb, var(--color-primary), rgb(180, 180, 180) 20%)',
   },
 
   /**
