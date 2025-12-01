@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { ObjectInputProps, set, unset } from 'sanity';
+import { ObjectInputProps, set } from 'sanity';
 import { Stack, Text, Card, Box, Grid } from '@sanity/ui';
 
 interface ButtonStyleValue {
