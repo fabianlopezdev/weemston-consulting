@@ -38,6 +38,8 @@ export default defineType({
       name: 'content',
       title: 'Content',
       type: 'portableText',
+      description:
+        'Use bold text to highlight words - they will appear in the accent color',
       validation: (Rule) =>
         Rule.custom((value, context) => {
           const parent = context.parent as { enabled?: boolean };
@@ -46,48 +48,16 @@ export default defineType({
         }),
       hidden: ({ parent }) => !parent?.enabled,
     },
-    {
-      name: 'images',
-      title: 'Image Gallery (optional)',
-      type: 'array',
-      of: [
-        {
-          type: 'image',
-          options: {
-            hotspot: true,
-          },
-          fields: [
-            {
-              name: 'alt',
-              title: 'Alt Text',
-              type: 'string',
-              description: 'Required for accessibility',
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: 'caption',
-              title: 'Caption (optional)',
-              type: 'string',
-            },
-          ],
-        },
-      ],
-      validation: (Rule) => Rule.max(6),
-      hidden: ({ parent }) => !parent?.enabled,
-    },
   ],
   preview: {
     select: {
       title: 'title',
       enabled: 'enabled',
-      imagesCount: 'images.length',
     },
-    prepare({ title, enabled, imagesCount }) {
+    prepare({ title, enabled }) {
       const status = enabled ? '✓' : '✗';
       const displayTitle = title || 'About';
-      const subtitle = enabled
-        ? `${imagesCount || 0} image${imagesCount !== 1 ? 's' : ''}`
-        : 'Hidden from site';
+      const subtitle = enabled ? 'Visible on site' : 'Hidden from site';
 
       return {
         title: `${status} ${displayTitle}`,

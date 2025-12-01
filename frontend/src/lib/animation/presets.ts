@@ -52,13 +52,14 @@ export function createTextReveal(
   } = options;
 
   const colors = GRADIENT_PRESETS[gradient];
+  const accentColors = GRADIENT_PRESETS.accentOnLight;
   const elements = document.querySelectorAll(selector);
 
   elements.forEach((el) => {
     const split = new SplitText(el, { type: 'lines' });
 
     split.lines.forEach((line) => {
-      // Apply gradient styles to the line
+      // Apply gradient styles to the line (for non-highlighted text)
       Object.assign(line.style, {
         background: `linear-gradient(to right, ${colors.revealed} 50%, ${colors.hidden} 50%)`,
         backgroundSize: '200% 100%',
@@ -68,17 +69,44 @@ export function createTextReveal(
         webkitBackgroundClip: 'text',
       });
 
+      // Find and style highlight spans within this line
+      const highlights = line.querySelectorAll('.highlight');
+      highlights.forEach((highlight: Element) => {
+        const highlightEl = highlight as HTMLElement;
+        Object.assign(highlightEl.style, {
+          background: `linear-gradient(to right, ${accentColors.revealed} 50%, ${accentColors.hidden} 50%)`,
+          backgroundSize: '200% 100%',
+          backgroundPositionX: '100%',
+          color: 'transparent',
+          backgroundClip: 'text',
+          webkitBackgroundClip: 'text',
+        });
+      });
+
+      // Create shared scroll trigger for the line
+      const scrollTriggerConfig = {
+        trigger: line,
+        scrub,
+        start,
+        end,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      };
+
+      // Animate the line
       gsap.to(line, {
         backgroundPositionX: 0,
         ease: ANIMATION_CONFIG.ease.smooth,
-        scrollTrigger: {
-          trigger: line,
-          scrub,
-          start,
-          end,
-          markers: ANIMATION_CONFIG.scrollTrigger.markers,
-        },
+        scrollTrigger: scrollTriggerConfig,
       });
+
+      // Animate highlights in sync with the line
+      if (highlights.length > 0) {
+        gsap.to(highlights, {
+          backgroundPositionX: 0,
+          ease: ANIMATION_CONFIG.ease.smooth,
+          scrollTrigger: { ...scrollTriggerConfig },
+        });
+      }
     });
   });
 }

@@ -83,6 +83,14 @@ export const GRADIENT_PRESETS = {
   },
 
   /**
+   * Accent text revealing from washed-out accent (for highlighted words)
+   */
+  accentOnLight: {
+    revealed: 'var(--color-accent)',
+    hidden: 'color-mix(in srgb, var(--color-accent), rgb(200, 200, 200) 60%)',
+  },
+
+  /**
    * White text revealing from dark gray (for dark backgrounds)
    */
   lightOnDark: {
