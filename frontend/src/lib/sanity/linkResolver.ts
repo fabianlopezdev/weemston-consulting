@@ -21,7 +21,16 @@ interface ExternalLink {
   externalUrl: string;
 }
 
-type LinkData = InternalLink | ExternalLink;
+export type LinkData = InternalLink | ExternalLink;
+
+// Broader type for input that may not be fully discriminated
+interface GenericLinkData {
+  linkType: 'internal' | 'external';
+  internalPageType?: string;
+  caseStudyReference?: { slug: { current: string } };
+  legalReference?: { slug: { current: string } };
+  externalUrl?: string;
+}
 
 /**
  * Maps internal page types to their URLs
@@ -37,17 +46,17 @@ const PAGE_TYPE_URLS: Record<string, string> = {
 /**
  * Resolves a link object from Sanity to a URL string
  */
-export function resolveLinkUrl(link: LinkData): string {
+export function resolveLinkUrl(link: GenericLinkData): string {
   if (link.linkType === 'external') {
-    return link.externalUrl;
+    return link.externalUrl || '/';
   }
 
   // Internal link
   const { internalPageType } = link;
 
   // Check if it's a singleton page
-  if (internalPageType in PAGE_TYPE_URLS) {
-    return PAGE_TYPE_URLS[internalPageType];
+  if (internalPageType && internalPageType in PAGE_TYPE_URLS) {
+    return PAGE_TYPE_URLS[internalPageType] ?? '/';
   }
 
   // Handle document-based pages with slugs
@@ -66,6 +75,6 @@ export function resolveLinkUrl(link: LinkData): string {
 /**
  * Determines if a link should open in a new tab
  */
-export function shouldOpenInNewTab(link: LinkData): boolean {
+export function shouldOpenInNewTab(link: GenericLinkData): boolean {
   return link.linkType === 'external';
 }

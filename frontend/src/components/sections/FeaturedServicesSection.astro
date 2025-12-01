@@ -567,8 +567,10 @@ const cssVarsString = Object.entries(cssVars)
       const prevIndex = activeIndex;
       const goingDown = newIndex > prevIndex;
 
-      const prevCard = cards[prevIndex];
-      const nextCard = cards[newIndex];
+      const prevCard = cards[prevIndex] as HTMLElement | undefined;
+      const nextCard = cards[newIndex] as HTMLElement | undefined;
+
+      if (!prevCard || !nextCard) return;
 
       const prevContent = prevCard.querySelector(
         '.services-card__content'
@@ -597,19 +599,13 @@ const cssVarsString = Object.entries(cssVars)
         tl.to(prevContent, { height: 0 }, 0);
 
         // Next (below): expand UPWARD - bottom stays fixed, top moves up
-        tl.to(
-          nextCard,
-          { top: newPositions[newIndex], height: EXPANDED_HEIGHT },
-          0
-        );
+        const nextTop = newPositions[newIndex] ?? 0;
+        tl.to(nextCard, { top: nextTop, height: EXPANDED_HEIGHT }, 0);
         tl.to(nextContent, { height: 'auto' }, 0);
       } else {
         // Prev (below): collapse DOWNWARD - bottom stays fixed, top moves down
-        tl.to(
-          prevCard,
-          { top: newPositions[prevIndex], height: COLLAPSED_HEIGHT },
-          0
-        );
+        const prevTop = newPositions[prevIndex] ?? 0;
+        tl.to(prevCard, { top: prevTop, height: COLLAPSED_HEIGHT }, 0);
         tl.to(prevContent, { height: 0 }, 0);
 
         // Next (above): expand DOWNWARD - top stays fixed
@@ -621,7 +617,9 @@ const cssVarsString = Object.entries(cssVars)
       const minIdx = Math.min(prevIndex, newIndex);
       const maxIdx = Math.max(prevIndex, newIndex);
       for (let i = minIdx + 1; i < maxIdx; i++) {
-        tl.to(cards[i], { top: newPositions[i] }, 0);
+        const card = cards[i];
+        const cardTop = newPositions[i] ?? 0;
+        if (card) tl.to(card, { top: cardTop }, 0);
       }
 
       activeIndex = newIndex;

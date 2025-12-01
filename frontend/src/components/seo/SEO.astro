@@ -27,7 +27,7 @@ const ogImage = image ? getAbsoluteUrl(image) : undefined;
 
 <AstroSEO
   title={title}
-  description={description}
+  {...description ? { description } : {}}
   canonical={canonicalUrl}
   noindex={noIndex}
   nofollow={noIndex}
@@ -39,30 +39,36 @@ const ogImage = image ? getAbsoluteUrl(image) : undefined;
       url: canonicalUrl,
     },
     optional: {
-      description,
+      ...(description ? { description } : {}),
       siteName: title,
     },
-    image: ogImage ? { url: ogImage } : undefined,
-    article: article
+    ...(ogImage ? { image: { url: ogImage } } : {}),
+    ...(article
       ? {
-          publishedTime: article.publishedTime,
-          modifiedTime: article.modifiedTime,
-          authors: article.authors,
-          tags: article.tags,
+          article: {
+            ...(article.publishedTime
+              ? { publishedTime: article.publishedTime }
+              : {}),
+            ...(article.modifiedTime
+              ? { modifiedTime: article.modifiedTime }
+              : {}),
+            ...(article.authors ? { authors: article.authors } : {}),
+            ...(article.tags ? { tags: article.tags } : {}),
+          },
         }
-      : undefined,
+      : {}),
   }}
   twitter={ogImage
     ? {
-        card: 'summary_large_image',
+        card: 'summary_large_image' as const,
         title,
-        description,
+        ...(description ? { description } : {}),
         image: ogImage,
       }
     : {
-        card: 'summary',
+        card: 'summary' as const,
         title,
-        description,
+        ...(description ? { description } : {}),
       }}
   extend={{
     link: alternateLinks.map((link) => ({

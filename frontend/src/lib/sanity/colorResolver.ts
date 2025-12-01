@@ -24,7 +24,7 @@ interface ButtonColorData {
 interface ColorSelectionData {
   colorType?: string;
   shade?: number;
-  customColor?: { label?: string; value: string };
+  customColor?: { label?: string; value: string } | undefined;
 }
 
 interface GradientData {
@@ -226,7 +226,11 @@ export function resolveColorSelection(
 export function resolveBackgroundStyle(
   backgroundSettings: BackgroundSettingsData | null | undefined,
   siteColors: SiteColors | null | undefined
-): { type: 'image' | 'color'; css: string | null; image?: SanityImageData } {
+): {
+  type: 'image' | 'color';
+  css: string | null;
+  image?: SanityImageData | undefined;
+} {
   // Default to image if no settings
   if (!backgroundSettings || backgroundSettings.backgroundType === 'image') {
     return {
@@ -244,8 +248,12 @@ export function resolveBackgroundStyle(
     if (backgroundSettings.solidColorType) {
       const colorSelection: ColorSelectionData = {
         colorType: backgroundSettings.solidColorType,
-        shade: backgroundSettings.solidColorShade,
-        customColor: backgroundSettings.solidCustomColor,
+        ...(backgroundSettings.solidColorShade !== undefined
+          ? { shade: backgroundSettings.solidColorShade }
+          : {}),
+        ...(backgroundSettings.solidCustomColor
+          ? { customColor: backgroundSettings.solidCustomColor }
+          : {}),
       };
       const solidColor = resolveColorSelection(colorSelection, siteColors);
       return {

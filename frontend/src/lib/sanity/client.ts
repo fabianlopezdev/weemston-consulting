@@ -37,5 +37,5 @@ export const client: SanityClient = createClient({
   apiVersion: env.PUBLIC_SANITY_API_VERSION,
   useCdn: import.meta.env.PROD,
   perspective: 'published',
-  token: env.SANITY_API_TOKEN,
+  ...(env.SANITY_API_TOKEN ? { token: env.SANITY_API_TOKEN } : {}),
 });

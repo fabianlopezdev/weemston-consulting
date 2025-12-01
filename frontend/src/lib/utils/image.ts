@@ -36,7 +36,8 @@ export function getImageUrl(
   }
 
   if (options.format) {
-    urlBuilder = urlBuilder.format(options.format);
+    // Cast needed as Sanity doesn't include 'avif' in ImageFormat but it works
+    urlBuilder = urlBuilder.format(options.format as 'webp' | 'jpg' | 'png');
   }
 
   if (options.fit) {

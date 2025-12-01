@@ -257,11 +257,12 @@ const cssVarsString = Object.entries(cssVars)
     const centerX = svgWidth / 2;
     const amplitude = 15; // How far the wave bulges left/right
 
-    let path = `M ${centerX} ${markerCenters[0]}`;
+    const firstCenter = markerCenters[0] ?? 0;
+    let path = `M ${centerX} ${firstCenter}`;
 
     for (let i = 0; i < markerCenters.length - 1; i++) {
-      const startY = markerCenters[i];
-      const endY = markerCenters[i + 1];
+      const startY = markerCenters[i] ?? 0;
+      const endY = markerCenters[i + 1] ?? 0;
       const midY = (startY + endY) / 2;
 
       // Alternate direction: even segments curve right, odd curve left

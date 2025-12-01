@@ -15,31 +15,40 @@ const caseStudies = await client.fetch(allCaseStudiesQuery, { language: lang });
     <h1>{t('nav.case_studies')}</h1>
     <div class="case-studies-grid">
       {
-        caseStudies.map((caseStudy) => (
-          <article class="case-study-card">
-            {caseStudy.mainImage && (
-              <Image
-                image={caseStudy.mainImage}
-                alt={caseStudy.mainImage.alt}
-                width={600}
-                class="case-study-image"
-              />
-            )}
-            <div class="case-study-content">
-              {caseStudy.client && (
-                <span class="client-name">{caseStudy.client}</span>
+        caseStudies.map(
+          (caseStudy: {
+            _id: string;
+            title: string;
+            slug: { current: string };
+            client?: string;
+            industry?: string;
+            mainImage?: { asset: unknown; alt?: string };
+          }) => (
+            <article class="case-study-card">
+              {caseStudy.mainImage && (
+                <Image
+                  image={caseStudy.mainImage}
+                  alt={caseStudy.mainImage.alt || caseStudy.title}
+                  width={600}
+                  class="case-study-image"
+                />
               )}
-              <h2>
-                <a href={`/case-studies/${caseStudy.slug.current}`}>
-                  {caseStudy.title}
-                </a>
-              </h2>
-              {caseStudy.industry && (
-                <p class="industry">{caseStudy.industry}</p>
-              )}
-            </div>
-          </article>
-        ))
+              <div class="case-study-content">
+                {caseStudy.client && (
+                  <span class="client-name">{caseStudy.client}</span>
+                )}
+                <h2>
+                  <a href={`/case-studies/${caseStudy.slug.current}`}>
+                    {caseStudy.title}
+                  </a>
+                </h2>
+                {caseStudy.industry && (
+                  <p class="industry">{caseStudy.industry}</p>
+                )}
+              </div>
+            </article>
+          )
+        )
       }
     </div>
   </div>

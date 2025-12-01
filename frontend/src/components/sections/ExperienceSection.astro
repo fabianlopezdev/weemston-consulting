@@ -122,7 +122,7 @@ const ctaTextColor = ctaButton
 // Generate image URLs - use larger size for the new layout
 const cardImages = cards.map((card) => {
   const hasImage = card.iconOrImage?.type === 'image' && card.iconOrImage.image;
-  return hasImage
+  return hasImage && card.iconOrImage?.image
     ? urlForImage(card.iconOrImage.image).width(800).height(600).url()
     : null;
 });
@@ -519,12 +519,12 @@ const cssVarsString = Object.entries(cssVars)
     font-weight: 600;
     transition:
       transform 0.2s,
-      background 0.2s,
-      color 0.2s;
+      filter 0.2s;
   }
 
   .experience-card__cta:hover {
     transform: translateY(-2px);
+    filter: brightness(1.1);
   }
 
   /* ========================================
@@ -677,12 +677,12 @@ const cssVarsString = Object.entries(cssVars)
     font-weight: 600;
     transition:
       transform 0.2s,
-      background 0.2s,
-      color 0.2s;
+      filter 0.2s;
   }
 
   .experience-accordion__cta:hover {
     transform: translateY(-2px);
+    filter: brightness(1.1);
   }
 
   /* ========================================
@@ -749,7 +749,7 @@ const cssVarsString = Object.entries(cssVars)
 
     // Keyboard navigation
     navItems.forEach((item, index) => {
-      item.addEventListener('keydown', (e: KeyboardEvent) => {
+      item.addEventListener('keydown', ((e: KeyboardEvent) => {
         if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
           e.preventDefault();
           const nextIndex = (index + 1) % navItems.length;
@@ -761,7 +761,7 @@ const cssVarsString = Object.entries(cssVars)
           setActiveCard(prevIndex);
           (navItems[prevIndex] as HTMLElement).focus();
         }
-      });
+      }) as EventListener);
     });
 
     // ========================================

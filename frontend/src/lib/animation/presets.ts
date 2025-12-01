@@ -58,7 +58,7 @@ export function createTextReveal(
   elements.forEach((el) => {
     const split = new SplitText(el, { type: 'lines' });
 
-    split.lines.forEach((line) => {
+    (split.lines as HTMLElement[]).forEach((line) => {
       // Apply gradient styles to the line (for non-highlighted text)
       // Also ensure line divs are block-level and full width for centered text
       Object.assign(line.style, {

@@ -14,14 +14,23 @@ const services = await client.fetch(allServicesQuery, { language: lang });
     <h1>{t('nav.services')}</h1>
     <div class="services-grid">
       {
-        services.map((service) => (
-          <article class="service-card">
-            <h2>
-              <a href={`/services/${service.slug.current}`}>{service.title}</a>
-            </h2>
-            <p>{service.description}</p>
-          </article>
-        ))
+        services.map(
+          (service: {
+            _id: string;
+            title: string;
+            slug?: { current: string };
+            description?: string;
+          }) => (
+            <article class="service-card">
+              <h2>
+                <a href={`/services/${service.slug?.current || ''}`}>
+                  {service.title}
+                </a>
+              </h2>
+              <p>{service.description}</p>
+            </article>
+          )
+        )
       }
     </div>
   </div>

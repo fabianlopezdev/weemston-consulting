@@ -77,8 +77,8 @@ const customStyles = [
 
     <SEO
       title={title}
-      description={description}
-      image={image}
+      {...description ? { description } : {}}
+      {...image ? { image } : {}}
       noIndex={noIndex}
     />
   </head>
@@ -97,7 +97,7 @@ const customStyles = [
 <script>
   // Calculate and set footer height as CSS variable
   function updateFooterHeight() {
-    const footer = document.querySelector('.site-footer');
+    const footer = document.querySelector('.site-footer') as HTMLElement | null;
     if (footer) {
       const height = footer.offsetHeight;
       document.documentElement.style.setProperty(
