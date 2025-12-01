@@ -33,7 +33,7 @@ const { title, description, cards } = Astro.props;
         <path
           class="timeline__path"
           fill="none"
-          stroke="#d1d5db"
+          stroke="var(--color-secondary, #ff6b6b)"
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"></path>
@@ -60,7 +60,7 @@ const { title, description, cards } = Astro.props;
 <style>
   .how-we-work-section {
     padding: var(--space-2xl) 0;
-    background: var(--color-surface);
+    background: var(--color-background);
   }
 
   .how-we-work-section__header {
@@ -115,14 +115,14 @@ const { title, description, cards } = Astro.props;
     min-width: 60px;
     border-radius: 50%;
     background-color: #fff;
-    border: 2px solid #d1d5db;
+    border: 2px solid var(--color-secondary);
   }
 
   .timeline__number {
     font-family: var(--font-heading);
     font-size: 1.125rem;
     font-weight: 500;
-    color: #6b7280;
+    color: var(--color-text);
   }
 
   .timeline__content {
