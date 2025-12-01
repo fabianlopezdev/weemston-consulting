@@ -32,7 +32,6 @@ interface Props {
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
   accentColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
-  accentColorShade?: number;
   accentCustomColor?: ColorData;
   textColor?: 'base' | 'contrast';
 }
@@ -46,7 +45,6 @@ const {
   backgroundColorShade = 0,
   backgroundCustomColor,
   accentColorType = 'accent',
-  accentColorShade = 0,
   accentCustomColor,
   textColor = 'base',
 } = Astro.props;
@@ -68,11 +66,10 @@ const backgroundColor =
         siteColors
       );
 
-// Resolve accent color
+// Resolve accent color (no shade - cards use color-mix for shades)
 const accentColor = resolveColorSelection(
   {
     colorType: accentColorType,
-    shade: accentColorShade,
     customColor: accentCustomColor,
   },
   siteColors

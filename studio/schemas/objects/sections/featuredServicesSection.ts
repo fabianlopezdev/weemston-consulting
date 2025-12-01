@@ -13,7 +13,8 @@ export default defineType({
     },
     {
       name: 'accentSettings',
-      title: 'Accent Color (Dots & Highlights)',
+      title: 'Card Colors',
+      description: 'Cards use lighter versions of the selected color',
       options: { collapsible: true, collapsed: true },
     },
     {
@@ -72,7 +73,7 @@ export default defineType({
         !parent?.enabled || parent?.backgroundColorType !== 'custom',
       fieldset: 'background',
     },
-    // Accent Color Settings (dots & highlights)
+    // Card Color Settings
     {
       name: 'accentColorType',
       title: 'Color',
@@ -87,19 +88,6 @@ export default defineType({
       },
       initialValue: 'accent',
       hidden: ({ parent }) => !parent?.enabled,
-      fieldset: 'accentSettings',
-    },
-    {
-      name: 'accentColorShade',
-      title: 'Shade',
-      type: 'number',
-      initialValue: 0,
-      hidden: ({ parent }) =>
-        !parent?.enabled || parent?.accentColorType === 'custom',
-      validation: (Rule) => Rule.min(0).max(100).integer(),
-      components: {
-        input: BackgroundShadeInput,
-      },
       fieldset: 'accentSettings',
     },
     {

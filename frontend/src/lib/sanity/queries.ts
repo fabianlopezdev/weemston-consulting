@@ -196,7 +196,6 @@ const pageSectionsQuery = `
       backgroundColorShade,
       backgroundCustomColor { label, value },
       accentColorType,
-      accentColorShade,
       accentCustomColor { label, value },
       textColor,
       services[]-> {
@@ -304,7 +303,6 @@ const pageSectionsQuery = `
       backgroundColorShade,
       backgroundCustomColor { label, value },
       accentColorType,
-      accentColorShade,
       accentCustomColor { label, value },
       textColor,
       cards[] {
