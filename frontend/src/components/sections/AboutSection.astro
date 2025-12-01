@@ -1,4 +1,6 @@
 ---
+import SectionTitle from '@components/ui/SectionTitle.astro';
+
 interface PortableTextChild {
   _key: string;
   _type: string;
@@ -45,11 +47,9 @@ const paragraphs =
 
 <section class="about-section">
   <div class="container">
-    <h2
-      class:list={['about-section__title', { 'visually-hidden': !showTitle }]}
-    >
+    <SectionTitle class={!showTitle ? 'visually-hidden' : undefined}>
       {title}
-    </h2>
+    </SectionTitle>
 
     <div class="about-section__content">
       <div class="about-section__text">
@@ -70,13 +70,6 @@ const paragraphs =
 <style>
   .about-section {
     padding: var(--space-2xl) 0;
-  }
-
-  .about-section__title {
-    font-family: var(--font-heading);
-    font-size: var(--font-size-2xl);
-    text-align: center;
-    margin-block-end: var(--space-xl);
   }
 
   .about-section__content {

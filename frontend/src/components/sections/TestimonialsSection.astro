@@ -1,5 +1,6 @@
 ---
 import { urlForImage } from '@lib/sanity/image';
+import SectionTitle from '@components/ui/SectionTitle.astro';
 
 interface Testimonial {
   _id: string;
@@ -34,7 +35,7 @@ const cards = testimonials.map(renderCard);
 <section class="testimonials-section">
   <div class="testimonials-section__content">
     <div class="container">
-      <h2 class="testimonials-section__title">{title}</h2>
+      <SectionTitle>{title}</SectionTitle>
 
       <div
         class="testimonials-marquee"
@@ -242,12 +243,6 @@ const cards = testimonials.map(renderCard);
     background-color: var(--color-background);
     padding: var(--space-2xl) 0;
     will-change: clip-path;
-  }
-
-  .testimonials-section__title {
-    font-size: var(--font-size-2xl);
-    text-align: center;
-    margin-block-end: var(--space-xl);
   }
 
   /* Marquee container with fade edges */

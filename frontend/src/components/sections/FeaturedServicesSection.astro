@@ -1,5 +1,6 @@
 ---
 import PortableText from '@components/sanity/PortableText.astro';
+import SectionTitle from '@components/ui/SectionTitle.astro';
 
 interface Service {
   _id: string;
@@ -22,7 +23,7 @@ const { title, description, services, showAllLink } = Astro.props;
   <div class="services-section__container">
     <!-- Left Column: Header -->
     <header class="services-section__header">
-      <h2 class="services-section__title">{title}</h2>
+      <SectionTitle>{title}</SectionTitle>
       {
         description && (
           <p class="services-section__description">{description}</p>
@@ -113,15 +114,6 @@ const { title, description, services, showAllLink } = Astro.props;
   .services-section__header {
     position: sticky;
     top: calc(var(--header-height, 5.5rem) + var(--space-lg, 2rem));
-  }
-
-  .services-section__title {
-    font-family: var(--font-heading, Georgia, serif);
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 400;
-    color: var(--color-text, #f5f5f5);
-    margin: 0 0 var(--space-md, 1rem) 0;
-    line-height: 1.2;
   }
 
   .services-section__description {

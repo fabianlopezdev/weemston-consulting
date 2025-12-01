@@ -1,4 +1,6 @@
 ---
+import SectionTitle from '@components/ui/SectionTitle.astro';
+
 interface FaqItem {
   question: string;
   answer: string;
@@ -14,7 +16,7 @@ const { title, faqs } = Astro.props;
 
 <section class="faq-section">
   <div class="container">
-    <h2 class="faq-section__title">{title}</h2>
+    <SectionTitle>{title}</SectionTitle>
 
     <div class="faq-list">
       {
@@ -35,12 +37,6 @@ const { title, faqs } = Astro.props;
   .faq-section {
     padding: var(--space-2xl) 0;
     background: var(--color-background-alt, #f9f9f9);
-  }
-
-  .faq-section__title {
-    font-size: var(--font-size-2xl);
-    text-align: center;
-    margin-block-end: var(--space-xl);
   }
 
   .faq-list {

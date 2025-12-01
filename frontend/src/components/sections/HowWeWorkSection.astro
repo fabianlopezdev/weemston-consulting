@@ -1,4 +1,6 @@
 ---
+import SectionTitle from '@components/ui/SectionTitle.astro';
+
 interface HowWeWorkCard {
   _key: string;
   title: string;
@@ -17,7 +19,7 @@ const { title, description, cards } = Astro.props;
 <section class="how-we-work-section">
   <div class="container">
     <div class="how-we-work-section__header">
-      <h2 class="how-we-work-section__title">{title}</h2>
+      <SectionTitle>{title}</SectionTitle>
       {
         description && (
           <p class="how-we-work-section__description">{description}</p>
@@ -64,11 +66,6 @@ const { title, description, cards } = Astro.props;
   .how-we-work-section__header {
     text-align: center;
     margin-block-end: var(--space-xl);
-  }
-
-  .how-we-work-section__title {
-    font-size: var(--font-size-2xl);
-    margin-block-end: var(--space-md);
   }
 
   .how-we-work-section__description {
