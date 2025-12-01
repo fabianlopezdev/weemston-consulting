@@ -17,6 +17,18 @@ interface Props {
 }
 
 const { title, testimonials } = Astro.props;
+
+// Helper function to render a testimonial card
+const renderCard = (testimonial: Testimonial) => {
+  const avatarUrl = testimonial.avatar
+    ? urlForImage(testimonial.avatar).width(80).height(80).url()
+    : null;
+
+  return { testimonial, avatarUrl };
+};
+
+// Prepare cards data
+const cards = testimonials.map(renderCard);
 ---
 
 <section class="testimonials-section">
@@ -24,14 +36,15 @@ const { title, testimonials } = Astro.props;
     <div class="container">
       <h2 class="testimonials-section__title">{title}</h2>
 
-      <div class="testimonials-grid">
-        {
-          testimonials.map((testimonial) => {
-            const avatarUrl = testimonial.avatar
-              ? urlForImage(testimonial.avatar).width(80).height(80).url()
-              : null;
-
-            return (
+      <div
+        class="testimonials-marquee"
+        role="region"
+        aria-label="Client testimonials"
+      >
+        <div class="testimonials-marquee__track">
+          {/* First set of cards */}
+          {
+            cards.map(({ testimonial, avatarUrl }) => (
               <div class="testimonial-card">
                 <blockquote class="testimonial-card__quote">
                   "{testimonial.quote}"
@@ -71,21 +84,134 @@ const { title, testimonials } = Astro.props;
                   </div>
                 </div>
               </div>
-            );
-          })
-        }
+            ))
+          }
+          {/* Duplicate set for seamless infinite loop */}
+          {
+            cards.map(({ testimonial, avatarUrl }) => (
+              <div class="testimonial-card" aria-hidden="true">
+                <blockquote class="testimonial-card__quote">
+                  "{testimonial.quote}"
+                </blockquote>
+                <div class="testimonial-card__author">
+                  {avatarUrl && (
+                    <img
+                      src={avatarUrl}
+                      alt=""
+                      class="testimonial-card__avatar"
+                    />
+                  )}
+                  <div class="testimonial-card__info">
+                    <p class="testimonial-card__name">{testimonial.name}</p>
+                    <p class="testimonial-card__position">
+                      {testimonial.position && testimonial.position}
+                      {testimonial.company &&
+                        (testimonial.websiteUrl ? (
+                          <>
+                            {testimonial.position && ' at '}
+                            <a
+                              href={testimonial.websiteUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="testimonial-card__company-link"
+                              tabindex="-1"
+                            >
+                              {testimonial.company}
+                            </a>
+                          </>
+                        ) : (
+                          <>
+                            {testimonial.position && ' at '}
+                            {testimonial.company}
+                          </>
+                        ))}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          }
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <script>
+  import { gsap } from 'gsap';
+  import { Draggable } from 'gsap/Draggable';
   import {
     setupAnimationLifecycle,
     createSectionContract,
   } from '@lib/animation';
 
+  // Register the Draggable plugin
+  gsap.registerPlugin(Draggable);
+
   setupAnimationLifecycle(() => {
+    const track = document.querySelector(
+      '.testimonials-marquee__track'
+    ) as HTMLElement;
+    const marquee = document.querySelector(
+      '.testimonials-marquee'
+    ) as HTMLElement;
+
+    if (!track || !marquee) return;
+
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    if (!prefersReducedMotion) {
+      // Calculate dimensions
+      const trackWidth = track.scrollWidth / 2; // Half because content is duplicated
+      const speed = 50; // pixels per second
+      const duration = trackWidth / speed;
+
+      // Create the auto-scroll animation
+      const tl = gsap.to(track, {
+        xPercent: -50,
+        duration,
+        ease: 'none',
+        repeat: -1,
+      });
+
+      // Create draggable instance
+      Draggable.create(track, {
+        type: 'x',
+        inertia: true,
+        cursor: 'grab',
+        activeCursor: 'grabbing',
+        onDragStart: () => {
+          tl.pause();
+        },
+        onDrag: function () {
+          // Wrap position for infinite scroll effect
+          const x = gsap.getProperty(track, 'x') as number;
+          if (x < -trackWidth) {
+            gsap.set(track, { x: x + trackWidth });
+          } else if (x > 0) {
+            gsap.set(track, { x: x - trackWidth });
+          }
+        },
+        onThrowUpdate: function () {
+          // Wrap position during inertia throw
+          const x = gsap.getProperty(track, 'x') as number;
+          if (x < -trackWidth) {
+            gsap.set(track, { x: x + trackWidth });
+          } else if (x > 0) {
+            gsap.set(track, { x: x - trackWidth });
+          }
+        },
+      });
+
+      // Pause on hover, resume on leave
+      marquee.addEventListener('mouseenter', () => tl.pause());
+      marquee.addEventListener('mouseleave', () => tl.resume());
+    }
+
+    // Keep existing section contract animation
     createSectionContract('.testimonials-section__content');
   });
 </script>
@@ -124,13 +250,43 @@ const { title, testimonials } = Astro.props;
     margin-block-end: var(--space-xl);
   }
 
-  .testimonials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  /* Marquee container with fade edges */
+  .testimonials-marquee {
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 5%,
+      black 95%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 5%,
+      black 95%,
+      transparent
+    );
+  }
+
+  /* Animated track */
+  .testimonials-marquee__track {
+    display: flex;
     gap: var(--space-lg);
+    width: max-content;
+    will-change: transform;
+    cursor: grab;
+    user-select: none;
+  }
+
+  .testimonials-marquee__track:active {
+    cursor: grabbing;
   }
 
   .testimonial-card {
+    flex-shrink: 0;
+    width: 400px;
     padding: var(--space-lg);
     background: var(--color-background-alt, #f9f9f9);
     border-radius: var(--border-radius, 8px);
@@ -182,8 +338,22 @@ const { title, testimonials } = Astro.props;
   }
 
   @media (max-width: 768px) {
-    .testimonials-grid {
-      grid-template-columns: 1fr;
+    .testimonial-card {
+      width: 300px;
+    }
+  }
+
+  /* Reduced motion: disable animation */
+  @media (prefers-reduced-motion: reduce) {
+    .testimonials-marquee__track {
+      animation: none !important;
+      transform: none !important;
+    }
+
+    .testimonials-marquee {
+      overflow-x: auto;
+      mask-image: none;
+      -webkit-mask-image: none;
     }
   }
 </style>
