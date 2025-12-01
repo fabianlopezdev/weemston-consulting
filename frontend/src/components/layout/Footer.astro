@@ -55,11 +55,13 @@ const footerLogoUrl = footerLogo
                 <li>
                   <a
                     href={href}
-                    {...(isExternal && {
-                      target: '_blank',
-                      rel: 'noopener noreferrer',
-                      'aria-label': `${link.text} (${t('aria.external_link')})`,
-                    })}
+                    {...(isExternal
+                      ? {
+                          target: '_blank',
+                          rel: 'noopener noreferrer',
+                          'aria-label': `${link.text} (${t('aria.external_link')})`,
+                        }
+                      : {})}
                   >
                     {link.text}
                   </a>
@@ -148,8 +150,8 @@ const footerLogoUrl = footerLogo
 
   .footer-links {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-md);
     list-style: none;
   }
 
