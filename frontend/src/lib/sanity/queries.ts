@@ -225,6 +225,16 @@ const pageSectionsQuery = `
     },
     _type == "testimonialsSection" => {
       title,
+      backgroundColorType,
+      backgroundColorShade,
+      backgroundCustomColor { label, value },
+      cardBackgroundColorType,
+      cardBackgroundColorShade,
+      cardBackgroundCustomColor { label, value },
+      cardBorderColorType,
+      cardBorderColorShade,
+      cardBorderCustomColor { label, value },
+      textColor,
       testimonials[]-> {
         _id,
         name,
@@ -251,6 +261,10 @@ const pageSectionsQuery = `
       showTitle,
       content,
       fontSize,
+      backgroundColorType,
+      backgroundColorShade,
+      backgroundCustomColor { label, value },
+      textColor,
       images[] {
         _key,
         asset,

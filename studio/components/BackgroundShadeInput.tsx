@@ -88,6 +88,10 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'selectedItemColorType';
   } else if (fieldName === 'accentColorShade') {
     colorTypeFieldName = 'accentColorType';
+  } else if (fieldName === 'cardBackgroundColorShade') {
+    colorTypeFieldName = 'cardBackgroundColorType';
+  } else if (fieldName === 'cardBorderColorShade') {
+    colorTypeFieldName = 'cardBorderColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';

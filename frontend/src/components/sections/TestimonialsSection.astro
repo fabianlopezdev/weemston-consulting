@@ -1,6 +1,14 @@
 ---
 import { urlForImage } from '@lib/sanity/image';
 import SectionTitle from '@components/ui/SectionTitle.astro';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
 
 interface Testimonial {
   _id: string;
@@ -15,9 +23,121 @@ interface Testimonial {
 interface Props {
   title: string;
   testimonials: Testimonial[];
+  // Section background color settings
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  // Card background color settings
+  cardBackgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  cardBackgroundColorShade?: number;
+  cardBackgroundCustomColor?: ColorData;
+  // Card border color settings
+  cardBorderColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  cardBorderColorShade?: number;
+  cardBorderCustomColor?: ColorData;
+  // Text color
+  textColor?: 'base' | 'contrast';
 }
 
-const { title, testimonials } = Astro.props;
+const {
+  title,
+  testimonials,
+  backgroundColorType = 'default',
+  backgroundColorShade = 0,
+  backgroundCustomColor,
+  cardBackgroundColorType = 'default',
+  cardBackgroundColorShade = 0,
+  cardBackgroundCustomColor,
+  cardBorderColorType = 'primary',
+  cardBorderColorShade = 0,
+  cardBorderCustomColor,
+  textColor = 'base',
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve section background color (null if default)
+const backgroundColor =
+  backgroundColorType === 'default' || !backgroundColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: backgroundColorType,
+          shade: backgroundColorShade,
+          customColor: backgroundCustomColor,
+        },
+        siteColors
+      );
+
+// Resolve card background color (null if default)
+const cardBackgroundColor =
+  cardBackgroundColorType === 'default' || !cardBackgroundColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: cardBackgroundColorType,
+          shade: cardBackgroundColorShade,
+          customColor: cardBackgroundCustomColor,
+        },
+        siteColors
+      );
+
+// Resolve card border color (null if default)
+const cardBorderColor =
+  cardBorderColorType === 'default' || !cardBorderColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: cardBorderColorType,
+          shade: cardBorderColorShade,
+          customColor: cardBorderCustomColor,
+        },
+        siteColors
+      );
+
+// Define CSS variables for dynamic colors
+const cssVars: Record<string, string> = {
+  '--ts-text':
+    textColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-text)',
+  '--ts-text-muted':
+    textColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-text-muted)',
+};
+
+// Only set colors if not default
+if (backgroundColor) {
+  cssVars['--ts-bg'] = backgroundColor;
+}
+if (cardBackgroundColor) {
+  cssVars['--ts-card-bg'] = cardBackgroundColor;
+}
+if (cardBorderColor) {
+  cssVars['--ts-card-border'] = cardBorderColor;
+}
+
+const cssVarsString = Object.entries(cssVars)
+  .map(([key, value]) => `${key}: ${value}`)
+  .join('; ');
 
 // Helper function to render a testimonial card
 const renderCard = (testimonial: Testimonial) => {
@@ -32,7 +152,7 @@ const renderCard = (testimonial: Testimonial) => {
 const cards = testimonials.map(renderCard);
 ---
 
-<section class="testimonials-section">
+<section class="testimonials-section" style={cssVarsString}>
   <div class="testimonials-section__content">
     <div class="container">
       <SectionTitle>{title}</SectionTitle>
@@ -240,7 +360,7 @@ const cards = testimonials.map(renderCard);
     clip-path: inset(
       var(--section-clip) round 0 0 var(--section-radius) var(--section-radius)
     );
-    background-color: var(--color-background);
+    background-color: var(--ts-bg, var(--color-background));
     padding: var(--space-2xl) 0;
     will-change: clip-path;
   }
@@ -283,7 +403,12 @@ const cards = testimonials.map(renderCard);
     flex-shrink: 0;
     width: 500px;
     padding: var(--space-lg);
-    border: 1px solid var(--color-border, #e0e0e0);
+    background-color: var(--ts-card-bg, transparent);
+    border: 1px solid
+      var(
+        --ts-card-border,
+        color-mix(in srgb, var(--color-primary) 30%, transparent)
+      );
     border-radius: var(--border-radius, 8px);
     display: flex;
     flex-direction: column;
@@ -295,6 +420,7 @@ const cards = testimonials.map(renderCard);
     margin: 0;
     font-style: italic;
     flex: 1;
+    color: var(--ts-text, var(--color-text));
   }
 
   .testimonial-card__author {
@@ -318,15 +444,16 @@ const cards = testimonials.map(renderCard);
   .testimonial-card__name {
     font-weight: 600;
     margin-block-end: var(--space-xs);
+    color: var(--ts-text, var(--color-text));
   }
 
   .testimonial-card__position {
     font-size: var(--font-size-sm);
-    opacity: 0.7;
+    color: var(--ts-text-muted, var(--color-text-muted));
   }
 
   .testimonial-card__company-link {
-    color: var(--color-primary, #0066cc);
+    color: var(--ts-card-border, var(--color-primary));
     text-decoration: none;
     transition: text-decoration var(--transition-fast, 150ms);
   }
