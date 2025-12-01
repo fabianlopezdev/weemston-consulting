@@ -95,7 +95,7 @@ const { title, description, services, showAllLink } = Astro.props;
      ======================================== */
   .services-section {
     padding: var(--space-2xl) 0;
-    background: var(--color-secondary);
+    background: color-mix(in srgb, var(--color-secondary) 60%, white);
   }
 
   .services-section__container {
@@ -163,15 +163,16 @@ const { title, description, services, showAllLink } = Astro.props;
     position: relative;
     border: 1px solid var(--color-border, #404040);
     border-radius: 16px;
-    background: rgba(30, 30, 30, 0.6);
+    background: color-mix(in srgb, var(--color-accent) 10%, white);
     backdrop-filter: blur(10px);
     overflow: hidden;
     cursor: pointer;
     transition: border-color 0.3s ease;
   }
 
-  .services-card:hover {
-    border-color: var(--color-text-muted, #666);
+  .services-card:hover,
+  .services-card[data-expanded='true'] {
+    border-color: white;
   }
 
   .services-card:focus-visible {
@@ -211,7 +212,7 @@ const { title, description, services, showAllLink } = Astro.props;
   }
 
   .services-card__label {
-    color: var(--color-text-muted, #666);
+    color: var(--color-text, #f5f5f5);
   }
 
   .services-card:hover .services-card__label {
@@ -294,6 +295,7 @@ const { title, description, services, showAllLink } = Astro.props;
   }
 
   .services-card__description {
+    padding-top: var(--space-md, 1rem);
     padding-bottom: var(--space-lg, 1.5rem);
     font-size: var(--font-size-base, 1rem);
     color: var(--color-text-muted, #b0b0b0);
