@@ -71,7 +71,7 @@ const {
   description,
   cards,
   descriptionColor = 'base',
-  backgroundColorType = 'primary',
+  backgroundColorType = 'default',
   backgroundColorShade = 0,
   backgroundCustomColor,
   selectedItemColorType = 'accent',
@@ -85,15 +85,18 @@ const {
 const settings = await client.fetch(siteSettingsQuery);
 const siteColors = settings?.colors;
 
-// Resolve background color
-const backgroundColor = resolveColorSelection(
-  {
-    colorType: backgroundColorType,
-    shade: backgroundColorShade,
-    customColor: backgroundCustomColor,
-  },
-  siteColors
-);
+// Resolve background color (null if default)
+const backgroundColor =
+  backgroundColorType === 'default' || !backgroundColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: backgroundColorType,
+          shade: backgroundColorShade,
+          customColor: backgroundCustomColor,
+        },
+        siteColors
+      );
 
 // Resolve selected item color
 const selectedItemBgColor = resolveColorSelection(
@@ -125,8 +128,7 @@ const cardImages = cards.map((card) => {
 });
 
 // Define CSS variables for dynamic colors
-const cssVars = {
-  '--experience-bg': backgroundColor,
+const cssVars: Record<string, string> = {
   '--experience-desc-color':
     descriptionColor === 'contrast'
       ? 'var(--color-text-contrast)'
@@ -137,6 +139,11 @@ const cssVars = {
       ? 'var(--color-text-contrast)'
       : 'var(--color-text-muted)',
 };
+
+// Only set background if not default
+if (backgroundColor) {
+  cssVars['--experience-bg'] = backgroundColor;
+}
 
 const cssVarsString = Object.entries(cssVars)
   .map(([key, value]) => `${key}: ${value}`)

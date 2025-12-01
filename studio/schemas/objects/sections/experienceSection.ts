@@ -47,13 +47,14 @@ export default defineType({
       type: 'string',
       options: {
         list: [
+          { title: 'Default', value: 'default' },
           { title: 'Primary', value: 'primary' },
           { title: 'Secondary', value: 'secondary' },
           { title: 'Accent', value: 'accent' },
           { title: 'Custom', value: 'custom' },
         ],
       },
-      initialValue: 'primary',
+      initialValue: 'default',
       hidden: ({ parent }) => !parent?.enabled,
       fieldset: 'background',
     },
@@ -63,7 +64,10 @@ export default defineType({
       type: 'number',
       initialValue: 0,
       hidden: ({ parent }) =>
-        !parent?.enabled || parent?.backgroundColorType === 'custom',
+        !parent?.enabled ||
+        parent?.backgroundColorType === 'custom' ||
+        parent?.backgroundColorType === 'default' ||
+        !parent?.backgroundColorType,
       validation: (Rule) => Rule.min(0).max(100).integer(),
       components: {
         input: BackgroundShadeInput,
