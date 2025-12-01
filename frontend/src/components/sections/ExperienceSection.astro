@@ -652,6 +652,7 @@ const cardImages = cards.map((card) => {
     // Staggered fade in for nav items (desktop)
     if (window.innerWidth > 900) {
       createFadeIn('.experience-nav__item', { y: 20, stagger: 0.1 });
+      createFadeIn('.experience-cards', { y: 20 });
     }
 
     // Staggered fade in for accordion items (mobile)

@@ -95,7 +95,7 @@ const { title, description, services, showAllLink } = Astro.props;
      ======================================== */
   .services-section {
     padding: var(--space-2xl) 0;
-    background: var(--color-surface, #1a1a1a);
+    background: var(--color-secondary);
   }
 
   .services-section__container {
@@ -116,9 +116,13 @@ const { title, description, services, showAllLink } = Astro.props;
     top: calc(var(--header-height, 5.5rem) + var(--space-lg, 2rem));
   }
 
+  .services-section__header :global(.section-title) {
+    text-align: left;
+  }
+
   .services-section__description {
     font-size: var(--font-size-lg, 1.125rem);
-    color: var(--color-text-muted, #b0b0b0);
+    color: white;
     line-height: 1.6;
     margin: 0 0 var(--space-lg, 1.5rem) 0;
     max-width: 400px;
