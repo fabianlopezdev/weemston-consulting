@@ -1,5 +1,13 @@
 ---
 import SectionTitle from '@components/ui/SectionTitle.astro';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
 
 interface HowWeWorkCard {
   _key: string;
@@ -11,12 +19,85 @@ interface Props {
   title: string;
   description?: string;
   cards: HowWeWorkCard[];
+  // Color settings
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  accentColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  accentColorShade?: number;
+  accentCustomColor?: ColorData;
+  textColor?: 'base' | 'contrast';
 }
 
-const { title, description, cards } = Astro.props;
+const {
+  title,
+  description,
+  cards,
+  backgroundColorType = 'default',
+  backgroundColorShade = 0,
+  backgroundCustomColor,
+  accentColorType = 'secondary',
+  accentColorShade = 0,
+  accentCustomColor,
+  textColor = 'base',
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color (null if default)
+const backgroundColor =
+  backgroundColorType === 'default' || !backgroundColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: backgroundColorType,
+          shade: backgroundColorShade,
+          customColor: backgroundCustomColor,
+        },
+        siteColors
+      );
+
+// Resolve accent color
+const accentColor = resolveColorSelection(
+  {
+    colorType: accentColorType,
+    shade: accentColorShade,
+    customColor: accentCustomColor,
+  },
+  siteColors
+);
+
+// Define CSS variables for dynamic colors
+const cssVars: Record<string, string> = {
+  '--hww-accent': accentColor,
+  '--hww-text':
+    textColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-text)',
+  '--hww-text-muted':
+    textColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-text-muted)',
+};
+
+// Only set background if not default
+if (backgroundColor) {
+  cssVars['--hww-bg'] = backgroundColor;
+}
+
+const cssVarsString = Object.entries(cssVars)
+  .map(([key, value]) => `${key}: ${value}`)
+  .join('; ');
 ---
 
-<section class="how-we-work-section">
+<section class="how-we-work-section" style={cssVarsString}>
   <div class="container">
     <div class="how-we-work-section__header">
       <SectionTitle>{title}</SectionTitle>
@@ -33,7 +114,6 @@ const { title, description, cards } = Astro.props;
         <path
           class="timeline__path"
           fill="none"
-          stroke="var(--color-secondary, #ff6b6b)"
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"></path>
@@ -60,7 +140,7 @@ const { title, description, cards } = Astro.props;
 <style>
   .how-we-work-section {
     padding: var(--space-2xl) 0;
-    background: var(--color-background);
+    background: var(--hww-bg, var(--color-background));
   }
 
   .how-we-work-section__header {
@@ -72,7 +152,7 @@ const { title, description, cards } = Astro.props;
     font-size: var(--font-size-lg);
     max-width: 600px;
     margin-inline: auto;
-    color: var(--color-text-muted);
+    color: var(--hww-text-muted, var(--color-text-muted));
   }
 
   .timeline {
@@ -89,6 +169,10 @@ const { title, description, cards } = Astro.props;
     height: 100%;
     z-index: 0;
     overflow: visible;
+  }
+
+  .timeline__path {
+    stroke: var(--hww-accent, var(--color-secondary));
   }
 
   .timeline__item {
@@ -114,15 +198,15 @@ const { title, description, cards } = Astro.props;
     height: 60px;
     min-width: 60px;
     border-radius: 50%;
-    background-color: #fff;
-    border: 2px solid var(--color-secondary);
+    background-color: var(--hww-bg, var(--color-background));
+    border: 2px solid var(--hww-accent, var(--color-secondary));
   }
 
   .timeline__number {
     font-family: var(--font-heading);
     font-size: 1.125rem;
     font-weight: 500;
-    color: var(--color-text);
+    color: var(--hww-text, var(--color-text));
   }
 
   .timeline__content {
@@ -136,11 +220,12 @@ const { title, description, cards } = Astro.props;
     margin: 0 0 0.5rem;
     font-family: var(--font-heading);
     font-style: italic;
+    color: var(--hww-text, var(--color-text));
   }
 
   .timeline__description {
     font-size: var(--font-size-base);
-    color: var(--color-text-muted);
+    color: var(--hww-text-muted, var(--color-text-muted));
     line-height: 1.6;
     margin: 0;
   }

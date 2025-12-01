@@ -293,6 +293,13 @@ const pageSectionsQuery = `
     _type == "howWeWorkSection" => {
       title,
       description,
+      backgroundColorType,
+      backgroundColorShade,
+      backgroundCustomColor { label, value },
+      accentColorType,
+      accentColorShade,
+      accentCustomColor { label, value },
+      textColor,
       cards[] {
         _key,
         title,
