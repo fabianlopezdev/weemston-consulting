@@ -281,24 +281,27 @@ const cards = testimonials.map(renderCard);
 
   .testimonial-card {
     flex-shrink: 0;
-    width: 400px;
+    width: 500px;
     padding: var(--space-lg);
-    background: var(--color-background-alt, #f9f9f9);
+    border: 1px solid var(--color-border, #e0e0e0);
     border-radius: var(--border-radius, 8px);
-    border-left: 4px solid var(--color-primary, #0066cc);
+    display: flex;
+    flex-direction: column;
   }
 
   .testimonial-card__quote {
-    font-size: var(--font-size-base);
-    line-height: 1.8;
-    margin: 0 0 var(--space-lg) 0;
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+    margin: 0;
     font-style: italic;
+    flex: 1;
   }
 
   .testimonial-card__author {
     display: flex;
     align-items: center;
     gap: var(--space-md);
+    margin-top: var(--space-lg);
   }
 
   .testimonial-card__avatar {
@@ -334,7 +337,7 @@ const cards = testimonials.map(renderCard);
 
   @media (max-width: 768px) {
     .testimonial-card {
-      width: 300px;
+      width: 350px;
     }
   }
 
