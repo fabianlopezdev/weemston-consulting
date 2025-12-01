@@ -8,10 +8,11 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "check": "astro check && tsc --noEmit"
+    "check": "astro check && tsc --noEmit",
+    "test:lighthouse": "unlighthouse-ci --site http://localhost:4321"
   },
   "dependencies": {
-    "@astrojs/node": "^9.0.0",
+    "@astrojs/netlify": "^6.6.3",
     "@astrojs/sitemap": "^3.2.1",
     "@portabletext/types": "^3.0.0",
     "@sanity/astro": "^3.2.6",

@@ -183,56 +183,60 @@ const cssVarsString = Object.entries(cssVars)
       </nav>
 
       <!-- Right Column: Detail Cards -->
-      <div class="experience-cards">
-        {
-          cards.map((card, index) => (
-            <article
-              class="experience-card"
-              data-index={index}
-              data-active={index === 0 ? 'true' : 'false'}
-              aria-hidden={index !== 0 ? 'true' : 'false'}
-            >
-              <div
-                class="experience-card__image-wrapper"
-                data-header-theme="dark"
+      <div class="experience-cards-wrapper">
+        <div class="experience-cards">
+          {
+            cards.map((card, index) => (
+              <article
+                class="experience-card"
+                data-index={index}
+                data-active={index === 0 ? 'true' : 'false'}
+                aria-hidden={index !== 0 ? 'true' : 'false'}
               >
-                {cardImages[index] ? (
-                  <img
-                    src={cardImages[index]}
-                    alt={card.iconOrImage?.image?.alt || card.title}
-                    class="experience-card__image"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div class="experience-card__image-placeholder">
-                    {card.iconOrImage?.type === 'icon' &&
-                      card.iconOrImage.icon?.name && (
-                        <Icon name={card.iconOrImage.icon.name} />
-                      )}
-                  </div>
-                )}
-              </div>
-              <div class="experience-card__content">
-                <h3 class="experience-card__title">{card.title}</h3>
-                <p class="experience-card__description">{card.description}</p>
-              </div>
-              {ctaButton && ctaHref && (
-                <a
-                  href={ctaHref}
-                  class="experience-card__cta"
-                  style={
-                    ctaBgColor || ctaTextColor
-                      ? `${ctaBgColor ? `background: ${ctaBgColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
-                      : undefined
-                  }
-                  target={ctaOpenInNewTab ? '_blank' : undefined}
-                  rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
+                <div
+                  class="experience-card__image-wrapper"
+                  data-header-theme="dark"
                 >
-                  {ctaButton.text}
-                </a>
-              )}
-            </article>
-          ))
+                  {cardImages[index] ? (
+                    <img
+                      src={cardImages[index]}
+                      alt={card.iconOrImage?.image?.alt || card.title}
+                      class="experience-card__image"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="experience-card__image-placeholder">
+                      {card.iconOrImage?.type === 'icon' &&
+                        card.iconOrImage.icon?.name && (
+                          <Icon name={card.iconOrImage.icon.name} />
+                        )}
+                    </div>
+                  )}
+                </div>
+                <div class="experience-card__content">
+                  <h3 class="experience-card__title">{card.title}</h3>
+                  <p class="experience-card__description">{card.description}</p>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+        {
+          ctaButton && ctaHref && (
+            <a
+              href={ctaHref}
+              class="experience-section__cta"
+              style={
+                ctaBgColor || ctaTextColor
+                  ? `${ctaBgColor ? `background: ${ctaBgColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
+                  : undefined
+              }
+              target={ctaOpenInNewTab ? '_blank' : undefined}
+              rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
+            >
+              {ctaButton.text}
+            </a>
+          )
         }
       </div>
     </div>
@@ -417,9 +421,14 @@ const cssVarsString = Object.entries(cssVars)
   /* ----------------------------------------
      Right Column: Cards
      ---------------------------------------- */
+  .experience-cards-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
   .experience-cards {
     position: relative;
-    min-height: 550px;
+    min-height: 450px;
   }
 
   .experience-card {
@@ -489,6 +498,7 @@ const cssVarsString = Object.entries(cssVars)
 
   .experience-card__content {
     flex: 1;
+    min-height: 100px; /* Prevent text overlap with CTA */
   }
 
   .experience-card__title {
@@ -506,10 +516,10 @@ const cssVarsString = Object.entries(cssVars)
     margin: 0;
   }
 
-  .experience-card__cta {
-    display: inline-block;
+  /* Single CTA outside cards - never re-renders on card switch */
+  .experience-section__cta {
     align-self: flex-start;
-    margin-top: var(--space-lg, 1.5rem);
+    margin-top: var(--space-xl, 2.5rem);
     padding: var(--button-padding-vertical, var(--space-md))
       var(--button-padding-horizontal, var(--space-lg));
     background: var(--color-accent, #4ecdc4);
@@ -517,14 +527,14 @@ const cssVarsString = Object.entries(cssVars)
     text-decoration: none;
     border-radius: var(--button-border-radius, 4px);
     font-weight: 600;
+  }
+
+  .experience-section__cta:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
     transition:
       transform 0.2s,
       filter 0.2s;
-  }
-
-  .experience-card__cta:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.1);
   }
 
   /* ========================================
@@ -675,14 +685,14 @@ const cssVarsString = Object.entries(cssVars)
     text-decoration: none;
     border-radius: var(--button-border-radius, 4px);
     font-weight: 600;
-    transition:
-      transform 0.2s,
-      filter 0.2s;
   }
 
   .experience-accordion__cta:hover {
     transform: translateY(-2px);
     filter: brightness(1.1);
+    transition:
+      transform 0.2s,
+      filter 0.2s;
   }
 
   /* ========================================

@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import node from '@astrojs/node';
+import netlify from '@astrojs/netlify';
 import sitemap from '@astrojs/sitemap';
 import sanity from '@sanity/astro';
 import icon from 'astro-icon';
@@ -35,9 +35,7 @@ env = { ...env, ...process.env };
 export default defineConfig({
   site: env.PUBLIC_SITE_URL || 'https://example.com',
   output: 'static',
-  adapter: node({
-    mode: 'standalone',
-  }),
+  adapter: netlify(),
   server: {
     open: true,
   },
@@ -55,7 +53,7 @@ export default defineConfig({
       dataset: env.PUBLIC_SANITY_DATASET,
       apiVersion: env.PUBLIC_SANITY_API_VERSION || '2024-05-01',
       useCdn: process.env.NODE_ENV === 'production',
-      studioBasePath: '/studio',
+      // Studio is hosted separately in the /studio workspace
     }),
     sitemap({
       i18n: {

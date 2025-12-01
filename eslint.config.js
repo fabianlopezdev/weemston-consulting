@@ -58,9 +58,11 @@ export default [
     ignores: [
       'dist/',
       '.astro/',
+      '.netlify/',
       'node_modules/',
       'frontend/dist/',
       'frontend/.astro/',
+      'frontend/.netlify/',
       'studio/dist/',
       '*.config.js',
       '*.config.ts',
