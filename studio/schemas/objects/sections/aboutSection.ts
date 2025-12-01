@@ -1,10 +1,23 @@
 import { defineType } from 'sanity';
 import { AboutSizeInput } from '../../../components/AboutSizeInput';
+import { BackgroundShadeInput } from '../../../components/BackgroundShadeInput';
 
 export default defineType({
   name: 'aboutSection',
   title: 'About Section',
   type: 'object',
+  fieldsets: [
+    {
+      name: 'background',
+      title: 'Background Color',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: 'textSettings',
+      title: 'Text Color',
+      options: { collapsible: true, collapsed: true },
+    },
+  ],
   fields: [
     {
       name: 'enabled',
@@ -12,6 +25,65 @@ export default defineType({
       type: 'boolean',
       initialValue: true,
       description: 'Toggle to hide/show this section on the homepage',
+    },
+    // Background Color Settings
+    {
+      name: 'backgroundColorType',
+      title: 'Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+      hidden: ({ parent }) => !parent?.enabled,
+      fieldset: 'background',
+    },
+    {
+      name: 'backgroundColorShade',
+      title: 'Shade',
+      type: 'number',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.enabled ||
+        parent?.backgroundColorType === 'custom' ||
+        parent?.backgroundColorType === 'default' ||
+        !parent?.backgroundColorType,
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+      fieldset: 'background',
+    },
+    {
+      name: 'backgroundCustomColor',
+      title: 'Custom Color',
+      type: 'simplerColor',
+      hidden: ({ parent }) =>
+        !parent?.enabled || parent?.backgroundColorType !== 'custom',
+      fieldset: 'background',
+    },
+    // Text Color Settings
+    {
+      name: 'textColor',
+      title: 'Text Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
+      hidden: ({ parent }) => !parent?.enabled,
+      fieldset: 'textSettings',
     },
     {
       name: 'title',

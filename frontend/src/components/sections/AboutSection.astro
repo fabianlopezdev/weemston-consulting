@@ -1,5 +1,13 @@
 ---
 import SectionTitle from '@components/ui/SectionTitle.astro';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
 
 interface PortableTextChild {
   _key: string;
@@ -20,9 +28,63 @@ interface Props {
   showTitle?: boolean;
   content: PortableTextBlock[];
   fontSize?: number;
+  // Color settings
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  textColor?: 'base' | 'contrast';
 }
 
-const { title, showTitle = true, content, fontSize = 2 } = Astro.props;
+const {
+  title,
+  showTitle = true,
+  content,
+  fontSize = 2,
+  backgroundColorType = 'default',
+  backgroundColorShade = 0,
+  backgroundCustomColor,
+  textColor = 'base',
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color (null if default)
+const backgroundColor =
+  backgroundColorType === 'default' || !backgroundColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: backgroundColorType,
+          shade: backgroundColorShade,
+          customColor: backgroundCustomColor,
+        },
+        siteColors
+      );
+
+// Define CSS variables for dynamic colors
+const cssVars: Record<string, string> = {
+  '--about-font-size': `${fontSize}rem`,
+  '--about-text':
+    textColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-text)',
+};
+
+// Only set background if not default
+if (backgroundColor) {
+  cssVars['--about-bg'] = backgroundColor;
+}
+
+const cssVarsString = Object.entries(cssVars)
+  .map(([key, value]) => `${key}: ${value}`)
+  .join('; ');
 
 // Render portable text block children with marks (bold = accent highlight)
 const renderChildren = (children: PortableTextChild[] | undefined) => {
@@ -46,7 +108,7 @@ const paragraphs =
     .map((block: PortableTextBlock) => renderChildren(block.children)) || [];
 ---
 
-<section class="about-section" style={`--about-font-size: ${fontSize}rem;`}>
+<section class="about-section" style={cssVarsString}>
   <div class="container">
     <SectionTitle class={!showTitle ? 'visually-hidden' : undefined}>
       {title}
@@ -71,6 +133,7 @@ const paragraphs =
 <style>
   .about-section {
     padding: var(--space-2xl) 0;
+    background: var(--about-bg, var(--color-background));
   }
 
   .about-section__content {
@@ -82,6 +145,7 @@ const paragraphs =
     font-size: var(--about-font-size, 2rem);
     text-align: center;
     margin-block-end: var(--space-md);
+    color: var(--about-text, var(--color-text));
   }
 
   .about-section__paragraph:last-child {

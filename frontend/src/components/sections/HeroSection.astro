@@ -170,7 +170,11 @@ const ctaTextColor = ctaButton
     --hero-radius: var(--border-radius-lg);
 
     /* Use clip-path for the expand/contract effect */
-    clip-path: inset(var(--hero-clip) round var(--hero-radius));
+    /* Top is already expanded (0), only sides and bottom animate */
+    clip-path: inset(
+      0 var(--hero-clip) var(--hero-clip) var(--hero-clip) round
+        var(--hero-radius)
+    );
 
     height: calc(100dvh - var(--header-height) - var(--space-lg));
     display: flex;
