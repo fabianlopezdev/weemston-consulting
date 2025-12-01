@@ -5,6 +5,7 @@ import { media } from 'sanity-plugin-media';
 import { simplerColorInput } from 'sanity-plugin-simpler-color-input';
 import { iconify } from 'sanity-plugin-iconify';
 import { schemaTypes } from './schemas';
+import './styles/studio.css';
 import { supportedLanguages, baseLanguage, isMultiLanguage } from './lib/i18n';
 import {
   HiCog,

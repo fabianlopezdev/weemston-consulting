@@ -19,9 +19,10 @@ interface Props {
   title: string;
   showTitle?: boolean;
   content: PortableTextBlock[];
+  fontSize?: number;
 }
 
-const { title, showTitle = true, content } = Astro.props;
+const { title, showTitle = true, content, fontSize = 2 } = Astro.props;
 
 // Render portable text block children with marks (bold = accent highlight)
 const renderChildren = (children: PortableTextChild[] | undefined) => {
@@ -45,7 +46,7 @@ const paragraphs =
     .map((block: PortableTextBlock) => renderChildren(block.children)) || [];
 ---
 
-<section class="about-section">
+<section class="about-section" style={`--about-font-size: ${fontSize}rem;`}>
   <div class="container">
     <SectionTitle class={!showTitle ? 'visually-hidden' : undefined}>
       {title}
@@ -78,7 +79,7 @@ const paragraphs =
 
   .about-section__paragraph {
     font-family: var(--font-heading);
-    font-size: var(--font-size-3xl);
+    font-size: var(--about-font-size, 2rem);
     text-align: center;
     margin-block-end: var(--space-md);
   }

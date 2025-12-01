@@ -244,6 +244,7 @@ const pageSectionsQuery = `
       title,
       showTitle,
       content,
+      fontSize,
       images[] {
         _key,
         asset,

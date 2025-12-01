@@ -1,4 +1,5 @@
 import { defineType } from 'sanity';
+import { AboutSizeInput } from '../../../components/AboutSizeInput';
 
 export default defineType({
   name: 'aboutSection',
@@ -46,6 +47,17 @@ export default defineType({
           if (!parent?.enabled) return true;
           return value ? true : 'Content is required when section is enabled';
         }),
+      hidden: ({ parent }) => !parent?.enabled,
+    },
+    {
+      name: 'fontSize',
+      title: 'Text Size',
+      type: 'number',
+      initialValue: 2,
+      description: 'Font size in rem units (1.5-4rem)',
+      components: {
+        input: AboutSizeInput,
+      },
       hidden: ({ parent }) => !parent?.enabled,
     },
   ],

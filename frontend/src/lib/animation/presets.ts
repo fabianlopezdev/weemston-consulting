@@ -60,7 +60,10 @@ export function createTextReveal(
 
     split.lines.forEach((line) => {
       // Apply gradient styles to the line (for non-highlighted text)
+      // Also ensure line divs are block-level and full width for centered text
       Object.assign(line.style, {
+        display: 'block',
+        width: '100%',
         background: `linear-gradient(to right, ${colors.revealed} 50%, ${colors.hidden} 50%)`,
         backgroundSize: '200% 100%',
         backgroundPositionX: '100%',
