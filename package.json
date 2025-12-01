@@ -18,6 +18,7 @@
     "build:studio": "npm run build --workspace=studio",
     "preview": "npm run preview --workspace=frontend",
     "check": "npm run check --workspace=frontend",
+    "typecheck": "cd frontend && bun run check",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{js,ts,astro,json,md,css}\"",
