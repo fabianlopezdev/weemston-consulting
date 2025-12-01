@@ -46,7 +46,6 @@ const cardImages = cards.map((card) => {
   <div class="experience-section__container">
     <!-- Header -->
     <header class="experience-section__header">
-      <span class="experience-section__label">Experience at a Glance</span>
       <h2 class="experience-section__title">{title}</h2>
       {
         description && (
@@ -196,16 +195,6 @@ const cardImages = cards.map((card) => {
   .experience-section__header {
     text-align: center;
     margin-block-end: var(--space-2xl, 4rem);
-  }
-
-  .experience-section__label {
-    display: inline-block;
-    padding: var(--space-xs, 0.5rem) var(--space-md, 1rem);
-    background: white;
-    border-radius: 100px;
-    font-size: var(--font-size-sm, 0.875rem);
-    color: var(--color-text-muted, #94877c);
-    margin-block-end: var(--space-md, 1rem);
   }
 
   .experience-section__title {
