@@ -189,7 +189,7 @@ export function resolveButtonColor(
  * @param siteColors - The site colors from settings
  * @returns CSS color value (hex string)
  */
-function resolveColorSelection(
+export function resolveColorSelection(
   colorSelection: ColorSelectionData | null | undefined,
   siteColors: SiteColors | null | undefined
 ): string {

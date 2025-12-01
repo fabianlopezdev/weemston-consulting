@@ -1,6 +1,14 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { urlForImage } from '@lib/sanity/image';
+import {
+  resolveColorSelection,
+  resolveButtonColor,
+  resolveButtonTextColor,
+} from '@lib/sanity/colorResolver';
+import { resolveLinkUrl } from '@lib/sanity/linkResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
 
 interface IconData {
   name: string;
@@ -25,13 +33,88 @@ interface ExperienceCard {
   iconOrImage: IconOrImage;
 }
 
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface LinkData {
+  linkType: 'internal' | 'external';
+  internalPageType?: string;
+  serviceReference?: { slug: { current: string } };
+  caseStudyReference?: { slug: { current: string } };
+  legalReference?: { slug: { current: string } };
+  externalUrl?: string;
+  text: string;
+  openInNewTab?: boolean;
+  buttonColor?: any;
+}
+
 interface Props {
   title: string;
   description?: string;
   cards: ExperienceCard[];
+  // Color settings
+  descriptionColor?: 'base' | 'contrast';
+  backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  selectedItemColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  selectedItemColorShade?: number;
+  selectedItemCustomColor?: ColorData;
+  cardDescriptionColor?: 'base' | 'contrast';
+  ctaButton?: LinkData;
 }
 
-const { title, description, cards } = Astro.props;
+const {
+  title,
+  description,
+  cards,
+  descriptionColor = 'base',
+  backgroundColorType = 'primary',
+  backgroundColorShade = 0,
+  backgroundCustomColor,
+  selectedItemColorType = 'accent',
+  selectedItemColorShade = 0,
+  selectedItemCustomColor,
+  cardDescriptionColor = 'base',
+  ctaButton,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color
+const backgroundColor = resolveColorSelection(
+  {
+    colorType: backgroundColorType,
+    shade: backgroundColorShade,
+    customColor: backgroundCustomColor,
+  },
+  siteColors
+);
+
+// Resolve selected item color
+const selectedItemBgColor = resolveColorSelection(
+  {
+    colorType: selectedItemColorType,
+    shade: selectedItemColorShade,
+    customColor: selectedItemCustomColor,
+  },
+  siteColors
+);
+
+// Resolve CTA button
+const ctaHref = ctaButton ? resolveLinkUrl(ctaButton) : null;
+const ctaOpenInNewTab =
+  ctaButton?.openInNewTab || ctaButton?.linkType === 'external';
+const ctaBgColor = ctaButton
+  ? resolveButtonColor(ctaButton.buttonColor, siteColors)
+  : null;
+const ctaTextColor = ctaButton
+  ? resolveButtonTextColor(ctaButton.buttonColor)
+  : null;
 
 // Generate image URLs - use larger size for the new layout
 const cardImages = cards.map((card) => {
@@ -40,9 +123,27 @@ const cardImages = cards.map((card) => {
     ? urlForImage(card.iconOrImage.image).width(800).height(600).url()
     : null;
 });
+
+// Define CSS variables for dynamic colors
+const cssVars = {
+  '--experience-bg': backgroundColor,
+  '--experience-desc-color':
+    descriptionColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-text-muted)',
+  '--experience-selected-bg': selectedItemBgColor,
+  '--experience-card-desc-color':
+    cardDescriptionColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-text-muted)',
+};
+
+const cssVarsString = Object.entries(cssVars)
+  .map(([key, value]) => `${key}: ${value}`)
+  .join('; ');
 ---
 
-<section class="experience-section">
+<section class="experience-section" style={cssVarsString}>
   <div class="experience-section__container">
     <!-- Header -->
     <header class="experience-section__header">
@@ -108,10 +209,21 @@ const cardImages = cards.map((card) => {
                 <h3 class="experience-card__title">{card.title}</h3>
                 <p class="experience-card__description">{card.description}</p>
               </div>
-              <a href="/contact" class="experience-card__cta">
-                <span class="experience-card__cta-icon">↳</span>
-                Book a free call
-              </a>
+              {ctaButton && ctaHref && (
+                <a
+                  href={ctaHref}
+                  class="experience-card__cta"
+                  style={
+                    ctaBgColor || ctaTextColor
+                      ? `${ctaBgColor ? `background: ${ctaBgColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
+                      : undefined
+                  }
+                  target={ctaOpenInNewTab ? '_blank' : undefined}
+                  rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
+                >
+                  {ctaButton.text}
+                </a>
+              )}
             </article>
           ))
         }
@@ -162,10 +274,21 @@ const cardImages = cards.map((card) => {
               <p class="experience-accordion__description">
                 {card.description}
               </p>
-              <a href="/contact" class="experience-accordion__cta">
-                <span class="experience-accordion__cta-icon">↳</span>
-                Book a free call
-              </a>
+              {ctaButton && ctaHref && (
+                <a
+                  href={ctaHref}
+                  class="experience-accordion__cta"
+                  style={
+                    ctaBgColor || ctaTextColor
+                      ? `${ctaBgColor ? `background: ${ctaBgColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
+                      : undefined
+                  }
+                  target={ctaOpenInNewTab ? '_blank' : undefined}
+                  rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
+                >
+                  {ctaButton.text}
+                </a>
+              )}
             </div>
           </div>
         ))
@@ -180,7 +303,7 @@ const cardImages = cards.map((card) => {
      ======================================== */
   .experience-section {
     padding: var(--space-2xl) 0;
-    background: var(--color-primary, #0066cc);
+    background: var(--experience-bg, var(--color-primary, #0066cc));
   }
 
   .experience-section__container {
@@ -208,7 +331,7 @@ const cardImages = cards.map((card) => {
 
   .experience-section__description {
     font-size: var(--font-size-lg, 1.125rem);
-    color: var(--color-text-muted, #94877c);
+    color: var(--experience-desc-color, var(--color-text-muted, #94877c));
     max-width: 700px;
     margin: 0 auto;
     line-height: 1.6;
@@ -249,7 +372,7 @@ const cardImages = cards.map((card) => {
   }
 
   .experience-nav__item[data-active='true'] {
-    background: var(--color-accent, #4ecdc4);
+    background: var(--experience-selected-bg, var(--color-accent, #4ecdc4));
     padding-left: 32px;
   }
 
@@ -322,9 +445,17 @@ const cardImages = cards.map((card) => {
     border-radius: inherit;
     box-shadow:
       inset 0 0 60px 30px
-        color-mix(in srgb, var(--color-primary, #0066cc) 25%, transparent),
+        color-mix(
+          in srgb,
+          var(--experience-bg, var(--color-primary, #0066cc)) 25%,
+          transparent
+        ),
       inset 0 0 120px 60px
-        color-mix(in srgb, var(--color-primary, #0066cc) 15%, transparent);
+        color-mix(
+          in srgb,
+          var(--experience-bg, var(--color-primary, #0066cc)) 15%,
+          transparent
+        );
     pointer-events: none;
   }
 
@@ -363,28 +494,30 @@ const cardImages = cards.map((card) => {
 
   .experience-card__description {
     font-size: var(--font-size-md, 1rem);
-    color: var(--color-text-muted, #94877c);
+    color: var(--experience-card-desc-color, var(--color-text-muted, #94877c));
     line-height: 1.6;
     margin: 0;
   }
 
   .experience-card__cta {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-xs, 0.25rem);
+    display: inline-block;
+    align-self: flex-start;
     margin-top: var(--space-lg, 1.5rem);
-    font-size: var(--font-size-md, 1rem);
-    color: var(--color-text, #2b180a);
+    padding: var(--button-padding-vertical, var(--space-md))
+      var(--button-padding-horizontal, var(--space-lg));
+    background: var(--color-accent, #4ecdc4);
+    color: white;
     text-decoration: none;
-    transition: gap 0.2s ease;
+    border-radius: var(--button-border-radius, 4px);
+    font-weight: 600;
+    transition:
+      transform 0.2s,
+      background 0.2s,
+      color 0.2s;
   }
 
   .experience-card__cta:hover {
-    gap: var(--space-sm, 0.5rem);
-  }
-
-  .experience-card__cta-icon {
-    font-size: 1.2em;
+    transform: translateY(-2px);
   }
 
   /* ========================================
@@ -489,9 +622,17 @@ const cardImages = cards.map((card) => {
     border-radius: inherit;
     box-shadow:
       inset 0 0 50px 25px
-        color-mix(in srgb, var(--color-primary, #0066cc) 25%, transparent),
+        color-mix(
+          in srgb,
+          var(--experience-bg, var(--color-primary, #0066cc)) 25%,
+          transparent
+        ),
       inset 0 0 100px 50px
-        color-mix(in srgb, var(--color-primary, #0066cc) 15%, transparent);
+        color-mix(
+          in srgb,
+          var(--experience-bg, var(--color-primary, #0066cc)) 15%,
+          transparent
+        );
     pointer-events: none;
   }
 
@@ -512,22 +653,29 @@ const cardImages = cards.map((card) => {
 
   .experience-accordion__description {
     font-size: var(--font-size-md, 1rem);
-    color: var(--color-text-muted, #94877c);
+    color: var(--experience-card-desc-color, var(--color-text-muted, #94877c));
     line-height: 1.6;
     margin: 0 0 var(--space-md, 1rem) 0;
   }
 
   .experience-accordion__cta {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-xs, 0.25rem);
-    font-size: var(--font-size-md, 1rem);
-    color: var(--color-text, #2b180a);
+    display: inline-block;
+    align-self: flex-start;
+    padding: var(--button-padding-vertical, var(--space-md))
+      var(--button-padding-horizontal, var(--space-lg));
+    background: var(--color-accent, #4ecdc4);
+    color: white;
     text-decoration: none;
+    border-radius: var(--button-border-radius, 4px);
+    font-weight: 600;
+    transition:
+      transform 0.2s,
+      background 0.2s,
+      color 0.2s;
   }
 
-  .experience-accordion__cta-icon {
-    font-size: 1.2em;
+  .experience-accordion__cta:hover {
+    transform: translateY(-2px);
   }
 
   /* ========================================

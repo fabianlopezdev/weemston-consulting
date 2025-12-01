@@ -256,6 +256,17 @@ const pageSectionsQuery = `
     _type == "experienceSection" => {
       title,
       description,
+      descriptionColor,
+      backgroundColorType,
+      backgroundColorShade,
+      backgroundCustomColor { label, value },
+      selectedItemColorType,
+      selectedItemColorShade,
+      selectedItemCustomColor { label, value },
+      cardDescriptionColor,
+      ctaButton {
+        ${linkProjection}
+      },
       cards[] {
         _key,
         number,

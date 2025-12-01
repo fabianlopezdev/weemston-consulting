@@ -69,17 +69,23 @@ export function BackgroundShadeInput(props: NumberInputProps) {
   const { value, onChange, path } = props;
   const client = useClient({ apiVersion: '2024-01-01' });
 
-  // Get the colorType - handle both flattened and nested structures
-  // Flattened: path is like ['hero', 'backgroundSettings', 'solidColorShade']
-  // Nested (gradient): path is like ['hero', 'backgroundSettings', 'gradient', 'startColor', 'shade']
-  const fieldName = path[path.length - 1];
+  // Get the colorType - handle various field naming patterns
+  // Examples:
+  // - ['hero', 'backgroundSettings', 'solidColorShade'] -> solidColorType
+  // - ['hero', 'backgroundSettings', 'gradient', 'startColor', 'shade'] -> colorType
+  // - ['sections', 0, 'backgroundColorShade'] -> backgroundColorType
+  // - ['sections', 0, 'selectedItemColorShade'] -> selectedItemColorType
+  const fieldName = path[path.length - 1] as string;
   const parentPath = path.slice(0, -1);
 
-  // Determine the colorType field name based on context
+  // Determine the colorType field name based on the shade field name
   let colorTypeFieldName = 'colorType';
   if (fieldName === 'solidColorShade') {
-    // Flattened solid color - colorType is at same level as 'solidColorType'
     colorTypeFieldName = 'solidColorType';
+  } else if (fieldName === 'backgroundColorShade') {
+    colorTypeFieldName = 'backgroundColorType';
+  } else if (fieldName === 'selectedItemColorShade') {
+    colorTypeFieldName = 'selectedItemColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';
