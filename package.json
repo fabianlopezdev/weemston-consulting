@@ -32,7 +32,7 @@
     "studio:migrate": "npm run migrate --workspace=studio",
     "studio:seed": "npm run seed --workspace=studio",
     "commit": "cz",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",
