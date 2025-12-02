@@ -34,7 +34,8 @@ env = { ...env, ...process.env };
 // https://astro.build/config
 export default defineConfig({
   site: env.PUBLIC_SITE_URL || 'https://example.com',
-  output: 'static',
+  // TODO: Change back to 'static' when content is finalized
+  output: 'server',
   adapter: netlify(),
   server: {
     open: true,
@@ -52,7 +53,8 @@ export default defineConfig({
       projectId: env.PUBLIC_SANITY_PROJECT_ID,
       dataset: env.PUBLIC_SANITY_DATASET,
       apiVersion: env.PUBLIC_SANITY_API_VERSION || '2024-05-01',
-      useCdn: process.env.NODE_ENV === 'production',
+      // TODO: Change back to `process.env.NODE_ENV === 'production'` for static builds
+      useCdn: false,
       // Studio is hosted separately in the /studio workspace
     }),
     sitemap({
