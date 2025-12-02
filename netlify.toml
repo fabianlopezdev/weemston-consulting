@@ -1,9 +1,13 @@
 [build]
+  base = "frontend"
   command = "npm ci && npm run build"
-  publish = "frontend/dist"
+  publish = "dist"
 
 [build.environment]
   NODE_VERSION = "20"
+
+[functions]
+  directory = ".netlify/functions"
 
 [[headers]]
   for = "/*"
