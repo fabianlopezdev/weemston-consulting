@@ -318,6 +318,14 @@ export function registerDarkElements(
     }
   });
 
+  console.log('[Header Theme Debug]', {
+    headerBottom,
+    darkElementsCount: darkElements.length,
+    isOverDarkElement,
+    currentTheme: header.getAttribute('data-theme'),
+    settingTo: isOverDarkElement ? 'light' : 'dark',
+  });
+
   header.setAttribute('data-theme', isOverDarkElement ? 'light' : 'dark');
 }
 
