@@ -303,6 +303,22 @@ export function registerDarkElements(
       onLeaveBack: () => header.setAttribute('data-theme', 'dark'),
     });
   });
+
+  // Set initial theme based on current scroll position
+  // Check if we're currently inside any dark element
+  const headerRect = header.getBoundingClientRect();
+  const headerBottom = headerRect.bottom;
+
+  let isOverDarkElement = false;
+  darkElements.forEach((element) => {
+    const rect = element.getBoundingClientRect();
+    // Check if header overlaps with this element
+    if (rect.top <= headerBottom && rect.bottom >= 0) {
+      isOverDarkElement = true;
+    }
+  });
+
+  header.setAttribute('data-theme', isOverDarkElement ? 'light' : 'dark');
 }
 
 /**
