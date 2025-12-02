@@ -17,8 +17,8 @@ export default defineType({
       title: 'Short Label',
       type: 'string',
       description:
-        'Short label shown when card is minimized (e.g., "Strategy", "Design")',
-      validation: (Rule) => Rule.required().max(20),
+        'Short label shown when card is minimized (e.g., "Strategy", "Design"). If left empty, the service title will be shown instead.',
+      validation: (Rule) => Rule.max(20),
       placeholder: 'Strategy',
     },
     defineLanguageField(),
