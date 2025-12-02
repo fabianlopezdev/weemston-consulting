@@ -312,18 +312,13 @@ export function registerDarkElements(
   let isOverDarkElement = false;
   darkElements.forEach((element) => {
     const rect = element.getBoundingClientRect();
-    // Check if header overlaps with this element
-    if (rect.top <= headerBottom && rect.bottom >= 0) {
+    // Skip zero-height elements (collapsed/hidden)
+    if (rect.height === 0) return;
+    // Check if header truly overlaps with this element
+    // Element must start BEFORE header bottom AND extend below viewport top
+    if (rect.top < headerBottom && rect.bottom > 0) {
       isOverDarkElement = true;
     }
-  });
-
-  console.log('[Header Theme Debug]', {
-    headerBottom,
-    darkElementsCount: darkElements.length,
-    isOverDarkElement,
-    currentTheme: header.getAttribute('data-theme'),
-    settingTo: isOverDarkElement ? 'light' : 'dark',
   });
 
   header.setAttribute('data-theme', isOverDarkElement ? 'light' : 'dark');
