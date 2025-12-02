@@ -83,3 +83,15 @@ export function getImageDimensions(source: SanityImageSource): {
     aspectRatio: width / height,
   };
 }
+
+/**
+ * Extract LQIP (Low Quality Image Placeholder) from a Sanity image source.
+ * Returns the base64-encoded placeholder string or null if not available.
+ */
+export function getLqip(source: SanityImageSource): string | null {
+  const image = builder.image(source);
+  // @ts-expect-error - accessing internal properties
+  const asset = image.options.source?.asset;
+
+  return asset?.metadata?.lqip || null;
+}

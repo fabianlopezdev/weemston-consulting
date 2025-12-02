@@ -1,5 +1,25 @@
 import groq from 'groq';
 
+// Helper for image projection with LQIP metadata (reusable across all queries)
+const imageProjection = `
+  asset->{
+    _id,
+    url,
+    metadata {
+      lqip,
+      dimensions {
+        width,
+        height,
+        aspectRatio
+      }
+    }
+  },
+  alt,
+  seoFilename,
+  hotspot,
+  crop
+`;
+
 // Helper for link projection (reusable across all queries)
 const linkProjection = `
   text,
@@ -95,9 +115,7 @@ export const caseStudyQuery = groq`
     publishedAt,
     featured,
     mainImage {
-      asset,
-      alt,
-      seoFilename
+      ${imageProjection}
     },
     challenge,
     solution,
@@ -127,9 +145,7 @@ export const allCaseStudiesQuery = groq`
     publishedAt,
     featured,
     mainImage {
-      asset,
-      alt,
-      seoFilename
+      ${imageProjection}
     }
   }
 `;
@@ -161,9 +177,7 @@ const backgroundSettingsProjection = `
   backgroundSettings {
     backgroundType,
     image {
-      asset,
-      alt,
-      seoFilename
+      ${imageProjection}
     },
     colorMode,
     solidColorType,
@@ -216,9 +230,7 @@ const pageSectionsQuery = `
         slug,
         client,
         mainImage {
-          asset,
-          alt,
-          seoFilename
+          ${imageProjection}
         }
       },
       showAllLink
@@ -243,9 +255,7 @@ const pageSectionsQuery = `
         websiteUrl,
         quote,
         avatar {
-          asset,
-          alt,
-          seoFilename
+          ${imageProjection}
         }
       }
     },
@@ -267,9 +277,7 @@ const pageSectionsQuery = `
       textColor,
       images[] {
         _key,
-        asset,
-        alt,
-        seoFilename,
+        ${imageProjection},
         caption
       }
     },
@@ -298,9 +306,7 @@ const pageSectionsQuery = `
             name
           },
           image {
-            asset,
-            alt,
-            seoFilename
+            ${imageProjection}
           }
         }
       }
@@ -328,9 +334,7 @@ const pageSectionsQuery = `
           name
         },
         image {
-          asset,
-          alt,
-          seoFilename
+          ${imageProjection}
         }
       }
     }
