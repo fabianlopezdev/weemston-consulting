@@ -111,13 +111,13 @@ const cssVarsString = Object.entries(cssVars)
         <path
           class="timeline__path"
           fill="none"
-          stroke-width="2"
+          stroke-width="3"
           stroke-linecap="round"
           stroke-linejoin="round"></path>
       </svg>
       {
         cards.map((card, index) => (
-          <div class="timeline__item">
+          <div class="timeline__item" style={`--item-index: ${index}`}>
             <div class="timeline__marker">
               <span class="timeline__number">
                 {(index + 1).toString().padStart(2, '0')}
@@ -136,13 +136,52 @@ const cssVarsString = Object.entries(cssVars)
 
 <style>
   .how-we-work-section {
-    padding: var(--space-2xl) 0;
+    --hww-marker-size: 80px;
+    --hww-number-size: clamp(1.75rem, 4vw, 2.5rem);
+    --hww-item-gap: clamp(3rem, 6vw, 5rem);
+    --hww-base-indent: 2rem;
+    --hww-indent-step: 3rem;
+
+    position: relative;
+    padding: var(--space-3xl) 0;
     background: var(--hww-bg, var(--color-background));
+    overflow: hidden;
+  }
+
+  /* Subtle paper texture overlay */
+  .how-we-work-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Soft vertical gradient */
+  .how-we-work-section::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.05) 50%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .how-we-work-section > .container {
+    position: relative;
+    z-index: 1;
   }
 
   .how-we-work-section__header {
     text-align: center;
-    margin-block-end: var(--space-xl);
+    margin-block-end: var(--space-2xl);
   }
 
   .how-we-work-section__description {
@@ -154,15 +193,16 @@ const cssVarsString = Object.entries(cssVars)
 
   .timeline {
     position: relative;
-    max-width: 600px;
+    max-width: 650px;
     margin-inline: auto;
+    padding-inline-start: 1rem;
   }
 
   .timeline__svg {
     position: absolute;
-    left: 0;
+    left: calc(1rem - 30px); /* Offset to center wider canvas over markers */
     top: 0;
-    width: 60px;
+    width: 140px; /* Wider canvas for more organic curves */
     height: 100%;
     z-index: 0;
     overflow: visible;
@@ -170,15 +210,20 @@ const cssVarsString = Object.entries(cssVars)
 
   .timeline__path {
     stroke: var(--hww-accent, var(--color-secondary));
+    opacity: 0.85;
   }
 
   .timeline__item {
+    --item-indent: calc(
+      var(--hww-base-indent) + var(--hww-indent-step) * var(--item-index, 0)
+    );
+
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    gap: 1.5rem;
+    gap: var(--item-indent);
     position: relative;
-    padding-bottom: 2.5rem;
+    padding-bottom: var(--hww-item-gap);
   }
 
   .timeline__item:last-child {
@@ -187,75 +232,97 @@ const cssVarsString = Object.entries(cssVars)
 
   .timeline__marker {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
+    width: var(--hww-marker-size);
+    height: var(--hww-marker-size);
+    min-width: var(--hww-marker-size);
     border-radius: 50%;
     background-color: var(--hww-bg, var(--color-background));
-    border: 2px solid var(--hww-accent, var(--color-secondary));
+    border: 1.5px solid var(--hww-accent, var(--color-secondary));
+    box-shadow:
+      inset 0 0 0 3px var(--hww-bg, var(--color-background)),
+      inset 0 0 0 4.5px
+        color-mix(
+          in srgb,
+          var(--hww-accent, var(--color-secondary)) 30%,
+          transparent
+        );
+    transform-origin: center;
   }
 
   .timeline__number {
     font-family: var(--font-heading);
-    font-size: 1.125rem;
-    font-weight: 500;
+    font-size: var(--hww-number-size);
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -0.02em;
     color: var(--hww-text, var(--color-text));
+    /* Compensate for italic slant pushing text right */
+    margin-left: -0.1em;
   }
 
   .timeline__content {
-    padding-top: 0.75rem;
+    padding-top: 1rem;
     flex: 1;
   }
 
   .timeline__title {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-semibold);
-    margin: 0 0 0.5rem;
+    margin: 0 0 0.75rem;
     font-family: var(--font-heading);
     font-style: italic;
     color: var(--hww-text, var(--color-text));
   }
 
   .timeline__description {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
     color: var(--hww-text-muted, var(--color-text-muted));
-    line-height: 1.6;
+    line-height: 1.7;
     margin: 0;
+    opacity: 0.85;
   }
 
   @media (max-width: 480px) {
+    .how-we-work-section {
+      --hww-marker-size: 65px;
+      --hww-item-gap: clamp(2.5rem, 5vw, 3.5rem);
+      --hww-indent-step: 1rem;
+    }
+
+    .timeline {
+      padding-inline-start: 0;
+    }
+
     .timeline__svg {
-      width: 50px;
+      left: -17.5px; /* Center 100px canvas over 65px marker: (100-65)/2 = 17.5 */
+      width: 100px;
     }
 
     .timeline__item {
-      gap: 1rem;
-    }
-
-    .timeline__marker {
-      width: 50px;
-      height: 50px;
-      min-width: 50px;
+      gap: calc(
+        var(--hww-base-indent) * 0.75 + var(--hww-indent-step) *
+          var(--item-index, 0)
+      );
     }
   }
 </style>
 
 <script>
-  import {
-    setupAnimationLifecycle,
-    gsap,
-    ANIMATION_CONFIG,
-  } from '@lib/animation';
+  import { setupAnimationLifecycle, gsap } from '@lib/animation';
 
-  function generateWavyPath(markerCenters: number[], svgWidth: number): string {
+  function generateWavyPath(
+    markerCenters: number[],
+    svgWidth: number,
+    isMobile: boolean
+  ): string {
     if (markerCenters.length < 2) return '';
 
     const centerX = svgWidth / 2;
-    const amplitude = 15; // How far the wave bulges left/right
+    const amplitude = isMobile ? 30 : 45; // How far the wave bulges left/right - dramatic organic sweep
 
     const firstCenter = markerCenters[0] ?? 0;
     let path = `M ${centerX} ${firstCenter}`;
@@ -269,11 +336,11 @@ const cssVarsString = Object.entries(cssVars)
       const direction = i % 2 === 0 ? 1 : -1;
       const curveX = centerX + amplitude * direction;
 
-      // Create S-curve using cubic bezier
+      // Create S-curve using cubic bezier with more organic control points
       // First half: from start to midpoint, curving outward
-      path += ` C ${centerX} ${startY + (midY - startY) * 0.3}, ${curveX} ${startY + (midY - startY) * 0.5}, ${curveX} ${midY}`;
+      path += ` C ${centerX} ${startY + (midY - startY) * 0.25}, ${curveX} ${startY + (midY - startY) * 0.45}, ${curveX} ${midY}`;
       // Second half: from midpoint to end, curving back to center
-      path += ` C ${curveX} ${midY + (endY - midY) * 0.5}, ${centerX} ${midY + (endY - midY) * 0.7}, ${centerX} ${endY}`;
+      path += ` C ${curveX} ${midY + (endY - midY) * 0.55}, ${centerX} ${midY + (endY - midY) * 0.75}, ${centerX} ${endY}`;
     }
 
     return path;
@@ -298,15 +365,16 @@ const cssVarsString = Object.entries(cssVars)
       markerCenters.push(centerY);
     });
 
-    // Calculate SVG dimensions
-    const svgWidth = 60; // Match CSS width
+    // Calculate SVG dimensions - use fixed wider canvas for organic curves
+    const isMobile = window.innerWidth <= 480;
+    const svgWidth = isMobile ? 100 : 140; // Wider canvas allows more dramatic curves
     const svgHeight = timelineRect.height;
 
     // Set viewBox to match actual pixel dimensions
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
 
     // Generate and set the path
-    const pathD = generateWavyPath(markerCenters, svgWidth);
+    const pathD = generateWavyPath(markerCenters, svgWidth, isMobile);
     path.setAttribute('d', pathD);
 
     return path;
@@ -324,35 +392,76 @@ const cssVarsString = Object.entries(cssVars)
       path.style.strokeDasharray = `${pathLength}`;
       path.style.strokeDashoffset = `${pathLength}`;
 
-      // Animate the path drawing on scroll - starts AFTER items begin appearing
-      gsap.to(path, {
-        strokeDashoffset: 0,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '.timeline',
-          start: 'top 65%',
-          end: 'bottom 50%',
-          scrub: true,
-        },
+      const markers = document.querySelectorAll('.timeline__marker');
+      const contents = document.querySelectorAll('.timeline__content');
+      const numMarkers = markers.length;
+
+      markers.forEach((marker, index) => {
+        // Marker appears first
+        gsap.fromTo(
+          marker,
+          { scale: 0 },
+          {
+            scale: 1,
+            ease: 'back.out(1.5)',
+            scrollTrigger: {
+              trigger: marker,
+              start: 'top 75%',
+              end: 'top 55%',
+              scrub: 0.5,
+            },
+          }
+        );
+
+        // Content follows marker
+        const content = contents[index];
+        if (content) {
+          gsap.fromTo(
+            content,
+            { opacity: 0, x: -15 },
+            {
+              opacity: 1,
+              x: 0,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: marker,
+                start: 'top 70%',
+                end: 'top 50%',
+                scrub: 0.5,
+              },
+            }
+          );
+        }
+
+        // Path segment grows OUT OF this marker AFTER it appears
+        // (except for last marker - no segment after it)
+        if (index < numMarkers - 1) {
+          const nextMarker = markers[index + 1];
+          // Calculate segment start and end points
+          const segmentStart = pathLength * (1 - index / (numMarkers - 1));
+          const segmentEnd = pathLength * (1 - (index + 1) / (numMarkers - 1));
+
+          gsap.fromTo(
+            path,
+            { strokeDashoffset: segmentStart },
+            {
+              strokeDashoffset: segmentEnd,
+              ease: 'none',
+              immediateRender: false,
+              scrollTrigger: {
+                trigger: marker,
+                start: 'top 55%', // Start AFTER marker is revealed
+                end: () => {
+                  // End when next marker starts appearing
+                  const nextRect = nextMarker.getBoundingClientRect();
+                  return `+=${nextRect.top - marker.getBoundingClientRect().top - 100}`;
+                },
+                scrub: 1,
+              },
+            }
+          );
+        }
       });
     }
-
-    // Staggered item reveal - starts BEFORE line animation
-    gsap.fromTo(
-      '.timeline__item',
-      { opacity: 0, y: 40 },
-      {
-        opacity: 1,
-        y: 0,
-        stagger: 0.2,
-        ease: ANIMATION_CONFIG.ease.reveal,
-        scrollTrigger: {
-          trigger: '.timeline',
-          start: 'top 85%',
-          end: 'bottom 55%',
-          scrub: 1,
-        },
-      }
-    );
   });
 </script>
