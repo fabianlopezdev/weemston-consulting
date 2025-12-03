@@ -247,8 +247,20 @@ export default defineType({
     {
       name: 'heading',
       title: 'Text',
-      type: 'string',
-      description: 'The primary headline for this page',
+      type: 'array',
+      of: [
+        {
+          type: 'block',
+          styles: [], // No heading styles - just plain text
+          lists: [], // No lists
+          marks: {
+            decorators: [], // No bold/italic
+            annotations: [], // No links
+          },
+        },
+      ],
+      description:
+        'The primary headline for this page. Press Enter to create a line break.',
       fieldset: 'heading',
     },
     {

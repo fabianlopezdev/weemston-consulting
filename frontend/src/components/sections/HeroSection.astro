@@ -8,6 +8,8 @@ import {
 } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
+import { toPlainText } from '@portabletext/toolkit';
+import type { PortableTextBlock } from '@portabletext/types';
 
 interface LinkData {
   linkType: 'internal' | 'external';
@@ -41,7 +43,7 @@ interface BackgroundSettings {
 interface Props {
   tagline?: string;
   taglineColor?: 'base' | 'contrast';
-  heading: string;
+  heading: PortableTextBlock[] | string;
   headingColor?: 'base' | 'contrast';
   subheading?: string;
   subheadingColor?: 'base' | 'contrast';
@@ -75,6 +77,26 @@ if (bgStyle.type === 'image' && bgStyle.image) {
 // Helper to resolve text color
 const getTextColor = (color?: 'base' | 'contrast') =>
   color === 'base' ? '#1a1a1a' : undefined; // undefined = use default white from CSS
+
+// Convert heading to HTML with line breaks
+const getHeadingHtml = (
+  content: PortableTextBlock[] | string | undefined
+): string => {
+  if (!content) return '';
+  // Handle legacy string content
+  if (typeof content === 'string') return content;
+  // Extract text from each block and join with single <br>
+  // toPlainText adds double newlines between blocks, so we extract manually
+  const lines = content.map((block) => {
+    if (block._type === 'block' && block.children) {
+      return (block.children as Array<{ text?: string }>)
+        .map((child) => child.text || '')
+        .join('');
+    }
+    return '';
+  });
+  return lines.filter(Boolean).join('<br>');
+};
 
 const ctaHref = ctaButton ? resolveLinkUrl(ctaButton) : null;
 const ctaOpenInNewTab =
@@ -112,9 +134,8 @@ const ctaTextColor = ctaButton
       style={getTextColor(headingColor)
         ? `color: ${getTextColor(headingColor)}`
         : undefined}
-    >
-      {heading}
-    </h1>
+      set:html={getHeadingHtml(heading)}
+    />
     {
       tagline && (
         <p
@@ -234,8 +255,8 @@ const ctaTextColor = ctaButton
     z-index: 2; /* Ensure content is above overlay */
     text-align: center;
     color: white; /* Ensure text is white on dark overlay/gradient */
-    max-width: 800px; /* Constrain width for better readability */
-    margin-inline: auto;
+    /* No max-width - title can span full width, user controls breaks in Sanity */
+    /* Horizontal padding provided by .container class */
 
     /* Entry Animation */
     animation: slideUpFade 0.8s ease-out forwards;
@@ -256,8 +277,12 @@ const ctaTextColor = ctaButton
     margin-block-end: var(--space-md);
     line-height: 1.1;
     font-weight: 400;
-    text-wrap: balance;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    /* Break out of container constraint to span full hero width */
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    padding-inline: var(--space-lg);
+    box-sizing: border-box;
   }
 
   .hero__subheading {
