@@ -137,20 +137,6 @@ const ctaTextColor = ctaButton
       set:html={getHeadingHtml(heading)}
     />
     {
-      tagline && (
-        <p
-          class="hero__subheading"
-          style={
-            getTextColor(taglineColor)
-              ? `color: ${getTextColor(taglineColor)}`
-              : undefined
-          }
-        >
-          {tagline}
-        </p>
-      )
-    }
-    {
       subheading && (
         <p
           class="hero__intro"
@@ -161,6 +147,20 @@ const ctaTextColor = ctaButton
           }
         >
           {subheading}
+        </p>
+      )
+    }
+    {
+      tagline && (
+        <p
+          class="hero__subheading"
+          style={
+            getTextColor(taglineColor)
+              ? `color: ${getTextColor(taglineColor)}`
+              : undefined
+          }
+        >
+          {tagline}
         </p>
       )
     }
@@ -289,6 +289,7 @@ const ctaTextColor = ctaButton
     font-size: var(--font-size-lg);
     margin-block-end: var(--space-md);
     opacity: 0.9;
+    margin-inline: auto;
   }
 
   .hero__intro {

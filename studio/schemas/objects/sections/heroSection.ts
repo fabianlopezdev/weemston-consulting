@@ -8,13 +8,13 @@ export default defineType({
   fieldsets: [
     { name: 'heading', title: 'Main Heading' },
     {
-      name: 'tagline',
-      title: 'Tagline (optional)',
+      name: 'intro',
+      title: 'Intro Paragraph (optional)',
       options: { collapsible: true, collapsed: true },
     },
     {
-      name: 'intro',
-      title: 'Intro Paragraph (optional)',
+      name: 'tagline',
+      title: 'Tagline (optional)',
       options: { collapsible: true, collapsed: true },
     },
     {
@@ -279,33 +279,11 @@ export default defineType({
       fieldset: 'heading',
     },
     {
-      name: 'tagline',
-      title: 'Text',
-      type: 'string',
-      description: 'Secondary headline below the main heading',
-      fieldset: 'tagline',
-    },
-    {
-      name: 'taglineColor',
-      title: 'Text Color',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Contrast', value: 'contrast' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'base',
-      fieldset: 'tagline',
-    },
-    {
       name: 'subheading',
       title: 'Text',
       type: 'text',
       rows: 3,
-      description: 'Supporting paragraph text below the subheading',
+      description: 'Supporting paragraph text below the heading',
       fieldset: 'intro',
     },
     {
@@ -322,6 +300,28 @@ export default defineType({
       },
       initialValue: 'base',
       fieldset: 'intro',
+    },
+    {
+      name: 'tagline',
+      title: 'Text',
+      type: 'string',
+      description: 'Secondary headline below the intro paragraph',
+      fieldset: 'tagline',
+    },
+    {
+      name: 'taglineColor',
+      title: 'Text Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
+      fieldset: 'tagline',
     },
     {
       name: 'ctaButton',
