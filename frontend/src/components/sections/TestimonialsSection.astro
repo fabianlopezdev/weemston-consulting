@@ -162,6 +162,44 @@ const cards = testimonials.map(renderCard);
         role="region"
         aria-label="Client testimonials"
       >
+        <button
+          type="button"
+          class="testimonials-marquee__arrow testimonials-marquee__arrow--prev"
+          aria-label="Previous testimonial"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 19l-7-7 7-7"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="testimonials-marquee__arrow testimonials-marquee__arrow--next"
+          aria-label="Next testimonial"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path
+              d="M9 5l7 7-7 7"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </button>
+
         <div class="testimonials-marquee__track">
           {/* First set of cards */}
           {
@@ -276,6 +314,12 @@ const cards = testimonials.map(renderCard);
     const marquee = document.querySelector(
       '.testimonials-marquee'
     ) as HTMLElement;
+    const prevBtn = document.querySelector(
+      '.testimonials-marquee__arrow--prev'
+    ) as HTMLButtonElement;
+    const nextBtn = document.querySelector(
+      '.testimonials-marquee__arrow--next'
+    ) as HTMLButtonElement;
 
     if (!track || !marquee) return;
 
@@ -283,6 +327,19 @@ const cards = testimonials.map(renderCard);
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
     ).matches;
+
+    // Get card width + gap for scroll distance
+    const getCardScrollDistance = (): number => {
+      const card = track.querySelector('.testimonial-card') as HTMLElement;
+      if (!card) return 500;
+      const style = getComputedStyle(track);
+      const gap = parseFloat(style.gap) || 24;
+      return card.offsetWidth + gap;
+    };
+
+    // Pause timer reference
+    let resumeTimeout: number | null = null;
+    const PAUSE_DURATION = 3000;
 
     if (!prefersReducedMotion) {
       // Calculate dimensions
@@ -298,6 +355,71 @@ const cards = testimonials.map(renderCard);
         repeat: -1,
       });
 
+      // Wrap position helper for infinite scroll
+      const wrapPosition = () => {
+        const x = gsap.getProperty(track, 'x') as number;
+        if (x < -trackWidth) {
+          gsap.set(track, { x: x + trackWidth });
+        } else if (x > 0) {
+          gsap.set(track, { x: x - trackWidth });
+        }
+      };
+
+      // Clear any pending resume and pause timeline
+      const pauseAutoScroll = () => {
+        if (resumeTimeout) {
+          clearTimeout(resumeTimeout);
+          resumeTimeout = null;
+        }
+        tl.pause();
+      };
+
+      // Resume after delay
+      const resumeAutoScroll = (delay: number = 0) => {
+        if (resumeTimeout) {
+          clearTimeout(resumeTimeout);
+        }
+        if (delay > 0) {
+          resumeTimeout = window.setTimeout(() => {
+            tl.resume();
+            resumeTimeout = null;
+          }, delay);
+        } else {
+          tl.resume();
+        }
+      };
+
+      // Arrow click handler
+      const scrollByCard = (direction: 'prev' | 'next') => {
+        pauseAutoScroll();
+
+        const scrollDistance = getCardScrollDistance();
+        const currentX = gsap.getProperty(track, 'x') as number;
+        const targetX =
+          direction === 'next'
+            ? currentX - scrollDistance
+            : currentX + scrollDistance;
+
+        gsap.to(track, {
+          x: targetX,
+          duration: 0.5,
+          ease: 'power2.out',
+          onUpdate: wrapPosition,
+          onComplete: () => {
+            wrapPosition();
+            resumeAutoScroll(PAUSE_DURATION);
+          },
+        });
+      };
+
+      // Bind arrow buttons
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => scrollByCard('prev'));
+      }
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => scrollByCard('next'));
+      }
+
       // Create draggable instance
       Draggable.create(track, {
         type: 'x',
@@ -305,31 +427,42 @@ const cards = testimonials.map(renderCard);
         cursor: 'grab',
         activeCursor: 'grabbing',
         onDragStart: () => {
-          tl.pause();
+          pauseAutoScroll();
         },
-        onDrag: function () {
-          // Wrap position for infinite scroll effect
-          const x = gsap.getProperty(track, 'x') as number;
-          if (x < -trackWidth) {
-            gsap.set(track, { x: x + trackWidth });
-          } else if (x > 0) {
-            gsap.set(track, { x: x - trackWidth });
-          }
-        },
-        onThrowUpdate: function () {
-          // Wrap position during inertia throw
-          const x = gsap.getProperty(track, 'x') as number;
-          if (x < -trackWidth) {
-            gsap.set(track, { x: x + trackWidth });
-          } else if (x > 0) {
-            gsap.set(track, { x: x - trackWidth });
-          }
+        onDrag: wrapPosition,
+        onThrowUpdate: wrapPosition,
+        onThrowComplete: () => {
+          wrapPosition();
+          resumeAutoScroll(PAUSE_DURATION);
         },
       });
 
-      // Pause on hover, resume on leave
-      marquee.addEventListener('mouseenter', () => tl.pause());
-      marquee.addEventListener('mouseleave', () => tl.resume());
+      // Pause on hover (mouse only)
+      marquee.addEventListener('mouseenter', () => {
+        if (!resumeTimeout) {
+          tl.pause();
+        }
+      });
+
+      marquee.addEventListener('mouseleave', () => {
+        if (!resumeTimeout) {
+          tl.resume();
+        }
+      });
+    } else {
+      // Reduced motion mode: arrows still work for manual scroll
+      if (prevBtn && nextBtn) {
+        const scrollByCard = (direction: 'prev' | 'next') => {
+          const scrollDistance = getCardScrollDistance();
+          marquee.scrollBy({
+            left: direction === 'next' ? scrollDistance : -scrollDistance,
+            behavior: 'auto',
+          });
+        };
+
+        prevBtn.addEventListener('click', () => scrollByCard('prev'));
+        nextBtn.addEventListener('click', () => scrollByCard('next'));
+      }
     }
 
     // Keep existing section contract animation
@@ -383,6 +516,74 @@ const cards = testimonials.map(renderCard);
       black 95%,
       transparent
     );
+  }
+
+  /* Arrow navigation buttons */
+  .testimonials-marquee__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+
+    /* Button reset + sizing */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+
+    /* Styling */
+    background-color: color-mix(
+      in srgb,
+      var(--ts-bg, var(--color-background)) 80%,
+      transparent
+    );
+    border: 1px solid
+      var(
+        --ts-card-border,
+        color-mix(in srgb, var(--color-primary) 30%, transparent)
+      );
+    border-radius: var(--border-radius-full, 9999px);
+
+    /* Icon color */
+    color: var(--ts-text, var(--color-text));
+
+    /* Interaction */
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast, 150ms),
+      border-color var(--transition-fast, 150ms),
+      transform var(--transition-fast, 150ms);
+  }
+
+  .testimonials-marquee__arrow:hover {
+    background-color: var(--ts-bg, var(--color-background));
+    border-color: var(--color-primary);
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  .testimonials-marquee__arrow:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .testimonials-marquee__arrow:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .testimonials-marquee__arrow--prev {
+    left: var(--space-md);
+  }
+
+  .testimonials-marquee__arrow--next {
+    right: var(--space-md);
+  }
+
+  .testimonials-marquee__arrow svg {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
   }
 
   /* Animated track */
@@ -465,6 +666,31 @@ const cards = testimonials.map(renderCard);
   @media (max-width: 768px) {
     .testimonial-card {
       width: 350px;
+    }
+
+    .testimonials-marquee__arrow {
+      width: 40px;
+      height: 40px;
+    }
+
+    .testimonials-marquee__arrow svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .testimonials-marquee__arrow--prev {
+      left: var(--space-sm);
+    }
+
+    .testimonials-marquee__arrow--next {
+      right: var(--space-sm);
+    }
+  }
+
+  /* Hide arrows on touch devices where swipe is more natural */
+  @media (hover: none) and (pointer: coarse) {
+    .testimonials-marquee__arrow {
+      display: none;
     }
   }
 
