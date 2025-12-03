@@ -269,8 +269,9 @@ const pageSectionsQuery = `
     _type == "aboutSection" => {
       title,
       showTitle,
-      content,
+      tagline,
       fontSize,
+      description,
       backgroundColorType,
       backgroundColorShade,
       backgroundCustomColor { label, value },

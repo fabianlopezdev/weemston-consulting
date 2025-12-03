@@ -108,28 +108,36 @@ export default defineType({
       hidden: ({ parent }) => !parent?.enabled,
     },
     {
-      name: 'content',
-      title: 'Content',
+      name: 'tagline',
+      title: 'Tagline',
       type: 'portableText',
       description:
-        'Use bold text to highlight words - they will appear in the accent color',
+        'Large opening statement in Lora serif font. Use bold for accent highlights.',
       validation: (Rule) =>
         Rule.custom((value, context) => {
           const parent = context.parent as { enabled?: boolean };
           if (!parent?.enabled) return true;
-          return value ? true : 'Content is required when section is enabled';
+          return value ? true : 'Tagline is required when section is enabled';
         }),
       hidden: ({ parent }) => !parent?.enabled,
     },
     {
       name: 'fontSize',
-      title: 'Text Size',
+      title: 'Tagline Size',
       type: 'number',
       initialValue: 2,
-      description: 'Font size in rem units (1.5-4rem)',
+      description: 'Tagline font size in rem units (1.5-4rem)',
       components: {
         input: AboutSizeInput,
       },
+      hidden: ({ parent }) => !parent?.enabled,
+    },
+    {
+      name: 'description',
+      title: 'Description',
+      type: 'portableText',
+      description:
+        'Descriptive text below tagline in Now sans-serif font. Use bold for accent highlights.',
       hidden: ({ parent }) => !parent?.enabled,
     },
   ],

@@ -26,7 +26,8 @@ interface PortableTextBlock {
 interface Props {
   title: string;
   showTitle?: boolean;
-  content: PortableTextBlock[];
+  tagline?: PortableTextBlock[];
+  description?: PortableTextBlock[];
   fontSize?: number;
   // Color settings
   backgroundColorType?:
@@ -43,7 +44,8 @@ interface Props {
 const {
   title,
   showTitle = true,
-  content,
+  tagline,
+  description,
   fontSize = 2,
   backgroundColorType = 'default',
   backgroundColorShade = 0,
@@ -101,9 +103,15 @@ const renderChildren = (children: PortableTextChild[] | undefined) => {
     .join('');
 };
 
-// Group blocks by paragraph (split by empty blocks or different styles)
-const paragraphs =
-  content
+// Process tagline blocks
+const taglineParagraphs =
+  tagline
+    ?.filter((block: PortableTextBlock) => block._type === 'block')
+    .map((block: PortableTextBlock) => renderChildren(block.children)) || [];
+
+// Process description blocks
+const descriptionParagraphs =
+  description
     ?.filter((block: PortableTextBlock) => block._type === 'block')
     .map((block: PortableTextBlock) => renderChildren(block.children)) || [];
 ---
@@ -115,17 +123,25 @@ const paragraphs =
     </SectionTitle>
 
     <div class="about-section__content">
-      <div class="about-section__text">
-        {
-          paragraphs.map((paragraphHtml) => (
-            <p
-              class="about-section__paragraph"
-              data-animated="true"
-              set:html={paragraphHtml}
-            />
-          ))
-        }
-      </div>
+      {
+        taglineParagraphs.length > 0 && (
+          <div class="about-section__tagline">
+            {taglineParagraphs.map((paragraphHtml) => (
+              <p set:html={paragraphHtml} />
+            ))}
+          </div>
+        )
+      }
+
+      {
+        descriptionParagraphs.length > 0 && (
+          <div class="about-section__description">
+            {descriptionParagraphs.map((paragraphHtml) => (
+              <p set:html={paragraphHtml} />
+            ))}
+          </div>
+        )
+      }
     </div>
   </div>
 </section>
@@ -140,7 +156,8 @@ const paragraphs =
     margin-inline: auto;
   }
 
-  .about-section__paragraph {
+  /* Tagline: Large Lora (serif) */
+  .about-section__tagline p {
     font-family: var(--font-heading);
     font-size: var(--about-font-size, 2rem);
     text-align: center;
@@ -148,11 +165,33 @@ const paragraphs =
     color: var(--about-text, var(--color-text));
   }
 
-  .about-section__paragraph:last-child {
+  .about-section__tagline p:last-child {
+    margin-block-end: var(--space-lg);
+  }
+
+  /* Description: Smaller Now (sans-serif) */
+  .about-section__description p {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-lg);
+    text-align: center;
+    margin-inline: auto;
+    margin-block-end: var(--space-md);
+    color: var(--about-text, var(--color-text));
+    line-height: var(--line-height-relaxed);
+  }
+
+  .about-section__description p:last-child {
     margin-block-end: 0;
+  }
+
+  /* Highlight styling for both */
+  .about-section__tagline :global(.highlight),
+  .about-section__description :global(.highlight) {
+    color: var(--color-accent);
   }
 </style>
 
+<!-- Animation disabled per client request
 <script>
   import { setupAnimationLifecycle, createTextReveal } from '@lib/animation';
 
@@ -162,3 +201,4 @@ const paragraphs =
     });
   });
 </script>
+-->

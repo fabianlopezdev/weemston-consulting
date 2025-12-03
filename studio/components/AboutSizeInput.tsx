@@ -24,7 +24,7 @@ export function AboutSizeInput(props: NumberInputProps) {
       {/* Size Slider */}
       <Stack space={2}>
         <Text size={1} weight="semibold">
-          Text Size
+          Tagline Size
         </Text>
         <Flex align="center" gap={3}>
           <Text size={1} muted>
@@ -73,7 +73,7 @@ export function AboutSizeInput(props: NumberInputProps) {
               maxWidth: '100%',
             }}
           >
-            Preview your about section text at this size
+            Preview the tagline font size
           </p>
         </Box>
       </Card>
