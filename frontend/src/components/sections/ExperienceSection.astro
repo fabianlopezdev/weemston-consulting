@@ -31,6 +31,9 @@ interface ExperienceCard {
   title: string;
   description: string;
   iconOrImage: IconOrImage;
+  iconBackgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  iconBackgroundColorShade?: number;
+  iconBackgroundCustomColor?: ColorData;
 }
 
 interface ColorData {
@@ -127,6 +130,28 @@ const cardImages = cards.map((card) => {
     : null;
 });
 
+// Resolve icon background colors for each card
+const cardIconBgColors = cards.map((card) => {
+  if (card.iconOrImage?.type !== 'icon') return null;
+
+  // For custom color or when no selection, use custom color or fallback to original
+  if (
+    !card.iconBackgroundColorType ||
+    card.iconBackgroundColorType === 'custom'
+  ) {
+    return card.iconBackgroundCustomColor?.value || null;
+  }
+
+  return resolveColorSelection(
+    {
+      colorType: card.iconBackgroundColorType,
+      shade: card.iconBackgroundColorShade,
+      customColor: card.iconBackgroundCustomColor,
+    },
+    siteColors
+  );
+});
+
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
   '--experience-desc-color':
@@ -205,10 +230,17 @@ const cssVarsString = Object.entries(cssVars)
                       loading="lazy"
                     />
                   ) : (
-                    <div class="experience-card__image-placeholder">
+                    <div
+                      class="experience-card__image-placeholder"
+                      style={
+                        cardIconBgColors[index]
+                          ? `--icon-bg: ${cardIconBgColors[index]}`
+                          : undefined
+                      }
+                    >
                       {card.iconOrImage?.type === 'icon' &&
                         card.iconOrImage.icon?.name && (
-                          <Icon name={card.iconOrImage.icon.name} />
+                          <Icon name={card.iconOrImage.icon.name} is:inline />
                         )}
                     </div>
                   )}
@@ -274,10 +306,17 @@ const cssVarsString = Object.entries(cssVars)
                     loading="lazy"
                   />
                 ) : (
-                  <div class="experience-accordion__image-placeholder">
+                  <div
+                    class="experience-accordion__image-placeholder"
+                    style={
+                      cardIconBgColors[index]
+                        ? `--icon-bg: ${cardIconBgColors[index]}`
+                        : undefined
+                    }
+                  >
                     {card.iconOrImage?.type === 'icon' &&
                       card.iconOrImage.icon?.name && (
-                        <Icon name={card.iconOrImage.icon.name} />
+                        <Icon name={card.iconOrImage.icon.name} is:inline />
                       )}
                   </div>
                 )}
@@ -484,16 +523,27 @@ const cssVarsString = Object.entries(cssVars)
   .experience-card__image-placeholder {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #e0d5c9 0%, #c9bfb3 100%);
+    background: var(
+      --icon-bg,
+      linear-gradient(135deg, #e0d5c9 0%, #c9bfb3 100%)
+    );
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-text-muted, #94877c);
+    color: color-mix(in srgb, var(--icon-bg, #c9bfb3) 80%, black);
   }
 
   .experience-card__image-placeholder :global(svg) {
-    width: 64px;
-    height: 64px;
+    width: 50%;
+    height: 50%;
+    max-width: 180px;
+    max-height: 180px;
+  }
+
+  .experience-card__image-placeholder :global(svg),
+  .experience-card__image-placeholder :global(svg *) {
+    color: color-mix(in srgb, var(--icon-bg, #c9bfb3) 80%, black);
+    stroke: color-mix(in srgb, var(--icon-bg, #c9bfb3) 60%, black);
   }
 
   .experience-card__content {
@@ -662,10 +712,27 @@ const cssVarsString = Object.entries(cssVars)
   .experience-accordion__image-placeholder {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #e0d5c9 0%, #c9bfb3 100%);
+    background: var(
+      --icon-bg,
+      linear-gradient(135deg, #e0d5c9 0%, #c9bfb3 100%)
+    );
     display: flex;
     align-items: center;
     justify-content: center;
+    color: color-mix(in srgb, var(--icon-bg, #c9bfb3) 80%, black);
+  }
+
+  .experience-accordion__image-placeholder :global(svg) {
+    width: 50%;
+    height: 50%;
+    max-width: 140px;
+    max-height: 140px;
+  }
+
+  .experience-accordion__image-placeholder :global(svg),
+  .experience-accordion__image-placeholder :global(svg *) {
+    color: color-mix(in srgb, var(--icon-bg, #c9bfb3) 80%, black);
+    stroke: color-mix(in srgb, var(--icon-bg, #c9bfb3) 60%, black);
   }
 
   .experience-accordion__description {

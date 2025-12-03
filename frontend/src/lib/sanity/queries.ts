@@ -301,6 +301,9 @@ const pageSectionsQuery = `
         number,
         title,
         description,
+        iconBackgroundColorType,
+        iconBackgroundColorShade,
+        iconBackgroundCustomColor { label, value },
         iconOrImage {
           type,
           icon {
