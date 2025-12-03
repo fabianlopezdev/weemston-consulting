@@ -53,6 +53,4 @@ export {
   createHeroReveal,
   createFadeIn,
   createSectionContract,
-  createHeaderThemeSwitcher,
-  registerDarkElements,
 } from './presets';

@@ -218,10 +218,7 @@ const cssVarsString = Object.entries(cssVars)
                 data-active={index === 0 ? 'true' : 'false'}
                 aria-hidden={index !== 0 ? 'true' : 'false'}
               >
-                <div
-                  class="experience-card__image-wrapper"
-                  data-header-theme="dark"
-                >
+                <div class="experience-card__image-wrapper">
                   {cardImages[index] ? (
                     <img
                       src={cardImages[index]}
@@ -294,10 +291,7 @@ const cssVarsString = Object.entries(cssVars)
               </span>
             </button>
             <div class="experience-accordion__content">
-              <div
-                class="experience-accordion__image-wrapper"
-                data-header-theme="dark"
-              >
+              <div class="experience-accordion__image-wrapper">
                 {cardImages[index] ? (
                   <img
                     src={cardImages[index]}

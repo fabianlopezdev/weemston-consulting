@@ -89,14 +89,6 @@ export const GRADIENT_PRESETS = {
     revealed: 'var(--color-accent)',
     hidden: 'color-mix(in srgb, var(--color-accent), rgb(200, 200, 200) 60%)',
   },
-
-  /**
-   * White text revealing from dark gray (for dark backgrounds)
-   */
-  lightOnDark: {
-    revealed: 'rgb(255, 255, 255)',
-    hidden: 'rgb(37, 37, 37)',
-  },
 } as const;
 
 /**
