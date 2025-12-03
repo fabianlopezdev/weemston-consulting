@@ -436,7 +436,9 @@ const cssVarsString = Object.entries(cssVars)
         // Path segment grows OUT OF this marker AFTER it appears
         // (except for last marker - no segment after it)
         if (index < numMarkers - 1) {
-          const nextMarker = markers[index + 1];
+          const nextMarker = markers[index + 1] as HTMLElement;
+          if (!nextMarker) return;
+
           // Calculate segment start and end points
           const segmentStart = pathLength * (1 - index / (numMarkers - 1));
           const segmentEnd = pathLength * (1 - (index + 1) / (numMarkers - 1));

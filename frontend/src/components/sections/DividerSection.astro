@@ -1,0 +1,135 @@
+---
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface Props {
+  style?: 'line-diamond' | 'line-dot' | 'line' | 'dots';
+  spacing?: 'sm' | 'md' | 'lg';
+  accentColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  accentCustomColor?: ColorData;
+}
+
+const {
+  style = 'line-diamond',
+  spacing = 'md',
+  accentColorType = 'accent',
+  accentCustomColor,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve accent color
+const accentColor = resolveColorSelection(
+  {
+    colorType: accentColorType,
+    customColor: accentCustomColor,
+  },
+  siteColors
+);
+
+// Map spacing to CSS custom properties
+const spacingMap = {
+  sm: 'var(--space-lg)',
+  md: 'var(--space-xl)',
+  lg: 'var(--space-2xl)',
+};
+
+const cssVars = `--divider-color: ${accentColor}; --divider-spacing: ${spacingMap[spacing]}`;
+---
+
+<div
+  class={`divider divider--${style}`}
+  style={cssVars}
+  role="separator"
+  aria-hidden="true"
+>
+  {
+    style === 'line-diamond' && (
+      <>
+        <span class="divider__line" />
+        <span class="divider__diamond" />
+        <span class="divider__line" />
+      </>
+    )
+  }
+  {
+    style === 'line-dot' && (
+      <>
+        <span class="divider__line" />
+        <span class="divider__dot" />
+        <span class="divider__line" />
+      </>
+    )
+  }
+  {style === 'line' && <span class="divider__line divider__line--full" />}
+  {
+    style === 'dots' && (
+      <>
+        <span class="divider__dot" />
+        <span class="divider__dot" />
+        <span class="divider__dot" />
+      </>
+    )
+  }
+</div>
+
+<style>
+  .divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: var(--divider-spacing) 0;
+    width: 100%;
+  }
+
+  .divider__line {
+    height: 1px;
+    width: min(120px, 15%);
+    background: color-mix(in srgb, var(--divider-color) 40%, transparent);
+  }
+
+  .divider__line--full {
+    width: min(280px, 40%);
+  }
+
+  .divider__diamond {
+    width: 8px;
+    height: 8px;
+    background: var(--divider-color);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+
+  .divider__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--divider-color);
+    flex-shrink: 0;
+  }
+
+  /* Dots style - smaller gap between dots */
+  .divider--dots {
+    gap: 0.5rem;
+  }
+
+  .divider--dots .divider__dot:nth-child(2) {
+    opacity: 0.6;
+  }
+
+  .divider--dots .divider__dot:first-child,
+  .divider--dots .divider__dot:last-child {
+    width: 4px;
+    height: 4px;
+    opacity: 0.4;
+  }
+</style>

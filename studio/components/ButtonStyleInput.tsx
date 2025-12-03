@@ -12,9 +12,14 @@ export function ButtonStyleInput(props: ObjectInputProps) {
   const { value, onChange } = props;
   const buttonStyle = (value as ButtonStyleValue) || {};
 
+  // DEBUG: Track what values we receive
+  console.log('[ButtonStyleInput] value from props:', value);
+  console.log('[ButtonStyleInput] buttonStyle:', buttonStyle);
+
   const handleBorderRadiusChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const nextValue = parseFloat(event.target.value);
+      console.log('[ButtonStyleInput] onChange - borderRadius:', nextValue, 'previous:', buttonStyle.borderRadius);
       onChange(
         set({
           ...buttonStyle,
@@ -28,6 +33,7 @@ export function ButtonStyleInput(props: ObjectInputProps) {
   const handleVerticalPaddingChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const nextValue = parseFloat(event.target.value);
+      console.log('[ButtonStyleInput] onChange - verticalPadding:', nextValue, 'previous:', buttonStyle.verticalPadding);
       onChange(
         set({
           ...buttonStyle,
@@ -41,6 +47,7 @@ export function ButtonStyleInput(props: ObjectInputProps) {
   const handleHorizontalPaddingChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const nextValue = parseFloat(event.target.value);
+      console.log('[ButtonStyleInput] onChange - horizontalPadding:', nextValue, 'previous:', buttonStyle.horizontalPadding);
       onChange(
         set({
           ...buttonStyle,

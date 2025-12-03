@@ -19,6 +19,7 @@ import aboutSection from './objects/sections/aboutSection';
 import experienceSection from './objects/sections/experienceSection';
 import ourApproachSection from './objects/sections/ourApproachSection';
 import howWeWorkSection from './objects/sections/howWeWorkSection';
+import dividerSection from './objects/sections/dividerSection';
 
 // Document types
 import service from './documents/service';
@@ -55,6 +56,7 @@ export const schemaTypes = [
   experienceSection,
   ourApproachSection,
   howWeWorkSection,
+  dividerSection,
   // Documents
   service,
   caseStudy,

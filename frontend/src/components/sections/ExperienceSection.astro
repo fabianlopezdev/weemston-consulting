@@ -145,7 +145,7 @@ const cardIconBgColors = cards.map((card) => {
   return resolveColorSelection(
     {
       colorType: card.iconBackgroundColorType,
-      shade: card.iconBackgroundColorShade,
+      shade: card.iconBackgroundColorShade ?? 500,
       customColor: card.iconBackgroundCustomColor,
     },
     siteColors
