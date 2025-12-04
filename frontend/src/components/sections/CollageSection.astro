@@ -1,0 +1,359 @@
+---
+import { urlForImage } from '@lib/sanity/image';
+
+interface CollageImage {
+  _key: string;
+  asset: any;
+  alt: string;
+  hotspot?: { x: number; y: number };
+}
+
+interface Props {
+  enabled?: boolean;
+  tagline: string;
+  taglineSize?: 'medium' | 'large' | 'xlarge';
+  images: CollageImage[];
+  overlayStyle?: 'frosted' | 'gradient' | 'solid';
+  overlayOpacity?: number;
+}
+
+const {
+  tagline,
+  taglineSize = 'large',
+  images = [],
+  overlayStyle = 'frosted',
+  overlayOpacity = 60,
+} = Astro.props;
+
+// Generate optimized image URLs
+const imageUrls = images.map((img) => ({
+  url: urlForImage(img).width(800).height(450).url(),
+  alt: img.alt || '',
+  hotspot: img.hotspot,
+}));
+
+// Duplicate images for seamless infinite scroll effect
+const duplicatedImages = [...imageUrls, ...imageUrls];
+
+// Calculate overlay styles based on settings
+const getOverlayStyles = () => {
+  const opacity = overlayOpacity / 100;
+
+  switch (overlayStyle) {
+    case 'frosted':
+      return `
+        background: rgba(15, 15, 15, ${opacity * 0.85});
+        backdrop-filter: blur(12px) saturate(1.2);
+        -webkit-backdrop-filter: blur(12px) saturate(1.2);
+      `;
+    case 'gradient':
+      return `
+        background: linear-gradient(
+          135deg,
+          rgba(10, 10, 10, ${opacity}) 0%,
+          rgba(30, 30, 30, ${opacity * 0.8}) 50%,
+          rgba(10, 10, 10, ${opacity}) 100%
+        );
+      `;
+    case 'solid':
+    default:
+      return `background: rgba(10, 10, 10, ${opacity});`;
+  }
+};
+
+const taglineSizeClass = `collage__tagline--${taglineSize}`;
+---
+
+<section class="collage" data-overlay-style={overlayStyle}>
+  <div class="collage__track">
+    {duplicatedImages.map((img, index) => (
+      <div
+        class="collage__image-wrapper"
+        data-index={index % imageUrls.length}
+        style={img.hotspot ? `--hotspot-x: ${img.hotspot.x * 100}%; --hotspot-y: ${img.hotspot.y * 100}%;` : ''}
+      >
+        <img
+          src={img.url}
+          alt={img.alt}
+          class="collage__image"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    ))}
+  </div>
+
+  <div class="collage__overlay" style={getOverlayStyles()}>
+    <div class="collage__content">
+      <p class={`collage__tagline ${taglineSizeClass}`}>
+        <span class="collage__tagline-text">{tagline}</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Decorative accent lines -->
+  <div class="collage__accent collage__accent--top"></div>
+  <div class="collage__accent collage__accent--bottom"></div>
+</section>
+
+<style>
+  .collage {
+    --collage-height: clamp(280px, 35vh, 420px);
+    --image-gap: 0;
+    --accent-color: var(--color-accent, #c9a87c);
+
+    position: relative;
+    height: var(--collage-height);
+    overflow: hidden;
+    background: #0a0a0a;
+  }
+
+  .collage__track {
+    display: flex;
+    gap: var(--image-gap);
+    height: 100%;
+    will-change: transform;
+  }
+
+  .collage__image-wrapper {
+    flex: 0 0 auto;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .collage__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--hotspot-x, 50%) var(--hotspot-y, 50%);
+    will-change: transform;
+    transform: scale(1.1);
+    filter: grayscale(0.15) contrast(1.05);
+    transition: filter 0.6s ease;
+  }
+
+  /* Subtle vignette on each image */
+  .collage__image-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 40%,
+      rgba(0, 0, 0, 0.15) 100%
+    );
+    pointer-events: none;
+  }
+
+  .collage__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .collage__content {
+    text-align: center;
+    padding: var(--space-xl) var(--space-lg);
+    max-width: 900px;
+  }
+
+  .collage__tagline {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 400;
+    line-height: 1.2;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+    text-shadow:
+      0 2px 20px rgba(0, 0, 0, 0.5),
+      0 4px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .collage__tagline--medium {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+  }
+
+  .collage__tagline--large {
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+  }
+
+  .collage__tagline--xlarge {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+  }
+
+  .collage__tagline-text {
+    display: inline;
+    background: linear-gradient(
+      135deg,
+      #ffffff 0%,
+      rgba(255, 255, 255, 0.92) 50%,
+      #ffffff 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  /* Decorative accent lines */
+  .collage__accent {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--accent-color),
+      transparent
+    );
+    opacity: 0;
+    z-index: 3;
+  }
+
+  .collage__accent--top {
+    top: var(--space-md);
+  }
+
+  .collage__accent--bottom {
+    bottom: var(--space-md);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .collage {
+      --collage-height: clamp(220px, 30vh, 320px);
+    }
+
+    .collage__content {
+      padding: var(--space-lg) var(--space-md);
+    }
+
+    .collage__image-wrapper {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  /* Reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .collage__image {
+      transform: none;
+    }
+
+    .collage__tagline-text {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { setupAnimationLifecycle, gsap, ScrollTrigger, ANIMATION_CONFIG } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    const sections = document.querySelectorAll('.collage');
+
+    sections.forEach((section) => {
+      const track = section.querySelector('.collage__track') as HTMLElement;
+      const images = section.querySelectorAll('.collage__image');
+      const taglineText = section.querySelector('.collage__tagline-text');
+      const accents = section.querySelectorAll('.collage__accent');
+
+      if (!track) return;
+
+      // Calculate the width needed for seamless loop
+      const imageWrappers = track.querySelectorAll('.collage__image-wrapper');
+      const singleSetWidth = Array.from(imageWrappers)
+        .slice(0, imageWrappers.length / 2)
+        .reduce((acc, wrapper) => acc + (wrapper as HTMLElement).offsetWidth, 0);
+
+      // Entrance animation timeline
+      const entranceTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom-=10%',
+          end: 'top center',
+          scrub: 1,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+        },
+      });
+
+      // Fade in tagline with elegant reveal
+      entranceTl.to(taglineText, {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: 'power3.out',
+      }, 0);
+
+      // Fade in accent lines
+      entranceTl.to(accents, {
+        opacity: 0.6,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: 'power2.out',
+      }, 0.2);
+
+      // Horizontal scroll parallax - images move left as you scroll down
+      gsap.to(track, {
+        x: -singleSetWidth * 0.3, // Move 30% of one set
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 0.5,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+        },
+      });
+
+      // Subtle Ken Burns effect on individual images
+      images.forEach((img, index) => {
+        const direction = index % 2 === 0 ? 1 : -1;
+        const scaleStart = 1.1;
+        const scaleEnd = 1.15 + (index % 3) * 0.02;
+
+        gsap.fromTo(img,
+          {
+            scale: scaleStart,
+            x: direction * 5,
+          },
+          {
+            scale: scaleEnd,
+            x: direction * -5,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.5,
+              markers: ANIMATION_CONFIG.scrollTrigger.markers,
+            },
+          }
+        );
+      });
+
+      // Parallax depth effect - overlay moves slightly slower for depth
+      const overlay = section.querySelector('.collage__overlay');
+      if (overlay) {
+        gsap.to(overlay, {
+          y: -20,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+        });
+      }
+    });
+  });
+</script>

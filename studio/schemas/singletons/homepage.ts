@@ -71,6 +71,7 @@ export default defineType({
         { type: 'ourApproachSection' },
         { type: 'howWeWorkSection' },
         { type: 'dividerSection' },
+        { type: 'collageSection' },
       ],
     },
   ],
