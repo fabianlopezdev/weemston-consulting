@@ -635,6 +635,7 @@ const cssVarsString = Object.entries(cssVars)
     border-radius: 100px; /* Pill shape */
     cursor: pointer;
     white-space: nowrap;
+    will-change: transform;
 
     box-shadow:
       0 2px 8px rgba(0, 0, 0, 0.04),
@@ -982,6 +983,81 @@ const cssVarsString = Object.entries(cssVars)
           (badges[nextIndex] as HTMLElement).focus();
         }
       }) as EventListener);
+    });
+
+    // ========================================
+    // DESKTOP: Magnetic repulsion hover effect (GSAP-compatible)
+    // ========================================
+    badges.forEach((badge) => {
+      // Store the base position set by GSAP
+      let baseX = 0;
+      let baseY = 0;
+      let rafId: number | null = null;
+      let lastMouseX = 0;
+      let lastMouseY = 0;
+
+      badge.addEventListener('mouseenter', () => {
+        // Capture current GSAP position as base
+        const gsapTransform = gsap.getProperty(badge, 'x');
+        const gsapTransformY = gsap.getProperty(badge, 'y');
+        baseX = typeof gsapTransform === 'number' ? gsapTransform : 0;
+        baseY = typeof gsapTransformY === 'number' ? gsapTransformY : 0;
+      });
+
+      badge.addEventListener('mousemove', ((e: MouseEvent) => {
+        // Store latest mouse position
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+
+        // Throttle with RAF - only schedule if not already scheduled
+        if (rafId !== null) return;
+
+        rafId = requestAnimationFrame(() => {
+          const rect = badge.getBoundingClientRect();
+          const badgeCenterX = rect.left + rect.width / 2;
+          const badgeCenterY = rect.top + rect.height / 2;
+
+          // Calculate direction from cursor to badge center
+          const deltaX = badgeCenterX - lastMouseX;
+          const deltaY = badgeCenterY - lastMouseY;
+          const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+          if (distance > 0) {
+            // Normalize and apply subtle push (8px)
+            const pushStrength = 8;
+            const pushX = (deltaX / distance) * pushStrength;
+            const pushY = (deltaY / distance) * pushStrength;
+
+            // Animate using GSAP with relative positioning
+            gsap.to(badge, {
+              x: baseX + pushX,
+              y: baseY + pushY,
+              duration: 0.2,
+              ease: 'power2.out',
+              overwrite: true,
+            });
+          }
+
+          rafId = null; // Reset for next frame
+        });
+      }) as EventListener);
+
+      // Reset to base position on mouse leave
+      badge.addEventListener('mouseleave', () => {
+        // Cancel any pending RAF
+        if (rafId !== null) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+
+        gsap.to(badge, {
+          x: baseX,
+          y: baseY,
+          duration: 0.3,
+          ease: 'back.out(1.7)',
+          overwrite: true,
+        });
+      });
     });
 
     // ========================================
