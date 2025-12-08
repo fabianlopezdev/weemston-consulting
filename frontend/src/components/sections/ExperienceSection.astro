@@ -1,12 +1,7 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { urlForImage } from '@lib/sanity/image';
-import {
-  resolveColorSelection,
-  resolveButtonColor,
-  resolveButtonTextColor,
-} from '@lib/sanity/colorResolver';
-import { resolveLinkUrl } from '@lib/sanity/linkResolver';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 
@@ -39,18 +34,6 @@ interface ExperienceCard {
 interface ColorData {
   label?: string;
   value: string;
-}
-
-interface LinkData {
-  linkType: 'internal' | 'external';
-  internalPageType?: string;
-  serviceReference?: { slug: { current: string } };
-  caseStudyReference?: { slug: { current: string } };
-  legalReference?: { slug: { current: string } };
-  externalUrl?: string;
-  text: string;
-  openInNewTab?: boolean;
-  buttonColor?: any;
 }
 
 interface Props {
@@ -86,7 +69,6 @@ interface Props {
   circleBackgroundCustomColor?: ColorData;
   circleTextColor?: 'base' | 'contrast';
   cardDescriptionColor?: 'base' | 'contrast';
-  ctaButton?: LinkData;
 }
 
 const props = Astro.props as any;
@@ -100,7 +82,6 @@ const {
   backgroundColorShade = 0,
   backgroundCustomColor,
   cardDescriptionColor = 'base',
-  ctaButton,
 } = Astro.props;
 
 // Use new color fields directly
@@ -171,17 +152,6 @@ const circleBackgroundColor =
         },
         siteColors
       );
-
-// Resolve CTA button
-const ctaHref = ctaButton ? resolveLinkUrl(ctaButton) : null;
-const ctaOpenInNewTab =
-  ctaButton?.openInNewTab || ctaButton?.linkType === 'external';
-const ctaBgColor = ctaButton
-  ? resolveButtonColor(ctaButton.buttonColor, siteColors)
-  : null;
-const ctaTextColor = ctaButton
-  ? resolveButtonTextColor(ctaButton.buttonColor)
-  : null;
 
 // Generate image URLs - use larger size for the new layout
 const cardImages = cards.map((card) => {
@@ -330,27 +300,6 @@ const cssVarsString = Object.entries(cssVars)
       </div>
     </div>
 
-    <!-- CTA Button below orbital layout -->
-    {
-      ctaButton && ctaHref && (
-        <div class="experience-orbital__cta-wrapper">
-          <a
-            href={ctaHref}
-            class="experience-orbital__cta"
-            style={
-              ctaBgColor || ctaTextColor
-                ? `${ctaBgColor ? `background: ${ctaBgColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
-                : undefined
-            }
-            target={ctaOpenInNewTab ? '_blank' : undefined}
-            rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
-          >
-            {ctaButton.text}
-          </a>
-        </div>
-      )
-    }
-
     <!-- Mobile: Accordion layout -->
     <div class="experience-accordion">
       {
@@ -399,21 +348,6 @@ const cssVarsString = Object.entries(cssVars)
               <p class="experience-accordion__description">
                 {card.description}
               </p>
-              {ctaButton && ctaHref && (
-                <a
-                  href={ctaHref}
-                  class="experience-accordion__cta"
-                  style={
-                    ctaBgColor || ctaTextColor
-                      ? `${ctaBgColor ? `background: ${ctaBgColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
-                      : undefined
-                  }
-                  target={ctaOpenInNewTab ? '_blank' : undefined}
-                  rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
-                >
-                  {ctaButton.text}
-                </a>
-              )}
             </div>
           </div>
         ))
@@ -786,39 +720,6 @@ const cssVarsString = Object.entries(cssVars)
     line-height: 1.2;
   }
 
-  /* CTA wrapper - centers button below orbital */
-  .experience-orbital__cta-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-top: var(--space-xl);
-  }
-
-  @media (max-width: 900px) {
-    .experience-orbital__cta-wrapper {
-      display: none;
-    }
-  }
-
-  /* CTA button */
-  .experience-orbital__cta {
-    padding: var(--space-md) var(--space-xl);
-    background: var(--color-accent, #4ecdc4);
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: var(--font-size-base);
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-
-  .experience-orbital__cta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px
-      color-mix(in srgb, var(--color-accent) 30%, transparent);
-  }
-
   /* ========================================
      MOBILE: ACCORDION LAYOUT
      Hidden by default on desktop (>900px)
@@ -971,27 +872,7 @@ const cssVarsString = Object.entries(cssVars)
     font-size: var(--font-size-md, 1rem);
     color: var(--experience-card-desc-color, var(--color-text-muted, #94877c));
     line-height: 1.6;
-    margin: 0 0 var(--space-md, 1rem) 0;
-  }
-
-  .experience-accordion__cta {
-    display: inline-block;
-    align-self: flex-start;
-    padding: var(--button-padding-vertical, var(--space-md))
-      var(--button-padding-horizontal, var(--space-lg));
-    background: var(--color-accent, #4ecdc4);
-    color: white;
-    text-decoration: none;
-    border-radius: var(--button-border-radius, 4px);
-    font-weight: 600;
-  }
-
-  .experience-accordion__cta:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.1);
-    transition:
-      transform 0.2s,
-      filter 0.2s;
+    margin: 0;
   }
 
   /* ========================================

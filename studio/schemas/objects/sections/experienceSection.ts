@@ -26,11 +26,6 @@ export default defineType({
       title: 'Card Description',
       options: { collapsible: true, collapsed: true },
     },
-    {
-      name: 'ctaSettings',
-      title: 'CTA Button (optional)',
-      options: { collapsible: true, collapsed: true },
-    },
   ],
   fields: [
     {
@@ -292,15 +287,6 @@ export default defineType({
       initialValue: 'base',
       hidden: ({ parent }) => !parent?.enabled,
       fieldset: 'cardDescriptionSettings',
-    },
-    // CTA Button
-    {
-      name: 'ctaButton',
-      title: 'Button',
-      type: 'link',
-      description: 'Call to action button shown on each card',
-      hidden: ({ parent }) => !parent?.enabled,
-      fieldset: 'ctaSettings',
     },
     // Experience Cards
     {
