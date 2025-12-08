@@ -175,7 +175,10 @@ const cssVarsString = Object.entries(cssVars)
   .join('; ');
 ---
 
-<section class="experience-section" style={cssVarsString}>
+<section
+  class="experience-section"
+  style={`${cssVarsString}; --item-count: ${cards.length}`}
+>
   <div class="experience-section__container">
     <!-- Header -->
     <header class="experience-section__header">
@@ -187,88 +190,82 @@ const cssVarsString = Object.entries(cssVars)
       }
     </header>
 
-    <!-- Desktop: Two-column layout -->
-    <div class="experience-section__content">
-      <!-- Left Column: Navigation Items -->
-      <nav class="experience-nav" aria-label="Service navigation">
+    <!-- Desktop: Orbital layout with badges -->
+    <div class="experience-orbital">
+      <!-- Badges row - starts here, animates to orbital positions -->
+      <nav
+        class="experience-orbital__badges"
+        aria-label="Experience navigation"
+      >
         {
           cards.map((card, index) => (
             <button
               type="button"
-              class="experience-nav__item"
+              class="experience-orbital__badge"
               data-index={index}
-              data-active={index === 0 ? 'true' : 'false'}
-              aria-pressed={index === 0 ? 'true' : 'false'}
+              data-active="false"
+              aria-pressed="false"
             >
-              <span class="experience-nav__number">{card.number}</span>
-              <span class="experience-nav__title">{card.title}</span>
+              <span class="experience-orbital__badge-number">
+                {card.number}
+              </span>
+              <span class="experience-orbital__badge-divider" />
+              <span class="experience-orbital__badge-title">{card.title}</span>
             </button>
           ))
         }
       </nav>
 
-      <!-- Right Column: Detail Cards -->
-      <div class="experience-cards-wrapper">
-        <div class="experience-cards">
-          {
-            cards.map((card, index) => (
-              <article
-                class="experience-card"
-                data-index={index}
-                data-active={index === 0 ? 'true' : 'false'}
-                aria-hidden={index !== 0 ? 'true' : 'false'}
-              >
-                <div class="experience-card__image-wrapper">
-                  {cardImages[index] ? (
-                    <img
-                      src={cardImages[index]}
-                      alt={card.iconOrImage?.image?.alt || card.title}
-                      class="experience-card__image"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div
-                      class="experience-card__image-placeholder"
-                      style={
-                        cardIconBgColors[index]
-                          ? `--icon-bg: ${cardIconBgColors[index]}`
-                          : undefined
-                      }
-                    >
-                      {card.iconOrImage?.type === 'icon' &&
-                        card.iconOrImage.icon?.name && (
-                          <Icon name={card.iconOrImage.icon.name} is:inline />
-                        )}
-                    </div>
-                  )}
+      <!-- Central circle with description - revealed on scroll -->
+      <div class="experience-orbital__center">
+        <div class="experience-orbital__circle">
+          <div class="experience-orbital__circle-inner">
+            <!-- Default content when no item is hovered -->
+            <div class="experience-orbital__default" data-active="true">
+              <p class="experience-orbital__default-text">Hover to explore</p>
+            </div>
+            {
+              cards.map((card, index) => (
+                <div
+                  class="experience-orbital__description"
+                  data-index={index}
+                  data-active="false"
+                >
+                  <span class="experience-orbital__desc-number">
+                    {card.number}
+                  </span>
+                  <h3 class="experience-orbital__desc-title">{card.title}</h3>
+                  <p class="experience-orbital__desc-text">
+                    {card.description}
+                  </p>
                 </div>
-                <div class="experience-card__content">
-                  <h3 class="experience-card__title">{card.title}</h3>
-                  <p class="experience-card__description">{card.description}</p>
-                </div>
-              </article>
-            ))
-          }
+              ))
+            }
+          </div>
         </div>
-        {
-          ctaButton && ctaHref && (
-            <a
-              href={ctaHref}
-              class="experience-section__cta"
-              style={
-                ctaBgColor || ctaTextColor
-                  ? `${ctaBgColor ? `background: ${ctaBgColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
-                  : undefined
-              }
-              target={ctaOpenInNewTab ? '_blank' : undefined}
-              rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
-            >
-              {ctaButton.text}
-            </a>
-          )
-        }
       </div>
     </div>
+
+    <!-- CTA Button below orbital layout -->
+    {
+      ctaButton && ctaHref && (
+        <div class="experience-orbital__cta-wrapper">
+          <a
+            href={ctaHref}
+            class="experience-orbital__cta"
+            style={
+              ctaBgColor || ctaTextColor
+                ? `${ctaBgColor ? `background: ${ctaBgColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
+                : undefined
+            }
+            target={ctaOpenInNewTab ? '_blank' : undefined}
+            rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
+          >
+            {ctaButton.text}
+          </a>
+        </div>
+      )
+    }
 
     <!-- Mobile: Accordion layout -->
     <div class="experience-accordion">
@@ -346,8 +343,9 @@ const cssVarsString = Object.entries(cssVars)
      BASE SECTION STYLES
      ======================================== */
   .experience-section {
-    padding: var(--space-2xl) 0;
+    padding: var(--space-3xl) 0;
     background: var(--experience-bg, var(--color-background, #ffffff));
+    overflow: hidden;
   }
 
   .experience-section__container {
@@ -361,11 +359,11 @@ const cssVarsString = Object.entries(cssVars)
      ======================================== */
   .experience-section__header {
     text-align: center;
-    margin-block-end: var(--space-2xl, 4rem);
+    margin-block-end: var(--space-xl, 3rem);
   }
 
   .experience-section__title {
-    font-family: var(--font-serif, Georgia, serif);
+    font-family: var(--font-heading, Georgia, serif);
     font-size: clamp(2rem, 5vw, 3.5rem);
     font-weight: 400;
     color: var(--color-accent);
@@ -382,203 +380,361 @@ const cssVarsString = Object.entries(cssVars)
   }
 
   /* ========================================
-     DESKTOP: TWO-COLUMN LAYOUT
+     DESKTOP: ORBITAL LAYOUT
      ======================================== */
-  .experience-section__content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-2xl, 4rem);
-    align-items: start;
-  }
+  .experience-orbital {
+    --circle-size: clamp(300px, 35vw, 420px);
+    --orbit-gap: 60px; /* Gap between circle edge and badge center */
 
-  /* ----------------------------------------
-     Left Column: Navigation
-     ---------------------------------------- */
-  .experience-nav {
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm, 0.5rem);
-  }
-
-  .experience-nav__item {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-sm, 0.5rem);
-    padding: 16px 32px 20px 16px;
-    border: none;
-    border-radius: 24px;
-    background: transparent;
-    cursor: pointer;
-    text-align: left;
-    transition:
-      background-color 0.3s ease,
-      padding 0.3s ease;
-  }
-
-  .experience-nav__item[data-active='true'] {
-    background: var(--experience-selected-bg, var(--color-accent, #4ecdc4));
-    padding-left: 32px;
-  }
-
-  .experience-nav__item:focus-visible {
-    outline: 2px solid var(--color-primary, #2b180a);
-    outline-offset: 2px;
-  }
-
-  .experience-nav__title {
-    font-family: var(--font-serif, Georgia, serif);
-    font-size: clamp(2.5rem, 4vw, 3.5rem);
-    font-weight: 400;
-    color: var(--color-text-muted, #94877c);
-    transition: color 0.3s ease;
-    line-height: 1.1;
-  }
-
-  .experience-nav__item[data-active='true'] .experience-nav__title {
-    color: white;
-  }
-
-  .experience-nav__number {
-    font-family: var(--font-serif, Georgia, serif);
-    font-size: clamp(2.5rem, 4vw, 3.5rem);
-    font-weight: 400;
-    color: var(--color-text-muted, #94877c);
-    transition: color 0.3s ease;
-    line-height: 1.1;
-  }
-
-  .experience-nav__item[data-active='true'] .experience-nav__number {
-    color: white;
-  }
-
-  /* ----------------------------------------
-     Right Column: Cards
-     ---------------------------------------- */
-  .experience-cards-wrapper {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .experience-cards {
+    align-items: center;
     position: relative;
-    min-height: 450px;
+    /* Height = circle + orbit on all sides + padding for badges */
+    min-height: 100vh;
+    padding: var(--space-xl) 0;
   }
 
-  .experience-card {
+  /* Central circle container - absolutely centered */
+  .experience-orbital__center {
     position: absolute;
-    inset: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    /* Initially hidden, GSAP reveals it */
     opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-    display: flex;
-    flex-direction: column;
   }
 
-  .experience-card[data-active='true'] {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .experience-card__image-wrapper {
-    position: relative;
-    border-radius: 28px;
-    overflow: hidden;
-    margin-block-end: var(--space-lg, 1.5rem);
-    aspect-ratio: 4 / 3;
-  }
-
-  .experience-card__image-wrapper::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
+  .experience-orbital__circle {
+    width: var(--circle-size);
+    height: var(--circle-size);
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 50% 50%,
+      color-mix(
+          in srgb,
+          var(--experience-selected-bg, var(--color-accent)) 12%,
+          white
+        )
+        0%,
+      color-mix(
+          in srgb,
+          var(--experience-selected-bg, var(--color-accent)) 6%,
+          white
+        )
+        60%,
+      transparent 100%
+    );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: none;
     box-shadow:
-      inset 0 0 60px 30px
+      0 0 80px
         color-mix(
           in srgb,
-          var(--experience-bg, var(--color-primary, #0066cc)) 25%,
+          var(--experience-selected-bg, var(--color-accent)) 12%,
           transparent
         ),
-      inset 0 0 120px 60px
+      0 0 160px
         color-mix(
           in srgb,
-          var(--experience-bg, var(--color-primary, #0066cc)) 15%,
+          var(--experience-selected-bg, var(--color-accent)) 6%,
           transparent
         );
-    pointer-events: none;
-  }
-
-  .experience-card__image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .experience-card__image-placeholder {
-    width: 100%;
-    height: 100%;
-    background: var(
-      --icon-bg,
-      linear-gradient(135deg, #e0d5c9 0%, #c9bfb3 100%)
-    );
     display: flex;
     align-items: center;
     justify-content: center;
-    color: color-mix(in srgb, var(--icon-bg, #c9bfb3) 80%, black);
+    position: relative;
+    overflow: visible;
+    /* Faded edges using radial gradient mask */
+    mask-image: radial-gradient(
+      ellipse 100% 100% at center,
+      black 50%,
+      rgba(0, 0, 0, 0.5) 70%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 100% 100% at center,
+      black 50%,
+      rgba(0, 0, 0, 0.5) 70%,
+      transparent 100%
+    );
   }
 
-  .experience-card__image-placeholder :global(svg) {
-    width: 50%;
-    height: 50%;
-    max-width: 180px;
-    max-height: 180px;
+  /* Subtle animated ring around circle */
+  .experience-orbital__circle::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px dashed
+      color-mix(
+        in srgb,
+        var(--experience-selected-bg, var(--color-accent)) 30%,
+        transparent
+      );
+    animation: orbit-ring-rotate 60s linear infinite;
   }
 
-  .experience-card__image-placeholder :global(svg),
-  .experience-card__image-placeholder :global(svg *) {
-    color: color-mix(in srgb, var(--icon-bg, #c9bfb3) 80%, black);
-    stroke: color-mix(in srgb, var(--icon-bg, #c9bfb3) 60%, black);
+  @keyframes orbit-ring-rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
-  .experience-card__content {
-    flex: 1;
-    min-height: 100px; /* Prevent text overlap with CTA */
+  .experience-orbital__circle-inner {
+    width: 85%;
+    height: 85%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
   }
 
-  .experience-card__title {
-    font-family: var(--font-serif, Georgia, serif);
-    font-size: var(--font-size-xl, 1.5rem);
-    font-weight: 500;
-    color: var(--color-accent, #4ecdc4);
-    margin: 0 0 var(--space-sm, 0.5rem) 0;
+  /* Default content shown when no item is hovered */
+  .experience-orbital__default {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-lg);
+    opacity: 0;
+    transform: scale(0.95);
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s ease;
+    pointer-events: none;
   }
 
-  .experience-card__description {
-    font-size: var(--font-size-md, 1rem);
-    color: var(--experience-card-desc-color, var(--color-text-muted, #94877c));
-    line-height: 1.6;
+  .experience-orbital__default[data-active='true'] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .experience-orbital__default-text {
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+    color: var(--color-text-muted, #666);
+    font-style: italic;
     margin: 0;
   }
 
-  /* Single CTA outside cards - never re-renders on card switch */
-  .experience-section__cta {
-    align-self: flex-start;
-    margin-top: var(--space-xl, 2.5rem);
-    padding: var(--button-padding-vertical, var(--space-md))
-      var(--button-padding-horizontal, var(--space-lg));
+  /* Description content inside circle */
+  .experience-orbital__description {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-xl);
+    opacity: 0;
+    transform: scale(0.95);
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  .experience-orbital__description[data-active='true'] {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  .experience-orbital__desc-number {
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 400;
+    color: var(--experience-selected-bg, var(--color-accent));
+    line-height: 1;
+    margin-bottom: var(--space-xs);
+  }
+
+  .experience-orbital__desc-title {
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    font-weight: 500;
+    color: var(--color-text, #1a1a1a);
+    margin: 0 0 var(--space-sm) 0;
+    line-height: 1.2;
+  }
+
+  .experience-orbital__desc-text {
+    font-size: clamp(0.875rem, 1.2vw, 1rem);
+    color: var(--experience-card-desc-color, var(--color-text-muted));
+    line-height: 1.5;
+    margin: 0;
+    max-width: 90%;
+  }
+
+  /* ========================================
+     BADGES - Initial horizontal row
+     ======================================== */
+  .experience-orbital__badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-sm);
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+    z-index: 10;
+  }
+
+  /* Individual badge - refined pill styling */
+  .experience-orbital__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+
+    background: var(--color-background, #ffffff);
+    border: 1px solid
+      color-mix(
+        in srgb,
+        var(--experience-selected-bg, var(--color-accent)) 30%,
+        transparent
+      );
+    border-radius: 100px; /* Pill shape */
+    cursor: pointer;
+    white-space: nowrap;
+
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.04),
+      0 4px 16px rgba(0, 0, 0, 0.02);
+
+    transition:
+      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      border-color 0.3s ease,
+      box-shadow 0.3s ease,
+      background 0.3s ease;
+  }
+
+  .experience-orbital__badge:hover {
+    border-color: var(--experience-selected-bg, var(--color-accent));
+    box-shadow:
+      0 4px 12px
+        color-mix(
+          in srgb,
+          var(--experience-selected-bg, var(--color-accent)) 15%,
+          transparent
+        ),
+      0 8px 24px
+        color-mix(
+          in srgb,
+          var(--experience-selected-bg, var(--color-accent)) 8%,
+          transparent
+        );
+  }
+
+  .experience-orbital__badge[data-active='true'] {
+    border-color: var(--experience-selected-bg, var(--color-accent));
+    background: color-mix(
+      in srgb,
+      var(--experience-selected-bg, var(--color-accent)) 8%,
+      white
+    );
+    box-shadow:
+      0 4px 16px
+        color-mix(
+          in srgb,
+          var(--experience-selected-bg, var(--color-accent)) 20%,
+          transparent
+        ),
+      0 8px 32px
+        color-mix(
+          in srgb,
+          var(--experience-selected-bg, var(--color-accent)) 10%,
+          transparent
+        );
+  }
+
+  .experience-orbital__badge:focus-visible {
+    outline: 2px solid var(--experience-selected-bg, var(--color-accent));
+    outline-offset: 3px;
+  }
+
+  .experience-orbital__badge-number {
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+    font-weight: 400;
+    color: var(--experience-selected-bg, var(--color-accent));
+    line-height: 1;
+  }
+
+  .experience-orbital__badge-divider {
+    width: 1px;
+    height: 1.2em;
+    background: color-mix(
+      in srgb,
+      var(--color-text-muted, #666) 30%,
+      transparent
+    );
+  }
+
+  .experience-orbital__badge-title {
+    font-family: var(--font-sans, system-ui);
+    font-size: clamp(0.7rem, 0.9vw, 0.8rem);
+    font-weight: 600;
+    color: var(--color-text, #1a1a1a);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+  }
+
+  .experience-orbital__badge:hover .experience-orbital__badge-number,
+  .experience-orbital__badge[data-active='true']
+    .experience-orbital__badge-number {
+    color: var(--experience-selected-bg, var(--color-accent));
+  }
+
+  .experience-orbital__badge:hover .experience-orbital__badge-title,
+  .experience-orbital__badge[data-active='true']
+    .experience-orbital__badge-title {
+    color: var(--experience-selected-bg, var(--color-accent));
+  }
+
+  /* CTA wrapper - centers button below orbital */
+  .experience-orbital__cta-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-xl);
+  }
+
+  @media (max-width: 900px) {
+    .experience-orbital__cta-wrapper {
+      display: none;
+    }
+  }
+
+  /* CTA button */
+  .experience-orbital__cta {
+    padding: var(--space-md) var(--space-xl);
     background: var(--color-accent, #4ecdc4);
     color: white;
     text-decoration: none;
-    border-radius: var(--button-border-radius, 4px);
+    border-radius: 8px;
     font-weight: 600;
+    font-size: var(--font-size-base);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
-  .experience-section__cta:hover {
+  .experience-orbital__cta:hover {
     transform: translateY(-2px);
-    filter: brightness(1.1);
-    transition:
-      transform 0.2s,
-      filter 0.2s;
+    box-shadow: 0 8px 20px
+      color-mix(in srgb, var(--color-accent) 30%, transparent);
   }
 
   /* ========================================
@@ -760,80 +916,263 @@ const cssVarsString = Object.entries(cssVars)
      RESPONSIVE BREAKPOINTS
      ======================================== */
   @media (max-width: 900px) {
-    /* Hide desktop layout on mobile */
-    .experience-section__content {
+    /* Hide orbital layout on mobile */
+    .experience-orbital {
       display: none !important;
     }
   }
 
-  /* Tablet adjustments */
-  @media (min-width: 901px) and (max-width: 1100px) {
-    .experience-section__content {
-      gap: var(--space-xl, 3rem);
+  /* Tablet adjustments for orbital */
+  @media (min-width: 901px) and (max-width: 1200px) {
+    .experience-orbital {
+      --circle-size: clamp(240px, 30vw, 320px);
+      --orbit-gap: 50px;
     }
 
-    .experience-nav__title {
-      font-size: 2.5rem;
+    .experience-orbital__desc-text {
+      font-size: 0.85rem;
     }
 
-    .experience-cards {
-      min-height: 450px;
+    .experience-orbital__badge {
+      padding: var(--space-xs) var(--space-sm);
+    }
+
+    .experience-orbital__badge-number {
+      font-size: clamp(0.95rem, 1.4vw, 1.2rem);
+    }
+
+    .experience-orbital__badge-title {
+      font-size: clamp(0.6rem, 0.8vw, 0.7rem);
     }
   }
 </style>
 
 <script>
-  import { setupAnimationLifecycle, createFadeIn } from '@lib/animation';
+  import { setupAnimationLifecycle, createFadeIn, gsap } from '@lib/animation';
 
   setupAnimationLifecycle(() => {
     // ========================================
-    // DESKTOP: Hover-based card switching
+    // DESKTOP: Badge hover-based switching
     // ========================================
-    const navItems = document.querySelectorAll('.experience-nav__item');
-    const cards = document.querySelectorAll('.experience-card');
+    const badges = document.querySelectorAll('.experience-orbital__badge');
+    const descriptions = document.querySelectorAll(
+      '.experience-orbital__description'
+    );
+    const defaultContent = document.querySelector(
+      '.experience-orbital__default'
+    );
+    const orbitalSection = document.querySelector('.experience-orbital');
+    const circleCenter = document.querySelector('.experience-orbital__center');
 
-    function setActiveCard(index: number) {
-      // Update nav items
-      navItems.forEach((item, i) => {
-        const isActive = i === index;
-        item.setAttribute('data-active', String(isActive));
-        item.setAttribute('aria-pressed', String(isActive));
+    function setActiveBadge(index: number | null) {
+      // Update default content visibility
+      if (defaultContent) {
+        defaultContent.setAttribute('data-active', String(index === null));
+      }
+
+      // Update badges
+      badges.forEach((badge, i) => {
+        const isActive = index !== null && i === index;
+        badge.setAttribute('data-active', String(isActive));
+        badge.setAttribute('aria-pressed', String(isActive));
       });
 
-      // Update cards
-      cards.forEach((card, i) => {
-        const isActive = i === index;
-        card.setAttribute('data-active', String(isActive));
-        card.setAttribute('aria-hidden', String(!isActive));
+      // Update descriptions in center circle
+      descriptions.forEach((desc, i) => {
+        const isActive = index !== null && i === index;
+        desc.setAttribute('data-active', String(isActive));
       });
     }
 
-    // Desktop: Hover to switch
-    navItems.forEach((item, index) => {
-      item.addEventListener('mouseenter', () => setActiveCard(index));
+    // Desktop: Hover to switch (mouseenter for immediate response)
+    badges.forEach((badge, index) => {
+      badge.addEventListener('mouseenter', () => setActiveBadge(index));
     });
 
-    // Desktop: Click also works (for accessibility)
-    navItems.forEach((item, index) => {
-      item.addEventListener('click', () => setActiveCard(index));
+    // Reset to default when mouse leaves the badges area
+    const badgesContainer = document.querySelector(
+      '.experience-orbital__badges'
+    );
+    badgesContainer?.addEventListener('mouseleave', () => setActiveBadge(null));
+
+    // Desktop/Mobile: Click also works (for touch devices and accessibility)
+    badges.forEach((badge, index) => {
+      badge.addEventListener('click', () => setActiveBadge(index));
     });
 
-    // Keyboard navigation
-    navItems.forEach((item, index) => {
-      item.addEventListener('keydown', ((e: KeyboardEvent) => {
-        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+    // Keyboard navigation for badges
+    badges.forEach((badge, index) => {
+      badge.addEventListener('keydown', ((e: KeyboardEvent) => {
+        const itemCount = badges.length;
+        let nextIndex = index;
+
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
           e.preventDefault();
-          const nextIndex = (index + 1) % navItems.length;
-          setActiveCard(nextIndex);
-          (navItems[nextIndex] as HTMLElement).focus();
-        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          nextIndex = (index + 1) % itemCount;
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
           e.preventDefault();
-          const prevIndex = (index - 1 + navItems.length) % navItems.length;
-          setActiveCard(prevIndex);
-          (navItems[prevIndex] as HTMLElement).focus();
+          nextIndex = (index - 1 + itemCount) % itemCount;
+        }
+
+        if (nextIndex !== index) {
+          setActiveBadge(nextIndex);
+          (badges[nextIndex] as HTMLElement).focus();
         }
       }) as EventListener);
     });
+
+    // ========================================
+    // DESKTOP: GSAP Scroll Animation - Badge to Orbital (Pinned)
+    // ========================================
+    if (
+      window.innerWidth > 900 &&
+      orbitalSection &&
+      circleCenter &&
+      badges.length > 0
+    ) {
+      const sectionRect = orbitalSection.getBoundingClientRect();
+      const sectionHeight = orbitalSection.offsetHeight;
+      const sectionCenterY = sectionHeight / 2;
+
+      // Store initial badge positions and dimensions
+      const badgeData: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      }[] = [];
+      badges.forEach((badge) => {
+        const rect = badge.getBoundingClientRect();
+        badgeData.push({
+          x:
+            rect.left +
+            rect.width / 2 -
+            sectionRect.left -
+            sectionRect.width / 2,
+          y: rect.top + rect.height / 2 - sectionRect.top,
+          width: rect.width,
+          height: rect.height,
+        });
+      });
+
+      // Get circle radius and desired gap from circle edge to badge edge
+      const computedStyle = getComputedStyle(orbitalSection);
+      const circleSize =
+        parseFloat(computedStyle.getPropertyValue('--circle-size')) || 380;
+      const circleRadius = circleSize / 2;
+      // Gap settings - all edge-to-edge measurements
+      const gapTop = 70; // Gap for top badge (badge bottom to circle top)
+      const gapSide = 50; // Gap for side badges (badge inner edge to circle side)
+      const gapBottom = 25; // Gap for bottom badges (corner to circle edge)
+      const sideY = -50; // Side badges slightly above center
+      const bottomX = 200; // Fixed X position for bottom badges
+
+      // Create pinned timeline
+      const scrollTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: orbitalSection,
+          start: 'top 15%',
+          end: '+=70%',
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+        },
+      });
+
+      // Get widths for alignment calculation
+      const rightSideWidth = badgeData[1].width; // Badge 1 (right side)
+      const leftSideWidth = badgeData[4].width; // Badge 4 (left side)
+
+      // Calculate X positions once for alignment
+      const rightX = circleRadius + gapSide + rightSideWidth / 2;
+      const leftX = -(circleRadius + gapSide + leftSideWidth / 2);
+
+      // Manual positioning with vertical alignment
+      // Layout:
+      //        [0 Top]
+      //   [4]    ○    [1]   ← side badges slightly above center
+      //   [3]         [2]   ← bottom badges below circle (aligned X with sides)
+      badges.forEach((badge, index) => {
+        const badgeHeight = badgeData[index].height;
+
+        let finalX: number;
+        let finalY: number;
+
+        if (index === 0) {
+          // Top badge: centered
+          finalX = 0;
+          finalY = -(circleRadius + gapTop + badgeHeight / 2) + sectionCenterY;
+        } else if (index === 1) {
+          // Right side badge
+          finalX = rightX;
+          finalY = sideY + sectionCenterY;
+        } else if (index === 2) {
+          // Right bottom badge - corner-based gap calculation
+          const badgeWidth = badgeData[index].width;
+          finalX = bottomX;
+          // Corner X position (top-left corner for right badge)
+          const cornerX = bottomX - badgeWidth / 2;
+          // Calculate Y so corner is gapBottom from circle edge
+          const distanceFromCenter = circleRadius + gapBottom;
+          const yOffset = Math.sqrt(
+            distanceFromCenter * distanceFromCenter - cornerX * cornerX
+          );
+          finalY = sectionCenterY + badgeHeight / 2 + yOffset;
+        } else if (index === 3) {
+          // Left bottom badge - corner-based gap calculation
+          const badgeWidth = badgeData[index].width;
+          finalX = -bottomX;
+          // Corner X position (top-right corner for left badge)
+          const cornerX = -bottomX + badgeWidth / 2;
+          // Calculate Y so corner is gapBottom from circle edge
+          const distanceFromCenter = circleRadius + gapBottom;
+          const yOffset = Math.sqrt(
+            distanceFromCenter * distanceFromCenter - cornerX * cornerX
+          );
+          finalY = sectionCenterY + badgeHeight / 2 + yOffset;
+        } else {
+          // Left side badge (index 4)
+          finalX = leftX;
+          finalY = sideY + sectionCenterY;
+        }
+
+        // Set initial absolute position
+        gsap.set(badge, {
+          position: 'absolute',
+          left: '50%',
+          top: 0,
+          x: badgeData[index].x,
+          y: badgeData[index].y,
+          xPercent: -50,
+        });
+
+        // Animate to orbital position
+        scrollTl.to(
+          badge,
+          {
+            x: finalX,
+            y: finalY,
+            ease: 'power2.inOut',
+          },
+          0
+        );
+      });
+
+      // Fade in and scale up the circle
+      scrollTl.fromTo(
+        circleCenter,
+        { opacity: 0 },
+        { opacity: 1, ease: 'power2.out' },
+        0.1
+      );
+
+      scrollTl.fromTo(
+        '.experience-orbital__circle',
+        { scale: 0.8 },
+        { scale: 1, ease: 'power2.out' },
+        0
+      );
+    }
 
     // ========================================
     // MOBILE: Accordion functionality
@@ -870,18 +1209,12 @@ const cssVarsString = Object.entries(cssVars)
     });
 
     // ========================================
-    // GSAP: Entrance animations (optional)
+    // GSAP: Entrance animations
     // ========================================
     // Fade in the header
     createFadeIn('.experience-section__header', { y: 30 });
 
-    // Staggered fade in for nav items (desktop)
-    if (window.innerWidth > 900) {
-      createFadeIn('.experience-nav__item', { y: 20, stagger: 0.1 });
-      createFadeIn('.experience-cards', { y: 20 });
-    }
-
-    // Staggered fade in for accordion items (mobile)
+    // Mobile: Staggered fade in for accordion items
     if (window.innerWidth <= 900) {
       createFadeIn('.experience-accordion__item', { y: 20, stagger: 0.08 });
     }
