@@ -121,30 +121,14 @@ const cssVarsString = Object.entries(cssVars)
     <!-- Right Column: Vertical Card Stack (Desktop) -->
     <div class="services-cards">
       {
-        services.map((service, index) => (
-          <article
-            class="services-card"
-            data-index={index}
-            data-expanded={index === 0 ? 'true' : 'false'}
-          >
-            <div class="services-card__header">
-              <div class="services-card__title-row">
-                <span class="services-card__dot" aria-hidden="true" />
-                <div class="services-card__title-wrapper">
-                  <span class="services-card__label">
-                    {service.label || service.title}
-                  </span>
-                  <h3 class="services-card__title">{service.title}</h3>
-                </div>
+        services.map((service) => (
+          <article class="services-card">
+            <h3 class="services-card__title">{service.title}</h3>
+            {service.homepageText && (
+              <div class="services-card__description">
+                <PortableText content={service.homepageText} />
               </div>
-            </div>
-            <div class="services-card__content">
-              {service.homepageText && (
-                <div class="services-card__description">
-                  <PortableText content={service.homepageText} />
-                </div>
-              )}
-            </div>
+            )}
           </article>
         ))
       }
@@ -233,13 +217,16 @@ const cssVarsString = Object.entries(cssVars)
      DESKTOP: VERTICAL CARD STACK
      ======================================== */
   .services-cards {
-    position: relative;
-    /* Height and child positions set dynamically by JS */
-    /* Gap value (8px) used in JS calculations */
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md, 1rem);
   }
 
   .services-card {
-    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg, 1.5rem);
+    padding: var(--space-lg, 1.5rem);
     border: 1px solid var(--color-border, #404040);
     border-radius: 16px;
     background: color-mix(
@@ -248,142 +235,28 @@ const cssVarsString = Object.entries(cssVars)
       white
     );
     backdrop-filter: blur(10px);
-    overflow: hidden;
-    cursor: pointer;
     transition: border-color 0.3s ease;
   }
 
-  .services-card:hover,
-  .services-card[data-expanded='true'] {
+  .services-card:hover {
     border-color: var(--fs-accent, var(--color-accent));
   }
 
-  .services-card:focus-visible {
-    outline: 2px solid var(--color-primary, #4d94ff);
-    outline-offset: 2px;
-  }
-
-  /* Card Header - contains the sliding title wrapper */
-  .services-card__header {
-    padding: var(--space-md, 1rem) var(--space-lg, 1.5rem);
-  }
-
-  /* Title row - flex container for dot + title */
-  .services-card__title-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  /* Title wrapper - overflow hidden container for slide effect */
-  .services-card__title-wrapper {
-    position: relative;
-    overflow: hidden;
-    height: 2.2em;
-    flex: 1;
-  }
-
-  .services-card__label,
   .services-card__title {
+    flex: 0 0 30%;
     font-family: var(--font-heading, Georgia, serif);
-    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
     font-weight: 400;
-    line-height: 1.2;
+    line-height: 1.3;
     margin: 0;
-    display: block;
-    transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
-  }
-
-  .services-card__label {
     color: var(--fs-text, var(--color-text));
-  }
-
-  .services-card:hover .services-card__label {
-    color: var(--fs-text, var(--color-text));
-  }
-
-  .services-card__title {
-    position: absolute;
-    top: 0;
-    left: 0;
-    color: var(--fs-text, var(--color-text));
-    transform: translateY(100%); /* Hidden below */
-  }
-
-  /* When expanded: label slides up, title slides into view */
-  .services-card[data-expanded='true'] .services-card__label {
-    transform: translateY(-120%);
-  }
-
-  .services-card[data-expanded='true'] .services-card__title {
-    transform: translateY(0);
-  }
-
-  /* Pulsing dot indicator */
-  .services-card__dot {
-    position: relative;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--fs-accent, var(--color-accent));
-    opacity: 0;
-    transform: scale(0);
-    transition:
-      opacity 0.4s ease,
-      transform 0.4s ease;
-    flex-shrink: 0;
-  }
-
-  .services-card__dot::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    border: 1px solid var(--fs-accent, var(--color-accent));
-    opacity: 0;
-  }
-
-  .services-card[data-expanded='true'] .services-card__dot {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  .services-card[data-expanded='true'] .services-card__dot::before {
-    animation: pulse-ring 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-ring {
-    0% {
-      transform: translate(-50%, -50%) scale(0.8);
-      opacity: 0;
-    }
-    50% {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 1;
-    }
-    100% {
-      transform: translate(-50%, -50%) scale(1.3);
-      opacity: 0;
-    }
-  }
-
-  /* Card Content - contains description, animates height */
-  .services-card__content {
-    overflow: hidden;
-    padding: 0 var(--space-lg, 1.5rem);
   }
 
   .services-card__description {
-    padding-top: var(--space-md, 1rem);
-    padding-bottom: var(--space-lg, 1.5rem);
+    flex: 1;
     font-size: var(--font-size-base, 1rem);
     color: var(--fs-text-muted, var(--color-text-muted));
     line-height: 1.6;
-    max-width: 500px;
   }
 
   .services-card__description :global(p) {
@@ -476,199 +349,3 @@ const cssVarsString = Object.entries(cssVars)
     }
   }
 </style>
-
-<script>
-  import { setupAnimationLifecycle, gsap } from '@lib/animation';
-
-  setupAnimationLifecycle(() => {
-    const cardsContainer = document.querySelector(
-      '.services-cards'
-    ) as HTMLElement;
-    const cards = document.querySelectorAll(
-      '.services-card'
-    ) as NodeListOf<HTMLElement>;
-    const isDesktop = window.innerWidth > 900;
-
-    if (!isDesktop || cards.length === 0 || !cardsContainer) return;
-
-    // Track the currently expanded card index
-    let activeIndex = 0;
-
-    // Fixed dimensions
-    const GAP = 8;
-
-    // Measure header height (same for collapsed state)
-    const firstHeader = cards[0]?.querySelector(
-      '.services-card__header'
-    ) as HTMLElement;
-    const HEADER_HEIGHT = firstHeader?.offsetHeight || 68;
-
-    // Measure content height for expanded state
-    const firstContent = cards[0]?.querySelector(
-      '.services-card__content'
-    ) as HTMLElement;
-    const CONTENT_HEIGHT = firstContent?.offsetHeight || 200;
-
-    const COLLAPSED_HEIGHT = HEADER_HEIGHT;
-    const EXPANDED_HEIGHT = HEADER_HEIGHT + CONTENT_HEIGHT;
-
-    function initializeCards() {
-      // Calculate container height
-      const totalHeight =
-        EXPANDED_HEIGHT +
-        (cards.length - 1) * COLLAPSED_HEIGHT +
-        (cards.length - 1) * GAP;
-      cardsContainer.style.height = `${totalHeight}px`;
-
-      // Set initial state for all cards
-      let currentTop = 0;
-      cards.forEach((card, index) => {
-        const content = card.querySelector(
-          '.services-card__content'
-        ) as HTMLElement;
-
-        const isExpanded = index === 0;
-        const cardHeight = isExpanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT;
-
-        // Position the card
-        gsap.set(card, {
-          position: 'absolute',
-          top: currentTop,
-          left: 0,
-          width: '100%',
-          height: cardHeight,
-        });
-
-        // Set content height (label/title handled by CSS via data-expanded)
-        gsap.set(content, { height: isExpanded ? 'auto' : 0 });
-
-        currentTop += cardHeight + GAP;
-      });
-    }
-
-    // Calculate top position for a card given which card is expanded
-    function calculateTop(cardIndex: number, expandedIndex: number): number {
-      let top = 0;
-      for (let i = 0; i < cardIndex; i++) {
-        top += (i === expandedIndex ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT) + GAP;
-      }
-      return top;
-    }
-
-    initializeCards();
-
-    function setActiveCard(newIndex: number) {
-      if (newIndex === activeIndex) return;
-
-      const prevIndex = activeIndex;
-      const goingDown = newIndex > prevIndex;
-
-      const prevCard = cards[prevIndex] as HTMLElement | undefined;
-      const nextCard = cards[newIndex] as HTMLElement | undefined;
-
-      if (!prevCard || !nextCard) return;
-
-      const prevContent = prevCard.querySelector(
-        '.services-card__content'
-      ) as HTMLElement;
-      const nextContent = nextCard.querySelector(
-        '.services-card__content'
-      ) as HTMLElement;
-
-      // Toggle data-expanded attributes (CSS handles label/title slide)
-      prevCard.setAttribute('data-expanded', 'false');
-      nextCard.setAttribute('data-expanded', 'true');
-
-      // Calculate ALL new positions based on newIndex being expanded
-      const newPositions: number[] = [];
-      for (let i = 0; i < cards.length; i++) {
-        newPositions[i] = calculateTop(i, newIndex);
-      }
-
-      const tl = gsap.timeline({
-        defaults: { ease: 'power2.out', duration: 0.4 },
-      });
-
-      if (goingDown) {
-        // Prev (above): collapse UPWARD - top stays fixed
-        tl.to(prevCard, { height: COLLAPSED_HEIGHT }, 0);
-        tl.to(prevContent, { height: 0 }, 0);
-
-        // Next (below): expand UPWARD - bottom stays fixed, top moves up
-        const nextTop = newPositions[newIndex] ?? 0;
-        tl.to(nextCard, { top: nextTop, height: EXPANDED_HEIGHT }, 0);
-        tl.to(nextContent, { height: 'auto' }, 0);
-      } else {
-        // Prev (below): collapse DOWNWARD - bottom stays fixed, top moves down
-        const prevTop = newPositions[prevIndex] ?? 0;
-        tl.to(prevCard, { top: prevTop, height: COLLAPSED_HEIGHT }, 0);
-        tl.to(prevContent, { height: 0 }, 0);
-
-        // Next (above): expand DOWNWARD - top stays fixed
-        tl.to(nextCard, { height: EXPANDED_HEIGHT }, 0);
-        tl.to(nextContent, { height: 'auto' }, 0);
-      }
-
-      // ANIMATE positions for cards BETWEEN prev and next (same timing as main cards)
-      const minIdx = Math.min(prevIndex, newIndex);
-      const maxIdx = Math.max(prevIndex, newIndex);
-      for (let i = minIdx + 1; i < maxIdx; i++) {
-        const card = cards[i];
-        const cardTop = newPositions[i] ?? 0;
-        if (card) tl.to(card, { top: cardTop }, 0);
-      }
-
-      activeIndex = newIndex;
-    }
-
-    // Event listeners
-    cards.forEach((card, index) => {
-      card.addEventListener('mouseenter', () => setActiveCard(index));
-      card.addEventListener('click', () => setActiveCard(index));
-
-      card.setAttribute('tabindex', '0');
-      card.addEventListener('keydown', (e: KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setActiveCard(index);
-        } else if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          const nextIdx = (index + 1) % cards.length;
-          setActiveCard(nextIdx);
-          (cards[nextIdx] as HTMLElement).focus();
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          const prevIdx = (index - 1 + cards.length) % cards.length;
-          setActiveCard(prevIdx);
-          (cards[prevIdx] as HTMLElement).focus();
-        }
-      });
-    });
-
-    // One-time entrance animations (don't reverse on scroll back)
-    gsap.from('.services-section__header', {
-      y: 30,
-      opacity: 0,
-      duration: 0.6,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: '.services-section__header',
-        start: 'top 80%',
-        once: true,
-      },
-    });
-
-    gsap.from('.services-card', {
-      y: 20,
-      opacity: 0,
-      duration: 0.6,
-      ease: 'power2.out',
-      stagger: 0.1,
-      scrollTrigger: {
-        trigger: '.services-cards',
-        start: 'top 80%',
-        once: true,
-      },
-    });
-  });
-</script>
