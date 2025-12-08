@@ -341,6 +341,16 @@ const pageSectionsQuery = `
           ${imageProjection}
         }
       }
+    },
+    _type == "collageSection" => {
+      tagline,
+      taglineSize,
+      images[] {
+        _key,
+        ${imageProjection}
+      },
+      overlayStyle,
+      overlayOpacity
     }
   }
 `;

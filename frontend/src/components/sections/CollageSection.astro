@@ -35,29 +35,30 @@ const imageUrls = images.map((img) => ({
 // Duplicate images for seamless infinite scroll effect
 const duplicatedImages = [...imageUrls, ...imageUrls];
 
-// Calculate overlay styles based on settings
-const getOverlayStyles = () => {
+// Calculate card styles based on settings (now applied to the floating card, not full overlay)
+const getCardStyles = () => {
   const opacity = overlayOpacity / 100;
 
   switch (overlayStyle) {
     case 'frosted':
       return `
-        background: rgba(15, 15, 15, ${opacity * 0.85});
-        backdrop-filter: blur(12px) saturate(1.2);
-        -webkit-backdrop-filter: blur(12px) saturate(1.2);
+        background: rgba(12, 12, 12, ${opacity * 0.4});
+        backdrop-filter: blur(20px) saturate(1.3);
+        -webkit-backdrop-filter: blur(20px) saturate(1.3);
       `;
     case 'gradient':
       return `
         background: linear-gradient(
           135deg,
-          rgba(10, 10, 10, ${opacity}) 0%,
-          rgba(30, 30, 30, ${opacity * 0.8}) 50%,
-          rgba(10, 10, 10, ${opacity}) 100%
+          rgba(8, 8, 8, ${opacity * 0.85}) 0%,
+          rgba(20, 20, 20, ${opacity * 0.7}) 100%
         );
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
       `;
     case 'solid':
     default:
-      return `background: rgba(10, 10, 10, ${opacity});`;
+      return `background: rgba(10, 10, 10, ${opacity * 0.85});`;
   }
 };
 
@@ -66,25 +67,34 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
 
 <section class="collage" data-overlay-style={overlayStyle}>
   <div class="collage__track">
-    {duplicatedImages.map((img, index) => (
-      <div
-        class="collage__image-wrapper"
-        data-index={index % imageUrls.length}
-        style={img.hotspot ? `--hotspot-x: ${img.hotspot.x * 100}%; --hotspot-y: ${img.hotspot.y * 100}%;` : ''}
-      >
-        <img
-          src={img.url}
-          alt={img.alt}
-          class="collage__image"
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
-    ))}
+    {
+      duplicatedImages.map((img, index) => (
+        <div
+          class="collage__image-wrapper"
+          data-index={index % imageUrls.length}
+          style={
+            img.hotspot
+              ? `--hotspot-x: ${img.hotspot.x * 100}%; --hotspot-y: ${img.hotspot.y * 100}%;`
+              : ''
+          }
+        >
+          <img
+            src={img.url}
+            alt={img.alt}
+            class="collage__image"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      ))
+    }
   </div>
 
-  <div class="collage__overlay" style={getOverlayStyles()}>
-    <div class="collage__content">
+  <!-- Subtle vignette gradients at edges for depth -->
+  <div class="collage__vignette"></div>
+
+  <div class="collage__overlay">
+    <div class="collage__content" style={getCardStyles()}>
       <p class={`collage__tagline ${taglineSizeClass}`}>
         <span class="collage__tagline-text">{tagline}</span>
       </p>
@@ -141,10 +151,21 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
     inset: 0;
     background: radial-gradient(
       ellipse at center,
-      transparent 40%,
-      rgba(0, 0, 0, 0.15) 100%
+      transparent 50%,
+      rgba(0, 0, 0, 0.1) 100%
     );
     pointer-events: none;
+  }
+
+  /* Edge vignettes for depth without obscuring images */
+  .collage__vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, transparent 15%),
+      linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, transparent 20%);
   }
 
   .collage__overlay {
@@ -154,12 +175,75 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
     align-items: center;
     justify-content: center;
     z-index: 2;
+    /* No background/blur here - it's on the card */
+    padding: var(--space-md);
   }
 
+  /* Floating glass card - the star of the show */
   .collage__content {
     text-align: center;
-    padding: var(--space-xl) var(--space-lg);
-    max-width: 900px;
+    padding: clamp(2rem, 5vw, 4rem) clamp(4rem, 10vw, 8rem);
+    max-width: min(900px, 95%);
+    border-radius: 1rem;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      0 2px 8px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+    /* Edge fade on all sides */
+    mask-image:
+      linear-gradient(
+        to right,
+        transparent 0%,
+        black 10%,
+        black 90%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 15%,
+        black 85%,
+        transparent 100%
+      );
+    mask-composite: intersect;
+    -webkit-mask-image:
+      linear-gradient(
+        to right,
+        transparent 0%,
+        black 10%,
+        black 90%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 15%,
+        black 85%,
+        transparent 100%
+      );
+    -webkit-mask-composite: source-in;
+  }
+
+  /* Subtle shine effect on the card */
+  .collage__content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.03),
+      transparent
+    );
+    transition: left 0.8s ease;
+  }
+
+  .collage__content:hover::before {
+    left: 100%;
   }
 
   .collage__tagline {
@@ -228,15 +312,22 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
   /* Responsive adjustments */
   @media (max-width: 768px) {
     .collage {
-      --collage-height: clamp(220px, 30vh, 320px);
+      --collage-height: clamp(240px, 35vh, 340px);
     }
 
     .collage__content {
-      padding: var(--space-lg) var(--space-md);
+      padding: var(--space-md) var(--space-md);
+      border-radius: 0.75rem;
     }
 
     .collage__image-wrapper {
       aspect-ratio: 4 / 3;
+    }
+
+    .collage__vignette {
+      background:
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.35) 0%, transparent 20%),
+        linear-gradient(to top, rgba(0, 0, 0, 0.45) 0%, transparent 25%);
     }
   }
 
@@ -254,7 +345,11 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
 </style>
 
 <script>
-  import { setupAnimationLifecycle, gsap, ScrollTrigger, ANIMATION_CONFIG } from '@lib/animation';
+  import {
+    setupAnimationLifecycle,
+    gsap,
+    ANIMATION_CONFIG,
+  } from '@lib/animation';
 
   setupAnimationLifecycle(() => {
     const sections = document.querySelectorAll('.collage');
@@ -271,34 +366,61 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
       const imageWrappers = track.querySelectorAll('.collage__image-wrapper');
       const singleSetWidth = Array.from(imageWrappers)
         .slice(0, imageWrappers.length / 2)
-        .reduce((acc, wrapper) => acc + (wrapper as HTMLElement).offsetWidth, 0);
+        .reduce(
+          (acc, wrapper) => acc + (wrapper as HTMLElement).offsetWidth,
+          0
+        );
 
-      // Entrance animation timeline
+      // Entrance animation timeline - delay until section is fully visible
       const entranceTl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: 'top bottom-=10%',
-          end: 'top center',
+          start: 'center 60%',
+          end: 'center 40%',
           scrub: 1,
           markers: ANIMATION_CONFIG.scrollTrigger.markers,
         },
       });
 
+      // Animate floating card with scale and opacity
+      const contentCard = section.querySelector('.collage__content');
+      if (contentCard) {
+        gsap.set(contentCard, { scale: 0.95, opacity: 0 });
+        entranceTl.to(
+          contentCard,
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1,
+            ease: 'power2.out',
+          },
+          0
+        );
+      }
+
       // Fade in tagline with elegant reveal
-      entranceTl.to(taglineText, {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: 'power3.out',
-      }, 0);
+      entranceTl.to(
+        taglineText,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: 'power3.out',
+        },
+        0.1
+      );
 
       // Fade in accent lines
-      entranceTl.to(accents, {
-        opacity: 0.6,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power2.out',
-      }, 0.2);
+      entranceTl.to(
+        accents,
+        {
+          opacity: 0.6,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power2.out',
+        },
+        0.3
+      );
 
       // Horizontal scroll parallax - images move left as you scroll down
       gsap.to(track, {
@@ -319,7 +441,8 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
         const scaleStart = 1.1;
         const scaleEnd = 1.15 + (index % 3) * 0.02;
 
-        gsap.fromTo(img,
+        gsap.fromTo(
+          img,
           {
             scale: scaleStart,
             x: direction * 5,
@@ -339,21 +462,7 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
         );
       });
 
-      // Parallax depth effect - overlay moves slightly slower for depth
-      const overlay = section.querySelector('.collage__overlay');
-      if (overlay) {
-        gsap.to(overlay, {
-          y: -20,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 1,
-            markers: ANIMATION_CONFIG.scrollTrigger.markers,
-          },
-        });
-      }
+      // Note: Removed overlay parallax animation to prevent height mismatch
     });
   });
 </script>
