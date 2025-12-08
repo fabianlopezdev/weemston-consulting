@@ -62,12 +62,34 @@ interface Props {
   backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
-  selectedItemColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
-  selectedItemColorShade?: number;
-  selectedItemCustomColor?: ColorData;
+  // Badge colors (with shade)
+  badgeColorType?: 'default' | 'primary' | 'secondary' | 'accent' | 'custom';
+  badgeColorShade?: number;
+  badgeCustomColor?: ColorData;
+  badgeBackgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  badgeBackgroundColorShade?: number;
+  badgeBackgroundCustomColor?: ColorData;
+  badgeTextColor?: 'base' | 'contrast';
+  // Circle background color (with shade)
+  circleBackgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  circleBackgroundColorShade?: number;
+  circleBackgroundCustomColor?: ColorData;
+  circleTextColor?: 'base' | 'contrast';
   cardDescriptionColor?: 'base' | 'contrast';
   ctaButton?: LinkData;
 }
+
+const props = Astro.props as any;
 
 const {
   title,
@@ -77,12 +99,22 @@ const {
   backgroundColorType = 'default',
   backgroundColorShade = 0,
   backgroundCustomColor,
-  selectedItemColorType = 'accent',
-  selectedItemColorShade = 0,
-  selectedItemCustomColor,
   cardDescriptionColor = 'base',
   ctaButton,
 } = Astro.props;
+
+// Use new color fields directly
+const badgeColorType = props.badgeColorType ?? 'default';
+const badgeColorShade = props.badgeColorShade ?? 0;
+const badgeCustomColor = props.badgeCustomColor;
+const badgeBackgroundColorType = props.badgeBackgroundColorType ?? 'default';
+const badgeBackgroundColorShade = props.badgeBackgroundColorShade ?? 0;
+const badgeBackgroundCustomColor = props.badgeBackgroundCustomColor;
+const badgeTextColor = props.badgeTextColor ?? 'base';
+const circleBackgroundColorType = props.circleBackgroundColorType ?? 'default';
+const circleBackgroundColorShade = props.circleBackgroundColorShade ?? 0;
+const circleBackgroundCustomColor = props.circleBackgroundCustomColor;
+const circleTextColor = props.circleTextColor ?? 'base';
 
 // Fetch site settings for colors
 const settings = await client.fetch(siteSettingsQuery);
@@ -101,15 +133,44 @@ const backgroundColor =
         siteColors
       );
 
-// Resolve selected item color
-const selectedItemBgColor = resolveColorSelection(
-  {
-    colorType: selectedItemColorType,
-    shade: selectedItemColorShade,
-    customColor: selectedItemCustomColor,
-  },
-  siteColors
-);
+// Resolve badge border color (with shade) - null if default
+const badgeBorderColor =
+  badgeColorType === 'default' || !badgeColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: badgeColorType,
+          shade: badgeColorShade,
+          customColor: badgeCustomColor,
+        },
+        siteColors
+      );
+
+// Resolve badge background color (with shade) - null if default
+const badgeBackgroundColor =
+  badgeBackgroundColorType === 'default' || !badgeBackgroundColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: badgeBackgroundColorType,
+          shade: badgeBackgroundColorShade,
+          customColor: badgeBackgroundCustomColor,
+        },
+        siteColors
+      );
+
+// Resolve circle background color (with shade) - null if default
+const circleBackgroundColor =
+  circleBackgroundColorType === 'default' || !circleBackgroundColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: circleBackgroundColorType,
+          shade: circleBackgroundColorShade,
+          customColor: circleBackgroundCustomColor,
+        },
+        siteColors
+      );
 
 // Resolve CTA button
 const ctaHref = ctaButton ? resolveLinkUrl(ctaButton) : null;
@@ -158,12 +219,32 @@ const cssVars: Record<string, string> = {
     descriptionColor === 'contrast'
       ? 'var(--color-text-contrast)'
       : 'var(--color-text-muted)',
-  '--experience-selected-bg': selectedItemBgColor,
+  '--experience-badge-text-color':
+    badgeTextColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-text-muted)',
+  '--experience-circle-text-color':
+    circleTextColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-text-muted)',
   '--experience-card-desc-color':
     cardDescriptionColor === 'contrast'
       ? 'var(--color-text-contrast)'
       : 'var(--color-text-muted)',
 };
+
+// Only set if not default
+if (badgeBorderColor) {
+  cssVars['--experience-badge-border-color'] = badgeBorderColor;
+}
+
+if (badgeBackgroundColor) {
+  cssVars['--experience-badge-bg-color'] = badgeBackgroundColor;
+}
+
+if (circleBackgroundColor) {
+  cssVars['--experience-circle-bg'] = circleBackgroundColor;
+}
 
 // Only set background if not default
 if (backgroundColor) {
@@ -417,13 +498,13 @@ const cssVarsString = Object.entries(cssVars)
       circle at 50% 50%,
       color-mix(
           in srgb,
-          var(--experience-selected-bg, var(--color-accent)) 12%,
+          var(--experience-circle-bg, var(--color-background)) 12%,
           white
         )
         0%,
       color-mix(
           in srgb,
-          var(--experience-selected-bg, var(--color-accent)) 6%,
+          var(--experience-circle-bg, var(--color-background)) 6%,
           white
         )
         60%,
@@ -436,13 +517,13 @@ const cssVarsString = Object.entries(cssVars)
       0 0 80px
         color-mix(
           in srgb,
-          var(--experience-selected-bg, var(--color-accent)) 12%,
+          var(--experience-circle-bg, var(--color-background)) 12%,
           transparent
         ),
       0 0 160px
         color-mix(
           in srgb,
-          var(--experience-selected-bg, var(--color-accent)) 6%,
+          var(--experience-circle-bg, var(--color-background)) 6%,
           transparent
         );
     display: flex;
@@ -566,7 +647,7 @@ const cssVarsString = Object.entries(cssVars)
     font-family: var(--font-heading, Georgia, serif);
     font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 400;
-    color: var(--experience-selected-bg, var(--color-accent));
+    color: var(--color-accent);
     line-height: 1;
     margin-bottom: var(--space-xs);
   }
@@ -575,14 +656,14 @@ const cssVarsString = Object.entries(cssVars)
     font-family: var(--font-heading, Georgia, serif);
     font-size: clamp(1.25rem, 2vw, 1.75rem);
     font-weight: 500;
-    color: var(--color-text, #1a1a1a);
+    color: var(--experience-circle-text-color);
     margin: 0 0 var(--space-sm) 0;
     line-height: 1.2;
   }
 
   .experience-orbital__desc-text {
     font-size: clamp(0.875rem, 1.2vw, 1rem);
-    color: var(--experience-card-desc-color, var(--color-text-muted));
+    color: var(--experience-circle-text-color);
     line-height: 1.5;
     margin: 0;
     max-width: 90%;
@@ -610,13 +691,13 @@ const cssVarsString = Object.entries(cssVars)
     gap: var(--space-xs);
     padding: var(--space-sm) var(--space-md);
 
-    background: var(--color-background, #ffffff);
+    background: color-mix(
+      in srgb,
+      var(--experience-badge-bg-color, var(--color-background)) 8%,
+      white
+    );
     border: 1px solid
-      color-mix(
-        in srgb,
-        var(--experience-selected-bg, var(--color-accent)) 30%,
-        transparent
-      );
+      var(--experience-badge-border-color, var(--color-background));
     border-radius: 100px; /* Pill shape */
     cursor: pointer;
     white-space: nowrap;
@@ -633,46 +714,47 @@ const cssVarsString = Object.entries(cssVars)
   }
 
   .experience-orbital__badge:hover {
-    border-color: var(--experience-selected-bg, var(--color-accent));
+    border-color: var(--experience-badge-border-color, var(--color-background));
     box-shadow:
       0 4px 12px
         color-mix(
           in srgb,
-          var(--experience-selected-bg, var(--color-accent)) 15%,
+          var(--experience-badge-border-color, var(--color-background)) 15%,
           transparent
         ),
       0 8px 24px
         color-mix(
           in srgb,
-          var(--experience-selected-bg, var(--color-accent)) 8%,
+          var(--experience-badge-border-color, var(--color-background)) 8%,
           transparent
         );
   }
 
   .experience-orbital__badge[data-active='true'] {
-    border-color: var(--experience-selected-bg, var(--color-accent));
+    border-color: var(--experience-badge-border-color, var(--color-background));
     background: color-mix(
       in srgb,
-      var(--experience-selected-bg, var(--color-accent)) 8%,
+      var(--experience-badge-bg-color, var(--color-background)) 8%,
       white
     );
     box-shadow:
       0 4px 16px
         color-mix(
           in srgb,
-          var(--experience-selected-bg, var(--color-accent)) 20%,
+          var(--experience-badge-border-color, var(--color-background)) 20%,
           transparent
         ),
       0 8px 32px
         color-mix(
           in srgb,
-          var(--experience-selected-bg, var(--color-accent)) 10%,
+          var(--experience-badge-border-color, var(--color-background)) 10%,
           transparent
         );
   }
 
   .experience-orbital__badge:focus-visible {
-    outline: 2px solid var(--experience-selected-bg, var(--color-accent));
+    outline: 2px solid
+      var(--experience-badge-border-color, var(--color-background));
     outline-offset: 3px;
   }
 
@@ -680,7 +762,7 @@ const cssVarsString = Object.entries(cssVars)
     font-family: var(--font-heading, Georgia, serif);
     font-size: clamp(1.1rem, 1.8vw, 1.4rem);
     font-weight: 400;
-    color: var(--experience-selected-bg, var(--color-accent));
+    color: var(--color-accent);
     line-height: 1;
   }
 
@@ -698,22 +780,10 @@ const cssVarsString = Object.entries(cssVars)
     font-family: var(--font-sans, system-ui);
     font-size: clamp(0.7rem, 0.9vw, 0.8rem);
     font-weight: 600;
-    color: var(--color-text, #1a1a1a);
+    color: var(--experience-badge-text-color);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     line-height: 1.2;
-  }
-
-  .experience-orbital__badge:hover .experience-orbital__badge-number,
-  .experience-orbital__badge[data-active='true']
-    .experience-orbital__badge-number {
-    color: var(--experience-selected-bg, var(--color-accent));
-  }
-
-  .experience-orbital__badge:hover .experience-orbital__badge-title,
-  .experience-orbital__badge[data-active='true']
-    .experience-orbital__badge-title {
-    color: var(--experience-selected-bg, var(--color-accent));
   }
 
   /* CTA wrapper - centers button below orbital */

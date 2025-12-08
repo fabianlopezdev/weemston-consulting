@@ -17,9 +17,9 @@ export default defineType({
       options: { collapsible: true, collapsed: true },
     },
     {
-      name: 'selectedItemSettings',
-      title: 'Selected Item (Active Nav)',
-      options: { collapsible: true, collapsed: true },
+      name: 'orbitalColors',
+      title: 'Section Colors',
+      options: { collapsible: true, collapsed: false },
     },
     {
       name: 'cardDescriptionSettings',
@@ -122,41 +122,159 @@ export default defineType({
     },
     // Selected Item (Active Nav) Color Settings
     {
-      name: 'selectedItemColorType',
-      title: 'Color',
+      name: 'badgeColorType',
+      title: 'Badge Border Color',
       type: 'string',
       options: {
         list: [
+          { title: 'Default', value: 'default' },
           { title: 'Primary', value: 'primary' },
           { title: 'Secondary', value: 'secondary' },
           { title: 'Accent', value: 'accent' },
           { title: 'Custom', value: 'custom' },
         ],
       },
-      initialValue: 'accent',
+      initialValue: 'default',
       hidden: ({ parent }) => !parent?.enabled,
-      fieldset: 'selectedItemSettings',
+      fieldset: 'orbitalColors',
     },
     {
-      name: 'selectedItemColorShade',
-      title: 'Shade',
+      name: 'badgeColorShade',
+      title: 'Badge Border Shade',
       type: 'number',
       initialValue: 0,
       hidden: ({ parent }) =>
-        !parent?.enabled || parent?.selectedItemColorType === 'custom',
+        !parent?.enabled ||
+        parent?.badgeColorType === 'custom' ||
+        parent?.badgeColorType === 'default' ||
+        !parent?.badgeColorType,
       validation: (Rule) => Rule.min(0).max(100).integer(),
       components: {
         input: BackgroundShadeInput,
       },
-      fieldset: 'selectedItemSettings',
+      fieldset: 'orbitalColors',
     },
     {
-      name: 'selectedItemCustomColor',
-      title: 'Custom Color',
+      name: 'badgeCustomColor',
+      title: 'Custom Badge Border Color',
       type: 'simplerColor',
       hidden: ({ parent }) =>
-        !parent?.enabled || parent?.selectedItemColorType !== 'custom',
-      fieldset: 'selectedItemSettings',
+        !parent?.enabled || parent?.badgeColorType !== 'custom',
+      fieldset: 'orbitalColors',
+    },
+    {
+      name: 'badgeBackgroundColorType',
+      title: 'Badge Background Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+      hidden: ({ parent }) => !parent?.enabled,
+      fieldset: 'orbitalColors',
+    },
+    {
+      name: 'badgeBackgroundColorShade',
+      title: 'Badge Background Shade',
+      type: 'number',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.enabled ||
+        parent?.badgeBackgroundColorType === 'custom' ||
+        parent?.badgeBackgroundColorType === 'default' ||
+        !parent?.badgeBackgroundColorType,
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+      fieldset: 'orbitalColors',
+    },
+    {
+      name: 'badgeBackgroundCustomColor',
+      title: 'Custom Badge Background Color',
+      type: 'simplerColor',
+      hidden: ({ parent }) =>
+        !parent?.enabled || parent?.badgeBackgroundColorType !== 'custom',
+      fieldset: 'orbitalColors',
+    },
+    {
+      name: 'circleBackgroundColorType',
+      title: 'Circle Background Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+      hidden: ({ parent }) => !parent?.enabled,
+      fieldset: 'orbitalColors',
+    },
+    {
+      name: 'circleBackgroundColorShade',
+      title: 'Circle Background Shade',
+      type: 'number',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.enabled ||
+        parent?.circleBackgroundColorType === 'custom' ||
+        parent?.circleBackgroundColorType === 'default' ||
+        !parent?.circleBackgroundColorType,
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+      fieldset: 'orbitalColors',
+    },
+    {
+      name: 'circleBackgroundCustomColor',
+      title: 'Custom Circle Background Color',
+      type: 'simplerColor',
+      hidden: ({ parent }) =>
+        !parent?.enabled || parent?.circleBackgroundColorType !== 'custom',
+      fieldset: 'orbitalColors',
+    },
+    {
+      name: 'badgeTextColor',
+      title: 'Badge Text Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
+      hidden: ({ parent }) => !parent?.enabled,
+      fieldset: 'orbitalColors',
+    },
+    {
+      name: 'circleTextColor',
+      title: 'Circle Text Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
+      hidden: ({ parent }) => !parent?.enabled,
+      fieldset: 'orbitalColors',
     },
     // Card Description Color
     {

@@ -94,6 +94,12 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'cardBorderColorType';
   } else if (fieldName === 'iconBackgroundColorShade') {
     colorTypeFieldName = 'iconBackgroundColorType';
+  } else if (fieldName === 'badgeColorShade') {
+    colorTypeFieldName = 'badgeColorType';
+  } else if (fieldName === 'badgeBackgroundColorShade') {
+    colorTypeFieldName = 'badgeBackgroundColorType';
+  } else if (fieldName === 'circleBackgroundColorShade') {
+    colorTypeFieldName = 'circleBackgroundColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';
