@@ -12,7 +12,8 @@ export default defineType({
     {
       name: 'images',
       title: 'Collage Images',
-      description: 'Add images that will display in a seamless horizontal strip behind the tagline.',
+      description:
+        'Add images that will display in a seamless horizontal strip behind the tagline.',
     },
     {
       name: 'overlay',
@@ -32,7 +33,8 @@ export default defineType({
       name: 'tagline',
       title: 'Tagline',
       type: 'string',
-      description: 'The statement that will appear overlaid on the image collage',
+      description:
+        'The statement that will appear overlaid on the image collage',
       fieldset: 'text',
       validation: (Rule) =>
         Rule.custom((value, context) => {
@@ -65,7 +67,8 @@ export default defineType({
       title: 'Images',
       type: 'array',
       fieldset: 'images',
-      description: 'Add 3-8 images for the collage strip. Images will be displayed in a 16:9 aspect ratio.',
+      description:
+        'Add 3-8 images for the collage strip. Images will be displayed in a 16:9 aspect ratio.',
       of: [
         {
           type: 'image',
