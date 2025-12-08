@@ -8,7 +8,7 @@ export default defineType({
   fieldsets: [
     {
       name: 'background',
-      title: 'Section Background Color',
+      title: 'Section Background',
       options: { collapsible: true, collapsed: true },
     },
     {
@@ -35,7 +35,54 @@ export default defineType({
       initialValue: true,
       description: 'Toggle to hide/show this section on the homepage',
     },
-    // Background Color Settings
+    // Background Type Toggle
+    {
+      name: 'backgroundType',
+      title: 'Background Type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Color', value: 'color' },
+          { title: 'Image', value: 'image' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'color',
+      hidden: ({ parent }) => !parent?.enabled,
+      fieldset: 'background',
+    },
+    // Background Image (shown only when type is 'image')
+    {
+      name: 'backgroundImage',
+      title: 'Background Image',
+      type: 'image',
+      description:
+        'Recommended: 1920x1080 or larger. A dark overlay will be applied for text legibility.',
+      hidden: ({ parent }) =>
+        !parent?.enabled || parent?.backgroundType !== 'image',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        {
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          description: 'Describe the image for accessibility',
+          validation: (Rule) => Rule.required(),
+        },
+        {
+          name: 'seoFilename',
+          title: 'SEO Filename (optional)',
+          type: 'string',
+          description:
+            'Custom filename for SEO (e.g., "team-working-together")',
+        },
+      ],
+      fieldset: 'background',
+    },
+    // Background Color Settings (shown only when type is 'color')
     {
       name: 'backgroundColorType',
       title: 'Color',
@@ -50,7 +97,8 @@ export default defineType({
         ],
       },
       initialValue: 'default',
-      hidden: ({ parent }) => !parent?.enabled,
+      hidden: ({ parent }) =>
+        !parent?.enabled || parent?.backgroundType === 'image',
       fieldset: 'background',
     },
     {
@@ -60,6 +108,7 @@ export default defineType({
       initialValue: 0,
       hidden: ({ parent }) =>
         !parent?.enabled ||
+        parent?.backgroundType === 'image' ||
         parent?.backgroundColorType === 'custom' ||
         parent?.backgroundColorType === 'default' ||
         !parent?.backgroundColorType,
@@ -74,7 +123,9 @@ export default defineType({
       title: 'Custom Color',
       type: 'simplerColor',
       hidden: ({ parent }) =>
-        !parent?.enabled || parent?.backgroundColorType !== 'custom',
+        !parent?.enabled ||
+        parent?.backgroundType === 'image' ||
+        parent?.backgroundColorType !== 'custom',
       fieldset: 'background',
     },
     // Card Background Color Settings
@@ -161,10 +212,30 @@ export default defineType({
         !parent?.enabled || parent?.cardBorderColorType !== 'custom',
       fieldset: 'cardBorder',
     },
-    // Text Color
+    // Title Color (shown when background is image)
+    {
+      name: 'titleColor',
+      title: 'Title Color',
+      type: 'string',
+      description:
+        'Base uses the accent color for this title (default for titles across the site). Contrast uses white for readability over dark images.',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'contrast',
+      hidden: ({ parent }) =>
+        !parent?.enabled || parent?.backgroundType !== 'image',
+      fieldset: 'textSettings',
+    },
+    // Text Color (card text)
     {
       name: 'textColor',
-      title: 'Text Color',
+      title: 'Card Text Color',
       type: 'string',
       options: {
         list: [
@@ -222,12 +293,14 @@ export default defineType({
       title: 'title',
       enabled: 'enabled',
       testimonialsCount: 'testimonials.length',
+      backgroundType: 'backgroundType',
     },
-    prepare({ title, enabled, testimonialsCount }) {
+    prepare({ title, enabled, testimonialsCount, backgroundType }) {
       const status = enabled ? '✓' : '✗';
       const displayTitle = title || 'Testimonials';
+      const bgInfo = backgroundType === 'image' ? ' (image bg)' : '';
       const subtitle = enabled
-        ? `${testimonialsCount || 0} testimonial${testimonialsCount !== 1 ? 's' : ''} selected`
+        ? `${testimonialsCount || 0} testimonial${testimonialsCount !== 1 ? 's' : ''} selected${bgInfo}`
         : 'Hidden from site';
 
       return {

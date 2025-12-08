@@ -73,9 +73,9 @@ if (bgStyle.type === 'image' && bgStyle.image) {
   bgImageUrl = urlForImage(bgStyle.image).width(1920).height(1080).url();
 }
 
-// Helper to resolve text color
+// Helper to resolve text color using centralized CSS variables
 const getTextColor = (color?: 'base' | 'contrast') =>
-  color === 'base' ? '#1a1a1a' : undefined; // undefined = use default white from CSS
+  color === 'contrast' ? 'var(--color-text-contrast)' : 'var(--color-text)';
 
 // Convert heading to HTML with line breaks
 const getHeadingHtml = (
@@ -130,20 +130,14 @@ const ctaTextColor = ctaButton
   <div class="hero__content container">
     <h1
       class="hero__heading"
-      style={getTextColor(headingColor)
-        ? `color: ${getTextColor(headingColor)}`
-        : undefined}
+      style={`color: ${getTextColor(headingColor)}`}
       set:html={getHeadingHtml(heading)}
     />
     {
       subheading && (
         <p
           class="hero__intro"
-          style={
-            getTextColor(subheadingColor)
-              ? `color: ${getTextColor(subheadingColor)}`
-              : undefined
-          }
+          style={`color: ${getTextColor(subheadingColor)}`}
         >
           {subheading}
         </p>
@@ -153,11 +147,7 @@ const ctaTextColor = ctaButton
       tagline && (
         <p
           class="hero__subheading"
-          style={
-            getTextColor(taglineColor)
-              ? `color: ${getTextColor(taglineColor)}`
-              : undefined
-          }
+          style={`color: ${getTextColor(taglineColor)}`}
         >
           {tagline}
         </p>

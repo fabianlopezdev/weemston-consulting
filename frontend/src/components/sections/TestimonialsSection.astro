@@ -10,6 +10,35 @@ interface ColorData {
   value: string;
 }
 
+interface SanityImageAsset {
+  _id: string;
+  url: string;
+  metadata?: {
+    lqip?: string;
+    dimensions?: {
+      width: number;
+      height: number;
+      aspectRatio: number;
+    };
+  };
+}
+
+interface SanityImage {
+  asset?: SanityImageAsset;
+  alt?: string;
+  seoFilename?: string;
+  hotspot?: {
+    x: number;
+    y: number;
+  };
+  crop?: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
+}
+
 interface Testimonial {
   _id: string;
   name: string;
@@ -23,6 +52,9 @@ interface Testimonial {
 interface Props {
   title: string;
   testimonials: Testimonial[];
+  // Background type toggle
+  backgroundType?: 'color' | 'image';
+  backgroundImage?: SanityImage;
   // Section background color settings
   backgroundColorType?:
     | 'default'
@@ -50,13 +82,17 @@ interface Props {
     | 'custom';
   cardBorderColorShade?: number;
   cardBorderCustomColor?: ColorData;
-  // Text color
+  // Title color (for image backgrounds)
+  titleColor?: 'base' | 'contrast';
+  // Text color (card text)
   textColor?: 'base' | 'contrast';
 }
 
 const {
   title,
   testimonials,
+  backgroundType = 'color',
+  backgroundImage,
   backgroundColorType = 'default',
   backgroundColorShade = 0,
   backgroundCustomColor,
@@ -66,6 +102,7 @@ const {
   cardBorderColorType = 'primary',
   cardBorderColorShade = 0,
   cardBorderCustomColor,
+  titleColor,
   textColor = 'base',
 } = Astro.props;
 
@@ -112,8 +149,30 @@ const cardBorderColor =
         siteColors
       );
 
+// Generate background image URL if type is 'image'
+const hasBackgroundImage = backgroundType === 'image' && backgroundImage?.asset;
+const bgImageUrl = hasBackgroundImage
+  ? urlForImage(backgroundImage).width(1920).height(1080).auto('format').url()
+  : null;
+const bgImageLqip = hasBackgroundImage
+  ? backgroundImage?.asset?.metadata?.lqip
+  : null;
+const bgImageAlt = backgroundImage?.alt || '';
+const bgHotspot = backgroundImage?.hotspot;
+const bgHotspotX = bgHotspot ? `${bgHotspot.x * 100}%` : '50%';
+const bgHotspotY = bgHotspot ? `${bgHotspot.y * 100}%` : '50%';
+
+// Determine effective title color - default to contrast for image backgrounds
+const effectiveTitleColor = hasBackgroundImage
+  ? (titleColor ?? 'contrast')
+  : 'base';
+
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
+  '--ts-title':
+    effectiveTitleColor === 'contrast'
+      ? 'var(--color-text-contrast)'
+      : 'var(--color-accent)',
   '--ts-text':
     textColor === 'contrast'
       ? 'var(--color-text-contrast)'
@@ -152,8 +211,37 @@ const renderCard = (testimonial: Testimonial) => {
 const cards = testimonials.map(renderCard);
 ---
 
-<section class="testimonials-section" style={cssVarsString}>
+<section
+  class:list={[
+    'testimonials-section',
+    { 'testimonials-section--has-bg-image': hasBackgroundImage },
+  ]}
+  style={cssVarsString}
+>
   <div class="testimonials-section__content">
+    {
+      /* Background Image Layer - inside content so it gets clipped with parallax */
+    }
+    {
+      hasBackgroundImage && bgImageUrl && (
+        <div class="testimonials-section__bg">
+          <div
+            class="testimonials-section__bg-blur"
+            style={bgImageLqip ? `background-image: url(${bgImageLqip})` : ''}
+          />
+          <img
+            src={bgImageUrl}
+            alt={bgImageAlt}
+            class="testimonials-section__bg-image"
+            style={`object-position: ${bgHotspotX} ${bgHotspotY}`}
+            loading="eager"
+            decoding="async"
+          />
+          <div class="testimonials-section__bg-overlay" />
+          <div class="testimonials-section__bg-grain" aria-hidden="true" />
+        </div>
+      )
+    }
     <div class="container">
       <SectionTitle>{title}</SectionTitle>
 
@@ -308,6 +396,30 @@ const cards = testimonials.map(renderCard);
   gsap.registerPlugin(Draggable);
 
   setupAnimationLifecycle(() => {
+    // Handle background image blur-up loading effect
+    const bgImage = document.querySelector(
+      '.testimonials-section__bg-image'
+    ) as HTMLImageElement;
+    const bgBlur = document.querySelector(
+      '.testimonials-section__bg-blur'
+    ) as HTMLElement;
+
+    if (bgImage) {
+      const handleImageLoad = () => {
+        bgImage.classList.add('loaded');
+        if (bgBlur) {
+          bgBlur.classList.add('loaded');
+        }
+      };
+
+      // Check if already loaded (cached)
+      if (bgImage.complete && bgImage.naturalHeight !== 0) {
+        handleImageLoad();
+      } else {
+        bgImage.addEventListener('load', handleImageLoad);
+      }
+    }
+
     const track = document.querySelector(
       '.testimonials-marquee__track'
     ) as HTMLElement;
@@ -484,12 +596,106 @@ const cards = testimonials.map(renderCard);
     z-index: -1;
   }
 
+  /* ===== Background Image Styles ===== */
+  .testimonials-section__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  /* LQIP blur placeholder - fades out when main image loads */
+  .testimonials-section__bg-blur {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(20px);
+    transform: scale(1.1);
+    opacity: 1;
+    transition: opacity 0.6s ease-out;
+  }
+
+  .testimonials-section__bg-blur.loaded {
+    opacity: 0;
+  }
+
+  /* Main background image with Ken Burns effect */
+  .testimonials-section__bg-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.6s ease-out;
+    animation: testimonials-ken-burns 25s ease-in-out infinite alternate;
+  }
+
+  .testimonials-section__bg-image.loaded {
+    opacity: 1;
+  }
+
+  @keyframes testimonials-ken-burns {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(1.08);
+    }
+  }
+
+  /* Dark overlay for text legibility */
+  .testimonials-section__bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.35) 0%,
+      rgba(0, 0, 0, 0.5) 50%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+  }
+
+  /* Subtle grain texture for depth */
+  .testimonials-section__bg-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* When background image is present, adjust content styling */
+  .testimonials-section--has-bg-image .testimonials-section__content {
+    background-color: transparent;
+  }
+
+  /* Ensure content container is above background image layer */
+  .testimonials-section--has-bg-image .container {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Override section title color when set via CSS variable */
+  .testimonials-section :global(.section-title) {
+    color: var(--ts-title, var(--color-accent));
+  }
+
+  /* Reduce motion: disable Ken Burns animation */
+  @media (prefers-reduced-motion: reduce) {
+    .testimonials-section__bg-image {
+      animation: none;
+    }
+  }
+
   /* Content wrapper that shrinks with clip-path */
   .testimonials-section__content {
     /* Initial clip values (starts expanded, contracts on scroll) */
     --section-clip: 0vw;
     --section-radius: 0rem;
 
+    position: relative;
     clip-path: inset(
       var(--section-clip) round 0 0 var(--section-radius) var(--section-radius)
     );

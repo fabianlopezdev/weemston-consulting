@@ -237,6 +237,10 @@ const pageSectionsQuery = `
     },
     _type == "testimonialsSection" => {
       title,
+      backgroundType,
+      backgroundImage {
+        ${imageProjection}
+      },
       backgroundColorType,
       backgroundColorShade,
       backgroundCustomColor { label, value },
@@ -246,6 +250,7 @@ const pageSectionsQuery = `
       cardBorderColorType,
       cardBorderColorShade,
       cardBorderCustomColor { label, value },
+      titleColor,
       textColor,
       testimonials[]-> {
         _id,
@@ -289,9 +294,14 @@ const pageSectionsQuery = `
       backgroundColorType,
       backgroundColorShade,
       backgroundCustomColor { label, value },
-      selectedItemColorType,
-      selectedItemColorShade,
-      selectedItemCustomColor { label, value },
+      badgeColorType,
+      badgeColorShade,
+      badgeCustomColor { label, value },
+      badgeTextColor,
+      circleBackgroundColorType,
+      circleBackgroundColorShade,
+      circleBackgroundCustomColor { label, value },
+      circleTextColor,
       cardDescriptionColor,
       ctaButton {
         ${linkProjection}
