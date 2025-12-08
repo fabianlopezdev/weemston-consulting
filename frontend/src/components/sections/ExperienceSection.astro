@@ -392,7 +392,7 @@ const cssVarsString = Object.entries(cssVars)
     position: relative;
     /* Height = circle + orbit on all sides + padding for badges */
     min-height: 100vh;
-    padding: var(--space-xl) 0;
+    padding: 0 0 var(--space-xl) 0;
   }
 
   /* Central circle container - absolutely centered */
@@ -402,8 +402,8 @@ const cssVarsString = Object.entries(cssVars)
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 2;
-    /* Initially hidden, GSAP reveals it */
-    opacity: 0;
+    /* Visible immediately */
+    opacity: 1;
   }
 
   .experience-orbital__circle {
@@ -1067,15 +1067,14 @@ const cssVarsString = Object.entries(cssVars)
       const sideY = -50; // Side badges slightly above center
       const bottomX = 200; // Fixed X position for bottom badges
 
-      // Create pinned timeline
-      const scrollTl = gsap.timeline({
+      // PHASE 1: Create timeline for badge animation WITHOUT pinning
+      const badgeAnimationTl = gsap.timeline({
         scrollTrigger: {
           trigger: orbitalSection,
-          start: 'top 15%',
-          end: '+=70%',
-          pin: true,
+          start: 'top 75%', // Start when section top is at 75% viewport height
+          end: 'center center', // Finish when section center reaches viewport center
           scrub: 1,
-          anticipatePin: 1,
+          // NO pin - let section scroll naturally during animation
         },
       });
 
@@ -1146,32 +1145,29 @@ const cssVarsString = Object.entries(cssVars)
           xPercent: -50,
         });
 
-        // Animate to orbital position
-        scrollTl.to(
+        // Animate to orbital position (all badges animate together)
+        badgeAnimationTl.to(
           badge,
           {
             x: finalX,
             y: finalY,
             ease: 'power2.inOut',
           },
-          0
+          0 // All animations start at time 0 (simultaneously)
         );
       });
 
-      // Fade in and scale up the circle
-      scrollTl.fromTo(
-        circleCenter,
-        { opacity: 0 },
-        { opacity: 1, ease: 'power2.out' },
-        0.1
-      );
-
-      scrollTl.fromTo(
-        '.experience-orbital__circle',
-        { scale: 0.8 },
-        { scale: 1, ease: 'power2.out' },
-        0
-      );
+      // PHASE 2: Pin section AFTER badges finish animating
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: orbitalSection,
+          start: 'center center', // Pin when section centered - circle + badges fully visible
+          end: '+=100%', // Stay pinned for this scroll distance
+          pin: true,
+          pinSpacing: true,
+          scrub: 1,
+        },
+      });
     }
 
     // ========================================
