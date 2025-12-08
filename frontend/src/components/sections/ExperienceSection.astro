@@ -222,7 +222,10 @@ const cssVarsString = Object.entries(cssVars)
           <div class="experience-orbital__circle-inner">
             <!-- Default content when no item is hovered -->
             <div class="experience-orbital__default" data-active="true">
-              <p class="experience-orbital__default-text">Hover to explore</p>
+              <h3 class="experience-orbital__default-title">{title}</h3>
+              <p class="experience-orbital__default-text">
+                Hover the badges to explore
+              </p>
             </div>
             {
               cards.map((card, index) => (
@@ -516,6 +519,15 @@ const cssVarsString = Object.entries(cssVars)
   .experience-orbital__default[data-active='true'] {
     opacity: 1;
     transform: scale(1);
+  }
+
+  .experience-orbital__default-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-weight: 600;
+    color: var(--color-text-primary, #1a1a1a);
+    margin: 0 0 0.5rem 0;
+    text-align: center;
   }
 
   .experience-orbital__default-text {
