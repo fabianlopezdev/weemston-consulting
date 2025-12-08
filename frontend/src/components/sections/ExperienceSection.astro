@@ -1144,7 +1144,7 @@ const cssVarsString = Object.entries(cssVars)
       badges.length > 0
     ) {
       const sectionRect = orbitalSection.getBoundingClientRect();
-      const sectionHeight = orbitalSection.offsetHeight;
+      const sectionHeight = (orbitalSection as HTMLElement).offsetHeight;
       const sectionCenterY = sectionHeight / 2;
 
       // Store initial badge positions and dimensions
@@ -1192,8 +1192,8 @@ const cssVarsString = Object.entries(cssVars)
       });
 
       // Get widths for alignment calculation
-      const rightSideWidth = badgeData[1].width; // Badge 1 (right side)
-      const leftSideWidth = badgeData[4].width; // Badge 4 (left side)
+      const rightSideWidth = badgeData[1]?.width ?? 0; // Badge 1 (right side)
+      const leftSideWidth = badgeData[4]?.width ?? 0; // Badge 4 (left side)
 
       // Calculate X positions once for alignment
       const rightX = circleRadius + gapSide + rightSideWidth / 2;
@@ -1205,7 +1205,7 @@ const cssVarsString = Object.entries(cssVars)
       //   [4]    ○    [1]   ← side badges slightly above center
       //   [3]         [2]   ← bottom badges below circle (aligned X with sides)
       badges.forEach((badge, index) => {
-        const badgeHeight = badgeData[index].height;
+        const badgeHeight = badgeData[index]?.height ?? 0;
 
         let finalX: number;
         let finalY: number;
@@ -1220,7 +1220,7 @@ const cssVarsString = Object.entries(cssVars)
           finalY = sideY + sectionCenterY;
         } else if (index === 2) {
           // Right bottom badge - corner-based gap calculation
-          const badgeWidth = badgeData[index].width;
+          const badgeWidth = badgeData[index]?.width ?? 0;
           finalX = bottomX;
           // Corner X position (top-left corner for right badge)
           const cornerX = bottomX - badgeWidth / 2;
@@ -1232,7 +1232,7 @@ const cssVarsString = Object.entries(cssVars)
           finalY = sectionCenterY + badgeHeight / 2 + yOffset;
         } else if (index === 3) {
           // Left bottom badge - corner-based gap calculation
-          const badgeWidth = badgeData[index].width;
+          const badgeWidth = badgeData[index]?.width ?? 0;
           finalX = -bottomX;
           // Corner X position (top-right corner for left badge)
           const cornerX = -bottomX + badgeWidth / 2;
@@ -1253,8 +1253,8 @@ const cssVarsString = Object.entries(cssVars)
           position: 'absolute',
           left: '50%',
           top: 0,
-          x: badgeData[index].x,
-          y: badgeData[index].y,
+          x: badgeData[index]?.x ?? 0,
+          y: badgeData[index]?.y ?? 0,
           xPercent: -50,
         });
 
