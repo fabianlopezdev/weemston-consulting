@@ -140,7 +140,6 @@ const cssVarsString = Object.entries(cssVars)
     --hww-number-size: clamp(1.75rem, 4vw, 2.5rem);
     --hww-item-gap: clamp(3rem, 6vw, 5rem);
     --hww-base-indent: 2rem;
-    --hww-indent-step: 3rem;
 
     position: relative;
     padding: var(--space-3xl) 0;
@@ -200,9 +199,9 @@ const cssVarsString = Object.entries(cssVars)
 
   .timeline__svg {
     position: absolute;
-    left: calc(1rem - 30px); /* Offset to center wider canvas over markers */
+    left: 0;
     top: 0;
-    width: 140px; /* Wider canvas for more organic curves */
+    width: 100%;
     height: 100%;
     z-index: 0;
     overflow: visible;
@@ -210,20 +209,31 @@ const cssVarsString = Object.entries(cssVars)
 
   .timeline__path {
     stroke: var(--hww-accent, var(--color-secondary));
-    opacity: 0.85;
+    stroke-width: 2px;
+    opacity: 0.6;
   }
 
   .timeline__item {
-    --item-indent: calc(
-      var(--hww-base-indent) + var(--hww-indent-step) * var(--item-index, 0)
-    );
-
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    gap: var(--item-indent);
+    gap: var(--hww-base-indent, 2rem);
     position: relative;
     padding-bottom: var(--hww-item-gap);
+    max-width: 85%;
+  }
+
+  /* Staggered Layout for Desktop */
+  @media (min-width: 768px) {
+    /* Use nth-of-type to ignore the SVG element which is the first child */
+    .timeline__item:nth-of-type(even) {
+      margin-left: auto;
+      flex-direction: row;
+    }
+
+    .timeline__item:nth-of-type(odd) {
+      margin-right: auto;
+    }
   }
 
   .timeline__item:last-child {
@@ -290,7 +300,6 @@ const cssVarsString = Object.entries(cssVars)
     .how-we-work-section {
       --hww-marker-size: 65px;
       --hww-item-gap: clamp(2.5rem, 5vw, 3.5rem);
-      --hww-indent-step: 1rem;
     }
 
     .timeline {
@@ -298,15 +307,15 @@ const cssVarsString = Object.entries(cssVars)
     }
 
     .timeline__svg {
-      left: -17.5px; /* Center 100px canvas over 65px marker: (100-65)/2 = 17.5 */
-      width: 100px;
+      /* Reset to default full coverage if overridden */
+      left: 0;
+      width: 100%;
     }
 
     .timeline__item {
-      gap: calc(
-        var(--hww-base-indent) * 0.75 + var(--hww-indent-step) *
-          var(--item-index, 0)
-      );
+      /* Simpler gap for mobile */
+      gap: 1.5rem;
+      max-width: 100%; /* Use full width on mobile */
     }
   }
 </style>
@@ -314,33 +323,33 @@ const cssVarsString = Object.entries(cssVars)
 <script>
   import { setupAnimationLifecycle, gsap } from '@lib/animation';
 
-  function generateWavyPath(
-    markerCenters: number[],
-    svgWidth: number,
-    isMobile: boolean
-  ): string {
-    if (markerCenters.length < 2) return '';
+  function generateWavyPath(markers: { x: number; y: number }[]): string {
+    if (markers.length < 2) return '';
 
-    const centerX = svgWidth / 2;
-    const amplitude = isMobile ? 30 : 45; // How far the wave bulges left/right - dramatic organic sweep
+    let path = `M ${markers[0].x} ${markers[0].y}`;
 
-    const firstCenter = markerCenters[0] ?? 0;
-    let path = `M ${centerX} ${firstCenter}`;
+    for (let i = 0; i < markers.length - 1; i++) {
+      const start = markers[i];
+      const end = markers[i + 1];
 
-    for (let i = 0; i < markerCenters.length - 1; i++) {
-      const startY = markerCenters[i] ?? 0;
-      const endY = markerCenters[i + 1] ?? 0;
-      const midY = (startY + endY) / 2;
+      // Vertical distance
+      const distY = end.y - start.y;
 
-      // Alternate direction: even segments curve right, odd curve left
-      const direction = i % 2 === 0 ? 1 : -1;
-      const curveX = centerX + amplitude * direction;
+      // Control points for a smooth S-curve connecting two points
+      // We want the curve to leave the start point vertically downwards
+      // and enter the end point vertically downwards
 
-      // Create S-curve using cubic bezier with more organic control points
-      // First half: from start to midpoint, curving outward
-      path += ` C ${centerX} ${startY + (midY - startY) * 0.25}, ${curveX} ${startY + (midY - startY) * 0.45}, ${curveX} ${midY}`;
-      // Second half: from midpoint to end, curving back to center
-      path += ` C ${curveX} ${midY + (endY - midY) * 0.55}, ${centerX} ${midY + (endY - midY) * 0.75}, ${centerX} ${endY}`;
+      const cp1 = {
+        x: start.x,
+        y: start.y + distY * 0.5,
+      };
+
+      const cp2 = {
+        x: end.x,
+        y: end.y - distY * 0.5,
+      };
+
+      path += ` C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`;
     }
 
     return path;
@@ -357,36 +366,59 @@ const cssVarsString = Object.entries(cssVars)
     // Get the timeline's position for relative calculations
     const timelineRect = timeline.getBoundingClientRect();
 
-    // Get center Y position of each marker relative to the timeline
-    const markerCenters: number[] = [];
-    markers.forEach((marker) => {
-      const rect = marker.getBoundingClientRect();
-      const centerY = rect.top + rect.height / 2 - timelineRect.top;
-      markerCenters.push(centerY);
-    });
-
-    // Calculate SVG dimensions - use fixed wider canvas for organic curves
-    const isMobile = window.innerWidth <= 480;
-    const svgWidth = isMobile ? 100 : 140; // Wider canvas allows more dramatic curves
+    // Set SVG dimensions to match timeline exactly
+    const svgWidth = timelineRect.width;
     const svgHeight = timelineRect.height;
 
-    // Set viewBox to match actual pixel dimensions
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
 
+    // Get center positions of each marker relative to the timeline
+    const markerPositions: { x: number; y: number }[] = [];
+    markers.forEach((marker) => {
+      const rect = marker.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2 - timelineRect.left;
+      const centerY = rect.top + rect.height / 2 - timelineRect.top;
+      markerPositions.push({ x: centerX, y: centerY });
+    });
+
     // Generate and set the path
-    const pathD = generateWavyPath(markerCenters, svgWidth, isMobile);
+    const pathD = generateWavyPath(markerPositions);
     path.setAttribute('d', pathD);
 
     return path;
   }
 
   setupAnimationLifecycle(() => {
-    // Initialize the path after DOM is ready
-    const path = initTimelinePath();
+    const timeline = document.querySelector('.timeline') as HTMLElement;
+    if (!timeline) return;
 
+    // Function to run path calculation
+    const updatePath = () => {
+      // Small safety check to ensure element is still in DOM
+      if (!timeline.isConnected) return;
+      initTimelinePath();
+    };
+
+    // Initial calculation with a small delay to ensure layout is settled
+    // (Resolves potential race conditions with fonts/styles)
+    setTimeout(updatePath, 100);
+
+    // Use ResizeObserver for robust layout tracking
+    const observer = new ResizeObserver(() => {
+      // Debounce slightly to avoid thrashing
+      requestAnimationFrame(() => updatePath());
+    });
+    observer.observe(timeline);
+
+    // Initial Animation Setup
+    const path = timeline.querySelector(
+      '.timeline__svg path'
+    ) as SVGPathElement;
     if (path) {
-      // Get the total length of the SVG path
-      const pathLength = path.getTotalLength();
+      // Get the total length of the SVG path (approximate initial)
+      // Note: If path changes significantly, this animation might need tuning,
+      // but for "reveal" purposes usually initial state is enough.
+      const pathLength = path.getTotalLength() || 1000;
 
       // Set up stroke-dasharray and initial dashoffset
       path.style.strokeDasharray = `${pathLength}`;
@@ -409,6 +441,10 @@ const cssVarsString = Object.entries(cssVars)
               start: 'top 75%',
               end: 'top 55%',
               scrub: 0.5,
+              onUpdate: () => {
+                // Force path update during scrub if needed (optional)
+                // updatePath();
+              },
             },
           }
         );
@@ -434,12 +470,10 @@ const cssVarsString = Object.entries(cssVars)
         }
 
         // Path segment grows OUT OF this marker AFTER it appears
-        // (except for last marker - no segment after it)
         if (index < numMarkers - 1) {
           const nextMarker = markers[index + 1] as HTMLElement;
           if (!nextMarker) return;
 
-          // Calculate segment start and end points
           const segmentStart = pathLength * (1 - index / (numMarkers - 1));
           const segmentEnd = pathLength * (1 - (index + 1) / (numMarkers - 1));
 
@@ -452,11 +486,12 @@ const cssVarsString = Object.entries(cssVars)
               immediateRender: false,
               scrollTrigger: {
                 trigger: marker,
-                start: 'top 55%', // Start AFTER marker is revealed
+                start: 'top 55%',
                 end: () => {
-                  // End when next marker starts appearing
                   const nextRect = nextMarker.getBoundingClientRect();
-                  return `+=${nextRect.top - marker.getBoundingClientRect().top - 100}`;
+                  const currentRect = marker.getBoundingClientRect();
+                  // Dynamic distance calculation
+                  return `+=${Math.abs(nextRect.top - currentRect.top) - 50}`;
                 },
                 scrub: 1,
               },
