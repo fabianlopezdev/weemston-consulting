@@ -427,13 +427,27 @@ const cssVarsString = Object.entries(cssVars)
       if (path) {
         const len = path.getTotalLength();
         path.style.strokeDasharray = `${len}`;
+        // Preserve hidden state - only set if not already animated
+        // Check if strokeDashoffset is unset or needs initialization
+        if (
+          !path.style.strokeDashoffset ||
+          path.style.strokeDashoffset === '0'
+        ) {
+          path.style.strokeDashoffset = `${len}`;
+        }
       }
     };
 
     // Initial calculation (Synchronous) to ensure GSAP gets correct length
     // We still keep the ResizeObserver/Timeout for layout shifts
     if (timeline.isConnected) {
-      initTimelinePath();
+      const path = initTimelinePath();
+      // Hide path immediately after initialization to prevent flash
+      if (path) {
+        const len = path.getTotalLength();
+        path.style.strokeDasharray = `${len}`;
+        path.style.strokeDashoffset = `${len}`;
+      }
     }
 
     // Initial calculation with a small delay to ensure layout is settled
@@ -474,12 +488,15 @@ const cssVarsString = Object.entries(cssVars)
     }
 
     // Initial Animation Setup
+    const section = document.querySelector(
+      '.how-we-work-section'
+    ) as HTMLElement;
     const path = timeline.querySelector(
       '.timeline__svg path'
     ) as SVGPathElement;
-    if (path) {
+
+    if (path && section) {
       // Get the total length of the SVG path
-      // Because we ran initTimelinePath() above, this should be accurate now.
       const pathLength = path.getTotalLength();
 
       // Set up stroke-dasharray and initial dashoffset
@@ -490,39 +507,108 @@ const cssVarsString = Object.entries(cssVars)
       const contents = document.querySelectorAll('.timeline__content');
       const numMarkers = markers.length;
 
-      markers.forEach((marker, index) => {
-        // Marker appears first
+      if (numMarkers < 2) return;
+
+      // ===== MOBILE: Use viewport-based triggers (no pinning) =====
+      if (isMobile) {
+        markers.forEach((marker, index) => {
+          gsap.fromTo(
+            marker,
+            { scale: 0 },
+            {
+              scale: 1,
+              ease: 'back.out(1.5)',
+              scrollTrigger: {
+                trigger: marker,
+                start: 'top 75%',
+                end: 'top 55%',
+                scrub: 0.5,
+              },
+            }
+          );
+
+          const content = contents[index];
+          if (content) {
+            gsap.fromTo(
+              content,
+              { opacity: 0, x: -15 },
+              {
+                opacity: 1,
+                x: 0,
+                ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: marker,
+                  start: 'top 70%',
+                  end: 'top 50%',
+                  scrub: 0.5,
+                },
+              }
+            );
+          }
+
+          if (index < numMarkers - 1) {
+            const nextMarker = markers[index + 1] as HTMLElement;
+            if (!nextMarker) return;
+
+            const segmentStart = pathLength * (1 - index / (numMarkers - 1));
+            const segmentEnd =
+              pathLength * (1 - (index + 1) / (numMarkers - 1));
+
+            gsap.fromTo(
+              path,
+              { strokeDashoffset: segmentStart },
+              {
+                strokeDashoffset: segmentEnd,
+                ease: 'none',
+                immediateRender: false,
+                scrollTrigger: {
+                  trigger: marker,
+                  start: 'top 55%',
+                  end: () => {
+                    const nextRect = nextMarker.getBoundingClientRect();
+                    const currentRect = marker.getBoundingClientRect();
+                    return `+=${Math.abs(nextRect.top - currentRect.top) - 50}`;
+                  },
+                  scrub: 1,
+                },
+              }
+            );
+          }
+        });
+      } else {
+        // ===== DESKTOP: Two-phase approach with pinning =====
+
+        const firstMarker = markers[0] as HTMLElement;
+        const firstContent = contents[0];
+        const remainingMarkers = Array.from(markers).slice(1) as HTMLElement[];
+        const remainingContents = Array.from(contents).slice(1);
+
+        // PHASE 1: First card uses viewport-based triggers (pre-pin)
         gsap.fromTo(
-          marker,
+          firstMarker,
           { scale: 0 },
           {
             scale: 1,
             ease: 'back.out(1.5)',
             scrollTrigger: {
-              trigger: marker,
+              trigger: firstMarker,
               start: 'top 75%',
               end: 'top 55%',
               scrub: 0.5,
-              onUpdate: () => {
-                // Force path update during scrub if needed (optional)
-                // updatePath();
-              },
             },
           }
         );
 
-        // Content follows marker
-        const content = contents[index];
-        if (content) {
+        if (firstContent) {
           gsap.fromTo(
-            content,
+            firstContent,
             { opacity: 0, x: -15 },
             {
               opacity: 1,
               x: 0,
               ease: 'power2.out',
               scrollTrigger: {
-                trigger: marker,
+                trigger: firstMarker,
                 start: 'top 70%',
                 end: 'top 50%',
                 scrub: 0.5,
@@ -531,13 +617,11 @@ const cssVarsString = Object.entries(cssVars)
           );
         }
 
-        // Path segment grows OUT OF this marker AFTER it appears
-        if (index < numMarkers - 1) {
-          const nextMarker = markers[index + 1] as HTMLElement;
-          if (!nextMarker) return;
-
-          const segmentStart = pathLength * (1 - index / (numMarkers - 1));
-          const segmentEnd = pathLength * (1 - (index + 1) / (numMarkers - 1));
+        // First path segment (from first to second marker) - also pre-pin
+        if (numMarkers > 1) {
+          const secondMarker = markers[1] as HTMLElement;
+          const segmentStart = pathLength * (1 - 0 / (numMarkers - 1));
+          const segmentEnd = pathLength * (1 - 1 / (numMarkers - 1));
 
           gsap.fromTo(
             path,
@@ -547,12 +631,11 @@ const cssVarsString = Object.entries(cssVars)
               ease: 'none',
               immediateRender: false,
               scrollTrigger: {
-                trigger: marker,
+                trigger: firstMarker,
                 start: 'top 55%',
                 end: () => {
-                  const nextRect = nextMarker.getBoundingClientRect();
-                  const currentRect = marker.getBoundingClientRect();
-                  // Dynamic distance calculation
+                  const nextRect = secondMarker.getBoundingClientRect();
+                  const currentRect = firstMarker.getBoundingClientRect();
                   return `+=${Math.abs(nextRect.top - currentRect.top) - 50}`;
                 },
                 scrub: 1,
@@ -560,7 +643,81 @@ const cssVarsString = Object.entries(cssVars)
             }
           );
         }
-      });
+
+        // PHASE 2: Remaining cards reveal during pinned state
+        if (remainingMarkers.length > 0) {
+          const scrollPerCard = 300; // Scroll distance per card reveal
+          const pinDuration = remainingMarkers.length * scrollPerCard;
+          const timePerCard = 1 / remainingMarkers.length;
+
+          // Create pinned timeline
+          const pinnedTimeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: section,
+              start: 'top top',
+              end: `+=${pinDuration}`,
+              pin: true,
+              pinSpacing: true,
+              scrub: 1,
+              anticipatePin: 1,
+            },
+          });
+
+          // Add remaining cards to pinned timeline
+          remainingMarkers.forEach((marker, relativeIndex) => {
+            const absoluteIndex = relativeIndex + 1;
+            const content = remainingContents[relativeIndex];
+            const startTime = relativeIndex * timePerCard;
+
+            // Marker scale animation
+            pinnedTimeline.fromTo(
+              marker,
+              { scale: 0 },
+              {
+                scale: 1,
+                ease: 'back.out(1.5)',
+                duration: timePerCard * 0.5,
+              },
+              startTime
+            );
+
+            // Content fade animation
+            if (content) {
+              pinnedTimeline.fromTo(
+                content,
+                { opacity: 0, x: -15 },
+                {
+                  opacity: 1,
+                  x: 0,
+                  ease: 'power2.out',
+                  duration: timePerCard * 0.6,
+                },
+                startTime + timePerCard * 0.15
+              );
+            }
+
+            // SVG path segment (if not last marker)
+            if (absoluteIndex < numMarkers - 1) {
+              const segmentStart =
+                pathLength * (1 - absoluteIndex / (numMarkers - 1));
+              const segmentEnd =
+                pathLength * (1 - (absoluteIndex + 1) / (numMarkers - 1));
+
+              pinnedTimeline.fromTo(
+                path,
+                { strokeDashoffset: segmentStart },
+                {
+                  strokeDashoffset: segmentEnd,
+                  ease: 'none',
+                  duration: timePerCard * 0.8,
+                  immediateRender: false,
+                },
+                startTime + timePerCard * 0.2
+              );
+            }
+          });
+        }
+      }
     }
   });
 </script>
