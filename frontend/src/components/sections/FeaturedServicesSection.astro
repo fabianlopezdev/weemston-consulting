@@ -168,15 +168,15 @@ const cssVarsString = Object.entries(cssVars)
     display: grid;
     grid-template-columns: 1fr 1.5fr;
     gap: var(--space-2xl, 4rem);
-    align-items: start;
+    align-items: center;
   }
 
   /* ========================================
      HEADER STYLES (Left Column)
      ======================================== */
   .services-section__header {
-    position: sticky;
-    top: calc(var(--header-height, 5.5rem) + var(--space-lg, 2rem));
+    position: relative;
+    /* Removed sticky positioning and transforms */
   }
 
   .services-section__header :global(.section-title) {
