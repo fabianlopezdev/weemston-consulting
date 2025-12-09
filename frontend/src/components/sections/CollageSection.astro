@@ -12,6 +12,7 @@ interface Props {
   enabled?: boolean;
   tagline: string;
   taglineSize?: 'medium' | 'large' | 'xlarge';
+  useAsSectionTitle?: boolean;
   images: CollageImage[];
   overlayStyle?: 'frosted' | 'gradient' | 'solid';
   overlayOpacity?: number;
@@ -20,6 +21,7 @@ interface Props {
 const {
   tagline,
   taglineSize = 'large',
+  useAsSectionTitle = false,
   images = [],
   overlayStyle = 'frosted',
   overlayOpacity = 60,
@@ -62,7 +64,9 @@ const getCardStyles = () => {
   }
 };
 
-const taglineSizeClass = `collage__tagline--${taglineSize}`;
+// When used as section title, enforce consistent sizing across the site
+const effectiveSize = useAsSectionTitle ? 'large' : taglineSize;
+const taglineSizeClass = `collage__tagline--${effectiveSize}`;
 ---
 
 <section class="collage" data-overlay-style={overlayStyle}>
@@ -98,9 +102,15 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
 
   <div class="collage__overlay">
     <div class="collage__content" style={getCardStyles()}>
-      <p class={`collage__tagline ${taglineSizeClass}`}>
-        <span class="collage__tagline-text">{tagline}</span>
-      </p>
+      {
+        useAsSectionTitle ? (
+          <h2 class="section-title">{tagline}</h2>
+        ) : (
+          <p class={`collage__tagline ${taglineSizeClass}`}>
+            <span class="collage__tagline-text">{tagline}</span>
+          </p>
+        )
+      }
     </div>
   </div>
 
@@ -282,6 +292,19 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
 
   .collage__tagline--xlarge {
     font-size: clamp(2rem, 6vw, 3.5rem);
+  }
+
+  /* When used as section title, preserve standard section-title styling */
+  .collage__content .section-title {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: #ffffff;
+    margin: 0;
+    text-align: center;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: normal;
+    text-shadow: none;
   }
 
   .collage__tagline-text {

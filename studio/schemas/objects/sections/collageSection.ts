@@ -63,6 +63,16 @@ export default defineType({
       hidden: ({ parent }) => !parent?.enabled,
     },
     {
+      name: 'useAsSectionTitle',
+      title: 'Use as Section Title',
+      type: 'boolean',
+      fieldset: 'text',
+      description:
+        'Use this when the text in the collage serves as a title for the section (e.g., "What Our Clients Say"). If it\'s just a transition sentence or decorative text, don\'t use this. Note: When enabled, all section titles will use the same size across the website for consistency, regardless of the tagline size setting.',
+      initialValue: false,
+      hidden: ({ parent }) => !parent?.enabled,
+    },
+    {
       name: 'images',
       title: 'Images',
       type: 'array',
