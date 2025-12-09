@@ -1,13 +1,12 @@
 ---
 interface Props {
   class?: string | undefined;
-  style?: string | undefined;
 }
 
-const { class: className, style } = Astro.props;
+const { class: className } = Astro.props;
 ---
 
-<h2 class:list={['section-title', className]} style={style}>
+<h2 class:list={['section-title', className]}>
   <slot />
 </h2>
 

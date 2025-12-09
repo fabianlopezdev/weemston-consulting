@@ -99,9 +99,7 @@ const cssVarsString = Object.entries(cssVars)
 <section class="how-we-work-section" style={cssVarsString}>
   <div class="container">
     <div class="how-we-work-section__header">
-      <SectionTitle style="--title-color: var(--hww-title-color);"
-        >{title}</SectionTitle
-      >
+      <SectionTitle>{title}</SectionTitle>
       {
         description && (
           <p class="how-we-work-section__description">{description}</p>
@@ -180,6 +178,11 @@ const cssVarsString = Object.entries(cssVars)
   .how-we-work-section > .container {
     position: relative;
     z-index: 1;
+  }
+
+  /* Override section title color based on text color setting */
+  .how-we-work-section :global(.section-title) {
+    color: var(--hww-title-color, var(--color-accent));
   }
 
   .how-we-work-section__header {
