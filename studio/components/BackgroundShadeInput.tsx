@@ -100,6 +100,8 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'badgeBackgroundColorType';
   } else if (fieldName === 'circleBackgroundColorShade') {
     colorTypeFieldName = 'circleBackgroundColorType';
+  } else if (fieldName === 'taglineColorShade') {
+    colorTypeFieldName = 'taglineColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';
