@@ -93,6 +93,9 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
   <!-- Subtle vignette gradients at edges for depth -->
   <div class="collage__vignette"></div>
 
+  <!-- Soft blur covering entire collage -->
+  <div class="collage__blur-overlay"></div>
+
   <div class="collage__overlay">
     <div class="collage__content" style={getCardStyles()}>
       <p class={`collage__tagline ${taglineSizeClass}`}>
@@ -166,6 +169,17 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
     background:
       linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, transparent 15%),
       linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, transparent 20%);
+  }
+
+  /* Soft blur covering entire collage - sits above images but below content */
+  .collage__blur-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1.5; /* Between vignette (1) and overlay (2) */
+    pointer-events: none;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(10, 10, 10, 0.05); /* Subtle tint to enhance blur */
   }
 
   .collage__overlay {
@@ -281,7 +295,14 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
     background-clip: text;
     -webkit-background-clip: text;
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(20px) translateZ(0);
+    will-change: transform, opacity;
+  }
+
+  /* GPU acceleration for animated card */
+  .collage__content {
+    will-change: transform, opacity;
+    transform: translateZ(0);
   }
 
   /* Decorative accent lines */
@@ -377,7 +398,7 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
           trigger: section,
           start: 'center 60%',
           end: 'center 40%',
-          scrub: 1,
+          scrub: 1.5, // Smoother updates
           markers: ANIMATION_CONFIG.scrollTrigger.markers,
         },
       });
@@ -385,7 +406,7 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
       // Animate floating card with scale and opacity
       const contentCard = section.querySelector('.collage__content');
       if (contentCard) {
-        gsap.set(contentCard, { scale: 0.95, opacity: 0 });
+        gsap.set(contentCard, { scale: 0.95, opacity: 0, force3D: true });
         entranceTl.to(
           contentCard,
           {
@@ -393,12 +414,13 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
             opacity: 1,
             duration: 1,
             ease: 'power2.out',
+            force3D: true,
           },
           0
         );
       }
 
-      // Fade in tagline with elegant reveal
+      // Fade in tagline with elegant reveal - use force3D for GPU acceleration
       entranceTl.to(
         taglineText,
         {
@@ -406,6 +428,7 @@ const taglineSizeClass = `collage__tagline--${taglineSize}`;
           y: 0,
           duration: 1,
           ease: 'power3.out',
+          force3D: true,
         },
         0.1
       );
