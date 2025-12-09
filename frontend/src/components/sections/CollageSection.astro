@@ -214,39 +214,21 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
       0 2px 8px rgba(0, 0, 0, 0.15);
     position: relative;
     overflow: hidden;
-    /* Edge fade on all sides */
-    mask-image:
-      linear-gradient(
-        to right,
-        transparent 0%,
-        black 10%,
-        black 90%,
-        transparent 100%
-      ),
-      linear-gradient(
-        to bottom,
-        transparent 0%,
-        black 15%,
-        black 85%,
-        transparent 100%
-      );
-    mask-composite: intersect;
-    -webkit-mask-image:
-      linear-gradient(
-        to right,
-        transparent 0%,
-        black 10%,
-        black 90%,
-        transparent 100%
-      ),
-      linear-gradient(
-        to bottom,
-        transparent 0%,
-        black 15%,
-        black 85%,
-        transparent 100%
-      );
-    -webkit-mask-composite: source-in;
+    /* Edge fade on left/right only */
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
   }
 
   /* Subtle shine effect on the card */
