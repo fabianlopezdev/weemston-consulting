@@ -237,6 +237,7 @@ const pageSectionsQuery = `
     },
     _type == "testimonialsSection" => {
       title,
+      showTitle,
       backgroundType,
       backgroundImage {
         ${imageProjection}
