@@ -82,6 +82,9 @@ const showText =
     position: sticky;
     inset-block-start: 0;
     z-index: var(--z-sticky);
+    background-color: rgba(255, 255, 255, 0.8);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
   }
 
   @media (min-width: 769px) {
@@ -157,3 +160,32 @@ const showText =
     }
   }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, gsap, ScrollTrigger } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    const header = document.querySelector('.site-header');
+    if (!header) return;
+
+    // Use ScrollTrigger to handle scroll direction
+    ScrollTrigger.create({
+      onUpdate: (self) => {
+        // Use self.scroll() to get current scroll position (works with Lenis)
+        const scrollTop = self.scroll();
+        const direction = self.direction;
+
+        // Direction: 1 = down, -1 = up
+        // Show if scrolling up OR at the very top (within first 50px)
+        const shouldShow = direction === -1 || scrollTop < 50;
+
+        gsap.to(header, {
+          yPercent: shouldShow ? 0 : -100,
+          duration: 0.3,
+          ease: 'power2.out',
+          overwrite: true,
+        });
+      },
+    });
+  });
+</script>
