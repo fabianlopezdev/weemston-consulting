@@ -74,6 +74,8 @@ const accentColor = resolveColorSelection(
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
   '--hww-accent': accentColor,
+  '--hww-title-color':
+    textColor === 'contrast' ? 'var(--color-text-contrast)' : accentColor,
   '--hww-text':
     textColor === 'contrast'
       ? 'var(--color-text-contrast)'
@@ -97,7 +99,9 @@ const cssVarsString = Object.entries(cssVars)
 <section class="how-we-work-section" style={cssVarsString}>
   <div class="container">
     <div class="how-we-work-section__header">
-      <SectionTitle>{title}</SectionTitle>
+      <SectionTitle style="--title-color: var(--hww-title-color);"
+        >{title}</SectionTitle
+      >
       {
         description && (
           <p class="how-we-work-section__description">{description}</p>
