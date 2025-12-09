@@ -13,6 +13,11 @@ export default defineType({
       options: { collapsible: true, collapsed: true },
     },
     {
+      name: 'taglineSettings',
+      title: 'Tagline Color',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
       name: 'textSettings',
       title: 'Text Color',
       options: { collapsible: true, collapsed: true },
@@ -120,6 +125,48 @@ export default defineType({
           return value ? true : 'Tagline is required when section is enabled';
         }),
       hidden: ({ parent }) => !parent?.enabled,
+    },
+    // Tagline Color Settings
+    {
+      name: 'taglineColorType',
+      title: 'Tagline Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+      hidden: ({ parent }) => !parent?.enabled,
+      fieldset: 'taglineSettings',
+    },
+    {
+      name: 'taglineColorShade',
+      title: 'Shade',
+      type: 'number',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.enabled ||
+        parent?.taglineColorType === 'custom' ||
+        parent?.taglineColorType === 'default' ||
+        !parent?.taglineColorType,
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+      fieldset: 'taglineSettings',
+    },
+    {
+      name: 'taglineCustomColor',
+      title: 'Custom Color',
+      type: 'simplerColor',
+      hidden: ({ parent }) =>
+        !parent?.enabled || parent?.taglineColorType !== 'custom',
+      fieldset: 'taglineSettings',
     },
     {
       name: 'fontSize',

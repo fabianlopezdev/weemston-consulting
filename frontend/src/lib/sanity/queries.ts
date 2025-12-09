@@ -280,6 +280,9 @@ const pageSectionsQuery = `
       backgroundColorType,
       backgroundColorShade,
       backgroundCustomColor { label, value },
+      taglineColorType,
+      taglineColorShade,
+      taglineCustomColor { label, value },
       textColor,
       images[] {
         _key,
@@ -358,6 +361,7 @@ const pageSectionsQuery = `
     _type == "collageSection" => {
       tagline,
       taglineSize,
+      useAsSectionTitle,
       images[] {
         _key,
         ${imageProjection}

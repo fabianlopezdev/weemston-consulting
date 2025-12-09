@@ -38,6 +38,9 @@ interface Props {
     | 'custom';
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
+  taglineColorType?: 'default' | 'primary' | 'secondary' | 'accent' | 'custom';
+  taglineColorShade?: number;
+  taglineCustomColor?: ColorData;
   textColor?: 'base' | 'contrast';
 }
 
@@ -50,6 +53,9 @@ const {
   backgroundColorType = 'default',
   backgroundColorShade = 0,
   backgroundCustomColor,
+  taglineColorType = 'default',
+  taglineColorShade = 0,
+  taglineCustomColor,
   textColor = 'base',
 } = Astro.props;
 
@@ -70,6 +76,19 @@ const backgroundColor =
         siteColors
       );
 
+// Resolve tagline color (null if default)
+const taglineColor =
+  taglineColorType === 'default' || !taglineColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: taglineColorType,
+          shade: taglineColorShade,
+          customColor: taglineCustomColor,
+        },
+        siteColors
+      );
+
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
   '--about-font-size': `${fontSize}rem`,
@@ -82,6 +101,11 @@ const cssVars: Record<string, string> = {
 // Only set background if not default
 if (backgroundColor) {
   cssVars['--about-bg'] = backgroundColor;
+}
+
+// Only set tagline color if not default
+if (taglineColor) {
+  cssVars['--about-tagline-color'] = taglineColor;
 }
 
 const cssVarsString = Object.entries(cssVars)
@@ -162,7 +186,7 @@ const descriptionParagraphs =
     font-size: var(--about-font-size, 2rem);
     text-align: center;
     margin-block-end: var(--space-md);
-    color: var(--about-text, var(--color-text));
+    color: var(--about-tagline-color, var(--about-text, var(--color-text)));
   }
 
   .about-section__tagline p:last-child {
@@ -184,8 +208,11 @@ const descriptionParagraphs =
     margin-block-end: 0;
   }
 
-  /* Highlight styling for both */
-  .about-section__tagline :global(.highlight),
+  /* Highlight styling */
+  .about-section__tagline :global(.highlight) {
+    color: var(--about-tagline-color, var(--color-accent));
+  }
+
   .about-section__description :global(.highlight) {
     color: var(--color-accent);
   }
