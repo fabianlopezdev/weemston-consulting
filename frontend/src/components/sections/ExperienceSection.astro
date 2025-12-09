@@ -382,7 +382,7 @@ const cssVarsString = Object.entries(cssVars)
      ======================================== */
   .experience-section__header {
     text-align: center;
-    margin-block-end: var(--space-xl, 3rem);
+    margin-block-end: var(--space-md, 2rem);
   }
 
   .experience-section__title {
@@ -414,8 +414,9 @@ const cssVarsString = Object.entries(cssVars)
     align-items: center;
     position: relative;
     /* Height = circle + orbit on all sides + padding for badges */
-    min-height: 100vh;
-    padding: 0 0 var(--space-xl) 0;
+    /* Reduced height as requested */
+    min-height: 700px;
+    padding: 0 0 var(--space-lg) 0;
   }
 
   /* Central circle container - absolutely centered */
@@ -762,7 +763,7 @@ const cssVarsString = Object.entries(cssVars)
 
   .experience-orbital__badge-number {
     font-family: var(--font-heading, Georgia, serif);
-    font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
     font-weight: 400;
     color: var(--color-accent);
     line-height: 1;
@@ -780,12 +781,13 @@ const cssVarsString = Object.entries(cssVars)
 
   .experience-orbital__badge-title {
     font-family: var(--font-sans, system-ui);
-    font-size: clamp(0.7rem, 0.9vw, 0.8rem);
+    font-size: clamp(1rem, 1.5vw, 1.3rem);
     font-weight: 600;
     color: var(--experience-badge-text-color);
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    line-height: 1.2;
+    line-height: 1;
+    padding-top: 2px;
   }
 
   /* ========================================
@@ -1180,17 +1182,6 @@ const cssVarsString = Object.entries(cssVars)
       const sideY = -50; // Side badges slightly above center
       const bottomX = 200; // Fixed X position for bottom badges
 
-      // PHASE 1: Create timeline for badge animation WITHOUT pinning
-      const badgeAnimationTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: orbitalSection,
-          start: 'top 75%', // Start when section top is at 75% viewport height
-          end: 'center center', // Finish when section center reaches viewport center
-          scrub: 1,
-          // NO pin - let section scroll naturally during animation
-        },
-      });
-
       // Get widths for alignment calculation
       const rightSideWidth = badgeData[1]?.width ?? 0; // Badge 1 (right side)
       const leftSideWidth = badgeData[4]?.width ?? 0; // Badge 4 (left side)
@@ -1248,38 +1239,16 @@ const cssVarsString = Object.entries(cssVars)
           finalY = sideY + sectionCenterY;
         }
 
-        // Set initial absolute position
+        // Set FINAL absolute position immediately
+        // User request: "have them be at their position from the very beginning... no animation on scrolling"
         gsap.set(badge, {
           position: 'absolute',
           left: '50%',
           top: 0,
-          x: badgeData[index]?.x ?? 0,
-          y: badgeData[index]?.y ?? 0,
+          x: finalX,
+          y: finalY,
           xPercent: -50,
         });
-
-        // Animate to orbital position (all badges animate together)
-        badgeAnimationTl.to(
-          badge,
-          {
-            x: finalX,
-            y: finalY,
-            ease: 'power2.inOut',
-          },
-          0 // All animations start at time 0 (simultaneously)
-        );
-      });
-
-      // PHASE 2: Pin section AFTER badges finish animating
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: orbitalSection,
-          start: 'center center', // Pin when section centered - circle + badges fully visible
-          end: '+=150px', // Short pin duration just to "lock" it briefly, then unpin
-          pin: true,
-          pinSpacing: true,
-          scrub: 1,
-        },
       });
     }
 
