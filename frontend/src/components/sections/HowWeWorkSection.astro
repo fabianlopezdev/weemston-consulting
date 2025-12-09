@@ -322,9 +322,6 @@ const cssVarsString = Object.entries(cssVars)
 
 <script>
   import { setupAnimationLifecycle, gsap } from '@lib/animation';
-  import { Draggable } from 'gsap/Draggable';
-
-  gsap.registerPlugin(Draggable);
 
   function generateWavyPath(markers: { x: number; y: number }[]): string {
     if (markers.length < 2) return '';
@@ -460,32 +457,6 @@ const cssVarsString = Object.entries(cssVars)
       requestAnimationFrame(() => updatePath());
     });
     observer.observe(timeline);
-
-    // Draggable Implementation
-    if (!isMobile) {
-      const items = document.querySelectorAll('.timeline__item');
-      const secondItem = items[1];
-      if (items.length >= 2 && secondItem) {
-        // Target only the second item (index 1)
-        Draggable.create(secondItem, {
-          type: 'x,y',
-          bounds: '.how-we-work-section',
-          inertia: true,
-          edgeResistance: 0.65,
-          cursor: 'grab',
-          activeCursor: 'grabbing',
-          zIndexBoost: false,
-          onDrag: updatePath,
-          onThrowUpdate: updatePath,
-          onPress: function () {
-            gsap.to(this.target, { scale: 1.02, duration: 0.2 });
-          },
-          onRelease: function () {
-            gsap.to(this.target, { scale: 1, duration: 0.2 });
-          },
-        });
-      }
-    }
 
     // Initial Animation Setup
     const section = document.querySelector(
