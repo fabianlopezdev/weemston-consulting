@@ -208,27 +208,46 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     text-align: center;
     padding: clamp(2rem, 5vw, 4rem) clamp(4rem, 10vw, 8rem);
     max-width: min(900px, 95%);
+    min-height: clamp(240px, 35vh, 340px);
     border-radius: 1rem;
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.3),
       0 2px 8px rgba(0, 0, 0, 0.15);
     position: relative;
     overflow: hidden;
-    /* Edge fade on left/right only */
-    mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black 10%,
-      black 90%,
-      transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black 10%,
-      black 90%,
-      transparent 100%
-    );
+    /* Edge fade on all sides */
+    mask-image:
+      linear-gradient(
+        to right,
+        transparent 0%,
+        black 10%,
+        black 90%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 15%,
+        black 85%,
+        transparent 100%
+      );
+    mask-composite: intersect;
+    -webkit-mask-image:
+      linear-gradient(
+        to right,
+        transparent 0%,
+        black 10%,
+        black 90%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 15%,
+        black 85%,
+        transparent 100%
+      );
+    -webkit-mask-composite: source-in;
   }
 
   /* Subtle shine effect on the card */
