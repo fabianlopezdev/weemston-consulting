@@ -578,18 +578,14 @@ const cssVarsString = Object.entries(cssVars)
                   strokeDashoffset: segmentStart,
                 });
 
-                // Segment drawing animation
+                // Segment drawing animation - use fixed scroll distance
                 gsap.to(path, {
                   strokeDashoffset: segmentEnd,
                   ease: 'none',
                   scrollTrigger: {
                     trigger: marker,
                     start: 'top 50%',
-                    end: () => {
-                      const nextRect = nextMarker.getBoundingClientRect();
-                      const currentRect = marker.getBoundingClientRect();
-                      return `+=${Math.abs(nextRect.top - currentRect.top) - 50}`;
-                    },
+                    end: '+=300', // Fixed 300px scroll distance
                     scrub: 1,
                   },
                 });
@@ -662,25 +658,20 @@ const cssVarsString = Object.entries(cssVars)
 
           // First path segment (from first to second marker) - also pre-pin
           if (numMarkers > 1) {
-            const secondMarker = markers[1] as HTMLElement;
             const segmentStart = pathLength; // Full path hidden
             const segmentEnd = pathLength * (1 - 1 / (numMarkers - 1));
 
             // No fade - set opacity directly, just draw the segment
             gsap.set(path, { opacity: 0.6, strokeDashoffset: segmentStart });
 
-            // Segment drawing animation
+            // Segment drawing animation - use fixed scroll distance like pinned phase
             gsap.to(path, {
               strokeDashoffset: segmentEnd,
               ease: 'none',
               scrollTrigger: {
                 trigger: firstMarker,
                 start: 'top 50%',
-                end: () => {
-                  const nextRect = secondMarker.getBoundingClientRect();
-                  const currentRect = firstMarker.getBoundingClientRect();
-                  return `+=${Math.abs(nextRect.top - currentRect.top) - 50}`;
-                },
+                end: '+=300', // Fixed 300px scroll distance, matching pinned phase
                 scrub: 1,
               },
             });
