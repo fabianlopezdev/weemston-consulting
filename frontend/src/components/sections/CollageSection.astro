@@ -24,7 +24,7 @@ const {
   useAsSectionTitle = false,
   images = [],
   overlayStyle = 'frosted',
-  overlayOpacity = 60,
+  overlayOpacity = 30,
 } = Astro.props;
 
 // Generate optimized image URLs
@@ -37,31 +37,10 @@ const imageUrls = images.map((img) => ({
 // Duplicate images for seamless infinite scroll effect
 const duplicatedImages = [...imageUrls, ...imageUrls];
 
-// Calculate card styles based on settings (now applied to the floating card, not full overlay)
-const getCardStyles = () => {
+// Background now on the overlay (entire section) instead of just the card
+const getOverlayStyles = () => {
   const opacity = overlayOpacity / 100;
-
-  switch (overlayStyle) {
-    case 'frosted':
-      return `
-        background: rgba(12, 12, 12, ${opacity * 0.4});
-        backdrop-filter: blur(20px) saturate(1.3);
-        -webkit-backdrop-filter: blur(20px) saturate(1.3);
-      `;
-    case 'gradient':
-      return `
-        background: linear-gradient(
-          135deg,
-          rgba(8, 8, 8, ${opacity * 0.85}) 0%,
-          rgba(20, 20, 20, ${opacity * 0.7}) 100%
-        );
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-      `;
-    case 'solid':
-    default:
-      return `background: rgba(10, 10, 10, ${opacity * 0.85});`;
-  }
+  return `background: rgba(0, 0, 0, ${opacity});`;
 };
 
 // When used as section title, enforce consistent sizing across the site
@@ -97,11 +76,8 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
   <!-- Subtle vignette gradients at edges for depth -->
   <div class="collage__vignette"></div>
 
-  <!-- Soft blur covering entire collage -->
-  <div class="collage__blur-overlay"></div>
-
-  <div class="collage__overlay">
-    <div class="collage__content" style={getCardStyles()}>
+  <div class="collage__overlay" style={getOverlayStyles()}>
+    <div class="collage__content">
       {
         useAsSectionTitle ? (
           <h2 class="section-title">{tagline}</h2>
@@ -153,21 +129,8 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     object-position: var(--hotspot-x, 50%) var(--hotspot-y, 50%);
     will-change: transform;
     transform: scale(1.1);
-    filter: grayscale(0.15) contrast(1.05);
+    filter: grayscale(1) contrast(1.2);
     transition: filter 0.6s ease;
-  }
-
-  /* Subtle vignette on each image */
-  .collage__image-wrapper::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      ellipse at center,
-      transparent 50%,
-      rgba(0, 0, 0, 0.1) 100%
-    );
-    pointer-events: none;
   }
 
   /* Edge vignettes for depth without obscuring images */
@@ -177,19 +140,8 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     z-index: 1;
     pointer-events: none;
     background:
-      linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, transparent 15%),
-      linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, transparent 20%);
-  }
-
-  /* Soft blur covering entire collage - sits above images but below content */
-  .collage__blur-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 1.5; /* Between vignette (1) and overlay (2) */
-    pointer-events: none;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    background: rgba(10, 10, 10, 0.05); /* Subtle tint to enhance blur */
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, transparent 10%),
+      linear-gradient(to top, rgba(0, 0, 0, 0.1) 0%, transparent 10%);
   }
 
   .collage__overlay {
@@ -203,7 +155,7 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     padding: var(--space-md);
   }
 
-  /* Floating glass card - the star of the show */
+  /* Text container - transparent, no visual boundaries */
   .collage__content {
     display: flex;
     flex-direction: column;
@@ -213,66 +165,8 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     padding: clamp(2rem, 5vw, 4rem) clamp(4rem, 10vw, 8rem);
     max-width: min(900px, 95%);
     min-height: clamp(240px, 35vh, 340px);
-    border-radius: 1rem;
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.3),
-      0 2px 8px rgba(0, 0, 0, 0.15);
     position: relative;
     overflow: hidden;
-    /* Edge fade on all sides */
-    mask-image:
-      linear-gradient(
-        to right,
-        transparent 0%,
-        black 10%,
-        black 90%,
-        transparent 100%
-      ),
-      linear-gradient(
-        to bottom,
-        transparent 0%,
-        black 15%,
-        black 85%,
-        transparent 100%
-      );
-    mask-composite: intersect;
-    -webkit-mask-image:
-      linear-gradient(
-        to right,
-        transparent 0%,
-        black 10%,
-        black 90%,
-        transparent 100%
-      ),
-      linear-gradient(
-        to bottom,
-        transparent 0%,
-        black 15%,
-        black 85%,
-        transparent 100%
-      );
-    -webkit-mask-composite: source-in;
-  }
-
-  /* Subtle shine effect on the card */
-  .collage__content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.03),
-      transparent
-    );
-    transition: left 0.8s ease;
-  }
-
-  .collage__content:hover::before {
-    left: 100%;
   }
 
   .collage__tagline {
@@ -282,9 +176,8 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     line-height: 1.2;
     color: #ffffff;
     letter-spacing: -0.01em;
-    text-shadow:
-      0 2px 20px rgba(0, 0, 0, 0.5),
-      0 4px 40px rgba(0, 0, 0, 0.3);
+    /* VERY subtle shadow - barely visible but ensures readability */
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
 
   .collage__tagline--medium {
@@ -309,19 +202,12 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     font-weight: 400;
     line-height: 1.2;
     letter-spacing: normal;
-    text-shadow: none;
+    /* Same subtle shadow */
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
 
   .collage__tagline-text {
     display: inline;
-    background: linear-gradient(
-      135deg,
-      #ffffff 0%,
-      rgba(255, 255, 255, 0.92) 50%,
-      #ffffff 100%
-    );
-    background-clip: text;
-    -webkit-background-clip: text;
     opacity: 0;
     transform: translateY(20px) translateZ(0);
     will-change: transform, opacity;
@@ -375,8 +261,8 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
 
     .collage__vignette {
       background:
-        linear-gradient(to bottom, rgba(0, 0, 0, 0.35) 0%, transparent 20%),
-        linear-gradient(to top, rgba(0, 0, 0, 0.45) 0%, transparent 25%);
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, transparent 10%),
+        linear-gradient(to top, rgba(0, 0, 0, 0.1) 0%, transparent 10%);
     }
   }
 
