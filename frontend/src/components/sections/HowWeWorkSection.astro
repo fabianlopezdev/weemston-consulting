@@ -140,8 +140,9 @@ const cssVarsString = Object.entries(cssVars)
   .how-we-work-section {
     --hww-marker-size: 80px;
     --hww-number-size: clamp(1.75rem, 4vw, 2.5rem);
-    --hww-item-gap: clamp(3rem, 6vw, 5rem);
-    --hww-base-indent: 2rem;
+    /* Minimal vertical gap for almost horizontal line */
+    --hww-item-gap: clamp(1rem, 2vw, 1.5rem);
+    --hww-base-indent: 1rem;
 
     position: relative;
     padding: var(--space-3xl) 0;
@@ -199,9 +200,10 @@ const cssVarsString = Object.entries(cssVars)
 
   .timeline {
     position: relative;
-    max-width: 650px;
+    /* Full width for maximum horizontal spread */
+    max-width: 100%;
     margin-inline: auto;
-    padding-inline-start: 1rem;
+    padding-inline: 2rem;
   }
 
   .timeline__svg {
@@ -224,22 +226,52 @@ const cssVarsString = Object.entries(cssVars)
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    gap: var(--hww-base-indent, 2rem);
+    gap: var(--hww-base-indent, 1rem);
     position: relative;
     padding-bottom: var(--hww-item-gap);
-    max-width: 85%;
+    max-width: 350px;
   }
 
-  /* Staggered Layout for Desktop */
+  /* Diagonal Staggered Layout for Desktop - FLAT diagonal */
   @media (min-width: 768px) {
-    /* Use nth-of-type to ignore the SVG element which is the first child */
-    .timeline__item:nth-of-type(even) {
-      margin-left: auto;
+    .timeline {
+      /* Use flex with controlled spacing for equidistant cards */
+      display: flex;
       flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 2rem;
+      /* No extra padding - let section padding handle spacing */
+      padding-top: 0;
     }
 
-    .timeline__item:nth-of-type(odd) {
-      margin-right: auto;
+    .timeline__item {
+      /* Stack vertically: circle on top, text below */
+      flex-direction: column;
+      /* Center circle horizontally */
+      align-items: center;
+      /* Remove margin-inline-start since we're using flex spacing */
+      margin-inline-start: 0;
+      /* Completely flat - no vertical offset */
+      margin-top: 0;
+      max-width: 280px;
+      flex: 1;
+      /* Remove bottom padding */
+      padding-bottom: 0;
+    }
+
+    .timeline__content {
+      padding-top: 0.75rem;
+      /* Center text */
+      text-align: center;
+    }
+
+    .timeline__title {
+      text-align: center;
+    }
+
+    .timeline__description {
+      text-align: center;
     }
   }
 
@@ -303,7 +335,8 @@ const cssVarsString = Object.entries(cssVars)
     opacity: 0.85;
   }
 
-  @media (max-width: 480px) {
+  /* Mobile: Reset to horizontal row stack */
+  @media (max-width: 767px) {
     .how-we-work-section {
       --hww-marker-size: 65px;
       --hww-item-gap: clamp(2.5rem, 5vw, 3.5rem);
@@ -311,18 +344,21 @@ const cssVarsString = Object.entries(cssVars)
 
     .timeline {
       padding-inline-start: 0;
+      max-width: 650px;
     }
 
     .timeline__svg {
-      /* Reset to default full coverage if overridden */
+      /* Reset to default full coverage */
       left: 0;
       width: 100%;
     }
 
     .timeline__item {
-      /* Simpler gap for mobile */
+      /* Reset to horizontal layout on mobile */
+      flex-direction: row;
+      margin-inline-start: 0;
       gap: 1.5rem;
-      max-width: 100%; /* Use full width on mobile */
+      max-width: 100%;
     }
   }
 </style>
@@ -330,48 +366,31 @@ const cssVarsString = Object.entries(cssVars)
 <script>
   import { setupAnimationLifecycle, gsap } from '@lib/animation';
 
-  function generateWavyPath(markers: { x: number; y: number }[]): string {
-    if (markers.length < 2) return '';
+  function generateHorizontalPath(points: { x: number; y: number }[]): string {
+    if (points.length < 2) return '';
 
-    const firstMarker = markers[0];
-    if (!firstMarker) return '';
-    let path = `M ${firstMarker.x} ${firstMarker.y}`;
+    const firstPoint = points[0];
+    if (!firstPoint) return '';
+    let path = `M ${firstPoint.x} ${firstPoint.y}`;
 
-    // Define curve intensity
-    // A fixed horizontal offset ensures the line is always "wavy" even if vertical
-    const amplitude = 40;
-
-    for (let i = 0; i < markers.length - 1; i++) {
-      const start = markers[i];
-      const end = markers[i + 1];
+    for (let i = 0; i < points.length - 1; i++) {
+      const start = points[i];
+      const end = points[i + 1];
       if (!start || !end) continue;
 
+      const distX = end.x - start.x;
       const distY = end.y - start.y;
 
-      // Alternate direction for each segment to create a serpentine flow
-      // If we simply used the same direction, it might look like a displaced C-curve.
-      // Alternating creates an S-wave or continuous ripple.
-      // We rely on the natural zigzag of the layout, but adding this ensures curl.
-      // Note: The layout is Left -> Right -> Left.
-      // Segment 0 (Left->Right): Bulging "up/left" or "down/right"?
-      // Let's force some perpendicular-ish curvature.
-
-      // Direction: 1 for even segments (Left->Right), -1 for odd (Right->Left).
-      // We want to exaggerate the curve by pushing control points OUTWARD relative to the flow.
-      // If moving Left->Right (dir=1), we want cp1 to bulge Left (-x) and cp2 to bulge Right (+x).
-      const dir = i % 2 === 0 ? 1 : -1;
-
-      // Control points
-      // We push the control points AWAY from the center of the span to create the 'Overshoot' look
-      // Previous logic pushed them INWARD which straightened the line.
+      // Create a gentle S-curve that's mostly horizontal
+      // Control points pull the curve horizontally with slight vertical wave
       const cp1 = {
-        x: start.x - amplitude * dir,
-        y: start.y + distY * 0.5,
+        x: start.x + distX * 0.5,
+        y: start.y + distY * 0.1,
       };
 
       const cp2 = {
-        x: end.x + amplitude * dir,
-        y: end.y - distY * 0.5,
+        x: start.x + distX * 0.5,
+        y: end.y - distY * 0.1,
       };
 
       path += ` C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`;
@@ -397,17 +416,30 @@ const cssVarsString = Object.entries(cssVars)
 
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
 
-    // Get center positions of each marker relative to the timeline
+    // Get SIDE positions of each marker (right edge to left edge connection)
     const markerPositions: { x: number; y: number }[] = [];
-    markers.forEach((marker) => {
+    markers.forEach((marker, index) => {
       const rect = marker.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2 - timelineRect.left;
       const centerY = rect.top + rect.height / 2 - timelineRect.top;
-      markerPositions.push({ x: centerX, y: centerY });
+
+      if (index === 0) {
+        // First marker: use right edge
+        const rightEdgeX = rect.right - timelineRect.left;
+        markerPositions.push({ x: rightEdgeX, y: centerY });
+      } else if (index === markers.length - 1) {
+        // Last marker: use left edge
+        const leftEdgeX = rect.left - timelineRect.left;
+        markerPositions.push({ x: leftEdgeX, y: centerY });
+      } else {
+        // Middle markers: use both edges (right for incoming, left for outgoing)
+        // For the path, we use left edge (where line arrives)
+        const leftEdgeX = rect.left - timelineRect.left;
+        markerPositions.push({ x: leftEdgeX, y: centerY });
+      }
     });
 
     // Generate and set the path
-    const pathD = generateWavyPath(markerPositions);
+    const pathD = generateHorizontalPath(markerPositions);
     path.setAttribute('d', pathD);
 
     return path;
