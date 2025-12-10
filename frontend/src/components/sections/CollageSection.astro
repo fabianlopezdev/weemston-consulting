@@ -205,6 +205,10 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
 
   /* Floating glass card - the star of the show */
   .collage__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding: clamp(2rem, 5vw, 4rem) clamp(4rem, 10vw, 8rem);
     max-width: min(900px, 95%);
