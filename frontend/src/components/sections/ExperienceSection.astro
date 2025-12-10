@@ -436,16 +436,11 @@ const cssVarsString = Object.entries(cssVars)
     border-radius: 50%;
     background: radial-gradient(
       circle at 50% 50%,
+      var(--experience-circle-bg, var(--color-background)) 0%,
       color-mix(
           in srgb,
-          var(--experience-circle-bg, var(--color-background)) 12%,
-          white
-        )
-        0%,
-      color-mix(
-          in srgb,
-          var(--experience-circle-bg, var(--color-background)) 6%,
-          white
+          var(--experience-circle-bg, var(--color-background)) 60%,
+          transparent
         )
         60%,
       transparent 100%
@@ -457,13 +452,13 @@ const cssVarsString = Object.entries(cssVars)
       0 0 80px
         color-mix(
           in srgb,
-          var(--experience-circle-bg, var(--color-background)) 12%,
+          var(--experience-circle-bg, var(--color-background)) 30%,
           transparent
         ),
       0 0 160px
         color-mix(
           in srgb,
-          var(--experience-circle-bg, var(--color-background)) 6%,
+          var(--experience-circle-bg, var(--color-background)) 15%,
           transparent
         );
     display: flex;
@@ -693,11 +688,7 @@ const cssVarsString = Object.entries(cssVars)
     gap: var(--space-xs);
     padding: var(--space-sm) var(--space-md);
 
-    background: color-mix(
-      in srgb,
-      var(--experience-badge-bg-color, var(--color-background)) 8%,
-      white
-    );
+    background: var(--experience-badge-bg-color, var(--color-background));
     border: 1px solid
       var(--experience-badge-border-color, var(--color-background));
     border-radius: 100px; /* Pill shape */
@@ -735,11 +726,7 @@ const cssVarsString = Object.entries(cssVars)
 
   .experience-orbital__badge[data-active='true'] {
     border-color: var(--experience-badge-border-color, var(--color-background));
-    background: color-mix(
-      in srgb,
-      var(--experience-badge-bg-color, var(--color-background)) 8%,
-      white
-    );
+    background: var(--experience-badge-bg-color, var(--color-background));
     box-shadow:
       0 4px 16px
         color-mix(
