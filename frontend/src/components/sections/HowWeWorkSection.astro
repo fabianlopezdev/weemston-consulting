@@ -422,25 +422,39 @@ const cssVarsString = Object.entries(cssVars)
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
 
     // Get SIDE positions of each marker (right edge to left edge connection)
+    // Temporarily reset transforms to get accurate measurements (GSAP may have scale(0) applied)
     const markerPositions: { x: number; y: number }[] = [];
+    const savedTransforms: string[] = [];
+
+    // Save and reset all transforms first
+    markers.forEach((marker) => {
+      const el = marker as HTMLElement;
+      savedTransforms.push(el.style.transform);
+      el.style.transform = 'none';
+    });
+
+    // Force layout recalculation
+    void timeline.offsetHeight;
+
     markers.forEach((marker, index) => {
       const rect = marker.getBoundingClientRect();
       const centerY = rect.top + rect.height / 2 - timelineRect.top;
 
       if (index === 0) {
-        // First marker: use right edge
+        // First marker: use right edge (line starts from here)
         const rightEdgeX = rect.right - timelineRect.left;
         markerPositions.push({ x: rightEdgeX, y: centerY });
-      } else if (index === markers.length - 1) {
-        // Last marker: use left edge
-        const leftEdgeX = rect.left - timelineRect.left;
-        markerPositions.push({ x: leftEdgeX, y: centerY });
       } else {
-        // Middle markers: use both edges (right for incoming, left for outgoing)
-        // For the path, we use left edge (where line arrives)
-        const leftEdgeX = rect.left - timelineRect.left;
-        markerPositions.push({ x: leftEdgeX, y: centerY });
+        // All other markers: use CENTER so line connects when marker scales up
+        const centerX = rect.left + rect.width / 2 - timelineRect.left;
+        markerPositions.push({ x: centerX, y: centerY });
       }
+    });
+
+    // Restore all transforms
+    markers.forEach((marker, index) => {
+      const el = marker as HTMLElement;
+      el.style.transform = savedTransforms[index] || '';
     });
 
     // Generate and set the path
@@ -585,7 +599,7 @@ const cssVarsString = Object.entries(cssVars)
                   scrollTrigger: {
                     trigger: marker,
                     start: 'top 50%',
-                    end: '+=300', // Fixed 300px scroll distance
+                    end: '+=200', // Must complete before pinned phase starts
                     scrub: 1,
                   },
                 });
@@ -671,7 +685,7 @@ const cssVarsString = Object.entries(cssVars)
               scrollTrigger: {
                 trigger: firstMarker,
                 start: 'top 50%',
-                end: '+=300', // Fixed 300px scroll distance, matching pinned phase
+                end: '+=200', // Must complete before pinned phase starts, matching pinned phase
                 scrub: 1,
               },
             });
@@ -742,10 +756,10 @@ const cssVarsString = Object.entries(cssVars)
                   {
                     strokeDashoffset: segmentEnd,
                     ease: 'none',
-                    duration: timePerCard * 0.8,
+                    duration: timePerCard * 0.95,
                     immediateRender: false,
                   },
-                  startTime + timePerCard * 0.2
+                  startTime + timePerCard * 0.05
                 );
               }
             });
