@@ -98,7 +98,6 @@ export const allServicesQuery = groq`
     _id,
     title,
     language,
-    icon,
     content
   }
 `;
@@ -215,8 +214,6 @@ const pageSectionsQuery = `
       services[]-> {
         _id,
         title,
-        label,
-        icon,
         homepageText
       },
       showAllLink
@@ -420,7 +417,6 @@ export const servicesPageQuery = groq`
     services[]-> {
       _id,
       title,
-      icon,
       content
     },
     ${pageSectionsQuery},

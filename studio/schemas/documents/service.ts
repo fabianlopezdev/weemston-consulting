@@ -12,24 +12,7 @@ export default defineType({
       type: 'string',
       validation: (Rule) => Rule.required(),
     },
-    {
-      name: 'label',
-      title: 'Short Label',
-      type: 'string',
-      description:
-        'Short label shown when card is minimized (e.g., "Strategy", "Design"). If left empty, the service title will be shown instead.',
-      validation: (Rule) => Rule.max(20),
-      placeholder: 'Strategy',
-    },
     defineLanguageField(),
-    {
-      name: 'icon',
-      title: 'Icon (optional)',
-      type: 'image',
-      options: {
-        hotspot: true,
-      },
-    },
     {
       name: 'homepageText',
       title: 'Homepage Text',
@@ -59,13 +42,11 @@ export default defineType({
     select: {
       title: 'title',
       language: 'language',
-      media: 'icon',
     },
-    prepare({ title, language, media }) {
+    prepare({ title, language }) {
       return {
         title,
         subtitle: language.toUpperCase(),
-        media,
       };
     },
   },
