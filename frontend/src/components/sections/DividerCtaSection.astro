@@ -1,0 +1,157 @@
+---
+import {
+  resolveColorSelection,
+  resolveButtonColor,
+  resolveButtonTextColor,
+} from '@lib/sanity/colorResolver';
+import { resolveLinkUrl } from '@lib/sanity/linkResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface LinkData {
+  linkType: 'internal' | 'external';
+  internalPageType?:
+    | 'homepage'
+    | 'servicesPage'
+    | 'caseStudiesPage'
+    | 'contactPage'
+    | 'aboutPage'
+    | 'service'
+    | 'caseStudy'
+    | 'legal';
+  serviceReference?: { slug: { current: string } };
+  caseStudyReference?: { slug: { current: string } };
+  legalReference?: { slug: { current: string } };
+  externalUrl?: string;
+  text: string;
+  openInNewTab?: boolean;
+  buttonColor?: any;
+}
+
+interface Props {
+  ctaButton?: LinkData;
+  spacing?: 'none' | 'sm' | 'md' | 'lg';
+  lineColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  lineCustomColor?: ColorData;
+}
+
+const {
+  ctaButton,
+  spacing = 'md',
+  lineColorType = 'accent',
+  lineCustomColor,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve line color
+const lineColor = resolveColorSelection(
+  {
+    colorType: lineColorType,
+    customColor: lineCustomColor,
+  },
+  siteColors
+);
+
+// Resolve CTA
+const ctaHref = ctaButton ? resolveLinkUrl(ctaButton) : null;
+const ctaOpenInNewTab =
+  ctaButton?.openInNewTab || ctaButton?.linkType === 'external';
+const ctaColor = ctaButton
+  ? resolveButtonColor(ctaButton.buttonColor, siteColors)
+  : null;
+const ctaTextColor = ctaButton
+  ? resolveButtonTextColor(ctaButton.buttonColor)
+  : null;
+
+// Map spacing to CSS custom properties
+const spacingMap = {
+  none: '0',
+  sm: 'var(--space-lg)',
+  md: 'var(--space-xl)',
+  lg: 'var(--space-2xl)',
+};
+
+const cssVars = `--divider-cta-line-color: ${lineColor}; --divider-cta-spacing: ${spacingMap[spacing]}`;
+---
+
+<div class="divider-cta" style={cssVars} role="separator">
+  <div class="container divider-cta__container">
+    <span class="divider-cta__line"></span>
+    {
+      ctaButton && ctaHref && (
+        <a
+          href={ctaHref}
+          class="divider-cta__button"
+          style={
+            ctaColor || ctaTextColor
+              ? `${ctaColor ? `background: ${ctaColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
+              : undefined
+          }
+          target={ctaOpenInNewTab ? '_blank' : undefined}
+          rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
+        >
+          {ctaButton.text}
+        </a>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .divider-cta {
+    padding: var(--divider-cta-spacing) 0;
+    width: 100%;
+  }
+
+  .divider-cta__container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .divider-cta__line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: color-mix(
+      in srgb,
+      var(--divider-cta-line-color) 40%,
+      transparent
+    );
+  }
+
+  .divider-cta__button {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    padding: var(--button-padding-vertical, var(--space-md))
+      var(--button-padding-horizontal, var(--space-lg));
+    background: var(--color-accent, #0066cc);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--button-border-radius, 4px);
+    font-weight: 600;
+    transition:
+      transform 0.2s,
+      background 0.2s,
+      color 0.2s;
+    /* Create visual gap around button by adding side padding with background */
+    box-shadow:
+      calc(var(--space-md) * -1) 0 0 var(--color-background),
+      var(--space-md) 0 0 var(--color-background);
+  }
+
+  .divider-cta__button:hover {
+    transform: translateY(-2px);
+  }
+</style>

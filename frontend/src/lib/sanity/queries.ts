@@ -369,6 +369,14 @@ const pageSectionsQuery = `
       },
       overlayStyle,
       overlayOpacity
+    },
+    _type == "dividerCtaSection" => {
+      spacing,
+      lineColorType,
+      lineCustomColor { label, value },
+      ctaButton {
+        ${linkProjection}
+      }
     }
   }
 `;

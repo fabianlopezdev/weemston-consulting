@@ -68,6 +68,7 @@ export default defineType({
         { type: 'testimonialsSection' },
         { type: 'faqSection' },
         { type: 'aboutSection' },
+        { type: 'dividerCtaSection' },
       ],
     },
   ],

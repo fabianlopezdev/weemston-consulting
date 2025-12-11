@@ -9,6 +9,7 @@ import ExperienceSection from './ExperienceSection.astro';
 import OurApproachSection from './OurApproachSection.astro';
 import HowWeWorkSection from './HowWeWorkSection.astro';
 import DividerSection from './DividerSection.astro';
+import DividerCtaSection from './DividerCtaSection.astro';
 import CollageSection from './CollageSection.astro';
 
 interface Props {
@@ -45,4 +46,5 @@ if (!section.enabled) {
 {section._type === 'ourApproachSection' && <OurApproachSection {...section} />}
 {section._type === 'howWeWorkSection' && <HowWeWorkSection {...section} />}
 {section._type === 'dividerSection' && <DividerSection {...section} />}
+{section._type === 'dividerCtaSection' && <DividerCtaSection {...section} />}
 {section._type === 'collageSection' && <CollageSection {...section} />}
