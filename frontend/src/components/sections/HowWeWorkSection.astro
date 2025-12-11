@@ -150,17 +150,6 @@ const cssVarsString = Object.entries(cssVars)
     overflow: hidden;
   }
 
-  /* Subtle paper texture overlay */
-  .how-we-work-section::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    opacity: 0.08;
-    pointer-events: none;
-    z-index: 0;
-  }
-
   /* Soft vertical gradient */
   .how-we-work-section::after {
     content: '';
@@ -471,6 +460,9 @@ const cssVarsString = Object.entries(cssVars)
     // Mobile check - disable draggable on small screens
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
+    // Flag to prevent ResizeObserver from resetting strokeDashoffset during animation
+    let animationStarted = false;
+
     // Function to run path calculation
     const updatePath = () => {
       // Small safety check to ensure element is still in DOM
@@ -482,12 +474,8 @@ const cssVarsString = Object.entries(cssVars)
       if (path) {
         const len = path.getTotalLength();
         path.style.strokeDasharray = `${len}`;
-        // Preserve hidden state - only set if not already animated
-        // Check if strokeDashoffset is unset or needs initialization
-        if (
-          !path.style.strokeDashoffset ||
-          path.style.strokeDashoffset === '0'
-        ) {
+        // Only reset strokeDashoffset if animation hasn't started yet
+        if (!animationStarted) {
           path.style.strokeDashoffset = `${len}`;
         }
       }
@@ -518,6 +506,9 @@ const cssVarsString = Object.entries(cssVars)
 
     // Initial Animation Setup - delay to ensure path is fully rendered
     setTimeout(() => {
+      // Lock animation state to prevent ResizeObserver interference
+      animationStarted = true;
+
       const section = document.querySelector(
         '.how-we-work-section'
       ) as HTMLElement;
