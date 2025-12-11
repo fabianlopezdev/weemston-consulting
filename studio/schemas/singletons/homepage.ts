@@ -70,7 +70,6 @@ export default defineType({
         { type: 'experienceSection' },
         { type: 'ourApproachSection' },
         { type: 'howWeWorkSection' },
-        { type: 'dividerSection' },
         { type: 'dividerCtaSection' },
         { type: 'collageSection' },
       ],
