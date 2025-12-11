@@ -145,7 +145,7 @@ const cssVarsString = Object.entries(cssVars)
     --hww-base-indent: 1rem;
 
     position: relative;
-    padding: var(--space-3xl) 0;
+    padding: var(--space-2xl) 0;
     background: var(--hww-bg, var(--color-background));
     overflow: hidden;
   }
@@ -684,7 +684,7 @@ const cssVarsString = Object.entries(cssVars)
 
           // PHASE 2: Remaining cards reveal during pinned state
           if (remainingMarkers.length > 0) {
-            const scrollPerCard = 300; // Scroll distance per card reveal
+            const scrollPerCard = 150; // Scroll distance per card reveal
             const pinDuration = remainingMarkers.length * scrollPerCard;
             const timePerCard = 1 / remainingMarkers.length;
 
