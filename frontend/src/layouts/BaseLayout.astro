@@ -21,15 +21,6 @@ const { title, description, image, noIndex = false } = Astro.props;
 // Fetch site settings for favicon and colors
 const settings = await client.fetch(siteSettingsQuery);
 
-// DEBUG: Log what we get from Sanity
-console.log('=== SANITY SETTINGS DEBUG ===');
-console.log('buttonStyles:', JSON.stringify(settings?.buttonStyles, null, 2));
-console.log(
-  'colors.accent:',
-  JSON.stringify(settings?.colors?.accent, null, 2)
-);
-console.log('=== END DEBUG ===');
-
 const faviconUrl = settings?.favicon
   ? urlForImage(settings.favicon).width(512).url()
   : '/favicon.svg';
