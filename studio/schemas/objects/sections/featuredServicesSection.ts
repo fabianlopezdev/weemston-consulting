@@ -12,8 +12,13 @@ export default defineType({
       options: { collapsible: true, collapsed: true },
     },
     {
+      name: 'titleSettings',
+      title: 'Card Title Color',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
       name: 'accentSettings',
-      title: 'Card Colors',
+      title: 'Card Background Color',
       description: 'Cards use lighter versions of the selected color',
       options: { collapsible: true, collapsed: true },
     },
@@ -73,7 +78,49 @@ export default defineType({
         !parent?.enabled || parent?.backgroundColorType !== 'custom',
       fieldset: 'background',
     },
-    // Card Color Settings
+    // Card Title Color Settings
+    {
+      name: 'titleColorType',
+      title: 'Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+      hidden: ({ parent }) => !parent?.enabled,
+      fieldset: 'titleSettings',
+    },
+    {
+      name: 'titleColorShade',
+      title: 'Shade',
+      type: 'number',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.enabled ||
+        parent?.titleColorType === 'custom' ||
+        parent?.titleColorType === 'default' ||
+        !parent?.titleColorType,
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+      fieldset: 'titleSettings',
+    },
+    {
+      name: 'titleCustomColor',
+      title: 'Custom Color',
+      type: 'simplerColor',
+      hidden: ({ parent }) =>
+        !parent?.enabled || parent?.titleColorType !== 'custom',
+      fieldset: 'titleSettings',
+    },
+    // Card Background Color Settings
     {
       name: 'accentColorType',
       title: 'Color',

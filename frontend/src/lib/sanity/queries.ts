@@ -211,6 +211,9 @@ const pageSectionsQuery = `
       accentColorType,
       accentCustomColor { label, value },
       textColor,
+      titleColorType,
+      titleColorShade,
+      titleCustomColor { label, value },
       services[]-> {
         _id,
         title,

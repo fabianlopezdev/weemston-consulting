@@ -102,6 +102,8 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'circleBackgroundColorType';
   } else if (fieldName === 'taglineColorShade') {
     colorTypeFieldName = 'taglineColorType';
+  } else if (fieldName === 'titleColorShade') {
+    colorTypeFieldName = 'titleColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';
