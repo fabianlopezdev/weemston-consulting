@@ -324,6 +324,10 @@ const cssVarsString = Object.entries(cssVars)
                     data-active={index === 0 ? 'true' : 'false'}
                   >
                     <path
+                      class="experience-wheel__badge-border"
+                      data-index={index}
+                    />
+                    <path
                       class="experience-wheel__badge-bg"
                       data-index={index}
                     />
@@ -992,6 +996,14 @@ const cssVarsString = Object.entries(cssVars)
     cursor: grabbing;
   }
 
+  /* SVG Badge border arc - rendered behind the fill */
+  .experience-wheel__badge-border {
+    fill: none;
+    stroke: var(--experience-badge-border-color, var(--color-accent));
+    stroke-width: 47;
+    stroke-linecap: round;
+  }
+
   /* SVG Badge arc - thick stroke creates the curved shape */
   .experience-wheel__badge-bg {
     fill: none;
@@ -1016,10 +1028,9 @@ const cssVarsString = Object.entries(cssVars)
     pointer-events: none;
   }
 
-  /* Active badge state */
+  /* Active badge state - keep original color, just enhance shadow */
   .experience-wheel__badge-group[data-active='true']
     .experience-wheel__badge-bg {
-    stroke: var(--color-background, #ffffff);
     filter: drop-shadow(0px 4px 6px rgba(42, 42, 85, 0.2));
   }
 
@@ -1351,7 +1362,6 @@ const cssVarsString = Object.entries(cssVars)
       if (wheel && badgeGroups.length > 0) {
         const itemCount = badgeGroups.length;
         const sliceAngle = 360 / itemCount;
-        const BADGE_ARC_LENGTH = 50; // Degrees the badge arc occupies
         // Local coords: wrapper translates to (300,300), so badges use origin (0,0)
         const CX = 0;
         const CY = 0;
@@ -1374,6 +1384,51 @@ const cssVarsString = Object.entries(cssVars)
         const circleRadiusPx = circleRect.width / 2;
         const BADGE_OFFSET_PX = 30; // pixels outside circle edge
         const RADIUS = (circleRadiusPx + BADGE_OFFSET_PX) * scale;
+
+        // Content-based arc sizing: measure text widths
+        const MIN_ARC_LENGTH = 40; // Minimum degrees
+        const MAX_ARC_LENGTH = 70; // Maximum degrees
+        const ARC_PADDING = 30; // Extra degrees for padding around text
+
+        // Helper: Measure text width in SVG units
+        function measureTextWidth(text: string): number {
+          const tempText = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'text'
+          );
+          tempText.setAttribute(
+            'style',
+            'font-family: var(--font-sans, system-ui); font-weight: 700; font-size: 12px; letter-spacing: 1px;'
+          );
+          tempText.textContent = text;
+          svgEl.appendChild(tempText);
+          const width = tempText.getBBox().width;
+          svgEl.removeChild(tempText);
+          return width;
+        }
+
+        // Helper: Convert text width to arc degrees
+        function textWidthToArcDegrees(textWidth: number): number {
+          // Arc length formula: arcLength = (angle/360) * 2 * π * radius
+          // So: angle = (arcLength * 360) / (2 * π * radius)
+          const circumference = 2 * Math.PI * RADIUS;
+          const arcDegrees = (textWidth * 360) / circumference;
+          return Math.min(
+            MAX_ARC_LENGTH,
+            Math.max(MIN_ARC_LENGTH, arcDegrees + ARC_PADDING)
+          );
+        }
+
+        // Calculate arc lengths for each badge based on text content
+        const badgeTexts = document.querySelectorAll(
+          '.experience-wheel__badge-text textPath'
+        );
+        const arcLengths: number[] = [];
+        badgeTexts.forEach((textPath) => {
+          const text = textPath.textContent || '';
+          const textWidth = measureTextWidth(text);
+          arcLengths.push(textWidthToArcDegrees(textWidth));
+        });
 
         let currentActiveIndex = 0;
 
@@ -1437,14 +1492,24 @@ const cssVarsString = Object.entries(cssVars)
           ].join(' ');
         }
 
-        // Generate arc paths for each badge
+        // Generate arc paths for each badge (using content-based arc lengths)
+        const borderPaths = document.querySelectorAll(
+          '.experience-wheel__badge-border'
+        );
         badgePaths.forEach((path, index) => {
+          const arcLength = arcLengths[index] || 50; // Fallback to 50 if not measured
           const angleCenter = index * sliceAngle;
-          const startAngle = angleCenter - BADGE_ARC_LENGTH / 2;
-          const endAngle = angleCenter + BADGE_ARC_LENGTH / 2;
+          const startAngle = angleCenter - arcLength / 2;
+          const endAngle = angleCenter + arcLength / 2;
 
           const d = describeArc(CX, CY, RADIUS, startAngle, endAngle);
           path.setAttribute('d', d);
+
+          // Set border path with same arc
+          const borderPath = borderPaths[index];
+          if (borderPath) {
+            borderPath.setAttribute('d', d);
+          }
 
           // Text path - always reverse so text follows outer curve
           const textPathDef = document.getElementById(
