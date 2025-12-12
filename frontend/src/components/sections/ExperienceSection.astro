@@ -1248,28 +1248,15 @@ const cssVarsString = Object.entries(cssVars)
     // ========================================
     // DESKTOP: GSAP Scroll Animation - Badge to Orbital (Pinned)
     // ========================================
-    console.log('[HowWeWork] ============= INIT =============');
-    console.log('[HowWeWork] Window width:', window.innerWidth);
-    console.log('[HowWeWork] Section found:', !!orbitalSection);
-    console.log('[HowWeWork] Circle center found:', !!circleCenter);
-    console.log('[HowWeWork] Badge count:', badges.length);
-
     if (
       window.innerWidth > 900 &&
       orbitalSection &&
       circleCenter &&
       badges.length > 0
     ) {
-      console.log('[HowWeWork] Desktop mode - initializing orbital layout');
       const sectionRect = orbitalSection.getBoundingClientRect();
       const sectionHeight = (orbitalSection as HTMLElement).offsetHeight;
       const sectionCenterY = sectionHeight / 2;
-      console.log('[HowWeWork] Section dimensions:', {
-        width: sectionRect.width,
-        height: sectionHeight,
-        centerY: sectionCenterY,
-        top: sectionRect.top,
-      });
 
       // Store initial badge positions and dimensions
       const badgeData: {
@@ -1278,7 +1265,7 @@ const cssVarsString = Object.entries(cssVars)
         width: number;
         height: number;
       }[] = [];
-      badges.forEach((badge, idx) => {
+      badges.forEach((badge) => {
         const rect = badge.getBoundingClientRect();
         badgeData.push({
           x:
@@ -1290,12 +1277,6 @@ const cssVarsString = Object.entries(cssVars)
           width: rect.width,
           height: rect.height,
         });
-        console.log(`[HowWeWork] Badge ${idx} initial:`, {
-          width: rect.width,
-          height: rect.height,
-          x: badgeData[idx].x,
-          y: badgeData[idx].y,
-        });
       });
 
       // Get circle radius and desired gap from circle edge to badge edge
@@ -1303,12 +1284,6 @@ const cssVarsString = Object.entries(cssVars)
       const circleSize =
         parseFloat(computedStyle.getPropertyValue('--circle-size')) || 380;
       const circleRadius = circleSize / 2;
-      console.log(
-        '[HowWeWork] Circle size:',
-        circleSize,
-        'radius:',
-        circleRadius
-      );
 
       // Gap settings - all edge-to-edge measurements
       const gapTop = 70; // Gap for top badge (badge bottom to circle top)
@@ -1378,9 +1353,6 @@ const cssVarsString = Object.entries(cssVars)
         }
 
         finalPositions.push({ x: finalX, y: finalY });
-        console.log(
-          `[HowWeWork] Badge ${index} final position: x=${finalX.toFixed(1)}, y=${finalY.toFixed(1)}`
-        );
 
         // Set initial hidden state (at final X position, but offset Y and invisible)
         gsap.set(badge, {
@@ -1396,33 +1368,13 @@ const cssVarsString = Object.entries(cssVars)
 
       // Create timeline for equidistant scroll-triggered reveals
       const itemCount = badges.length;
-      console.log(
-        '[HowWeWork] Creating scroll timeline for',
-        itemCount,
-        'badges'
-      );
-
-      // Throttled scroll logging
-      let lastLogTime = 0;
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: orbitalSection,
-          start: 'top 60%', // Start when section is 60% from top of viewport
-          end: 'center center', // End when section center reaches viewport center
-          scrub: 0.25, // Quick scrub (0.2-0.3s)
-          markers: true, // DEBUG: Visual markers
-          onUpdate: (self) => {
-            const now = Date.now();
-            if (now - lastLogTime > 200) {
-              console.log(
-                `[HowWeWork] Timeline progress: ${(self.progress * 100).toFixed(1)}%`,
-                'direction:',
-                self.direction > 0 ? 'down' : 'up'
-              );
-              lastLogTime = now;
-            }
-          },
+          start: 'top 60%',
+          end: 'center center',
+          scrub: 0.25,
         },
       });
 
@@ -1431,10 +1383,6 @@ const cssVarsString = Object.entries(cssVars)
         const startProgress = index / itemCount;
         const duration = 1 / itemCount;
 
-        console.log(
-          `[HowWeWork] Badge ${index} scheduled: start=${(startProgress * 100).toFixed(0)}%, duration=${(duration * 100).toFixed(0)}%`
-        );
-
         tl.to(
           badge,
           {
@@ -1442,19 +1390,10 @@ const cssVarsString = Object.entries(cssVars)
             y: finalPositions[index].y,
             duration: duration,
             ease: 'power2.out',
-            onStart: () =>
-              console.log(`[HowWeWork] Badge ${index} animation START`),
-            onComplete: () =>
-              console.log(`[HowWeWork] Badge ${index} animation COMPLETE`),
           },
           startProgress
         );
       });
-
-      console.log(
-        '[HowWeWork] Timeline created, total duration:',
-        tl.duration()
-      );
     }
 
     // ========================================

@@ -618,143 +618,80 @@ const cssVarsString = Object.entries(cssVars)
             }
           });
         } else {
-          // ===== DESKTOP: Two-phase approach with pinning =====
+          // ===== DESKTOP: Time-based animation triggered by IntersectionObserver =====
 
-          const firstMarker = markers[0] as HTMLElement;
-          const firstContent = contents[0];
-          const remainingMarkers = Array.from(markers).slice(
-            1
-          ) as HTMLElement[];
-          const remainingContents = Array.from(contents).slice(1);
-
-          // PHASE 1: First card uses viewport-based triggers (pre-pin)
-          gsap.fromTo(
-            firstMarker,
-            { scale: 0 },
-            {
-              scale: 1,
-              ease: 'back.out(1.5)',
-              scrollTrigger: {
-                trigger: firstMarker,
-                start: 'top 75%',
-                end: 'top 55%',
-                scrub: 0.5,
-              },
-            }
+          // Set initial states
+          gsap.set(path, { opacity: 0.6, strokeDashoffset: pathLength });
+          markers.forEach((marker) => gsap.set(marker, { scale: 0 }));
+          contents.forEach((content) =>
+            gsap.set(content, { opacity: 0, y: 10 })
           );
 
-          if (firstContent) {
-            gsap.fromTo(
-              firstContent,
-              { opacity: 0, x: -15 },
+          // Create time-based timeline (paused initially)
+          const timeline = gsap.timeline({ paused: true });
+
+          // Timing configuration
+          const cardDuration = 0.5; // Duration for each card reveal
+          const cardDelay = 0.5; // Delay between cards (stagger) - ~1.5s total
+
+          markers.forEach((marker, index) => {
+            const content = contents[index];
+            const startTime = index * cardDelay;
+
+            // Marker scale animation
+            timeline.to(
+              marker,
               {
-                opacity: 1,
-                x: 0,
-                ease: 'power2.out',
-                scrollTrigger: {
-                  trigger: firstMarker,
-                  start: 'top 70%',
-                  end: 'top 50%',
-                  scrub: 0.5,
-                },
-              }
+                scale: 1,
+                ease: 'back.out(1.5)',
+                duration: cardDuration,
+              },
+              startTime
             );
-          }
 
-          // First path segment (from first to second marker) - also pre-pin
-          if (numMarkers > 1) {
-            const segmentStart = pathLength; // Full path hidden
-            const segmentEnd = pathLength * (1 - 1 / (numMarkers - 1));
-
-            // No fade - set opacity directly, just draw the segment
-            gsap.set(path, { opacity: 0.6, strokeDashoffset: segmentStart });
-
-            // Segment drawing animation - use fixed scroll distance like pinned phase
-            gsap.to(path, {
-              strokeDashoffset: segmentEnd,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: firstMarker,
-                start: 'top 50%',
-                end: '+=200', // Must complete before pinned phase starts, matching pinned phase
-                scrub: 1,
-              },
-            });
-          }
-
-          // PHASE 2: Remaining cards reveal during pinned state
-          if (remainingMarkers.length > 0) {
-            const scrollPerCard = 150; // Scroll distance per card reveal
-            const pinDuration = remainingMarkers.length * scrollPerCard;
-            const timePerCard = 1 / remainingMarkers.length;
-
-            // Create pinned timeline
-            const pinnedTimeline = gsap.timeline({
-              scrollTrigger: {
-                trigger: section,
-                start: 'top top',
-                end: `+=${pinDuration}`,
-                pin: true,
-                pinSpacing: true,
-                scrub: 1,
-                anticipatePin: 1,
-              },
-            });
-
-            // Add remaining cards to pinned timeline
-            remainingMarkers.forEach((marker, relativeIndex) => {
-              const absoluteIndex = relativeIndex + 1;
-              const content = remainingContents[relativeIndex];
-              const startTime = relativeIndex * timePerCard;
-
-              // Marker scale animation
-              pinnedTimeline.fromTo(
-                marker,
-                { scale: 0 },
+            // Content fade animation
+            if (content) {
+              timeline.to(
+                content,
                 {
-                  scale: 1,
-                  ease: 'back.out(1.5)',
-                  duration: timePerCard * 0.5,
+                  opacity: 1,
+                  y: 0,
+                  ease: 'power2.out',
+                  duration: cardDuration,
+                },
+                startTime + 0.1
+              );
+            }
+
+            // SVG path segment (draw line TO this marker, except for first)
+            if (index > 0) {
+              const segmentEnd = pathLength * (1 - index / (numMarkers - 1));
+              timeline.to(
+                path,
+                {
+                  strokeDashoffset: segmentEnd,
+                  ease: 'power2.out',
+                  duration: cardDuration * 0.8,
                 },
                 startTime
               );
+            }
+          });
 
-              // Content fade animation
-              if (content) {
-                pinnedTimeline.fromTo(
-                  content,
-                  { opacity: 0, x: -15 },
-                  {
-                    opacity: 1,
-                    x: 0,
-                    ease: 'power2.out',
-                    duration: timePerCard * 0.6,
-                  },
-                  startTime + timePerCard * 0.15
-                );
-              }
+          // Trigger animation when section is well into viewport
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  timeline.play();
+                  observer.disconnect(); // Only play once
+                }
+              });
+            },
+            { threshold: 0.6, rootMargin: '-10% 0px -10% 0px' } // Trigger when 60% visible with margin buffer
+          );
 
-              // SVG path segment (if not last marker)
-              if (absoluteIndex < numMarkers - 1) {
-                const segmentStart =
-                  pathLength * (1 - absoluteIndex / (numMarkers - 1));
-                const segmentEnd =
-                  pathLength * (1 - (absoluteIndex + 1) / (numMarkers - 1));
-
-                pinnedTimeline.fromTo(
-                  path,
-                  { strokeDashoffset: segmentStart },
-                  {
-                    strokeDashoffset: segmentEnd,
-                    ease: 'none',
-                    duration: timePerCard * 0.95,
-                    immediateRender: false,
-                  },
-                  startTime + timePerCard * 0.05
-                );
-              }
-            });
-          }
+          observer.observe(section);
         }
       }
     }, 500); // Delay to ensure path is fully rendered before animation setup
