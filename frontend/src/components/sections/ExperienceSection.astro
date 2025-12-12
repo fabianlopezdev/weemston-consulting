@@ -1246,7 +1246,7 @@ const cssVarsString = Object.entries(cssVars)
     });
 
     // ========================================
-    // DESKTOP: GSAP Scroll Animation - Badge to Orbital (Pinned)
+    // DESKTOP: Position badges in orbital layout
     // ========================================
     if (
       window.innerWidth > 900 &&
@@ -1300,9 +1300,6 @@ const cssVarsString = Object.entries(cssVars)
       const rightX = circleRadius + gapSide + rightSideWidth / 2;
       const leftX = -(circleRadius + gapSide + leftSideWidth / 2);
 
-      // Store final positions for scroll-triggered animation
-      const finalPositions: { x: number; y: number }[] = [];
-
       // Manual positioning with vertical alignment
       // Layout:
       //        [0 Top]
@@ -1352,47 +1349,16 @@ const cssVarsString = Object.entries(cssVars)
           finalY = sideY + sectionCenterY;
         }
 
-        finalPositions.push({ x: finalX, y: finalY });
-
-        // Set initial hidden state (at final X position, but offset Y and invisible)
+        // Position badge at final orbital position immediately
         gsap.set(badge, {
           position: 'absolute',
           left: '50%',
           top: 0,
           x: finalX,
-          y: finalY + 30, // Start 30px below final position
+          y: finalY,
           xPercent: -50,
-          opacity: 0,
+          opacity: 1,
         });
-      });
-
-      // Create timeline for equidistant scroll-triggered reveals
-      const itemCount = badges.length;
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: orbitalSection,
-          start: 'top 60%',
-          end: 'center center',
-          scrub: 0.25,
-        },
-      });
-
-      // Add each badge to timeline at equidistant points (0%, 20%, 40%, 60%, 80%)
-      badges.forEach((badge, index) => {
-        const startProgress = index / itemCount;
-        const duration = 1 / itemCount;
-
-        tl.to(
-          badge,
-          {
-            opacity: 1,
-            y: finalPositions[index].y,
-            duration: duration,
-            ease: 'power2.out',
-          },
-          startProgress
-        );
       });
     }
 
