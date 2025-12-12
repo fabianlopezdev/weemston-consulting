@@ -1,6 +1,4 @@
 ---
-import { Icon } from 'astro-icon/components';
-import { urlForImage } from '@lib/sanity/image';
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
@@ -152,36 +150,6 @@ const circleBackgroundColor =
         },
         siteColors
       );
-
-// Generate image URLs - use larger size for the new layout
-const cardImages = cards.map((card) => {
-  const hasImage = card.iconOrImage?.type === 'image' && card.iconOrImage.image;
-  return hasImage && card.iconOrImage?.image
-    ? urlForImage(card.iconOrImage.image).width(800).height(600).url()
-    : null;
-});
-
-// Resolve icon background colors for each card
-const cardIconBgColors = cards.map((card) => {
-  if (card.iconOrImage?.type !== 'icon') return null;
-
-  // For custom color or when no selection, use custom color or fallback to original
-  if (
-    !card.iconBackgroundColorType ||
-    card.iconBackgroundColorType === 'custom'
-  ) {
-    return card.iconBackgroundCustomColor?.value || null;
-  }
-
-  return resolveColorSelection(
-    {
-      colorType: card.iconBackgroundColorType,
-      shade: card.iconBackgroundColorShade ?? 500,
-      customColor: card.iconBackgroundCustomColor,
-    },
-    siteColors
-  );
-});
 
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
