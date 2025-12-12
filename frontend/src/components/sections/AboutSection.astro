@@ -89,17 +89,8 @@ const taglineColor =
         siteColors
       );
 
-// Calculate fluid font size: 1.75rem at 375px → fontSize at 1440px
-const minFontSize = 1.75; // rem
-const maxViewport = 1440; // px
-const minViewport = 375; // px
-const slope = ((fontSize - minFontSize) / (maxViewport - minViewport)) * 100;
-const intercept = minFontSize - (slope * minViewport) / 100;
-
-const fluidFontSize =
-  fontSize <= minFontSize
-    ? `${fontSize}rem`
-    : `clamp(${minFontSize}rem, ${intercept.toFixed(4)}rem + ${slope.toFixed(4)}vw, ${fontSize}rem)`;
+// Fluid font size: 1.75rem minimum, scales with viewport, capped at Sanity fontSize
+const fluidFontSize = `clamp(1.75rem, 4vw, ${fontSize}rem)`;
 
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
