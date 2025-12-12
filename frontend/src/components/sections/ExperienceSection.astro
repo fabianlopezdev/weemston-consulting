@@ -1527,8 +1527,28 @@ const cssVarsString = Object.entries(cssVars)
           y: number,
           radius: number,
           startAngle: number,
-          endAngle: number
+          endAngle: number,
+          reverse: boolean = false
         ) {
+          if (reverse) {
+            // Swap start/end and use sweep flag 1 for reversed direction
+            const start = polarToCartesian(x, y, radius, startAngle);
+            const end = polarToCartesian(x, y, radius, endAngle);
+            const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
+            return [
+              'M',
+              start.x,
+              start.y,
+              'A',
+              radius,
+              radius,
+              0,
+              largeArcFlag,
+              1,
+              end.x,
+              end.y,
+            ].join(' ');
+          }
           const start = polarToCartesian(x, y, radius, endAngle);
           const end = polarToCartesian(x, y, radius, startAngle);
           const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
@@ -1552,17 +1572,18 @@ const cssVarsString = Object.entries(cssVars)
           const angleCenter = index * sliceAngle;
           const startAngle = angleCenter - BADGE_ARC_LENGTH / 2;
           const endAngle = angleCenter + BADGE_ARC_LENGTH / 2;
+
           const d = describeArc(CX, CY, RADIUS, startAngle, endAngle);
           path.setAttribute('d', d);
 
-          // Also set the text path
+          // Text path - always reverse so text follows outer curve
           const textPathDef = document.getElementById(
             `wheel-text-path-${index}`
           );
           if (textPathDef) {
             textPathDef.setAttribute(
               'd',
-              describeArc(CX, CY, RADIUS + 2, startAngle, endAngle)
+              describeArc(CX, CY, RADIUS + 2, startAngle, endAngle, true)
             );
           }
         });
