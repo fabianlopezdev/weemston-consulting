@@ -806,8 +806,8 @@ const cssVarsString = Object.entries(cssVars)
      Hidden by default on desktop (>900px)
      ======================================== */
   .experience-wheel {
-    --circle-size: min(280px, 75vw);
-    --badge-offset: 45px; /* Distance from circle edge to badge center */
+    --circle-size: 120vw;
+    --svg-multiplier: 1.25; /* SVG size relative to circle - badges orbit on this */
     display: none;
   }
 
@@ -1008,11 +1008,8 @@ const cssVarsString = Object.entries(cssVars)
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /* Scale SVG so radius 250 (in viewBox) = circle radius + badge offset */
-    /* Circle is ~280px diameter, so radius is 140px. Badges at 250 in viewBox should be ~185px from center */
-    /* SVG width = (250 / 185) * 2 * 185 = 500 for proper scaling, or just make it relative to circle */
-    width: calc(var(--circle-size) * 1.5);
-    height: calc(var(--circle-size) * 1.5);
+    width: calc(var(--circle-size) * var(--svg-multiplier));
+    height: calc(var(--circle-size) * var(--svg-multiplier));
     z-index: 2;
     pointer-events: none; /* Allow click-through except on badges */
   }
