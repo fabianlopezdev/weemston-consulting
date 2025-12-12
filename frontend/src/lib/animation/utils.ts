@@ -8,6 +8,8 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
+import { Draggable } from 'gsap/Draggable';
+import { InertiaPlugin } from 'gsap/InertiaPlugin';
 import { initLenis, destroyLenis } from './lenis';
 
 // Track if plugins have been registered
@@ -20,7 +22,7 @@ let registered = false;
 export function initGSAP(): void {
   if (registered) return;
 
-  gsap.registerPlugin(ScrollTrigger, SplitText);
+  gsap.registerPlugin(ScrollTrigger, SplitText, Draggable, InertiaPlugin);
   registered = true;
 }
 
@@ -70,4 +72,4 @@ export function setupAnimationLifecycle(initFn: () => void): void {
  * Re-export gsap for convenience
  * Components can import gsap from this module for custom animations
  */
-export { gsap, ScrollTrigger, SplitText };
+export { gsap, ScrollTrigger, SplitText, Draggable, InertiaPlugin };

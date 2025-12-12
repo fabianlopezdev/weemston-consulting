@@ -42,6 +42,8 @@ export {
   gsap,
   ScrollTrigger,
   SplitText,
+  Draggable,
+  InertiaPlugin,
 } from './utils';
 
 // Lenis smooth scrolling

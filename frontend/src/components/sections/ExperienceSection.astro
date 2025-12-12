@@ -304,58 +304,82 @@ const cssVarsString = Object.entries(cssVars)
       </div>
     </div>
 
-    <!-- Mobile: Accordion layout -->
-    <div class="experience-accordion">
-      {
-        cards.map((card, index) => (
-          <div
-            class="experience-accordion__item"
-            data-index={index}
-            data-active={index === 0 ? 'true' : 'false'}
-          >
-            <button
-              type="button"
-              class="experience-accordion__header"
-              aria-expanded={index === 0 ? 'true' : 'false'}
-            >
-              <span class="experience-accordion__number">{card.number}</span>
-              <span class="experience-accordion__title">{card.title}</span>
-              <span class="experience-accordion__icon" aria-hidden="true">
-                +
-              </span>
-            </button>
-            <div class="experience-accordion__content">
-              <div class="experience-accordion__image-wrapper">
-                {cardImages[index] ? (
-                  <img
-                    src={cardImages[index]}
-                    alt={card.iconOrImage?.image?.alt || card.title}
-                    class="experience-accordion__image"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div
-                    class="experience-accordion__image-placeholder"
-                    style={
-                      cardIconBgColors[index]
-                        ? `--icon-bg: ${cardIconBgColors[index]}`
-                        : undefined
-                    }
-                  >
-                    {card.iconOrImage?.type === 'icon' &&
-                      card.iconOrImage.icon?.name && (
-                        <Icon name={card.iconOrImage.icon.name} is:inline />
-                      )}
-                  </div>
-                )}
-              </div>
-              <p class="experience-accordion__description">
-                {card.description}
-              </p>
-            </div>
+    <!-- Mobile: Wheel Carousel Layout -->
+    <div class="experience-wheel" aria-label="Experience wheel navigation">
+      <!-- Container that clips the wheel -->
+      <div class="experience-wheel__viewport">
+        <!-- Ripples behind circle -->
+        <div class="experience-wheel__ripples">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <!-- Central circle with content (static, doesn't rotate) -->
+        <div class="experience-wheel__circle">
+          <div class="experience-wheel__circle-inner">
+            {
+              cards.map((card, index) => (
+                <div
+                  class="experience-wheel__content"
+                  data-index={index}
+                  data-active={index === 0 ? 'true' : 'false'}
+                >
+                  <span class="experience-wheel__content-number">
+                    {card.number}
+                  </span>
+                  <h3 class="experience-wheel__content-title">{card.title}</h3>
+                  <p class="experience-wheel__content-description">
+                    {card.description}
+                  </p>
+                </div>
+              ))
+            }
           </div>
-        ))
-      }
+        </div>
+
+        <!-- SVG Wheel with curved badges -->
+        <svg
+          class="experience-wheel__svg"
+          viewBox="0 0 600 600"
+          overflow="visible"
+        >
+          <!-- Center wrapper - translate to center so rotation happens around (0,0) -->
+          <g transform="translate(300, 300)">
+            <!-- Spinning group with arc badges - rotates around local origin (0,0) -->
+            <g class="experience-wheel__wheel">
+              {
+                cards.map((card, index) => (
+                  <g
+                    class="experience-wheel__badge-group"
+                    data-index={index}
+                    data-active={index === 0 ? 'true' : 'false'}
+                  >
+                    <path
+                      class="experience-wheel__badge-bg"
+                      data-index={index}
+                    />
+                    <path
+                      id={`wheel-text-path-${index}`}
+                      fill="none"
+                      style="display:none"
+                    />
+                    <text class="experience-wheel__badge-text" dy="5">
+                      <textPath
+                        href={`#wheel-text-path-${index}`}
+                        startOffset="50%"
+                        text-anchor="middle"
+                      >
+                        {card.number} | {card.title.toUpperCase()}
+                      </textPath>
+                    </text>
+                  </g>
+                ))
+              }
+            </g>
+          </g>
+        </svg>
+      </div>
     </div>
   </div>
 </section>
@@ -777,169 +801,266 @@ const cssVarsString = Object.entries(cssVars)
   }
 
   /* ========================================
-     MOBILE: ACCORDION LAYOUT
+     MOBILE: WHEEL CAROUSEL LAYOUT
+     Circle with content inside + badges around edge
      Hidden by default on desktop (>900px)
      ======================================== */
-  .experience-accordion {
-    display: none !important;
+  .experience-wheel {
+    --circle-size: min(280px, 75vw);
+    --badge-offset: 45px; /* Distance from circle edge to badge center */
+    display: none;
   }
 
   @media (max-width: 900px) {
-    .experience-accordion {
-      display: block !important;
+    .experience-wheel {
+      display: block;
+      position: relative;
+      padding: var(--space-md) 0;
     }
-  }
 
-  .experience-accordion__item {
-    border-bottom: 1px solid rgba(148, 135, 124, 0.2);
-  }
-
-  .experience-accordion__item:first-child {
-    border-top: 1px solid rgba(148, 135, 124, 0.2);
-  }
-
-  .experience-accordion__header {
-    display: flex;
-    align-items: baseline;
-    width: 100%;
-    padding: var(--space-lg, 1.5rem) 0;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    text-align: left;
-  }
-
-  .experience-accordion__title {
-    font-family: var(--font-serif, Georgia, serif);
-    font-size: clamp(1.5rem, 6vw, 2rem);
-    font-weight: 400;
-    color: var(--color-text-muted, #94877c);
-    flex: 1;
-    transition: color 0.3s ease;
-    text-align: left;
-  }
-
-  .experience-accordion__item[data-active='true'] .experience-accordion__title {
-    color: var(--color-text, #2b180a);
-  }
-
-  .experience-accordion__number {
-    font-family: var(--font-serif, Georgia, serif);
-    font-size: clamp(1.5rem, 6vw, 2rem);
-    font-weight: 400;
-    color: var(--color-text-muted, #94877c);
-    transition: color 0.3s ease;
-    margin-right: var(--space-sm, 0.5rem);
-  }
-
-  .experience-accordion__item[data-active='true']
-    .experience-accordion__number {
-    color: var(--color-text, #2b180a);
-  }
-
-  .experience-accordion__icon {
-    font-size: 1.5rem;
-    color: var(--color-text-muted, #94877c);
-    transition: transform 0.3s ease;
-    margin-left: var(--space-md, 1rem);
-  }
-
-  .experience-accordion__item[data-active='true'] .experience-accordion__icon {
-    transform: rotate(45deg);
-  }
-
-  .experience-accordion__content {
-    max-height: 0;
-    overflow: hidden;
-    transition:
-      max-height 0.4s ease,
-      padding 0.4s ease;
-    padding: 0;
-  }
-
-  .experience-accordion__item[data-active='true']
-    .experience-accordion__content {
-    max-height: 600px;
-    padding-bottom: var(--space-lg, 1.5rem);
-  }
-
-  .experience-accordion__image-wrapper {
-    position: relative;
-    border-radius: 20px;
-    overflow: hidden;
-    margin-block-end: var(--space-md, 1rem);
-    aspect-ratio: 4 / 3;
-  }
-
-  .experience-accordion__image-wrapper::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    box-shadow:
-      inset 0 0 50px 25px
-        color-mix(
-          in srgb,
-          var(--experience-bg, var(--color-primary, #0066cc)) 25%,
-          transparent
-        ),
-      inset 0 0 100px 50px
-        color-mix(
-          in srgb,
-          var(--experience-bg, var(--color-primary, #0066cc)) 15%,
-          transparent
-        );
-    pointer-events: none;
-  }
-
-  .experience-accordion__image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .experience-accordion__image-placeholder {
-    width: 100%;
-    height: 100%;
-    background: var(
-      --icon-bg,
-      linear-gradient(135deg, #e0d5c9 0%, #c9bfb3 100%)
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: color-mix(in srgb, var(--icon-bg, #c9bfb3) 80%, black);
-  }
-
-  .experience-accordion__image-placeholder :global(svg) {
-    width: 50%;
-    height: 50%;
-    max-width: 140px;
-    max-height: 140px;
-  }
-
-  .experience-accordion__image-placeholder :global(svg),
-  .experience-accordion__image-placeholder :global(svg *) {
-    color: color-mix(in srgb, var(--icon-bg, #c9bfb3) 80%, black);
-    stroke: color-mix(in srgb, var(--icon-bg, #c9bfb3) 60%, black);
-  }
-
-  .experience-accordion__description {
-    font-size: var(--font-size-md, 1rem);
-    color: var(--experience-card-desc-color, var(--color-text-muted, #94877c));
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  /* ========================================
-     RESPONSIVE BREAKPOINTS
-     ======================================== */
-  @media (max-width: 900px) {
     /* Hide orbital layout on mobile */
     .experience-orbital {
       display: none !important;
     }
   }
+
+  /* Viewport that contains everything */
+  .experience-wheel__viewport {
+    position: relative;
+    width: 100%;
+    height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+
+  /* Ripple effect - behind circle */
+  .experience-wheel__ripples {
+    --ripple-color: var(--color-accent);
+    --ripple-gap: 2s;
+    --ripple-duration: calc(var(--ripple-gap) * 3);
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--circle-size);
+    height: var(--circle-size);
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .experience-wheel__ripples span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    border: 1px solid var(--ripple-color);
+    opacity: 0;
+    animation: wheel-ripple var(--ripple-duration) linear infinite;
+  }
+
+  .experience-wheel__ripples span:nth-child(1) {
+    animation-delay: 0s;
+  }
+  .experience-wheel__ripples span:nth-child(2) {
+    animation-delay: var(--ripple-gap);
+  }
+  .experience-wheel__ripples span:nth-child(3) {
+    animation-delay: calc(var(--ripple-gap) * 2);
+  }
+
+  @keyframes wheel-ripple {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+      border-width: 3px;
+    }
+    15% {
+      opacity: 0.5;
+    }
+    80% {
+      opacity: 0;
+      border-width: 0px;
+    }
+    100% {
+      transform: scale(2.2);
+      opacity: 0;
+      border-width: 0px;
+    }
+  }
+
+  /* The central circle (styled like desktop) */
+  .experience-wheel__circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--circle-size);
+    height: var(--circle-size);
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 50% 50%,
+      var(--experience-circle-bg, var(--color-background)) 0%,
+      color-mix(
+          in srgb,
+          var(--experience-circle-bg, var(--color-background)) 60%,
+          transparent
+        )
+        60%,
+      transparent 100%
+    );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:
+      0 0 60px
+        color-mix(
+          in srgb,
+          var(--experience-circle-bg, var(--color-background)) 30%,
+          transparent
+        ),
+      0 0 120px
+        color-mix(
+          in srgb,
+          var(--experience-circle-bg, var(--color-background)) 15%,
+          transparent
+        );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    /* Faded edges */
+    mask-image: radial-gradient(
+      ellipse 100% 100% at center,
+      black 50%,
+      rgba(0, 0, 0, 0.5) 70%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 100% 100% at center,
+      black 50%,
+      rgba(0, 0, 0, 0.5) 70%,
+      transparent 100%
+    );
+  }
+
+  .experience-wheel__circle-inner {
+    width: 85%;
+    height: 85%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* Content inside the circle */
+  .experience-wheel__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-md);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .experience-wheel__content[data-active='true'] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .experience-wheel__content-number {
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: clamp(2rem, 8vw, 3rem);
+    font-weight: 400;
+    color: var(--color-accent);
+    line-height: 1;
+    margin-bottom: var(--space-xs);
+  }
+
+  .experience-wheel__content-title {
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    font-weight: 500;
+    color: var(--experience-circle-text-color);
+    margin: 0 0 var(--space-sm) 0;
+    line-height: 1.2;
+  }
+
+  .experience-wheel__content-description {
+    font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+    color: var(--experience-circle-text-color);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 90%;
+  }
+
+  /* SVG Wheel - sized to place badges around circle edge */
+  .experience-wheel__svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Scale SVG so radius 250 (in viewBox) = circle radius + badge offset */
+    /* Circle is ~280px diameter, so radius is 140px. Badges at 250 in viewBox should be ~185px from center */
+    /* SVG width = (250 / 185) * 2 * 185 = 500 for proper scaling, or just make it relative to circle */
+    width: calc(var(--circle-size) * 1.5);
+    height: calc(var(--circle-size) * 1.5);
+    z-index: 2;
+    pointer-events: none; /* Allow click-through except on badges */
+  }
+
+  .experience-wheel__wheel {
+    /* GSAP svgOrigin handles transform origin - don't use CSS transform-box */
+    cursor: grab;
+    pointer-events: auto; /* Re-enable for badges */
+  }
+
+  .experience-wheel__wheel:active {
+    cursor: grabbing;
+  }
+
+  /* SVG Badge arc - thick stroke creates the curved shape */
+  .experience-wheel__badge-bg {
+    fill: none;
+    stroke: var(--experience-badge-bg-color, #cfcfef);
+    stroke-width: 45;
+    stroke-linecap: round;
+    filter: drop-shadow(0px 2px 3px rgba(42, 42, 85, 0.15));
+    transition:
+      stroke 0.3s ease,
+      filter 0.3s ease;
+    cursor: pointer;
+  }
+
+  /* Badge text following the arc */
+  .experience-wheel__badge-text {
+    fill: var(--color-accent, #4b4b99);
+    font-family: var(--font-sans, system-ui);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  /* Active badge state */
+  .experience-wheel__badge-group[data-active='true']
+    .experience-wheel__badge-bg {
+    stroke: var(--color-background, #ffffff);
+    filter: drop-shadow(0px 4px 6px rgba(42, 42, 85, 0.2));
+  }
+
+  /* ========================================
+     RESPONSIVE BREAKPOINTS
+     ======================================== */
 
   /* Tablet adjustments for orbital */
   @media (min-width: 901px) and (max-width: 1200px) {
@@ -967,7 +1088,12 @@ const cssVarsString = Object.entries(cssVars)
 </style>
 
 <script>
-  import { setupAnimationLifecycle, createFadeIn, gsap } from '@lib/animation';
+  import {
+    setupAnimationLifecycle,
+    createFadeIn,
+    gsap,
+    Draggable,
+  } from '@lib/animation';
 
   setupAnimationLifecycle(() => {
     // ========================================
@@ -1125,15 +1251,28 @@ const cssVarsString = Object.entries(cssVars)
     // ========================================
     // DESKTOP: GSAP Scroll Animation - Badge to Orbital (Pinned)
     // ========================================
+    console.log('[HowWeWork] ============= INIT =============');
+    console.log('[HowWeWork] Window width:', window.innerWidth);
+    console.log('[HowWeWork] Section found:', !!orbitalSection);
+    console.log('[HowWeWork] Circle center found:', !!circleCenter);
+    console.log('[HowWeWork] Badge count:', badges.length);
+
     if (
       window.innerWidth > 900 &&
       orbitalSection &&
       circleCenter &&
       badges.length > 0
     ) {
+      console.log('[HowWeWork] Desktop mode - initializing orbital layout');
       const sectionRect = orbitalSection.getBoundingClientRect();
       const sectionHeight = (orbitalSection as HTMLElement).offsetHeight;
       const sectionCenterY = sectionHeight / 2;
+      console.log('[HowWeWork] Section dimensions:', {
+        width: sectionRect.width,
+        height: sectionHeight,
+        centerY: sectionCenterY,
+        top: sectionRect.top,
+      });
 
       // Store initial badge positions and dimensions
       const badgeData: {
@@ -1142,7 +1281,7 @@ const cssVarsString = Object.entries(cssVars)
         width: number;
         height: number;
       }[] = [];
-      badges.forEach((badge) => {
+      badges.forEach((badge, idx) => {
         const rect = badge.getBoundingClientRect();
         badgeData.push({
           x:
@@ -1154,6 +1293,12 @@ const cssVarsString = Object.entries(cssVars)
           width: rect.width,
           height: rect.height,
         });
+        console.log(`[HowWeWork] Badge ${idx} initial:`, {
+          width: rect.width,
+          height: rect.height,
+          x: badgeData[idx].x,
+          y: badgeData[idx].y,
+        });
       });
 
       // Get circle radius and desired gap from circle edge to badge edge
@@ -1161,6 +1306,13 @@ const cssVarsString = Object.entries(cssVars)
       const circleSize =
         parseFloat(computedStyle.getPropertyValue('--circle-size')) || 380;
       const circleRadius = circleSize / 2;
+      console.log(
+        '[HowWeWork] Circle size:',
+        circleSize,
+        'radius:',
+        circleRadius
+      );
+
       // Gap settings - all edge-to-edge measurements
       const gapTop = 70; // Gap for top badge (badge bottom to circle top)
       const gapSide = 50; // Gap for side badges (badge inner edge to circle side)
@@ -1175,6 +1327,9 @@ const cssVarsString = Object.entries(cssVars)
       // Calculate X positions once for alignment
       const rightX = circleRadius + gapSide + rightSideWidth / 2;
       const leftX = -(circleRadius + gapSide + leftSideWidth / 2);
+
+      // Store final positions for scroll-triggered animation
+      const finalPositions: { x: number; y: number }[] = [];
 
       // Manual positioning with vertical alignment
       // Layout:
@@ -1225,52 +1380,263 @@ const cssVarsString = Object.entries(cssVars)
           finalY = sideY + sectionCenterY;
         }
 
-        // Set FINAL absolute position immediately
-        // User request: "have them be at their position from the very beginning... no animation on scrolling"
+        finalPositions.push({ x: finalX, y: finalY });
+        console.log(
+          `[HowWeWork] Badge ${index} final position: x=${finalX.toFixed(1)}, y=${finalY.toFixed(1)}`
+        );
+
+        // Set initial hidden state (at final X position, but offset Y and invisible)
         gsap.set(badge, {
           position: 'absolute',
           left: '50%',
           top: 0,
           x: finalX,
-          y: finalY,
+          y: finalY + 30, // Start 30px below final position
           xPercent: -50,
+          opacity: 0,
         });
       });
-    }
 
-    // ========================================
-    // MOBILE: Accordion functionality
-    // ========================================
-    const accordionItems = document.querySelectorAll(
-      '.experience-accordion__item'
-    );
-    const accordionHeaders = document.querySelectorAll(
-      '.experience-accordion__header'
-    );
+      // Create timeline for equidistant scroll-triggered reveals
+      const itemCount = badges.length;
+      console.log(
+        '[HowWeWork] Creating scroll timeline for',
+        itemCount,
+        'badges'
+      );
 
-    function setActiveAccordion(index: number) {
-      accordionItems.forEach((item, i) => {
-        const isActive = i === index;
-        const wasActive = item.getAttribute('data-active') === 'true';
+      // Throttled scroll logging
+      let lastLogTime = 0;
 
-        // Toggle: if clicking the already active item, close it
-        if (i === index && wasActive) {
-          item.setAttribute('data-active', 'false');
-          item
-            .querySelector('.experience-accordion__header')
-            ?.setAttribute('aria-expanded', 'false');
-        } else {
-          item.setAttribute('data-active', String(isActive));
-          item
-            .querySelector('.experience-accordion__header')
-            ?.setAttribute('aria-expanded', String(isActive));
-        }
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: orbitalSection,
+          start: 'top 60%', // Start when section is 60% from top of viewport
+          end: 'center center', // End when section center reaches viewport center
+          scrub: 0.25, // Quick scrub (0.2-0.3s)
+          markers: true, // DEBUG: Visual markers
+          onUpdate: (self) => {
+            const now = Date.now();
+            if (now - lastLogTime > 200) {
+              console.log(
+                `[HowWeWork] Timeline progress: ${(self.progress * 100).toFixed(1)}%`,
+                'direction:',
+                self.direction > 0 ? 'down' : 'up'
+              );
+              lastLogTime = now;
+            }
+          },
+        },
       });
+
+      // Add each badge to timeline at equidistant points (0%, 20%, 40%, 60%, 80%)
+      badges.forEach((badge, index) => {
+        const startProgress = index / itemCount;
+        const duration = 1 / itemCount;
+
+        console.log(
+          `[HowWeWork] Badge ${index} scheduled: start=${(startProgress * 100).toFixed(0)}%, duration=${(duration * 100).toFixed(0)}%`
+        );
+
+        tl.to(
+          badge,
+          {
+            opacity: 1,
+            y: finalPositions[index].y,
+            duration: duration,
+            ease: 'power2.out',
+            onStart: () =>
+              console.log(`[HowWeWork] Badge ${index} animation START`),
+            onComplete: () =>
+              console.log(`[HowWeWork] Badge ${index} animation COMPLETE`),
+          },
+          startProgress
+        );
+      });
+
+      console.log(
+        '[HowWeWork] Timeline created, total duration:',
+        tl.duration()
+      );
     }
 
-    accordionHeaders.forEach((header, index) => {
-      header.addEventListener('click', () => setActiveAccordion(index));
-    });
+    // ========================================
+    // MOBILE: SVG Wheel Carousel with curved arc badges
+    // ========================================
+    if (window.innerWidth <= 900) {
+      const wheel = document.querySelector(
+        '.experience-wheel__wheel'
+      ) as SVGGElement;
+      const badgeGroups = document.querySelectorAll(
+        '.experience-wheel__badge-group'
+      );
+      const badgePaths = document.querySelectorAll(
+        '.experience-wheel__badge-bg'
+      );
+      const contentItems = document.querySelectorAll(
+        '.experience-wheel__content'
+      );
+      const svg = document.querySelector('.experience-wheel__svg');
+
+      if (wheel && badgeGroups.length > 0) {
+        const itemCount = badgeGroups.length;
+        const sliceAngle = 360 / itemCount;
+        const BADGE_ARC_LENGTH = 50; // Degrees the badge arc occupies
+        // Local coords: wrapper translates to (300,300), so badges use origin (0,0)
+        const CX = 0;
+        const CY = 0;
+
+        // Calculate badge radius dynamically based on actual DOM sizes
+        const circleEl = document.querySelector(
+          '.experience-wheel__circle'
+        ) as HTMLElement;
+        const svgEl = document.querySelector(
+          '.experience-wheel__svg'
+        ) as SVGSVGElement;
+
+        const circleRect = circleEl.getBoundingClientRect();
+        const svgRect = svgEl.getBoundingClientRect();
+
+        // Scale factor: viewBox units per pixel
+        const scale = 600 / svgRect.width;
+
+        // Circle radius in pixels, then convert to viewBox units
+        const circleRadiusPx = circleRect.width / 2;
+        const BADGE_OFFSET_PX = 30; // pixels outside circle edge
+        const RADIUS = (circleRadiusPx + BADGE_OFFSET_PX) * scale;
+
+        let currentActiveIndex = 0;
+
+        // Helper: Convert polar to cartesian coordinates
+        function polarToCartesian(
+          centerX: number,
+          centerY: number,
+          radius: number,
+          angleInDegrees: number
+        ) {
+          const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+          return {
+            x: centerX + radius * Math.cos(angleInRadians),
+            y: centerY + radius * Math.sin(angleInRadians),
+          };
+        }
+
+        // Helper: Generate SVG arc path
+        function describeArc(
+          x: number,
+          y: number,
+          radius: number,
+          startAngle: number,
+          endAngle: number
+        ) {
+          const start = polarToCartesian(x, y, radius, endAngle);
+          const end = polarToCartesian(x, y, radius, startAngle);
+          const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
+          return [
+            'M',
+            start.x,
+            start.y,
+            'A',
+            radius,
+            radius,
+            0,
+            largeArcFlag,
+            0,
+            end.x,
+            end.y,
+          ].join(' ');
+        }
+
+        // Generate arc paths for each badge
+        badgePaths.forEach((path, index) => {
+          const angleCenter = index * sliceAngle;
+          const startAngle = angleCenter - BADGE_ARC_LENGTH / 2;
+          const endAngle = angleCenter + BADGE_ARC_LENGTH / 2;
+          const d = describeArc(CX, CY, RADIUS, startAngle, endAngle);
+          path.setAttribute('d', d);
+
+          // Also set the text path
+          const textPathDef = document.getElementById(
+            `wheel-text-path-${index}`
+          );
+          if (textPathDef) {
+            textPathDef.setAttribute(
+              'd',
+              describeArc(CX, CY, RADIUS + 2, startAngle, endAngle)
+            );
+          }
+        });
+
+        // Update active state
+        function setActiveWheelItem(index: number) {
+          if (index === currentActiveIndex) return;
+          currentActiveIndex = index;
+
+          badgeGroups.forEach((group, i) => {
+            group.setAttribute('data-active', String(i === index));
+          });
+
+          contentItems.forEach((item, i) => {
+            item.setAttribute('data-active', String(i === index));
+          });
+        }
+
+        // Set GSAP transform origin - (0,0) since wrapper translates to center
+        gsap.set(wheel, { svgOrigin: '0 0' });
+
+        // Create draggable wheel
+        Draggable.create(wheel, {
+          type: 'rotation',
+          trigger: svg,
+          inertia: true,
+          dragResistance: 0.3,
+          snap: (endValue: number) => {
+            return Math.round(endValue / sliceAngle) * sliceAngle;
+          },
+          onDrag: function () {
+            let rot = this.rotation % 360;
+            if (rot > 0) rot -= 360;
+            const index = Math.round(Math.abs(rot) / sliceAngle) % itemCount;
+            if (index !== currentActiveIndex) {
+              setActiveWheelItem(index);
+            }
+          },
+          onThrowComplete: function () {
+            let rot = this.rotation % 360;
+            if (rot > 0) rot -= 360;
+            const index = Math.round(Math.abs(rot) / sliceAngle) % itemCount;
+            setActiveWheelItem(index);
+          },
+          onDragEnd: function () {
+            let rot = this.rotation % 360;
+            if (rot > 0) rot -= 360;
+            const index = Math.round(Math.abs(rot) / sliceAngle) % itemCount;
+            setActiveWheelItem(index);
+          },
+        });
+
+        // Badge click handler
+        badgePaths.forEach((path, index) => {
+          path.addEventListener('click', () => {
+            const currentRotation =
+              (gsap.getProperty(wheel, 'rotation') as number) || 0;
+            const targetRotation = -sliceAngle * index;
+
+            let diff = targetRotation - (currentRotation % 360);
+            while (diff > 180) diff -= 360;
+            while (diff < -180) diff += 360;
+            const finalRotation = currentRotation + diff;
+
+            gsap.to(wheel, {
+              rotation: finalRotation,
+              duration: 0.6,
+              ease: 'power2.out',
+              onComplete: () => setActiveWheelItem(index),
+            });
+          });
+        });
+      }
+    }
 
     // ========================================
     // GSAP: Entrance animations
@@ -1278,9 +1644,9 @@ const cssVarsString = Object.entries(cssVars)
     // Fade in the header
     createFadeIn('.experience-section__header', { y: 30 });
 
-    // Mobile: Staggered fade in for accordion items
+    // Mobile: Fade in wheel
     if (window.innerWidth <= 900) {
-      createFadeIn('.experience-accordion__item', { y: 20, stagger: 0.08 });
+      createFadeIn('.experience-wheel__viewport', { y: 30 });
     }
   });
 </script>
