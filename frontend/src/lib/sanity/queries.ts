@@ -205,6 +205,20 @@ const pageSectionsQuery = `
     _type == "featuredServicesSection" => {
       title,
       description,
+      backgroundType,
+      backgroundImage {
+        ${imageProjection}
+      },
+      colorMode,
+      gradient {
+        direction,
+        startColor {
+          ${colorSelectionProjection}
+        },
+        endColor {
+          ${colorSelectionProjection}
+        }
+      },
       backgroundColorType,
       backgroundColorShade,
       backgroundCustomColor { label, value },
@@ -245,6 +259,16 @@ const pageSectionsQuery = `
       backgroundColorType,
       backgroundColorShade,
       backgroundCustomColor { label, value },
+      colorMode,
+      gradient {
+        direction,
+        startColor {
+          ${colorSelectionProjection}
+        },
+        endColor {
+          ${colorSelectionProjection}
+        }
+      },
       cardBackgroundColorType,
       cardBackgroundColorShade,
       cardBackgroundCustomColor { label, value },
@@ -278,6 +302,20 @@ const pageSectionsQuery = `
       tagline,
       fontSize,
       description,
+      backgroundType,
+      backgroundImage {
+        ${imageProjection}
+      },
+      colorMode,
+      gradient {
+        direction,
+        startColor {
+          ${colorSelectionProjection}
+        },
+        endColor {
+          ${colorSelectionProjection}
+        }
+      },
       backgroundColorType,
       backgroundColorShade,
       backgroundCustomColor { label, value },
@@ -295,6 +333,20 @@ const pageSectionsQuery = `
       title,
       description,
       descriptionColor,
+      backgroundType,
+      backgroundImage {
+        ${imageProjection}
+      },
+      colorMode,
+      gradient {
+        direction,
+        startColor {
+          ${colorSelectionProjection}
+        },
+        endColor {
+          ${colorSelectionProjection}
+        }
+      },
       backgroundColorType,
       backgroundColorShade,
       backgroundCustomColor { label, value },
