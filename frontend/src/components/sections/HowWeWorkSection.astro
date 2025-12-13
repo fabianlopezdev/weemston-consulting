@@ -146,23 +146,7 @@ const cssVarsString = Object.entries(cssVars)
 
     position: relative;
     padding: var(--space-2xl) 0;
-    background: var(--hww-bg, var(--color-background));
     overflow: hidden;
-  }
-
-  /* Soft vertical gradient */
-  .how-we-work-section::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(0, 0, 0, 0.05) 50%,
-      transparent 100%
-    );
-    pointer-events: none;
-    z-index: 0;
   }
 
   .how-we-work-section > .container {
