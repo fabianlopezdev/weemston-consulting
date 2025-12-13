@@ -10,6 +10,18 @@ interface ColorData {
   value: string;
 }
 
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
 interface SanityImageAsset {
   _id: string;
   url: string;
@@ -56,7 +68,10 @@ interface Props {
   // Background type toggle
   backgroundType?: 'color' | 'image';
   backgroundImage?: SanityImage;
-  // Section background color settings
+  // Color mode for color backgrounds
+  colorMode?: 'solid' | 'gradient';
+  gradient?: GradientData;
+  // Section background color settings (for solid)
   backgroundColorType?:
     | 'default'
     | 'primary'
@@ -95,6 +110,8 @@ const {
   testimonials,
   backgroundType = 'color',
   backgroundImage,
+  colorMode = 'solid',
+  gradient,
   backgroundColorType = 'default',
   backgroundColorShade = 0,
   backgroundCustomColor,
@@ -112,18 +129,34 @@ const {
 const settings = await client.fetch(siteSettingsQuery);
 const siteColors = settings?.colors;
 
+// Determine background mode
+const hasBackgroundImage = backgroundType === 'image' && backgroundImage?.asset;
+const isGradient = backgroundType === 'color' && colorMode === 'gradient';
+const isSolidColor = backgroundType === 'color' && colorMode !== 'gradient';
+
+// Resolve gradient colors
+let gradientCss: string | null = null;
+if (isGradient && gradient) {
+  const direction = gradient.direction || '135deg';
+  const startColor = resolveColorSelection(gradient.startColor, siteColors);
+  const endColor = resolveColorSelection(gradient.endColor, siteColors);
+  gradientCss = `linear-gradient(${direction}, ${startColor}, ${endColor})`;
+}
+
 // Resolve section background color (null if default)
 const backgroundColor =
-  backgroundColorType === 'default' || !backgroundColorType
+  isSolidColor && (backgroundColorType === 'default' || !backgroundColorType)
     ? null
-    : resolveColorSelection(
-        {
-          colorType: backgroundColorType,
-          shade: backgroundColorShade,
-          customColor: backgroundCustomColor,
-        },
-        siteColors
-      );
+    : isSolidColor
+      ? resolveColorSelection(
+          {
+            colorType: backgroundColorType,
+            shade: backgroundColorShade,
+            customColor: backgroundCustomColor,
+          },
+          siteColors
+        )
+      : null;
 
 // Resolve card background color (null if default)
 const cardBackgroundColor =
@@ -152,7 +185,6 @@ const cardBorderColor =
       );
 
 // Generate background image URL if type is 'image'
-const hasBackgroundImage = backgroundType === 'image' && backgroundImage?.asset;
 const bgImageUrl = hasBackgroundImage
   ? urlForImage(backgroundImage).width(1920).height(1080).auto('format').url()
   : null;
@@ -185,8 +217,10 @@ const cssVars: Record<string, string> = {
       : 'var(--color-text-muted)',
 };
 
-// Only set colors if not default
-if (backgroundColor) {
+// Set background based on type
+if (gradientCss) {
+  cssVars['--ts-bg'] = gradientCss;
+} else if (backgroundColor) {
   cssVars['--ts-bg'] = backgroundColor;
 }
 if (cardBackgroundColor) {

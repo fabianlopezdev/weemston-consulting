@@ -8,7 +8,7 @@ export default defineType({
   fieldsets: [
     {
       name: 'background',
-      title: 'Background Color',
+      title: 'Background',
       options: { collapsible: true, collapsed: true },
     },
     {
@@ -35,7 +35,82 @@ export default defineType({
       initialValue: true,
       description: 'Toggle to hide/show this section on the homepage',
     },
-    // Background Color Settings (moved above title)
+    // Background Type Selection
+    {
+      name: 'backgroundType',
+      title: 'Background Type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Image', value: 'image' },
+          { title: 'Color', value: 'color' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'color',
+      hidden: ({ parent }) => !parent?.enabled,
+      fieldset: 'background',
+    },
+    // Background Image
+    {
+      name: 'backgroundImage',
+      title: 'Background Image',
+      type: 'image',
+      description:
+        'For best performance, use WebP format. Convert images at anywebp.com or squoosh.app',
+      hidden: ({ parent }) =>
+        !parent?.enabled || parent?.backgroundType !== 'image',
+      options: {
+        hotspot: true,
+        collapsed: false,
+      },
+      fieldsets: [
+        {
+          name: 'seoFilename',
+          title: 'SEO Filename (optional)',
+          options: { collapsible: true, collapsed: true },
+        },
+      ],
+      fields: [
+        {
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          description:
+            'Describes the image for screen readers and search engines. Be specific (e.g., "Business consultant presenting strategy" not just "meeting"). Include relevant keywords naturally.',
+          validation: (Rule) => Rule.required(),
+        },
+        {
+          name: 'seoFilename',
+          title: 'Custom Filename',
+          type: 'string',
+          description:
+            'Improves image SEO by giving Google a descriptive filename (e.g., "business-consulting-hero" instead of "IMG_1234"). Use lowercase with hyphens, no spaces or special characters.',
+          fieldset: 'seoFilename',
+        },
+      ],
+      fieldset: 'background',
+    },
+    // Color Mode Selection
+    {
+      name: 'colorMode',
+      title: 'Color Mode',
+      type: 'string',
+      hidden: ({ parent }) =>
+        !parent?.enabled || parent?.backgroundType !== 'color',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+      fieldset: 'background',
+    },
+    // Solid Color Settings
     {
       name: 'backgroundColorType',
       title: 'Color',
@@ -50,7 +125,10 @@ export default defineType({
         ],
       },
       initialValue: 'default',
-      hidden: ({ parent }) => !parent?.enabled,
+      hidden: ({ parent }) =>
+        !parent?.enabled ||
+        parent?.backgroundType === 'image' ||
+        parent?.colorMode !== 'solid',
       fieldset: 'background',
     },
     {
@@ -60,6 +138,8 @@ export default defineType({
       initialValue: 0,
       hidden: ({ parent }) =>
         !parent?.enabled ||
+        parent?.backgroundType === 'image' ||
+        parent?.colorMode !== 'solid' ||
         parent?.backgroundColorType === 'custom' ||
         parent?.backgroundColorType === 'default' ||
         !parent?.backgroundColorType,
@@ -74,8 +154,116 @@ export default defineType({
       title: 'Custom Color',
       type: 'simplerColor',
       hidden: ({ parent }) =>
-        !parent?.enabled || parent?.backgroundColorType !== 'custom',
+        !parent?.enabled ||
+        parent?.backgroundType === 'image' ||
+        parent?.colorMode !== 'solid' ||
+        parent?.backgroundColorType !== 'custom',
       fieldset: 'background',
+    },
+    // Gradient Settings
+    {
+      name: 'gradient',
+      title: 'Gradient',
+      type: 'object',
+      hidden: ({ parent }) =>
+        !parent?.enabled ||
+        parent?.backgroundType === 'image' ||
+        parent?.colorMode !== 'gradient',
+      fieldset: 'background',
+      fields: [
+        {
+          name: 'direction',
+          title: 'Direction',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Top to Bottom', value: 'to bottom' },
+              { title: 'Bottom to Top', value: 'to top' },
+              { title: 'Left to Right', value: 'to right' },
+              { title: 'Right to Left', value: 'to left' },
+              { title: 'Diagonal ↘', value: '135deg' },
+              { title: 'Diagonal ↗', value: '45deg' },
+            ],
+          },
+          initialValue: '135deg',
+        },
+        {
+          name: 'startColor',
+          title: 'Start Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'primary',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: {
+                input: BackgroundShadeInput,
+              },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+        {
+          name: 'endColor',
+          title: 'End Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'accent',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: {
+                input: BackgroundShadeInput,
+              },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+      ],
     },
     {
       name: 'title',
@@ -312,8 +500,9 @@ export default defineType({
       title: 'title',
       enabled: 'enabled',
       cardsCount: 'cards.length',
+      media: 'backgroundImage',
     },
-    prepare({ title, enabled, cardsCount }) {
+    prepare({ title, enabled, cardsCount, media }) {
       const status = enabled ? '✓' : '✗';
       const displayTitle = title || 'Experience';
       const subtitle = enabled
@@ -323,6 +512,7 @@ export default defineType({
       return {
         title: `${status} ${displayTitle}`,
         subtitle,
+        media,
       };
     },
   },

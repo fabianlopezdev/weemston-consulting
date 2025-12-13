@@ -1,12 +1,54 @@
 ---
 import SectionTitle from '@components/ui/SectionTitle.astro';
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { urlForImage } from '@lib/sanity/image';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 
 interface ColorData {
   label?: string;
   value: string;
+}
+
+interface SanityImageAsset {
+  _id: string;
+  url: string;
+  metadata?: {
+    lqip?: string;
+    dimensions?: {
+      width: number;
+      height: number;
+      aspectRatio: number;
+    };
+  };
+}
+
+interface SanityImage {
+  asset?: SanityImageAsset;
+  alt?: string;
+  seoFilename?: string;
+  hotspot?: {
+    x: number;
+    y: number;
+  };
+  crop?: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
+}
+
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
 }
 
 interface PortableTextChild {
@@ -29,7 +71,12 @@ interface Props {
   tagline?: PortableTextBlock[];
   description?: PortableTextBlock[];
   fontSize?: number;
-  // Color settings
+  // Background type settings
+  backgroundType?: 'image' | 'color';
+  backgroundImage?: SanityImage;
+  colorMode?: 'solid' | 'gradient';
+  gradient?: GradientData;
+  // Solid color settings
   backgroundColorType?:
     | 'default'
     | 'primary'
@@ -50,6 +97,10 @@ const {
   tagline,
   description,
   fontSize = 2,
+  backgroundType = 'color',
+  backgroundImage,
+  colorMode = 'solid',
+  gradient,
   backgroundColorType = 'default',
   backgroundColorShade = 0,
   backgroundCustomColor,
@@ -63,18 +114,46 @@ const {
 const settings = await client.fetch(siteSettingsQuery);
 const siteColors = settings?.colors;
 
+// Determine background mode
+const hasBackgroundImage = backgroundType === 'image' && backgroundImage?.asset;
+const isGradient = backgroundType === 'color' && colorMode === 'gradient';
+const isSolidColor = backgroundType === 'color' && colorMode !== 'gradient';
+
+// Generate background image URL if type is 'image'
+const bgImageUrl = hasBackgroundImage
+  ? urlForImage(backgroundImage).width(1920).height(1080).auto('format').url()
+  : null;
+const bgImageLqip = hasBackgroundImage
+  ? backgroundImage?.asset?.metadata?.lqip
+  : null;
+const bgImageAlt = backgroundImage?.alt || '';
+const bgHotspot = backgroundImage?.hotspot;
+const bgHotspotX = bgHotspot ? `${bgHotspot.x * 100}%` : '50%';
+const bgHotspotY = bgHotspot ? `${bgHotspot.y * 100}%` : '50%';
+
+// Resolve gradient colors
+let gradientCss: string | null = null;
+if (isGradient && gradient) {
+  const direction = gradient.direction || '135deg';
+  const startColor = resolveColorSelection(gradient.startColor, siteColors);
+  const endColor = resolveColorSelection(gradient.endColor, siteColors);
+  gradientCss = `linear-gradient(${direction}, ${startColor}, ${endColor})`;
+}
+
 // Resolve background color (null if default)
 const backgroundColor =
-  backgroundColorType === 'default' || !backgroundColorType
+  isSolidColor && (backgroundColorType === 'default' || !backgroundColorType)
     ? null
-    : resolveColorSelection(
-        {
-          colorType: backgroundColorType,
-          shade: backgroundColorShade,
-          customColor: backgroundCustomColor,
-        },
-        siteColors
-      );
+    : isSolidColor
+      ? resolveColorSelection(
+          {
+            colorType: backgroundColorType,
+            shade: backgroundColorShade,
+            customColor: backgroundCustomColor,
+          },
+          siteColors
+        )
+      : null;
 
 // Resolve tagline color (null if default)
 const taglineColor =
@@ -92,17 +171,22 @@ const taglineColor =
 // Fluid font size: 1.75rem minimum, scales with viewport, capped at Sanity fontSize
 const fluidFontSize = `clamp(1.75rem, 4vw, ${fontSize}rem)`;
 
+// Determine effective text color - default to contrast for image backgrounds
+const effectiveTextColor = hasBackgroundImage ? 'contrast' : textColor;
+
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
   '--about-font-size': fluidFontSize,
   '--about-text':
-    textColor === 'contrast'
+    effectiveTextColor === 'contrast'
       ? 'var(--color-text-contrast)'
       : 'var(--color-text)',
 };
 
-// Only set background if not default
-if (backgroundColor) {
+// Set background based on type
+if (gradientCss) {
+  cssVars['--about-bg'] = gradientCss;
+} else if (backgroundColor) {
   cssVars['--about-bg'] = backgroundColor;
 }
 
@@ -143,7 +227,34 @@ const descriptionParagraphs =
     .map((block: PortableTextBlock) => renderChildren(block.children)) || [];
 ---
 
-<section class="about-section" style={cssVarsString}>
+<section
+  class:list={[
+    'about-section',
+    { 'about-section--has-bg-image': hasBackgroundImage },
+  ]}
+  style={cssVarsString}
+>
+  {/* Background Image Layer */}
+  {
+    hasBackgroundImage && bgImageUrl && (
+      <div class="about-section__bg">
+        <div
+          class="about-section__bg-blur"
+          style={bgImageLqip ? `background-image: url(${bgImageLqip})` : ''}
+        />
+        <img
+          src={bgImageUrl}
+          alt={bgImageAlt}
+          class="about-section__bg-image"
+          style={`object-position: ${bgHotspotX} ${bgHotspotY}`}
+          loading="eager"
+          decoding="async"
+        />
+        <div class="about-section__bg-overlay" />
+        <div class="about-section__bg-grain" aria-hidden="true" />
+      </div>
+    )
+  }
   <div class="container">
     <SectionTitle class={!showTitle ? 'visually-hidden' : undefined}>
       {title}
@@ -173,10 +284,127 @@ const descriptionParagraphs =
   </div>
 </section>
 
+<script>
+  // Handle background image blur-up loading effect
+  const bgImage = document.querySelector(
+    '.about-section__bg-image'
+  ) as HTMLImageElement;
+  const bgBlur = document.querySelector(
+    '.about-section__bg-blur'
+  ) as HTMLElement;
+
+  if (bgImage) {
+    const handleImageLoad = () => {
+      bgImage.classList.add('loaded');
+      if (bgBlur) {
+        bgBlur.classList.add('loaded');
+      }
+    };
+
+    // Check if already loaded (cached)
+    if (bgImage.complete && bgImage.naturalHeight !== 0) {
+      handleImageLoad();
+    } else {
+      bgImage.addEventListener('load', handleImageLoad);
+    }
+  }
+</script>
+
 <style>
   .about-section {
+    position: relative;
     padding: var(--space-2xl) 0;
     background: var(--about-bg, var(--color-background));
+  }
+
+  /* ========================================
+     BACKGROUND IMAGE STYLES
+     ======================================== */
+  .about-section__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  /* LQIP blur placeholder - fades out when main image loads */
+  .about-section__bg-blur {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(20px);
+    transform: scale(1.1);
+    opacity: 1;
+    transition: opacity 0.6s ease-out;
+  }
+
+  .about-section__bg-blur.loaded {
+    opacity: 0;
+  }
+
+  /* Main background image with Ken Burns effect */
+  .about-section__bg-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.6s ease-out;
+    animation: about-ken-burns 25s ease-in-out infinite alternate;
+  }
+
+  .about-section__bg-image.loaded {
+    opacity: 1;
+  }
+
+  @keyframes about-ken-burns {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(1.08);
+    }
+  }
+
+  /* Dark overlay for text legibility */
+  .about-section__bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.35) 0%,
+      rgba(0, 0, 0, 0.5) 50%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+  }
+
+  /* Subtle grain texture for depth */
+  .about-section__bg-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* When background image is present, ensure content is above */
+  .about-section--has-bg-image .container {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hide background color when image is present */
+  .about-section--has-bg-image {
+    background: transparent;
+  }
+
+  /* Reduce motion: disable Ken Burns animation */
+  @media (prefers-reduced-motion: reduce) {
+    .about-section__bg-image {
+      animation: none;
+    }
   }
 
   .about-section__content {

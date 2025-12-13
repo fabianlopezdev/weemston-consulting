@@ -82,7 +82,25 @@ export default defineType({
       ],
       fieldset: 'background',
     },
-    // Background Color Settings (shown only when type is 'color')
+    // Color Mode Selection
+    {
+      name: 'colorMode',
+      title: 'Color Mode',
+      type: 'string',
+      hidden: ({ parent }) =>
+        !parent?.enabled || parent?.backgroundType === 'image',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+      fieldset: 'background',
+    },
+    // Solid Color Settings (shown only when type is 'color' and mode is 'solid')
     {
       name: 'backgroundColorType',
       title: 'Color',
@@ -98,7 +116,9 @@ export default defineType({
       },
       initialValue: 'default',
       hidden: ({ parent }) =>
-        !parent?.enabled || parent?.backgroundType === 'image',
+        !parent?.enabled ||
+        parent?.backgroundType === 'image' ||
+        parent?.colorMode !== 'solid',
       fieldset: 'background',
     },
     {
@@ -109,6 +129,7 @@ export default defineType({
       hidden: ({ parent }) =>
         !parent?.enabled ||
         parent?.backgroundType === 'image' ||
+        parent?.colorMode !== 'solid' ||
         parent?.backgroundColorType === 'custom' ||
         parent?.backgroundColorType === 'default' ||
         !parent?.backgroundColorType,
@@ -125,8 +146,114 @@ export default defineType({
       hidden: ({ parent }) =>
         !parent?.enabled ||
         parent?.backgroundType === 'image' ||
+        parent?.colorMode !== 'solid' ||
         parent?.backgroundColorType !== 'custom',
       fieldset: 'background',
+    },
+    // Gradient Settings
+    {
+      name: 'gradient',
+      title: 'Gradient',
+      type: 'object',
+      hidden: ({ parent }) =>
+        !parent?.enabled ||
+        parent?.backgroundType === 'image' ||
+        parent?.colorMode !== 'gradient',
+      fieldset: 'background',
+      fields: [
+        {
+          name: 'direction',
+          title: 'Direction',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Top to Bottom', value: 'to bottom' },
+              { title: 'Bottom to Top', value: 'to top' },
+              { title: 'Left to Right', value: 'to right' },
+              { title: 'Right to Left', value: 'to left' },
+              { title: 'Diagonal ↘', value: '135deg' },
+              { title: 'Diagonal ↗', value: '45deg' },
+            ],
+          },
+          initialValue: '135deg',
+        },
+        {
+          name: 'startColor',
+          title: 'Start Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'primary',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: {
+                input: BackgroundShadeInput,
+              },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+        {
+          name: 'endColor',
+          title: 'End Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'accent',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: {
+                input: BackgroundShadeInput,
+              },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+      ],
     },
     // Card Background Color Settings
     {
