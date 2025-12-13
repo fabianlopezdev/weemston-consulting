@@ -313,7 +313,7 @@ const ctaTextColor = ctaButton
   @media (max-width: 768px) {
     .hero {
       --hero-clip: 4vw;
-      height: 85dvh;
+      height: calc(100dvh - var(--header-height));
     }
 
     .hero__content {
@@ -321,7 +321,7 @@ const ctaTextColor = ctaButton
     }
 
     .hero__heading {
-      font-size: var(--font-size-2xl);
+      font-size: clamp(2.2rem, 2rem + 2vw, 3rem);
     }
 
     .hero__subheading {
@@ -329,7 +329,7 @@ const ctaTextColor = ctaButton
     }
 
     .hero__intro {
-      font-size: var(--font-size-sm);
+      font-size: var(--font-size-lg, 1.125rem);
     }
   }
 </style>
