@@ -15,7 +15,10 @@ const { class: className } = Astro.props;
     font-family: var(--font-serif, Georgia, serif);
     font-size: clamp(2rem, 5vw, 3.5rem);
     font-weight: 400;
-    color: var(--title-color, var(--color-accent));
+    color: var(
+      --fs-section-title-color,
+      var(--title-color, var(--color-accent))
+    );
     line-height: 1.2;
     text-align: center;
     margin: 0 0 var(--space-xl) 0;

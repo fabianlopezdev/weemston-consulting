@@ -80,7 +80,12 @@ interface Props {
   // Card settings
   accentColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   accentCustomColor?: ColorData;
-  textColor?: 'base' | 'contrast';
+  // Section title color
+  sectionTitleColor?: 'base' | 'contrast';
+  // Text color settings
+  descriptionTextColor?: 'base' | 'muted' | 'contrast';
+  linkTextColor?: 'base' | 'muted' | 'contrast';
+  cardTextColor?: 'base' | 'muted' | 'contrast';
   // Card title color settings
   titleColorType?: 'default' | 'primary' | 'secondary' | 'accent' | 'custom';
   titleColorShade?: number;
@@ -101,7 +106,10 @@ const {
   backgroundCustomColor,
   accentColorType = 'accent',
   accentCustomColor,
-  textColor = 'base',
+  sectionTitleColor = 'base',
+  descriptionTextColor = 'base',
+  linkTextColor = 'base',
+  cardTextColor = 'base',
   titleColorType = 'default',
   titleColorShade = 0,
   titleCustomColor,
@@ -174,20 +182,38 @@ const titleColor =
         siteColors
       );
 
-// Determine effective text color - default to contrast for image backgrounds
-const effectiveTextColor = hasBackgroundImage ? 'contrast' : textColor;
+// Determine effective colors - default to contrast for image backgrounds
+const effectiveSectionTitleColor = hasBackgroundImage
+  ? 'contrast'
+  : sectionTitleColor;
+const effectiveDescriptionColor = hasBackgroundImage
+  ? 'contrast'
+  : descriptionTextColor;
+const effectiveLinkColor = hasBackgroundImage ? 'contrast' : linkTextColor;
+const effectiveCardTextColor = hasBackgroundImage ? 'contrast' : cardTextColor;
+
+// Map text color value to CSS variable
+const getTextColorVar = (color: 'base' | 'muted' | 'contrast'): string => {
+  switch (color) {
+    case 'contrast':
+      return 'var(--color-text-contrast)';
+    case 'muted':
+      return 'var(--color-text-muted)';
+    default:
+      return 'var(--color-text)';
+  }
+};
 
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
   '--fs-accent': accentColor,
-  '--fs-text':
-    effectiveTextColor === 'contrast'
+  '--fs-section-title-color':
+    effectiveSectionTitleColor === 'contrast'
       ? 'var(--color-text-contrast)'
-      : 'var(--color-text)',
-  '--fs-text-muted':
-    effectiveTextColor === 'contrast'
-      ? 'var(--color-text-contrast)'
-      : 'var(--color-text-muted)',
+      : 'var(--color-accent)',
+  '--fs-description-color': getTextColorVar(effectiveDescriptionColor),
+  '--fs-link-color': getTextColorVar(effectiveLinkColor),
+  '--fs-card-text-color': getTextColorVar(effectiveCardTextColor),
 };
 
 // Set background based on type
@@ -438,7 +464,7 @@ const cssVarsString = Object.entries(cssVars)
 
   .services-section__description {
     font-size: var(--font-size-lg, 1.125rem);
-    color: var(--fs-text-muted, var(--color-text-muted));
+    color: var(--fs-description-color, var(--color-text-muted));
     line-height: 1.6;
     margin: 0 0 var(--space-lg, 1.5rem) 0;
     max-width: 400px;
@@ -449,7 +475,7 @@ const cssVarsString = Object.entries(cssVars)
     align-items: center;
     gap: var(--space-xs, 0.5rem);
     font-size: var(--font-size-base, 1rem);
-    color: var(--fs-text, var(--color-text));
+    color: var(--fs-link-color, var(--color-text));
     text-decoration: none;
     transition: gap 0.2s ease;
   }
@@ -498,13 +524,13 @@ const cssVarsString = Object.entries(cssVars)
     font-weight: 400;
     line-height: 1.3;
     margin: 0;
-    color: var(--fs-title-color, var(--fs-text, var(--color-text)));
+    color: var(--fs-title-color, var(--color-text));
   }
 
   .services-card__description {
     flex: 1;
     font-size: var(--font-size-base, 1rem);
-    color: var(--fs-text-muted, var(--color-text-muted));
+    color: var(--fs-card-text-color, var(--color-text-muted));
     line-height: 1.6;
   }
 
@@ -533,14 +559,14 @@ const cssVarsString = Object.entries(cssVars)
     font-family: var(--font-heading, Georgia, serif);
     font-size: var(--font-size-xl, 1.5rem);
     font-weight: 400;
-    color: var(--fs-title-color, var(--fs-text, var(--color-text)));
+    color: var(--fs-title-color, var(--color-text));
     margin: 0 0 var(--space-sm, 0.5rem) 0;
     line-height: 1.2;
   }
 
   .services-slider__description {
     font-size: var(--font-size-base, 1rem);
-    color: var(--fs-text-muted, var(--color-text-muted));
+    color: var(--fs-card-text-color, var(--color-text-muted));
     line-height: 1.6;
   }
 
