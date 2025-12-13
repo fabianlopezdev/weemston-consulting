@@ -1,5 +1,6 @@
 ---
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { urlForImage } from '@lib/sanity/image';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 
@@ -34,11 +35,57 @@ interface ColorData {
   value: string;
 }
 
+interface SanityImageAsset {
+  _id: string;
+  url: string;
+  metadata?: {
+    lqip?: string;
+    dimensions?: {
+      width: number;
+      height: number;
+      aspectRatio: number;
+    };
+  };
+}
+
+interface SanityImage {
+  asset?: SanityImageAsset;
+  alt?: string;
+  seoFilename?: string;
+  hotspot?: {
+    x: number;
+    y: number;
+  };
+  crop?: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
+}
+
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
 interface Props {
   title: string;
   description?: string;
   cards: ExperienceCard[];
-  // Color settings
+  // Background type settings
+  backgroundType?: 'image' | 'color';
+  backgroundImage?: SanityImage;
+  colorMode?: 'solid' | 'gradient';
+  gradient?: GradientData;
+  // Solid color settings
   descriptionColor?: 'base' | 'contrast';
   backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   backgroundColorShade?: number;
@@ -75,6 +122,10 @@ const {
   title,
   description,
   cards,
+  backgroundType = 'color',
+  backgroundImage,
+  colorMode = 'solid',
+  gradient,
   descriptionColor = 'base',
   backgroundColorType = 'default',
   backgroundColorShade = 0,
@@ -99,18 +150,46 @@ const circleTextColor = props.circleTextColor ?? 'base';
 const settings = await client.fetch(siteSettingsQuery);
 const siteColors = settings?.colors;
 
+// Determine background mode
+const hasBackgroundImage = backgroundType === 'image' && backgroundImage?.asset;
+const isGradient = backgroundType === 'color' && colorMode === 'gradient';
+const isSolidColor = backgroundType === 'color' && colorMode !== 'gradient';
+
+// Generate background image URL if type is 'image'
+const bgImageUrl = hasBackgroundImage
+  ? urlForImage(backgroundImage).width(1920).height(1080).auto('format').url()
+  : null;
+const bgImageLqip = hasBackgroundImage
+  ? backgroundImage?.asset?.metadata?.lqip
+  : null;
+const bgImageAlt = backgroundImage?.alt || '';
+const bgHotspot = backgroundImage?.hotspot;
+const bgHotspotX = bgHotspot ? `${bgHotspot.x * 100}%` : '50%';
+const bgHotspotY = bgHotspot ? `${bgHotspot.y * 100}%` : '50%';
+
+// Resolve gradient colors
+let gradientCss: string | null = null;
+if (isGradient && gradient) {
+  const direction = gradient.direction || '135deg';
+  const startColor = resolveColorSelection(gradient.startColor, siteColors);
+  const endColor = resolveColorSelection(gradient.endColor, siteColors);
+  gradientCss = `linear-gradient(${direction}, ${startColor}, ${endColor})`;
+}
+
 // Resolve background color (null if default)
 const backgroundColor =
-  backgroundColorType === 'default' || !backgroundColorType
+  isSolidColor && (backgroundColorType === 'default' || !backgroundColorType)
     ? null
-    : resolveColorSelection(
-        {
-          colorType: backgroundColorType,
-          shade: backgroundColorShade,
-          customColor: backgroundCustomColor,
-        },
-        siteColors
-      );
+    : isSolidColor
+      ? resolveColorSelection(
+          {
+            colorType: backgroundColorType,
+            shade: backgroundColorShade,
+            customColor: backgroundCustomColor,
+          },
+          siteColors
+        )
+      : null;
 
 // Resolve badge border color (with shade) - null if default
 const badgeBorderColor =
@@ -184,8 +263,10 @@ if (circleBackgroundColor) {
   cssVars['--experience-circle-bg'] = circleBackgroundColor;
 }
 
-// Only set background if not default
-if (backgroundColor) {
+// Set background based on type
+if (gradientCss) {
+  cssVars['--experience-bg'] = gradientCss;
+} else if (backgroundColor) {
   cssVars['--experience-bg'] = backgroundColor;
 }
 
@@ -195,9 +276,33 @@ const cssVarsString = Object.entries(cssVars)
 ---
 
 <section
-  class="experience-section"
+  class:list={[
+    'experience-section',
+    { 'experience-section--has-bg-image': hasBackgroundImage },
+  ]}
   style={`${cssVarsString}; --item-count: ${cards.length}`}
 >
+  {/* Background Image Layer */}
+  {
+    hasBackgroundImage && bgImageUrl && (
+      <div class="experience-section__bg">
+        <div
+          class="experience-section__bg-blur"
+          style={bgImageLqip ? `background-image: url(${bgImageLqip})` : ''}
+        />
+        <img
+          src={bgImageUrl}
+          alt={bgImageAlt}
+          class="experience-section__bg-image"
+          style={`object-position: ${bgHotspotX} ${bgHotspotY}`}
+          loading="eager"
+          decoding="async"
+        />
+        <div class="experience-section__bg-overlay" />
+        <div class="experience-section__bg-grain" aria-hidden="true" />
+      </div>
+    )
+  }
   <div class="experience-section__container">
     <!-- Header -->
     <header class="experience-section__header">
@@ -361,9 +466,100 @@ const cssVarsString = Object.entries(cssVars)
      BASE SECTION STYLES
      ======================================== */
   .experience-section {
+    position: relative;
     padding: var(--space-3xl) 0;
     background: var(--experience-bg, var(--color-background, #ffffff));
     overflow: visible;
+  }
+
+  /* ========================================
+     BACKGROUND IMAGE STYLES
+     ======================================== */
+  .experience-section__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  /* LQIP blur placeholder - fades out when main image loads */
+  .experience-section__bg-blur {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(20px);
+    transform: scale(1.1);
+    opacity: 1;
+    transition: opacity 0.6s ease-out;
+  }
+
+  .experience-section__bg-blur.loaded {
+    opacity: 0;
+  }
+
+  /* Main background image with Ken Burns effect */
+  .experience-section__bg-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.6s ease-out;
+    animation: experience-ken-burns 25s ease-in-out infinite alternate;
+  }
+
+  .experience-section__bg-image.loaded {
+    opacity: 1;
+  }
+
+  @keyframes experience-ken-burns {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(1.08);
+    }
+  }
+
+  /* Dark overlay for text legibility */
+  .experience-section__bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.35) 0%,
+      rgba(0, 0, 0, 0.5) 50%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+  }
+
+  /* Subtle grain texture for depth */
+  .experience-section__bg-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* When background image is present, ensure content is above */
+  .experience-section--has-bg-image .experience-section__container {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hide background color when image is present */
+  .experience-section--has-bg-image {
+    background: transparent;
+  }
+
+  /* Reduce motion: disable Ken Burns animation */
+  @media (prefers-reduced-motion: reduce) {
+    .experience-section__bg-image {
+      animation: none;
+    }
   }
 
   .experience-section__container {
@@ -1064,6 +1260,32 @@ const cssVarsString = Object.entries(cssVars)
 </style>
 
 <script>
+  // Handle background image blur-up loading effect
+  const bgImage = document.querySelector(
+    '.experience-section__bg-image'
+  ) as HTMLImageElement;
+  const bgBlur = document.querySelector(
+    '.experience-section__bg-blur'
+  ) as HTMLElement;
+
+  if (bgImage) {
+    const handleImageLoad = () => {
+      bgImage.classList.add('loaded');
+      if (bgBlur) {
+        bgBlur.classList.add('loaded');
+      }
+    };
+
+    // Check if already loaded (cached)
+    if (bgImage.complete && bgImage.naturalHeight !== 0) {
+      handleImageLoad();
+    } else {
+      bgImage.addEventListener('load', handleImageLoad);
+    }
+  }
+</script>
+
+<script>
   import {
     setupAnimationLifecycle,
     createFadeIn,
@@ -1109,12 +1331,6 @@ const cssVarsString = Object.entries(cssVars)
     badges.forEach((badge, index) => {
       badge.addEventListener('mouseenter', () => setActiveBadge(index));
     });
-
-    // Reset to default when mouse leaves the badges area
-    const badgesContainer = document.querySelector(
-      '.experience-orbital__badges'
-    );
-    badgesContainer?.addEventListener('mouseleave', () => setActiveBadge(null));
 
     // Desktop/Mobile: Click also works (for touch devices and accessibility)
     badges.forEach((badge, index) => {
@@ -1385,51 +1601,6 @@ const cssVarsString = Object.entries(cssVars)
         const BADGE_OFFSET_PX = 30; // pixels outside circle edge
         const RADIUS = (circleRadiusPx + BADGE_OFFSET_PX) * scale;
 
-        // Content-based arc sizing: measure text widths
-        const MIN_ARC_LENGTH = 40; // Minimum degrees
-        const MAX_ARC_LENGTH = 70; // Maximum degrees
-        const ARC_PADDING = 30; // Extra degrees for padding around text
-
-        // Helper: Measure text width in SVG units
-        function measureTextWidth(text: string): number {
-          const tempText = document.createElementNS(
-            'http://www.w3.org/2000/svg',
-            'text'
-          );
-          tempText.setAttribute(
-            'style',
-            'font-family: var(--font-sans, system-ui); font-weight: 700; font-size: 12px; letter-spacing: 1px;'
-          );
-          tempText.textContent = text;
-          svgEl.appendChild(tempText);
-          const width = tempText.getBBox().width;
-          svgEl.removeChild(tempText);
-          return width;
-        }
-
-        // Helper: Convert text width to arc degrees
-        function textWidthToArcDegrees(textWidth: number): number {
-          // Arc length formula: arcLength = (angle/360) * 2 * π * radius
-          // So: angle = (arcLength * 360) / (2 * π * radius)
-          const circumference = 2 * Math.PI * RADIUS;
-          const arcDegrees = (textWidth * 360) / circumference;
-          return Math.min(
-            MAX_ARC_LENGTH,
-            Math.max(MIN_ARC_LENGTH, arcDegrees + ARC_PADDING)
-          );
-        }
-
-        // Calculate arc lengths for each badge based on text content
-        const badgeTexts = document.querySelectorAll(
-          '.experience-wheel__badge-text textPath'
-        );
-        const arcLengths: number[] = [];
-        badgeTexts.forEach((textPath) => {
-          const text = textPath.textContent || '';
-          const textWidth = measureTextWidth(text);
-          arcLengths.push(textWidthToArcDegrees(textWidth));
-        });
-
         let currentActiveIndex = 0;
 
         // Helper: Convert polar to cartesian coordinates
@@ -1492,12 +1663,20 @@ const cssVarsString = Object.entries(cssVars)
           ].join(' ');
         }
 
-        // Generate arc paths for each badge (using content-based arc lengths)
+        // Generate arc paths for each badge with content-based sizing
         const borderPaths = document.querySelectorAll(
           '.experience-wheel__badge-border'
         );
         badgePaths.forEach((path, index) => {
-          const arcLength = arcLengths[index] || 50; // Fallback to 50 if not measured
+          // Get text from corresponding textPath element
+          const textPathEl = document.querySelector(
+            `.experience-wheel__badge-group[data-index="${index}"] textPath`
+          );
+          const text = textPathEl?.textContent?.trim() || '';
+
+          // Calculate arc length from character count: 20° base + 3° per character
+          const arcLength = Math.min(100, Math.max(35, 20 + text.length * 3));
+
           const angleCenter = index * sliceAngle;
           const startAngle = angleCenter - arcLength / 2;
           const endAngle = angleCenter + arcLength / 2;
