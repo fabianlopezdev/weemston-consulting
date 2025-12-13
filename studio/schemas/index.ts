@@ -5,7 +5,6 @@ import media from './objects/media';
 import link from './objects/link';
 import navigationLink from './objects/navigationLink';
 import buttonColor from './objects/buttonColor';
-import iconOrImage from './objects/iconOrImage';
 import experienceCard from './objects/experienceCard';
 import howWeWorkCard from './objects/howWeWorkCard';
 
@@ -44,7 +43,6 @@ export const schemaTypes = [
   link,
   navigationLink,
   buttonColor,
-  iconOrImage,
   experienceCard,
   howWeWorkCard,
   // Sections

@@ -372,19 +372,7 @@ const pageSectionsQuery = `
         _key,
         number,
         title,
-        description,
-        iconBackgroundColorType,
-        iconBackgroundColorShade,
-        iconBackgroundCustomColor { label, value },
-        iconOrImage {
-          type,
-          icon {
-            name
-          },
-          image {
-            ${imageProjection}
-          }
-        }
+        description
       }
     },
     _type == "ourApproachSection" => {
