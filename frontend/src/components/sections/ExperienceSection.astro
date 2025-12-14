@@ -1397,12 +1397,7 @@ const cssVarsString = Object.entries(cssVars)
 </script>
 
 <script>
-  import {
-    setupAnimationLifecycle,
-    createFadeIn,
-    gsap,
-    Draggable,
-  } from '@lib/animation';
+  import { setupAnimationLifecycle, createFadeIn, gsap } from '@lib/animation';
 
   setupAnimationLifecycle(() => {
     // ========================================
@@ -1682,7 +1677,7 @@ const cssVarsString = Object.entries(cssVars)
       const contentItems = document.querySelectorAll(
         '.experience-wheel__content'
       );
-      const svg = document.querySelector('.experience-wheel__svg');
+      const viewport = document.querySelector('.experience-wheel__viewport');
 
       if (wheel && badgeFOs.length > 0) {
         const itemCount = badgeFOs.length;
@@ -1762,58 +1757,91 @@ const cssVarsString = Object.entries(cssVars)
         // Set GSAP transform origin - (0,0) since wrapper translates to center
         gsap.set(wheel, { svgOrigin: '0 0' });
 
-        // Create draggable wheel
-        Draggable.create(wheel, {
-          type: 'rotation',
-          trigger: svg,
-          inertia: true,
-          dragResistance: 0.3,
-          onDrag: function () {
-            let rot = this.rotation % 360;
-            if (rot > 0) rot -= 360;
-            const index = Math.round(Math.abs(rot) / sliceAngle) % itemCount;
-            if (index !== currentActiveIndex) {
+        // Custom touch handling for horizontal swipes only
+        // Allows vertical scrolling while capturing horizontal swipes for wheel rotation
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let currentRotation = 0;
+        let isHorizontalSwipe: boolean | null = null;
+        const swipeThreshold = 10; // pixels to determine swipe direction
+
+        function snapToNearest() {
+          const snappedRotation =
+            Math.round(currentRotation / sliceAngle) * sliceAngle;
+          gsap.to(wheel, {
+            rotation: snappedRotation,
+            duration: 0.4,
+            ease: 'elastic.out(0.6, 0.4)',
+            onComplete: () => {
+              currentRotation = snappedRotation;
+              let rot = snappedRotation % 360;
+              if (rot > 0) rot -= 360;
+              const index = Math.round(Math.abs(rot) / sliceAngle) % itemCount;
               setActiveWheelItem(index);
-            }
+            },
+          });
+        }
+
+        viewport?.addEventListener(
+          'touchstart',
+          (e) => {
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            isHorizontalSwipe = null;
+            currentRotation =
+              (gsap.getProperty(wheel, 'rotation') as number) || 0;
           },
-          onThrowComplete: function () {
-            // Snap to nearest position with elastic bounce
-            const currentRotation = this.rotation;
-            const snappedRotation =
-              Math.round(currentRotation / sliceAngle) * sliceAngle;
-            gsap.to(wheel, {
-              rotation: snappedRotation,
-              duration: 0.4,
-              ease: 'elastic.out(0.6, 0.4)',
-              onComplete: () => {
-                let rot = snappedRotation % 360;
-                if (rot > 0) rot -= 360;
-                const index =
-                  Math.round(Math.abs(rot) / sliceAngle) % itemCount;
+          { passive: true }
+        );
+
+        viewport?.addEventListener(
+          'touchmove',
+          (e) => {
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
+
+            // Determine swipe direction on first significant movement
+            if (isHorizontalSwipe === null) {
+              if (
+                Math.abs(deltaX) > swipeThreshold ||
+                Math.abs(deltaY) > swipeThreshold
+              ) {
+                isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY);
+              }
+            }
+
+            // Only handle horizontal swipes
+            if (isHorizontalSwipe) {
+              e.preventDefault();
+              // Convert horizontal movement to rotation
+              // Swipe left = badges move left, swipe right = badges move right
+              const rotationDelta = deltaX * 0.3;
+              const newRotation = currentRotation + rotationDelta;
+              gsap.set(wheel, { rotation: newRotation });
+
+              // Update active item during drag
+              let rot = newRotation % 360;
+              if (rot > 0) rot -= 360;
+              const index = Math.round(Math.abs(rot) / sliceAngle) % itemCount;
+              if (index !== currentActiveIndex) {
                 setActiveWheelItem(index);
-              },
-            });
-          },
-          onDragEnd: function () {
-            // If no throw (slow release), snap with elastic
-            if (!this.isThrowing) {
-              const currentRotation = this.rotation;
-              const snappedRotation =
-                Math.round(currentRotation / sliceAngle) * sliceAngle;
-              gsap.to(wheel, {
-                rotation: snappedRotation,
-                duration: 0.4,
-                ease: 'elastic.out(0.6, 0.4)',
-                onComplete: () => {
-                  let rot = snappedRotation % 360;
-                  if (rot > 0) rot -= 360;
-                  const index =
-                    Math.round(Math.abs(rot) / sliceAngle) % itemCount;
-                  setActiveWheelItem(index);
-                },
-              });
+              }
             }
+            // Vertical swipes: do nothing, let browser handle scrolling
           },
+          { passive: false }
+        );
+
+        viewport?.addEventListener('touchend', () => {
+          if (isHorizontalSwipe) {
+            // Update currentRotation to current position before snapping
+            currentRotation =
+              (gsap.getProperty(wheel, 'rotation') as number) || 0;
+            snapToNearest();
+          }
+          isHorizontalSwipe = null;
         });
 
         // Badge click handler
