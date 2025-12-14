@@ -14,11 +14,13 @@ html {
   hanging-punctuation: first last;
   text-size-adjust: none;
   -webkit-text-size-adjust: none;
+  overflow-x: hidden;
 }
 
 body {
   min-block-size: 100vh;
   min-block-size: 100dvh;
+  overflow-x: hidden;
 
   /* CSS Grid for sticky footer layout */
   display: grid;
