@@ -341,6 +341,13 @@ const ctaTextColor = ctaButton
       font-size: var(--font-size-lg, 1.125rem);
     }
   }
+
+  /* Short mobile screens (e.g., iPhone SE, older iPhones) */
+  @media (max-width: 768px) and (max-height: 667px) {
+    .hero__intro {
+      font-size: 1rem;
+    }
+  }
 </style>
 
 <script>
