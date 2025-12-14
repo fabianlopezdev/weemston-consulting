@@ -1451,7 +1451,6 @@ const cssVarsString = Object.entries(cssVars)
       '.experience-orbital__default'
     );
     const orbitalSection = document.querySelector('.experience-orbital');
-    const _circleCenter = document.querySelector('.experience-orbital__center');
 
     function setActiveBadge(index: number | null) {
       // Update default content visibility
@@ -1707,8 +1706,9 @@ const cssVarsString = Object.entries(cssVars)
 
         viewport?.addEventListener(
           'touchstart',
-          (e) => {
-            const touch = e.touches[0];
+          (e: Event) => {
+            const touch = (e as TouchEvent).touches[0];
+            if (!touch) return;
             touchStartX = touch.clientX;
             touchStartY = touch.clientY;
             isHorizontalSwipe = null;
@@ -1720,8 +1720,9 @@ const cssVarsString = Object.entries(cssVars)
 
         viewport?.addEventListener(
           'touchmove',
-          (e) => {
-            const touch = e.touches[0];
+          (e: Event) => {
+            const touch = (e as TouchEvent).touches[0];
+            if (!touch) return;
             const deltaX = touch.clientX - touchStartX;
             const deltaY = touch.clientY - touchStartY;
 
