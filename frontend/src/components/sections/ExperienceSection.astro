@@ -1722,6 +1722,9 @@ const cssVarsString = Object.entries(cssVars)
             while (diff < -180) diff += 360;
             const finalRotation = wheelRotation + diff;
 
+            // Reveal content immediately
+            setActiveWheelItem(index);
+
             // Animate wheel rotation (badges stay tangent, rotate with wheel)
             gsap.to(wheel, {
               rotation: finalRotation,
@@ -1729,7 +1732,6 @@ const cssVarsString = Object.entries(cssVars)
               ease: 'elastic.out(0.6, 0.5)',
               onComplete: () => {
                 wheelRotation = finalRotation;
-                setActiveWheelItem(index);
               },
             });
           });
