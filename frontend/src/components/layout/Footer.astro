@@ -19,7 +19,7 @@ const footerLogo =
     ? settings?.logos?.[footerLogoVariant]
     : null;
 const footerLogoUrl = footerLogo
-  ? urlForImage(footerLogo).width(400).url()
+  ? urlForImage(footerLogo).width(800).url()
   : null;
 ---
 
@@ -220,12 +220,22 @@ const footerLogoUrl = footerLogo
   }
 
   @media (max-width: 768px) {
+    .site-footer {
+      padding-block-start: 2.5rem;
+    }
+
     .footer-content {
       flex-direction: column;
+      margin-block-end: var(--space-2xl);
+    }
+
+    .footer-links {
+      flex-direction: column;
+      align-items: center;
     }
 
     .footer-logo-image {
-      width: 80%;
+      width: 85%;
     }
   }
 </style>
