@@ -377,6 +377,44 @@ const cssVarsString = Object.entries(cssVars)
     return path;
   }
 
+  // Vertical wavy path for mobile layout
+  function generateVerticalPath(points: { x: number; y: number }[]): string {
+    if (points.length < 2) return '';
+
+    const firstPoint = points[0];
+    if (!firstPoint) return '';
+    let path = `M ${firstPoint.x} ${firstPoint.y}`;
+
+    for (let i = 0; i < points.length - 1; i++) {
+      const start = points[i];
+      const end = points[i + 1];
+      if (!start || !end) continue;
+
+      const distY = end.y - start.y;
+
+      // Horizontal amplitude for wavy effect (curves left/right)
+      const amplitude = 35;
+
+      // Alternate wave direction for each segment
+      const direction = i % 2 === 0 ? 1 : -1;
+
+      // Control points at 1/3 and 2/3 of vertical distance
+      const cp1 = {
+        x: (start.x + end.x) / 2 + amplitude * direction,
+        y: start.y + distY * 0.33,
+      };
+
+      const cp2 = {
+        x: (start.x + end.x) / 2 - amplitude * direction,
+        y: start.y + distY * 0.66,
+      };
+
+      path += ` C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`;
+    }
+
+    return path;
+  }
+
   function initTimelinePath() {
     const timeline = document.querySelector('.timeline') as HTMLElement;
     const svg = document.querySelector('.timeline__svg') as SVGSVGElement;
@@ -384,6 +422,9 @@ const cssVarsString = Object.entries(cssVars)
     const markers = document.querySelectorAll('.timeline__marker');
 
     if (!timeline || !svg || !path || markers.length < 2) return;
+
+    // Detect mobile layout
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
 
     // Get the timeline's position for relative calculations
     const timelineRect = timeline.getBoundingClientRect();
@@ -394,7 +435,6 @@ const cssVarsString = Object.entries(cssVars)
 
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
 
-    // Get SIDE positions of each marker (right edge to left edge connection)
     // Temporarily reset transforms to get accurate measurements (GSAP may have scale(0) applied)
     const markerPositions: { x: number; y: number }[] = [];
     const savedTransforms: string[] = [];
@@ -409,20 +449,45 @@ const cssVarsString = Object.entries(cssVars)
     // Force layout recalculation
     void timeline.offsetHeight;
 
-    markers.forEach((marker, index) => {
-      const rect = marker.getBoundingClientRect();
-      const centerY = rect.top + rect.height / 2 - timelineRect.top;
-
-      if (index === 0) {
-        // First marker: use right edge (line starts from here)
-        const rightEdgeX = rect.right - timelineRect.left;
-        markerPositions.push({ x: rightEdgeX, y: centerY });
-      } else {
-        // All other markers: use CENTER so line connects when marker scales up
+    if (isMobile) {
+      // Mobile: Vertical layout - connect bottom of each marker to top of next
+      markers.forEach((marker, index) => {
+        const rect = marker.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2 - timelineRect.left;
-        markerPositions.push({ x: centerX, y: centerY });
-      }
-    });
+
+        if (index === 0) {
+          // First marker: line starts from bottom center
+          const bottomY = rect.bottom - timelineRect.top;
+          markerPositions.push({ x: centerX, y: bottomY });
+        } else if (index === markers.length - 1) {
+          // Last marker: line ends at top center
+          const topY = rect.top - timelineRect.top;
+          markerPositions.push({ x: centerX, y: topY });
+        } else {
+          // Middle markers: add both entry (top) and exit (bottom) points
+          const topY = rect.top - timelineRect.top;
+          const bottomY = rect.bottom - timelineRect.top;
+          markerPositions.push({ x: centerX, y: topY });
+          markerPositions.push({ x: centerX, y: bottomY });
+        }
+      });
+    } else {
+      // Desktop: Horizontal layout - connect right edge to center
+      markers.forEach((marker, index) => {
+        const rect = marker.getBoundingClientRect();
+        const centerY = rect.top + rect.height / 2 - timelineRect.top;
+
+        if (index === 0) {
+          // First marker: use right edge (line starts from here)
+          const rightEdgeX = rect.right - timelineRect.left;
+          markerPositions.push({ x: rightEdgeX, y: centerY });
+        } else {
+          // All other markers: use CENTER so line connects when marker scales up
+          const centerX = rect.left + rect.width / 2 - timelineRect.left;
+          markerPositions.push({ x: centerX, y: centerY });
+        }
+      });
+    }
 
     // Restore all transforms
     markers.forEach((marker, index) => {
@@ -430,8 +495,10 @@ const cssVarsString = Object.entries(cssVars)
       el.style.transform = savedTransforms[index] || '';
     });
 
-    // Generate and set the path
-    const pathD = generateHorizontalPath(markerPositions);
+    // Generate and set the path based on layout
+    const pathD = isMobile
+      ? generateVerticalPath(markerPositions)
+      : generateHorizontalPath(markerPositions);
     path.setAttribute('d', pathD);
 
     return path;
