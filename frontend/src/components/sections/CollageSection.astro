@@ -330,17 +330,20 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
       }
 
       // Fade in tagline with elegant reveal - use force3D for GPU acceleration
-      entranceTl.to(
-        taglineText,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          force3D: true,
-        },
-        0.1
-      );
+      // Note: taglineText may be null when useAsSectionTitle is true
+      if (taglineText) {
+        entranceTl.to(
+          taglineText,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power3.out',
+            force3D: true,
+          },
+          0.1
+        );
+      }
 
       // Fade in accent lines
       entranceTl.to(
