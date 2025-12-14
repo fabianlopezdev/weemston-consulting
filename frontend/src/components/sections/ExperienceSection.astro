@@ -86,7 +86,7 @@ interface Props {
   colorMode?: 'solid' | 'gradient';
   gradient?: GradientData;
   // Solid color settings
-  descriptionColor?: 'base' | 'contrast';
+  descriptionColor?: 'base' | 'muted' | 'contrast';
   backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
@@ -102,7 +102,7 @@ interface Props {
     | 'custom';
   badgeBackgroundColorShade?: number;
   badgeBackgroundCustomColor?: ColorData;
-  badgeTextColor?: 'base' | 'contrast';
+  badgeTextColor?: 'base' | 'muted' | 'contrast';
   // Circle background color (with shade)
   circleBackgroundColorType?:
     | 'default'
@@ -112,8 +112,8 @@ interface Props {
     | 'custom';
   circleBackgroundColorShade?: number;
   circleBackgroundCustomColor?: ColorData;
-  circleTextColor?: 'base' | 'contrast';
-  cardDescriptionColor?: 'base' | 'contrast';
+  circleTextColor?: 'base' | 'muted' | 'contrast';
+  cardDescriptionColor?: 'base' | 'muted' | 'contrast';
 }
 
 const props = Astro.props as any;
@@ -230,24 +230,24 @@ const circleBackgroundColor =
         siteColors
       );
 
+// Helper to resolve text color using centralized CSS variables
+const getTextColorVar = (color: 'base' | 'muted' | 'contrast'): string => {
+  switch (color) {
+    case 'contrast':
+      return 'var(--color-text-contrast)';
+    case 'muted':
+      return 'var(--color-text-muted)';
+    default:
+      return 'var(--color-text)';
+  }
+};
+
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
-  '--experience-desc-color':
-    descriptionColor === 'contrast'
-      ? 'var(--color-text-contrast)'
-      : 'var(--color-text-muted)',
-  '--experience-badge-text-color':
-    badgeTextColor === 'contrast'
-      ? 'var(--color-text-contrast)'
-      : 'var(--color-text-muted)',
-  '--experience-circle-text-color':
-    circleTextColor === 'contrast'
-      ? 'var(--color-text-contrast)'
-      : 'var(--color-text-muted)',
-  '--experience-card-desc-color':
-    cardDescriptionColor === 'contrast'
-      ? 'var(--color-text-contrast)'
-      : 'var(--color-text-muted)',
+  '--experience-desc-color': getTextColorVar(descriptionColor),
+  '--experience-badge-text-color': getTextColorVar(badgeTextColor),
+  '--experience-circle-text-color': getTextColorVar(circleTextColor),
+  '--experience-card-desc-color': getTextColorVar(cardDescriptionColor),
 };
 
 // Only set if not default
@@ -388,6 +388,9 @@ const cssVarsString = Object.entries(cssVars)
           <span></span>
         </div>
 
+        <!-- Triangle indicator pointing to active badge -->
+        <div class="experience-wheel__indicator"></div>
+
         <!-- Central circle with content (static, doesn't rotate) -->
         <div class="experience-wheel__circle">
           <div class="experience-wheel__circle-inner">
@@ -432,7 +435,6 @@ const cssVarsString = Object.entries(cssVars)
                     overflow="visible"
                   >
                     <button
-                      xmlns="http://www.w3.org/1999/xhtml"
                       type="button"
                       class="experience-wheel__badge"
                       data-index={index}
@@ -975,10 +977,14 @@ const cssVarsString = Object.entries(cssVars)
   }
 
   @media (max-width: 900px) {
+    .experience-section__header {
+      margin-block-end: 7rem;
+    }
+
     .experience-wheel {
       display: block;
       position: relative;
-      padding: var(--space-md) 0;
+      padding: var(--space-md) 0 5rem 0;
     }
 
     /* Hide orbital layout on mobile */
@@ -1110,6 +1116,20 @@ const cssVarsString = Object.entries(cssVars)
     );
   }
 
+  /* Triangle indicator pointing to active badge at top */
+  .experience-wheel__indicator {
+    position: absolute;
+    top: calc(50% - var(--circle-size) / 2 - 16px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 16px solid var(--color-accent);
+    z-index: 10;
+  }
+
   .experience-wheel__circle-inner {
     width: 85%;
     height: 85%;
@@ -1141,7 +1161,7 @@ const cssVarsString = Object.entries(cssVars)
 
   .experience-wheel__content-number {
     font-family: var(--font-heading, Georgia, serif);
-    font-size: clamp(2rem, 8vw, 3rem);
+    font-size: 4rem;
     font-weight: 400;
     color: var(--color-accent);
     line-height: 1;
@@ -1150,7 +1170,7 @@ const cssVarsString = Object.entries(cssVars)
 
   .experience-wheel__content-title {
     font-family: var(--font-heading, Georgia, serif);
-    font-size: clamp(1rem, 4vw, 1.25rem);
+    font-size: 1.75rem;
     font-weight: 500;
     color: var(--experience-circle-text-color);
     margin: 0 0 var(--space-sm) 0;
@@ -1158,7 +1178,7 @@ const cssVarsString = Object.entries(cssVars)
   }
 
   .experience-wheel__content-description {
-    font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+    font-size: var(--font-size-lg);
     color: var(--experience-circle-text-color);
     line-height: 1.5;
     margin: 0;
@@ -1198,7 +1218,7 @@ const cssVarsString = Object.entries(cssVars)
     display: inline-flex;
     align-items: center;
     gap: var(--space-xs);
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-sm) 2rem;
     background: var(--experience-badge-bg-color, var(--color-background));
     border: 1px solid
       var(--experience-badge-border-color, var(--color-background));
@@ -1700,9 +1720,6 @@ const cssVarsString = Object.entries(cssVars)
           trigger: svg,
           inertia: true,
           dragResistance: 0.3,
-          snap: (endValue: number) => {
-            return Math.round(endValue / sliceAngle) * sliceAngle;
-          },
           onDrag: function () {
             let rot = this.rotation % 360;
             if (rot > 0) rot -= 360;
@@ -1712,16 +1729,42 @@ const cssVarsString = Object.entries(cssVars)
             }
           },
           onThrowComplete: function () {
-            let rot = this.rotation % 360;
-            if (rot > 0) rot -= 360;
-            const index = Math.round(Math.abs(rot) / sliceAngle) % itemCount;
-            setActiveWheelItem(index);
+            // Snap to nearest position with elastic bounce
+            const currentRotation = this.rotation;
+            const snappedRotation =
+              Math.round(currentRotation / sliceAngle) * sliceAngle;
+            gsap.to(wheel, {
+              rotation: snappedRotation,
+              duration: 0.4,
+              ease: 'elastic.out(0.6, 0.4)',
+              onComplete: () => {
+                let rot = snappedRotation % 360;
+                if (rot > 0) rot -= 360;
+                const index =
+                  Math.round(Math.abs(rot) / sliceAngle) % itemCount;
+                setActiveWheelItem(index);
+              },
+            });
           },
           onDragEnd: function () {
-            let rot = this.rotation % 360;
-            if (rot > 0) rot -= 360;
-            const index = Math.round(Math.abs(rot) / sliceAngle) % itemCount;
-            setActiveWheelItem(index);
+            // If no throw (slow release), snap with elastic
+            if (!this.isThrowing) {
+              const currentRotation = this.rotation;
+              const snappedRotation =
+                Math.round(currentRotation / sliceAngle) * sliceAngle;
+              gsap.to(wheel, {
+                rotation: snappedRotation,
+                duration: 0.4,
+                ease: 'elastic.out(0.6, 0.4)',
+                onComplete: () => {
+                  let rot = snappedRotation % 360;
+                  if (rot > 0) rot -= 360;
+                  const index =
+                    Math.round(Math.abs(rot) / sliceAngle) % itemCount;
+                  setActiveWheelItem(index);
+                },
+              });
+            }
           },
         });
 
@@ -1740,8 +1783,8 @@ const cssVarsString = Object.entries(cssVars)
 
             gsap.to(wheel, {
               rotation: finalRotation,
-              duration: 0.6,
-              ease: 'power2.out',
+              duration: 0.5,
+              ease: 'elastic.out(0.6, 0.4)',
               onComplete: () => setActiveWheelItem(index),
             });
           });

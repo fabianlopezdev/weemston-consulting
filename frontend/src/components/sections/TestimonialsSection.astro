@@ -99,9 +99,9 @@ interface Props {
   cardBorderColorShade?: number;
   cardBorderCustomColor?: ColorData;
   // Title color (for image backgrounds)
-  titleColor?: 'base' | 'contrast';
+  titleColor?: 'base' | 'muted' | 'contrast';
   // Text color (card text)
-  textColor?: 'base' | 'contrast';
+  textColor?: 'base' | 'muted' | 'contrast';
 }
 
 const {
@@ -196,6 +196,30 @@ const bgHotspot = backgroundImage?.hotspot;
 const bgHotspotX = bgHotspot ? `${bgHotspot.x * 100}%` : '50%';
 const bgHotspotY = bgHotspot ? `${bgHotspot.y * 100}%` : '50%';
 
+// Helper to resolve text color using centralized CSS variables
+const getTextColorVar = (color: 'base' | 'muted' | 'contrast'): string => {
+  switch (color) {
+    case 'contrast':
+      return 'var(--color-text-contrast)';
+    case 'muted':
+      return 'var(--color-text-muted)';
+    default:
+      return 'var(--color-text)';
+  }
+};
+
+// Helper to resolve title color (base uses accent color for titles)
+const getTitleColorVar = (color: 'base' | 'muted' | 'contrast'): string => {
+  switch (color) {
+    case 'contrast':
+      return 'var(--color-text-contrast)';
+    case 'muted':
+      return 'var(--color-text-muted)';
+    default:
+      return 'var(--color-accent)';
+  }
+};
+
 // Determine effective title color - default to contrast for image backgrounds
 const effectiveTitleColor = hasBackgroundImage
   ? (titleColor ?? 'contrast')
@@ -203,14 +227,8 @@ const effectiveTitleColor = hasBackgroundImage
 
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
-  '--ts-title':
-    effectiveTitleColor === 'contrast'
-      ? 'var(--color-text-contrast)'
-      : 'var(--color-accent)',
-  '--ts-text':
-    textColor === 'contrast'
-      ? 'var(--color-text-contrast)'
-      : 'var(--color-text)',
+  '--ts-title': getTitleColorVar(effectiveTitleColor),
+  '--ts-text': getTextColorVar(textColor),
   '--ts-text-muted':
     textColor === 'contrast'
       ? 'var(--color-text-contrast)'
@@ -478,15 +496,56 @@ const cards = testimonials.map(renderCard);
       '(prefers-reduced-motion: reduce)'
     ).matches;
 
+    // Check for mobile
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
     // Get card width + gap for scroll distance
     const getCardScrollDistance = (): number => {
-      const card = track.querySelector('.testimonial-card') as HTMLElement;
+      const card = track.querySelector(
+        '.testimonial-card:not([aria-hidden])'
+      ) as HTMLElement;
       if (!card) return 500;
       const style = getComputedStyle(track);
       const gap = parseFloat(style.gap) || 24;
       return card.offsetWidth + gap;
     };
 
+    // Mobile: Single card navigation with arrows
+    if (isMobile) {
+      const cards = track.querySelectorAll(
+        '.testimonial-card:not([aria-hidden])'
+      );
+      let currentIndex = 0;
+
+      const goToCard = (index: number) => {
+        // Wrap around
+        if (index < 0) index = cards.length - 1;
+        if (index >= cards.length) index = 0;
+        currentIndex = index;
+
+        // On mobile, no gap - just use card width
+        const card = cards[0] as HTMLElement;
+        const scrollDistance = card?.offsetWidth || 0;
+        gsap.to(track, {
+          x: -currentIndex * scrollDistance,
+          duration: 0.4,
+          ease: 'power2.out',
+        });
+      };
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => goToCard(currentIndex - 1));
+      }
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => goToCard(currentIndex + 1));
+      }
+
+      // Keep existing section contract animation
+      createSectionContract('.testimonials-section__content');
+      return;
+    }
+
+    // Desktop: Auto-scroll marquee behavior
     // Pause timer reference
     let resumeTimeout: number | null = null;
     const PAUSE_DURATION = 3000;
@@ -909,8 +968,25 @@ const cards = testimonials.map(renderCard);
   }
 
   @media (max-width: 768px) {
+    /* Remove mask/fade on mobile */
+    .testimonials-marquee {
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+
+    /* No gap between cards on mobile for clean single-card navigation */
+    .testimonials-marquee__track {
+      gap: 0;
+    }
+
+    /* Hide duplicate cards on mobile */
+    .testimonial-card[aria-hidden='true'] {
+      display: none;
+    }
+
+    /* Card fills container width minus padding */
     .testimonial-card {
-      width: 350px;
+      width: calc(100vw - var(--space-md) * 2);
     }
 
     .testimonials-marquee__arrow {
@@ -924,18 +1000,11 @@ const cards = testimonials.map(renderCard);
     }
 
     .testimonials-marquee__arrow--prev {
-      left: var(--space-sm);
+      left: var(--space-xs);
     }
 
     .testimonials-marquee__arrow--next {
-      right: var(--space-sm);
-    }
-  }
-
-  /* Hide arrows on touch devices where swipe is more natural */
-  @media (hover: none) and (pointer: coarse) {
-    .testimonials-marquee__arrow {
-      display: none;
+      right: var(--space-xs);
     }
   }
 

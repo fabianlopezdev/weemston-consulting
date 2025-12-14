@@ -41,11 +41,11 @@ interface BackgroundSettings {
 
 interface Props {
   tagline?: string;
-  taglineColor?: 'base' | 'contrast';
+  taglineColor?: 'base' | 'muted' | 'contrast';
   heading: PortableTextBlock[] | string;
-  headingColor?: 'base' | 'contrast';
+  headingColor?: 'base' | 'muted' | 'contrast';
   subheading?: string;
-  subheadingColor?: 'base' | 'contrast';
+  subheadingColor?: 'base' | 'muted' | 'contrast';
   ctaButton?: LinkData;
   backgroundSettings?: BackgroundSettings;
 }
@@ -74,8 +74,16 @@ if (bgStyle.type === 'image' && bgStyle.image) {
 }
 
 // Helper to resolve text color using centralized CSS variables
-const getTextColor = (color?: 'base' | 'contrast') =>
-  color === 'contrast' ? 'var(--color-text-contrast)' : 'var(--color-text)';
+const getTextColor = (color?: 'base' | 'muted' | 'contrast') => {
+  switch (color) {
+    case 'contrast':
+      return 'var(--color-text-contrast)';
+    case 'muted':
+      return 'var(--color-text-muted)';
+    default:
+      return 'var(--color-text)';
+  }
+};
 
 // Convert heading to HTML with line breaks
 const getHeadingHtml = (

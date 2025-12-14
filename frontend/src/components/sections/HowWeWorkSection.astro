@@ -30,7 +30,7 @@ interface Props {
   backgroundCustomColor?: ColorData;
   accentColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   accentCustomColor?: ColorData;
-  textColor?: 'base' | 'contrast';
+  textColor?: 'base' | 'muted' | 'contrast';
 }
 
 const {
@@ -71,15 +71,24 @@ const accentColor = resolveColorSelection(
   siteColors
 );
 
+// Helper to resolve text color using centralized CSS variables
+const getTextColorVar = (color: 'base' | 'muted' | 'contrast'): string => {
+  switch (color) {
+    case 'contrast':
+      return 'var(--color-text-contrast)';
+    case 'muted':
+      return 'var(--color-text-muted)';
+    default:
+      return 'var(--color-text)';
+  }
+};
+
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
   '--hww-accent': accentColor,
   '--hww-title-color':
     textColor === 'contrast' ? 'var(--color-text-contrast)' : accentColor,
-  '--hww-text':
-    textColor === 'contrast'
-      ? 'var(--color-text-contrast)'
-      : 'var(--color-text)',
+  '--hww-text': getTextColorVar(textColor),
   '--hww-text-muted':
     textColor === 'contrast'
       ? 'var(--color-text-contrast)'

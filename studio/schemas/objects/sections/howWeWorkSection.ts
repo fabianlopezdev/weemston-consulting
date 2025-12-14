@@ -106,6 +106,7 @@ export default defineType({
       options: {
         list: [
           { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
           { title: 'Contrast', value: 'contrast' },
         ],
         layout: 'radio',

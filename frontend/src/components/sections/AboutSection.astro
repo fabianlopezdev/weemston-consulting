@@ -88,7 +88,7 @@ interface Props {
   taglineColorType?: 'default' | 'primary' | 'secondary' | 'accent' | 'custom';
   taglineColorShade?: number;
   taglineCustomColor?: ColorData;
-  textColor?: 'base' | 'contrast';
+  textColor?: 'base' | 'muted' | 'contrast';
 }
 
 const {
@@ -174,13 +174,22 @@ const fluidFontSize = `clamp(1.75rem, 4vw, ${fontSize}rem)`;
 // Determine effective text color - default to contrast for image backgrounds
 const effectiveTextColor = hasBackgroundImage ? 'contrast' : textColor;
 
+// Helper to resolve text color using centralized CSS variables
+const getTextColorVar = (color: 'base' | 'muted' | 'contrast'): string => {
+  switch (color) {
+    case 'contrast':
+      return 'var(--color-text-contrast)';
+    case 'muted':
+      return 'var(--color-text-muted)';
+    default:
+      return 'var(--color-text)';
+  }
+};
+
 // Define CSS variables for dynamic colors
 const cssVars: Record<string, string> = {
   '--about-font-size': fluidFontSize,
-  '--about-text':
-    effectiveTextColor === 'contrast'
-      ? 'var(--color-text-contrast)'
-      : 'var(--color-text)',
+  '--about-text': getTextColorVar(effectiveTextColor),
 };
 
 // Set background based on type
