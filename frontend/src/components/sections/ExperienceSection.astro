@@ -445,45 +445,30 @@ const cssVarsString = Object.entries(cssVars)
           </div>
         </div>
 
-        <!-- SVG Wheel with HTML pill badges via foreignObject -->
-        <svg
-          class="experience-wheel__svg"
-          viewBox="0 0 600 600"
-          overflow="visible"
-        >
-          <!-- Center wrapper - translate to center so rotation happens around (0,0) -->
-          <g transform="translate(300, 300)">
-            <!-- Spinning group with badges - rotates around local origin (0,0) -->
-            <g class="experience-wheel__wheel">
-              {
-                cards.map((card, index) => (
-                  <foreignObject
-                    class="experience-wheel__badge-fo"
-                    data-index={index}
-                    data-active={index === 0 ? 'true' : 'false'}
-                    width="1"
-                    height="1"
-                    overflow="visible"
-                  >
-                    <button
-                      type="button"
-                      class="experience-wheel__badge"
-                      data-index={index}
-                    >
-                      <span class="experience-wheel__badge-number">
-                        {card.number}
-                      </span>
-                      <span class="experience-wheel__badge-divider" />
-                      <span class="experience-wheel__badge-title">
-                        {card.title}
-                      </span>
-                    </button>
-                  </foreignObject>
-                ))
-              }
-            </g>
-          </g>
-        </svg>
+        <!-- HTML Wheel with positioned badges (iOS Safari compatible) -->
+        <div class="experience-wheel__badges-container">
+          <div class="experience-wheel__wheel">
+            {
+              cards.map((card, index) => (
+                <button
+                  type="button"
+                  class="experience-wheel__badge"
+                  data-index={index}
+                  data-active={index === 0 ? 'true' : 'false'}
+                  style={`--badge-index: ${index}`}
+                >
+                  <span class="experience-wheel__badge-number">
+                    {card.number}
+                  </span>
+                  <span class="experience-wheel__badge-divider" />
+                  <span class="experience-wheel__badge-title">
+                    {card.title}
+                  </span>
+                </button>
+              ))
+            }
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1301,8 +1286,8 @@ const cssVarsString = Object.entries(cssVars)
     max-width: 90%;
   }
 
-  /* SVG Wheel - sized to place badges around circle edge */
-  .experience-wheel__svg {
+  /* HTML-based wheel container (iOS Safari compatible - replaces broken SVG foreignObject) */
+  .experience-wheel__badges-container {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -1314,23 +1299,29 @@ const cssVarsString = Object.entries(cssVars)
   }
 
   .experience-wheel__wheel {
-    /* GSAP svgOrigin handles transform origin - don't use CSS transform-box */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
     cursor: grab;
-    pointer-events: auto; /* Re-enable for badges */
+    pointer-events: auto;
   }
 
   .experience-wheel__wheel:active {
     cursor: grabbing;
   }
 
-  /* foreignObject container for HTML badges */
-  .experience-wheel__badge-fo {
-    overflow: visible;
-    pointer-events: auto;
-  }
-
-  /* Mobile wheel HTML badge - exact same style as desktop */
+  /* Mobile wheel HTML badge - positioned in circle using CSS transforms */
   .experience-wheel__badge {
+    --badge-radius: calc(var(--circle-size) / 2 + 38px);
+    --slice-angle: calc(360deg / var(--item-count));
+    --badge-angle: calc(var(--badge-index) * var(--slice-angle));
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
     display: inline-flex;
     align-items: center;
     gap: var(--space-xs);
@@ -1345,7 +1336,12 @@ const cssVarsString = Object.entries(cssVars)
       0 2px 8px rgba(0, 0, 0, 0.04),
       0 4px 16px rgba(0, 0, 0, 0.02);
     transition: box-shadow 0.3s ease;
-    /* Centering handled by GSAP xPercent/yPercent to allow rotation */
+    pointer-events: auto;
+
+    /* Position badge in circle and rotate to be tangent (parallel to circle edge).
+       Badge rotates WITH the wheel, text follows the curve. */
+    transform: translate(-50%, -50%) rotate(var(--badge-angle))
+      translateY(calc(-1 * var(--badge-radius)));
   }
 
   .experience-wheel__badge:hover {
@@ -1364,7 +1360,7 @@ const cssVarsString = Object.entries(cssVars)
         );
   }
 
-  .experience-wheel__badge-fo[data-active='true'] .experience-wheel__badge {
+  .experience-wheel__badge[data-active='true'] {
     box-shadow:
       0 4px 16px
         color-mix(
@@ -1586,90 +1582,34 @@ const cssVarsString = Object.entries(cssVars)
     });
 
     // ========================================
-    // MOBILE: SVG Wheel Carousel with HTML pill badges
+    // MOBILE: HTML Wheel Carousel (iOS Safari compatible)
     // ========================================
     // Use matchMedia instead of innerWidth for iOS compatibility
     if (window.matchMedia('(max-width: 489px)').matches) {
       const wheel = document.querySelector(
         '.experience-wheel__wheel'
-      ) as SVGGElement;
-      const badgeFOs = document.querySelectorAll('.experience-wheel__badge-fo');
+      ) as HTMLElement;
       const badgeButtons = document.querySelectorAll(
         '.experience-wheel__badge'
-      );
+      ) as NodeListOf<HTMLElement>;
       const contentItems = document.querySelectorAll(
         '.experience-wheel__content'
       );
       const viewport = document.querySelector('.experience-wheel__viewport');
 
-      if (wheel && badgeFOs.length > 0) {
-        const itemCount = badgeFOs.length;
+      if (wheel && badgeButtons.length > 0) {
+        const itemCount = badgeButtons.length;
         const sliceAngle = 360 / itemCount;
-
-        // Calculate badge radius dynamically based on actual DOM sizes
-        const circleEl = document.querySelector(
-          '.experience-wheel__circle'
-        ) as HTMLElement;
-        const svgEl = document.querySelector(
-          '.experience-wheel__svg'
-        ) as SVGSVGElement;
-
-        const circleRect = circleEl.getBoundingClientRect();
-        const svgRect = svgEl.getBoundingClientRect();
-
-        // Scale factor: viewBox units per pixel
-        const scale = 600 / svgRect.width;
-
-        // Circle radius in pixels
-        const circleRadiusPx = circleRect.width / 2;
-
-        // Offset from circle edge to badge center (in pixels)
-        // Badges will be positioned with their center at this distance from circle edge
-        const BADGE_OFFSET_PX = 38;
-        const RADIUS = (circleRadiusPx + BADGE_OFFSET_PX) * scale;
-
         let currentActiveIndex = 0;
-
-        // Helper: Convert polar to cartesian coordinates
-        function polarToCartesian(radius: number, angleInDegrees: number) {
-          const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
-          return {
-            x: radius * Math.cos(angleInRadians),
-            y: radius * Math.sin(angleInRadians),
-          };
-        }
-
-        // Position each foreignObject badge around the wheel
-        // Each badge is rotated to be tangent to the circle at its position
-        badgeFOs.forEach((fo, index) => {
-          const angle = index * sliceAngle;
-          const pos = polarToCartesian(RADIUS, angle);
-
-          // Position foreignObject at calculated point
-          fo.setAttribute('x', String(pos.x));
-          fo.setAttribute('y', String(pos.y));
-
-          // Get the button inside and apply rotation + centering
-          const btn = fo.querySelector(
-            '.experience-wheel__badge'
-          ) as HTMLElement;
-          if (btn) {
-            gsap.set(btn, {
-              rotation: angle, // Rotate badge to be tangent to circle
-              xPercent: -50,
-              yPercent: -50,
-              transformOrigin: 'center center',
-            });
-          }
-        });
+        let wheelRotation = 0;
 
         // Update active state
         function setActiveWheelItem(index: number) {
           if (index === currentActiveIndex) return;
           currentActiveIndex = index;
 
-          badgeFOs.forEach((fo, i) => {
-            fo.setAttribute('data-active', String(i === index));
+          badgeButtons.forEach((btn, i) => {
+            btn.setAttribute('data-active', String(i === index));
           });
 
           contentItems.forEach((item, i) => {
@@ -1677,32 +1617,39 @@ const cssVarsString = Object.entries(cssVars)
           });
         }
 
-        // Set GSAP transform origin - (0,0) since wrapper translates to center
-        gsap.set(wheel, { svgOrigin: '0 0' });
+        // Apply rotation to wheel (badges stay tangent, no counter-rotation needed)
+        function updateWheelRotation(rotation: number, animate = false) {
+          wheelRotation = rotation;
+
+          if (animate) {
+            gsap.to(wheel, {
+              rotation: rotation,
+              duration: 0.4,
+              ease: 'elastic.out(0.6, 0.4)',
+            });
+          } else {
+            gsap.set(wheel, { rotation: rotation });
+          }
+        }
 
         // Custom touch handling for horizontal swipes only
         // Allows vertical scrolling while capturing horizontal swipes for wheel rotation
         let touchStartX = 0;
         let touchStartY = 0;
-        let currentRotation = 0;
+        let startRotation = 0;
         let isHorizontalSwipe: boolean | null = null;
         const swipeThreshold = 10; // pixels to determine swipe direction
 
         function snapToNearest() {
           const snappedRotation =
-            Math.round(currentRotation / sliceAngle) * sliceAngle;
-          gsap.to(wheel, {
-            rotation: snappedRotation,
-            duration: 0.4,
-            ease: 'elastic.out(0.6, 0.4)',
-            onComplete: () => {
-              currentRotation = snappedRotation;
-              let rot = snappedRotation % 360;
-              if (rot > 0) rot -= 360;
-              const index = Math.round(Math.abs(rot) / sliceAngle) % itemCount;
-              setActiveWheelItem(index);
-            },
-          });
+            Math.round(wheelRotation / sliceAngle) * sliceAngle;
+          updateWheelRotation(snappedRotation, true);
+
+          // Calculate active index from rotation
+          let rot = snappedRotation % 360;
+          if (rot > 0) rot -= 360;
+          const index = Math.round(Math.abs(rot) / sliceAngle) % itemCount;
+          setActiveWheelItem(index);
         }
 
         viewport?.addEventListener(
@@ -1713,8 +1660,7 @@ const cssVarsString = Object.entries(cssVars)
             touchStartX = touch.clientX;
             touchStartY = touch.clientY;
             isHorizontalSwipe = null;
-            currentRotation =
-              (gsap.getProperty(wheel, 'rotation') as number) || 0;
+            startRotation = wheelRotation;
           },
           { passive: true }
         );
@@ -1741,10 +1687,9 @@ const cssVarsString = Object.entries(cssVars)
             if (isHorizontalSwipe) {
               e.preventDefault();
               // Convert horizontal movement to rotation
-              // Swipe left = badges move left, swipe right = badges move right
               const rotationDelta = deltaX * 0.3;
-              const newRotation = currentRotation + rotationDelta;
-              gsap.set(wheel, { rotation: newRotation });
+              const newRotation = startRotation + rotationDelta;
+              updateWheelRotation(newRotation, false);
 
               // Update active item during drag
               let rot = newRotation % 360;
@@ -1761,9 +1706,6 @@ const cssVarsString = Object.entries(cssVars)
 
         viewport?.addEventListener('touchend', () => {
           if (isHorizontalSwipe) {
-            // Update currentRotation to current position before snapping
-            currentRotation =
-              (gsap.getProperty(wheel, 'rotation') as number) || 0;
             snapToNearest();
           }
           isHorizontalSwipe = null;
@@ -1773,20 +1715,22 @@ const cssVarsString = Object.entries(cssVars)
         badgeButtons.forEach((btn, index) => {
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const currentRotation =
-              (gsap.getProperty(wheel, 'rotation') as number) || 0;
             const targetRotation = -sliceAngle * index;
 
-            let diff = targetRotation - (currentRotation % 360);
+            let diff = targetRotation - (wheelRotation % 360);
             while (diff > 180) diff -= 360;
             while (diff < -180) diff += 360;
-            const finalRotation = currentRotation + diff;
+            const finalRotation = wheelRotation + diff;
 
+            // Animate wheel rotation (badges stay tangent, rotate with wheel)
             gsap.to(wheel, {
               rotation: finalRotation,
               duration: 1.8,
               ease: 'elastic.out(0.6, 0.5)',
-              onComplete: () => setActiveWheelItem(index),
+              onComplete: () => {
+                wheelRotation = finalRotation;
+                setActiveWheelItem(index);
+              },
             });
           });
         });
