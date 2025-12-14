@@ -1588,7 +1588,8 @@ const cssVarsString = Object.entries(cssVars)
     // ========================================
     // MOBILE: SVG Wheel Carousel with HTML pill badges
     // ========================================
-    if (window.innerWidth <= 488) {
+    // Use matchMedia instead of innerWidth for iOS compatibility
+    if (window.matchMedia('(max-width: 489px)').matches) {
       const wheel = document.querySelector(
         '.experience-wheel__wheel'
       ) as SVGGElement;
@@ -1798,8 +1799,8 @@ const cssVarsString = Object.entries(cssVars)
     // Fade in the header
     createFadeIn('.experience-section__header', { y: 30 });
 
-    // Mobile: Fade in wheel
-    if (window.innerWidth <= 489) {
+    // Mobile: Fade in wheel (use matchMedia for iOS compatibility)
+    if (window.matchMedia('(max-width: 489px)').matches) {
       createFadeIn('.experience-wheel__viewport', { y: 30 });
     }
   });

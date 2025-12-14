@@ -273,9 +273,8 @@ const ctaTextColor = ctaButton
     line-height: 1.1;
     font-weight: 400;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    /* Break out of container constraint to span full hero width */
-    width: 100vw;
-    margin-inline: calc(50% - 50vw);
+    /* iOS-safe: use 100% instead of 100vw which breaks on iOS Safari */
+    width: 100%;
     padding-inline: var(--space-lg);
     box-sizing: border-box;
   }
