@@ -977,6 +977,10 @@ const cssVarsString = Object.entries(cssVars)
   }
 
   @media (max-width: 900px) {
+    .experience-section {
+      overflow: hidden;
+    }
+
     .experience-section__header {
       margin-block-end: 7rem;
     }
@@ -1783,8 +1787,8 @@ const cssVarsString = Object.entries(cssVars)
 
             gsap.to(wheel, {
               rotation: finalRotation,
-              duration: 0.5,
-              ease: 'elastic.out(0.6, 0.4)',
+              duration: 1.8,
+              ease: 'elastic.out(0.6, 0.5)',
               onComplete: () => setActiveWheelItem(index),
             });
           });
