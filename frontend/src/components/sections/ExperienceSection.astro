@@ -391,6 +391,37 @@ const cssVarsString = Object.entries(cssVars)
         <!-- Triangle indicator pointing to active badge -->
         <div class="experience-wheel__indicator"></div>
 
+        <!-- Swipe hint - single curved line with arrowheads on both ends -->
+        <svg
+          class="experience-wheel__swipe-hint"
+          viewBox="0 0 100 24"
+          fill="none"
+        >
+          <!-- Curved line following circle curvature -->
+          <path
+            d="M10 18 Q50 2, 90 18"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            fill="none"></path>
+          <!-- Left arrowhead -->
+          <path
+            d="M10 18 L16 12 M10 18 L18 20"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"></path>
+          <!-- Right arrowhead -->
+          <path
+            d="M90 18 L84 12 M90 18 L82 20"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"></path>
+        </svg>
+
         <!-- Central circle with content (static, doesn't rotate) -->
         <div class="experience-wheel__circle">
           <div class="experience-wheel__circle-inner">
@@ -1131,6 +1162,19 @@ const cssVarsString = Object.entries(cssVars)
     border-left: 12px solid transparent;
     border-right: 12px solid transparent;
     border-bottom: 16px solid var(--color-accent);
+    z-index: 10;
+  }
+
+  /* Swipe hint arrows - curved along circle */
+  .experience-wheel__swipe-hint {
+    position: absolute;
+    top: calc(50% - var(--circle-size) / 2 + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 35px;
+    color: var(--color-accent);
+    opacity: 0.8;
     z-index: 10;
   }
 
