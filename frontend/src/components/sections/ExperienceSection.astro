@@ -411,7 +411,7 @@ const cssVarsString = Object.entries(cssVars)
           </div>
         </div>
 
-        <!-- SVG Wheel with curved badges -->
+        <!-- SVG Wheel with HTML pill badges via foreignObject -->
         <svg
           class="experience-wheel__svg"
           viewBox="0 0 600 600"
@@ -419,38 +419,33 @@ const cssVarsString = Object.entries(cssVars)
         >
           <!-- Center wrapper - translate to center so rotation happens around (0,0) -->
           <g transform="translate(300, 300)">
-            <!-- Spinning group with arc badges - rotates around local origin (0,0) -->
+            <!-- Spinning group with badges - rotates around local origin (0,0) -->
             <g class="experience-wheel__wheel">
               {
                 cards.map((card, index) => (
-                  <g
-                    class="experience-wheel__badge-group"
+                  <foreignObject
+                    class="experience-wheel__badge-fo"
                     data-index={index}
                     data-active={index === 0 ? 'true' : 'false'}
+                    width="1"
+                    height="1"
+                    overflow="visible"
                   >
-                    <path
-                      class="experience-wheel__badge-border"
+                    <button
+                      xmlns="http://www.w3.org/1999/xhtml"
+                      type="button"
+                      class="experience-wheel__badge"
                       data-index={index}
-                    />
-                    <path
-                      class="experience-wheel__badge-bg"
-                      data-index={index}
-                    />
-                    <path
-                      id={`wheel-text-path-${index}`}
-                      fill="none"
-                      style="display:none"
-                    />
-                    <text class="experience-wheel__badge-text" dy="5">
-                      <textPath
-                        href={`#wheel-text-path-${index}`}
-                        startOffset="50%"
-                        text-anchor="middle"
-                      >
-                        {card.number} | {card.title.toUpperCase()}
-                      </textPath>
-                    </text>
-                  </g>
+                    >
+                      <span class="experience-wheel__badge-number">
+                        {card.number}
+                      </span>
+                      <span class="experience-wheel__badge-divider" />
+                      <span class="experience-wheel__badge-title">
+                        {card.title}
+                      </span>
+                    </button>
+                  </foreignObject>
                 ))
               }
             </g>
@@ -1192,42 +1187,90 @@ const cssVarsString = Object.entries(cssVars)
     cursor: grabbing;
   }
 
-  /* SVG Badge border arc - rendered behind the fill */
-  .experience-wheel__badge-border {
-    fill: none;
-    stroke: var(--experience-badge-border-color, var(--color-accent));
-    stroke-width: 47;
-    stroke-linecap: round;
+  /* foreignObject container for HTML badges */
+  .experience-wheel__badge-fo {
+    overflow: visible;
+    pointer-events: auto;
   }
 
-  /* SVG Badge arc - thick stroke creates the curved shape */
-  .experience-wheel__badge-bg {
-    fill: none;
-    stroke: var(--experience-badge-bg-color, #cfcfef);
-    stroke-width: 45;
-    stroke-linecap: round;
-    filter: drop-shadow(0px 2px 3px rgba(42, 42, 85, 0.15));
-    transition:
-      stroke 0.3s ease,
-      filter 0.3s ease;
+  /* Mobile wheel HTML badge - exact same style as desktop */
+  .experience-wheel__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--experience-badge-bg-color, var(--color-background));
+    border: 1px solid
+      var(--experience-badge-border-color, var(--color-background));
+    border-radius: 100px;
     cursor: pointer;
+    white-space: nowrap;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.04),
+      0 4px 16px rgba(0, 0, 0, 0.02);
+    transition: box-shadow 0.3s ease;
+    /* Centering handled by GSAP xPercent/yPercent to allow rotation */
   }
 
-  /* Badge text following the arc */
-  .experience-wheel__badge-text {
-    fill: var(--color-accent, #4b4b99);
+  .experience-wheel__badge:hover {
+    box-shadow:
+      0 4px 12px
+        color-mix(
+          in srgb,
+          var(--experience-badge-border-color, var(--color-background)) 15%,
+          transparent
+        ),
+      0 8px 24px
+        color-mix(
+          in srgb,
+          var(--experience-badge-border-color, var(--color-background)) 8%,
+          transparent
+        );
+  }
+
+  .experience-wheel__badge-fo[data-active='true'] .experience-wheel__badge {
+    box-shadow:
+      0 4px 16px
+        color-mix(
+          in srgb,
+          var(--experience-badge-border-color, var(--color-background)) 20%,
+          transparent
+        ),
+      0 8px 32px
+        color-mix(
+          in srgb,
+          var(--experience-badge-border-color, var(--color-background)) 10%,
+          transparent
+        );
+  }
+
+  .experience-wheel__badge-number {
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: 2.5rem;
+    font-weight: 400;
+    color: var(--color-accent);
+    line-height: 1;
+  }
+
+  .experience-wheel__badge-divider {
+    width: 1px;
+    height: 1.4em;
+    background: color-mix(
+      in srgb,
+      var(--color-text-muted, #666) 30%,
+      transparent
+    );
+  }
+
+  .experience-wheel__badge-title {
     font-family: var(--font-sans, system-ui);
-    font-weight: 700;
-    font-size: 12px;
-    letter-spacing: 1px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--experience-badge-text-color);
     text-transform: uppercase;
-    pointer-events: none;
-  }
-
-  /* Active badge state - keep original color, just enhance shadow */
-  .experience-wheel__badge-group[data-active='true']
-    .experience-wheel__badge-bg {
-    filter: drop-shadow(0px 4px 6px rgba(42, 42, 85, 0.2));
+    letter-spacing: 0.1em;
+    line-height: 1;
+    padding-top: 2px;
   }
 
   /* ========================================
@@ -1558,29 +1601,24 @@ const cssVarsString = Object.entries(cssVars)
     }
 
     // ========================================
-    // MOBILE: SVG Wheel Carousel with curved arc badges
+    // MOBILE: SVG Wheel Carousel with HTML pill badges
     // ========================================
     if (window.innerWidth <= 900) {
       const wheel = document.querySelector(
         '.experience-wheel__wheel'
       ) as SVGGElement;
-      const badgeGroups = document.querySelectorAll(
-        '.experience-wheel__badge-group'
-      );
-      const badgePaths = document.querySelectorAll(
-        '.experience-wheel__badge-bg'
+      const badgeFOs = document.querySelectorAll('.experience-wheel__badge-fo');
+      const badgeButtons = document.querySelectorAll(
+        '.experience-wheel__badge'
       );
       const contentItems = document.querySelectorAll(
         '.experience-wheel__content'
       );
       const svg = document.querySelector('.experience-wheel__svg');
 
-      if (wheel && badgeGroups.length > 0) {
-        const itemCount = badgeGroups.length;
+      if (wheel && badgeFOs.length > 0) {
+        const itemCount = badgeFOs.length;
         const sliceAngle = 360 / itemCount;
-        // Local coords: wrapper translates to (300,300), so badges use origin (0,0)
-        const CX = 0;
-        const CY = 0;
 
         // Calculate badge radius dynamically based on actual DOM sizes
         const circleEl = document.querySelector(
@@ -1596,109 +1634,46 @@ const cssVarsString = Object.entries(cssVars)
         // Scale factor: viewBox units per pixel
         const scale = 600 / svgRect.width;
 
-        // Circle radius in pixels, then convert to viewBox units
+        // Circle radius in pixels
         const circleRadiusPx = circleRect.width / 2;
-        const BADGE_OFFSET_PX = 30; // pixels outside circle edge
+
+        // Offset from circle edge to badge center (in pixels)
+        // Badges will be positioned with their center at this distance from circle edge
+        const BADGE_OFFSET_PX = 38;
         const RADIUS = (circleRadiusPx + BADGE_OFFSET_PX) * scale;
 
         let currentActiveIndex = 0;
 
         // Helper: Convert polar to cartesian coordinates
-        function polarToCartesian(
-          centerX: number,
-          centerY: number,
-          radius: number,
-          angleInDegrees: number
-        ) {
+        function polarToCartesian(radius: number, angleInDegrees: number) {
           const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
           return {
-            x: centerX + radius * Math.cos(angleInRadians),
-            y: centerY + radius * Math.sin(angleInRadians),
+            x: radius * Math.cos(angleInRadians),
+            y: radius * Math.sin(angleInRadians),
           };
         }
 
-        // Helper: Generate SVG arc path
-        function describeArc(
-          x: number,
-          y: number,
-          radius: number,
-          startAngle: number,
-          endAngle: number,
-          reverse: boolean = false
-        ) {
-          if (reverse) {
-            // Swap start/end and use sweep flag 1 for reversed direction
-            const start = polarToCartesian(x, y, radius, startAngle);
-            const end = polarToCartesian(x, y, radius, endAngle);
-            const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
-            return [
-              'M',
-              start.x,
-              start.y,
-              'A',
-              radius,
-              radius,
-              0,
-              largeArcFlag,
-              1,
-              end.x,
-              end.y,
-            ].join(' ');
-          }
-          const start = polarToCartesian(x, y, radius, endAngle);
-          const end = polarToCartesian(x, y, radius, startAngle);
-          const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
-          return [
-            'M',
-            start.x,
-            start.y,
-            'A',
-            radius,
-            radius,
-            0,
-            largeArcFlag,
-            0,
-            end.x,
-            end.y,
-          ].join(' ');
-        }
+        // Position each foreignObject badge around the wheel
+        // Each badge is rotated to be tangent to the circle at its position
+        badgeFOs.forEach((fo, index) => {
+          const angle = index * sliceAngle;
+          const pos = polarToCartesian(RADIUS, angle);
 
-        // Generate arc paths for each badge with content-based sizing
-        const borderPaths = document.querySelectorAll(
-          '.experience-wheel__badge-border'
-        );
-        badgePaths.forEach((path, index) => {
-          // Get text from corresponding textPath element
-          const textPathEl = document.querySelector(
-            `.experience-wheel__badge-group[data-index="${index}"] textPath`
-          );
-          const text = textPathEl?.textContent?.trim() || '';
+          // Position foreignObject at calculated point
+          fo.setAttribute('x', String(pos.x));
+          fo.setAttribute('y', String(pos.y));
 
-          // Calculate arc length from character count: 20° base + 3° per character
-          const arcLength = Math.min(100, Math.max(35, 20 + text.length * 3));
-
-          const angleCenter = index * sliceAngle;
-          const startAngle = angleCenter - arcLength / 2;
-          const endAngle = angleCenter + arcLength / 2;
-
-          const d = describeArc(CX, CY, RADIUS, startAngle, endAngle);
-          path.setAttribute('d', d);
-
-          // Set border path with same arc
-          const borderPath = borderPaths[index];
-          if (borderPath) {
-            borderPath.setAttribute('d', d);
-          }
-
-          // Text path - always reverse so text follows outer curve
-          const textPathDef = document.getElementById(
-            `wheel-text-path-${index}`
-          );
-          if (textPathDef) {
-            textPathDef.setAttribute(
-              'd',
-              describeArc(CX, CY, RADIUS + 2, startAngle, endAngle, true)
-            );
+          // Get the button inside and apply rotation + centering
+          const btn = fo.querySelector(
+            '.experience-wheel__badge'
+          ) as HTMLElement;
+          if (btn) {
+            gsap.set(btn, {
+              rotation: angle, // Rotate badge to be tangent to circle
+              xPercent: -50,
+              yPercent: -50,
+              transformOrigin: 'center center',
+            });
           }
         });
 
@@ -1707,8 +1682,8 @@ const cssVarsString = Object.entries(cssVars)
           if (index === currentActiveIndex) return;
           currentActiveIndex = index;
 
-          badgeGroups.forEach((group, i) => {
-            group.setAttribute('data-active', String(i === index));
+          badgeFOs.forEach((fo, i) => {
+            fo.setAttribute('data-active', String(i === index));
           });
 
           contentItems.forEach((item, i) => {
@@ -1751,8 +1726,9 @@ const cssVarsString = Object.entries(cssVars)
         });
 
         // Badge click handler
-        badgePaths.forEach((path, index) => {
-          path.addEventListener('click', () => {
+        badgeButtons.forEach((btn, index) => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
             const currentRotation =
               (gsap.getProperty(wheel, 'rotation') as number) || 0;
             const targetRotation = -sliceAngle * index;
