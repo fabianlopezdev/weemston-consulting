@@ -19,6 +19,7 @@ import {
   HiTrendingUp,
   HiChatAlt,
 } from 'react-icons/hi';
+import { DocumentListWithBanner } from './components/DocumentListWithBanner';
 
 // Singleton configuration
 const singletonTypes = new Set([
@@ -189,17 +190,44 @@ export default defineConfig({
             S.listItem()
               .title('Services')
               .icon(HiBriefcase)
-              .child(S.documentTypeList('service').title('Services')),
+              .child(
+                S.component(DocumentListWithBanner)
+                  .id('services-list')
+                  .title('Services')
+                  .options({
+                    schemaType: 'service',
+                    message:
+                      'Tip: After creating a service, add it to the pages where you want it to appear (Homepage, Services Page).',
+                  })
+              ),
             // Case Studies
             S.listItem()
               .title('Case Studies')
               .icon(HiTrendingUp)
-              .child(S.documentTypeList('caseStudy').title('Case Studies')),
+              .child(
+                S.component(DocumentListWithBanner)
+                  .id('case-studies-list')
+                  .title('Case Studies')
+                  .options({
+                    schemaType: 'caseStudy',
+                    message:
+                      'Tip: After creating a case study, add it to the pages where you want it to appear (Case Studies Page).',
+                  })
+              ),
             // Testimonials
             S.listItem()
               .title('Testimonials')
               .icon(HiChatAlt)
-              .child(S.documentTypeList('testimonial').title('Testimonials')),
+              .child(
+                S.component(DocumentListWithBanner)
+                  .id('testimonials-list')
+                  .title('Testimonials')
+                  .options({
+                    schemaType: 'testimonial',
+                    message:
+                      'Tip: After creating a testimonial, add it to the pages where you want it to appear (Homepage).',
+                  })
+              ),
           ]),
     }),
     visionTool(),
