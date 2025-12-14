@@ -1023,9 +1023,51 @@ const cssVarsString = Object.entries(cssVars)
   }
 
   /* ========================================
+     TABLET: Smaller badges (490-1055px)
+     ======================================== */
+  @media (max-width: 1055px) {
+    .experience-orbital__badge {
+      padding: var(--space-xs) var(--space-sm);
+    }
+
+    .experience-orbital__badge-number {
+      font-size: 1.2rem;
+    }
+
+    .experience-orbital__badge-title {
+      font-size: 0.75rem;
+    }
+
+    /* Closer badge positions */
+    .experience-orbital__badge:nth-child(1) {
+      top: calc(50% - var(--circle-size) / 2 - 45px);
+    }
+
+    .experience-orbital__badge:nth-child(2) {
+      top: calc(50% - 25px);
+      left: calc(50% + var(--circle-size) / 2 + 20px);
+    }
+
+    .experience-orbital__badge:nth-child(3) {
+      top: calc(50% + var(--circle-size) / 2 + 10px);
+      left: calc(50% + 120px);
+    }
+
+    .experience-orbital__badge:nth-child(4) {
+      top: calc(50% + var(--circle-size) / 2 + 10px);
+      left: calc(50% - 120px);
+    }
+
+    .experience-orbital__badge:nth-child(5) {
+      top: calc(50% - 25px);
+      left: calc(50% - var(--circle-size) / 2 - 20px);
+    }
+  }
+
+  /* ========================================
      MOBILE: WHEEL CAROUSEL LAYOUT
      Circle with content inside + badges around edge
-     Hidden by default on desktop (>900px)
+     Hidden by default on desktop (>489px)
      ======================================== */
   .experience-wheel {
     --circle-size: 120vw;
@@ -1033,7 +1075,7 @@ const cssVarsString = Object.entries(cssVars)
     display: none;
   }
 
-  @media (max-width: 488px) {
+  @media (max-width: 489px) {
     .experience-section {
       overflow: hidden;
     }
@@ -1756,7 +1798,7 @@ const cssVarsString = Object.entries(cssVars)
     createFadeIn('.experience-section__header', { y: 30 });
 
     // Mobile: Fade in wheel
-    if (window.innerWidth <= 900) {
+    if (window.innerWidth <= 489) {
       createFadeIn('.experience-wheel__viewport', { y: 30 });
     }
   });
