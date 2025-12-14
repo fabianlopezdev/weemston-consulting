@@ -552,7 +552,6 @@ const cssVarsString = Object.entries(cssVars)
     border-radius: 16px;
     background: var(--fs-accent, var(--color-accent));
     backdrop-filter: blur(10px);
-    scroll-snap-align: start;
   }
 
   .services-slider__title {
@@ -593,12 +592,19 @@ const cssVarsString = Object.entries(cssVars)
       gap: var(--space-md, 1rem);
       overflow-x: auto;
       scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--space-lg, 2rem);
       padding: var(--space-lg, 1.5rem) 0;
       margin: 0 calc(-1 * var(--space-lg, 2rem));
       padding-left: var(--space-lg, 2rem);
       padding-right: var(--space-lg, 2rem);
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
+      overscroll-behavior-x: contain;
+    }
+
+    .services-slider__card {
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
     }
 
     .services-slider::-webkit-scrollbar {
