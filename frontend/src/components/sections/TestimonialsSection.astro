@@ -510,34 +510,65 @@ const cards = testimonials.map(renderCard);
       return card.offsetWidth + gap;
     };
 
-    // Mobile: Single card navigation with arrows
+    // Mobile: Single card navigation with arrows (infinite scroll using duplicates)
     if (isMobile) {
-      const cards = track.querySelectorAll(
-        '.testimonial-card:not([aria-hidden])'
-      );
-      let currentIndex = 0;
+      const allCards = track.querySelectorAll('.testimonial-card');
+      const originalCount = allCards.length / 2; // Half are originals, half are duplicates
+      let currentIndex = 0; // Track position in original set (0 to originalCount-1)
 
-      const goToCard = (index: number) => {
-        // Wrap around
-        if (index < 0) index = cards.length - 1;
-        if (index >= cards.length) index = 0;
-        currentIndex = index;
+      const card = allCards[0] as HTMLElement;
+      const cardWidth = card?.offsetWidth || 0;
 
-        // On mobile, no gap - just use card width
-        const card = cards[0] as HTMLElement;
-        const scrollDistance = card?.offsetWidth || 0;
-        gsap.to(track, {
-          x: -currentIndex * scrollDistance,
-          duration: 0.4,
-          ease: 'power2.out',
-        });
+      // Position track to show first card
+      gsap.set(track, { x: 0 });
+
+      const goToCard = (direction: 'prev' | 'next') => {
+        let targetIndex =
+          direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+
+        // Handle wrap-around using the duplicate cards
+        if (direction === 'prev' && currentIndex === 0) {
+          // Going prev from first card: jump to duplicate set, then animate to last original
+          // Jump to show first card of duplicate set (same visual as first original)
+          gsap.set(track, { x: -originalCount * cardWidth });
+          // Animate to the last card of original set (which is to the left of duplicate set)
+          gsap.to(track, {
+            x: -(originalCount - 1) * cardWidth,
+            duration: 0.4,
+            ease: 'power2.out',
+          });
+          currentIndex = originalCount - 1;
+        } else if (direction === 'next' && currentIndex === originalCount - 1) {
+          // Going next from last card: animate into duplicate set, then jump back
+          gsap.to(track, {
+            x: -originalCount * cardWidth,
+            duration: 0.4,
+            ease: 'power2.out',
+            onComplete: () => {
+              // Jump back to first original (same visual)
+              gsap.set(track, { x: 0 });
+            },
+          });
+          currentIndex = 0;
+        } else {
+          // Normal navigation within original set
+          if (targetIndex < 0) targetIndex = originalCount - 1;
+          if (targetIndex >= originalCount) targetIndex = 0;
+
+          gsap.to(track, {
+            x: -targetIndex * cardWidth,
+            duration: 0.4,
+            ease: 'power2.out',
+          });
+          currentIndex = targetIndex;
+        }
       };
 
       if (prevBtn) {
-        prevBtn.addEventListener('click', () => goToCard(currentIndex - 1));
+        prevBtn.addEventListener('click', () => goToCard('prev'));
       }
       if (nextBtn) {
-        nextBtn.addEventListener('click', () => goToCard(currentIndex + 1));
+        nextBtn.addEventListener('click', () => goToCard('next'));
       }
 
       // Keep existing section contract animation
@@ -968,10 +999,11 @@ const cards = testimonials.map(renderCard);
   }
 
   @media (max-width: 768px) {
-    /* Remove mask/fade on mobile */
+    /* Remove mask/fade on mobile, allow arrows to escape overflow */
     .testimonials-marquee {
       mask-image: none;
       -webkit-mask-image: none;
+      position: static; /* Arrows position relative to section instead */
     }
 
     /* No gap between cards on mobile for clean single-card navigation */
@@ -979,12 +1011,7 @@ const cards = testimonials.map(renderCard);
       gap: 0;
     }
 
-    /* Hide duplicate cards on mobile */
-    .testimonial-card[aria-hidden='true'] {
-      display: none;
-    }
-
-    /* Card fills container width minus padding */
+    /* Card fills container width */
     .testimonial-card {
       width: calc(100vw - var(--space-md) * 2);
     }
@@ -999,6 +1026,7 @@ const cards = testimonials.map(renderCard);
       height: 20px;
     }
 
+    /* Position arrows at screen edges (relative to section now) */
     .testimonials-marquee__arrow--prev {
       left: var(--space-xs);
     }
