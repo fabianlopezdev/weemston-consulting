@@ -886,22 +886,19 @@ const cssVarsString = Object.entries(cssVars)
   }
 
   /* ========================================
-     BADGES - Initial horizontal row
+     BADGES - Positioned around circle
      ======================================== */
   .experience-orbital__badges {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-sm);
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 var(--space-md);
+    position: absolute;
+    inset: 0;
     z-index: 10;
   }
 
   /* Individual badge - refined pill styling */
   .experience-orbital__badge {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: inline-flex;
     align-items: center;
     gap: var(--space-xs);
@@ -913,17 +910,46 @@ const cssVarsString = Object.entries(cssVars)
     border-radius: 100px; /* Pill shape */
     cursor: pointer;
     white-space: nowrap;
-    will-change: transform;
 
     box-shadow:
       0 2px 8px rgba(0, 0, 0, 0.04),
       0 4px 16px rgba(0, 0, 0, 0.02);
 
     transition:
-      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
       border-color 0.3s ease,
       box-shadow 0.3s ease,
       background 0.3s ease;
+  }
+
+  /* Badge 0: Top center */
+  .experience-orbital__badge:nth-child(1) {
+    top: calc(50% - var(--circle-size) / 2 - 95px);
+  }
+
+  /* Badge 1: Right side */
+  .experience-orbital__badge:nth-child(2) {
+    top: calc(50% - 50px);
+    left: calc(50% + var(--circle-size) / 2 + 50px);
+    transform: translateX(0);
+  }
+
+  /* Badge 2: Right bottom */
+  .experience-orbital__badge:nth-child(3) {
+    top: calc(50% + var(--circle-size) / 2 + 25px);
+    left: calc(50% + 200px);
+  }
+
+  /* Badge 3: Left bottom */
+  .experience-orbital__badge:nth-child(4) {
+    top: calc(50% + var(--circle-size) / 2 + 25px);
+    left: calc(50% - 200px);
+  }
+
+  /* Badge 4: Left side */
+  .experience-orbital__badge:nth-child(5) {
+    top: calc(50% - 50px);
+    left: calc(50% - var(--circle-size) / 2 - 50px);
+    transform: translateX(-100%);
   }
 
   .experience-orbital__badge:hover {
@@ -1007,7 +1033,7 @@ const cssVarsString = Object.entries(cssVars)
     display: none;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 488px) {
     .experience-section {
       overflow: hidden;
     }
@@ -1340,34 +1366,6 @@ const cssVarsString = Object.entries(cssVars)
     line-height: 1;
     padding-top: 2px;
   }
-
-  /* ========================================
-     RESPONSIVE BREAKPOINTS
-     ======================================== */
-
-  /* Tablet adjustments for orbital */
-  @media (min-width: 901px) and (max-width: 1200px) {
-    .experience-orbital {
-      --circle-size: clamp(240px, 30vw, 320px);
-      --orbit-gap: 50px;
-    }
-
-    .experience-orbital__desc-text {
-      font-size: 0.85rem;
-    }
-
-    .experience-orbital__badge {
-      padding: var(--space-xs) var(--space-sm);
-    }
-
-    .experience-orbital__badge-number {
-      font-size: clamp(0.95rem, 1.4vw, 1.2rem);
-    }
-
-    .experience-orbital__badge-title {
-      font-size: clamp(0.6rem, 0.8vw, 0.7rem);
-    }
-  }
 </style>
 
 <script>
@@ -1411,7 +1409,7 @@ const cssVarsString = Object.entries(cssVars)
       '.experience-orbital__default'
     );
     const orbitalSection = document.querySelector('.experience-orbital');
-    const circleCenter = document.querySelector('.experience-orbital__center');
+    const _circleCenter = document.querySelector('.experience-orbital__center');
 
     function setActiveBadge(index: number | null) {
       // Update default content visibility
@@ -1547,126 +1545,9 @@ const cssVarsString = Object.entries(cssVars)
     });
 
     // ========================================
-    // DESKTOP: Position badges in orbital layout
-    // ========================================
-    if (
-      window.innerWidth > 900 &&
-      orbitalSection &&
-      circleCenter &&
-      badges.length > 0
-    ) {
-      const sectionRect = orbitalSection.getBoundingClientRect();
-      const sectionHeight = (orbitalSection as HTMLElement).offsetHeight;
-      const sectionCenterY = sectionHeight / 2;
-
-      // Store initial badge positions and dimensions
-      const badgeData: {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-      }[] = [];
-      badges.forEach((badge) => {
-        const rect = badge.getBoundingClientRect();
-        badgeData.push({
-          x:
-            rect.left +
-            rect.width / 2 -
-            sectionRect.left -
-            sectionRect.width / 2,
-          y: rect.top + rect.height / 2 - sectionRect.top,
-          width: rect.width,
-          height: rect.height,
-        });
-      });
-
-      // Get circle radius and desired gap from circle edge to badge edge
-      const computedStyle = getComputedStyle(orbitalSection);
-      const circleSize =
-        parseFloat(computedStyle.getPropertyValue('--circle-size')) || 380;
-      const circleRadius = circleSize / 2;
-
-      // Gap settings - all edge-to-edge measurements
-      const gapTop = 70; // Gap for top badge (badge bottom to circle top)
-      const gapSide = 50; // Gap for side badges (badge inner edge to circle side)
-      const gapBottom = 25; // Gap for bottom badges (corner to circle edge)
-      const sideY = -50; // Side badges slightly above center
-      const bottomX = 200; // Fixed X position for bottom badges
-
-      // Get widths for alignment calculation
-      const rightSideWidth = badgeData[1]?.width ?? 0; // Badge 1 (right side)
-      const leftSideWidth = badgeData[4]?.width ?? 0; // Badge 4 (left side)
-
-      // Calculate X positions once for alignment
-      const rightX = circleRadius + gapSide + rightSideWidth / 2;
-      const leftX = -(circleRadius + gapSide + leftSideWidth / 2);
-
-      // Manual positioning with vertical alignment
-      // Layout:
-      //        [0 Top]
-      //   [4]    ○    [1]   ← side badges slightly above center
-      //   [3]         [2]   ← bottom badges below circle (aligned X with sides)
-      badges.forEach((badge, index) => {
-        const badgeHeight = badgeData[index]?.height ?? 0;
-
-        let finalX: number;
-        let finalY: number;
-
-        if (index === 0) {
-          // Top badge: centered
-          finalX = 0;
-          finalY = -(circleRadius + gapTop + badgeHeight / 2) + sectionCenterY;
-        } else if (index === 1) {
-          // Right side badge
-          finalX = rightX;
-          finalY = sideY + sectionCenterY;
-        } else if (index === 2) {
-          // Right bottom badge - corner-based gap calculation
-          const badgeWidth = badgeData[index]?.width ?? 0;
-          finalX = bottomX;
-          // Corner X position (top-left corner for right badge)
-          const cornerX = bottomX - badgeWidth / 2;
-          // Calculate Y so corner is gapBottom from circle edge
-          const distanceFromCenter = circleRadius + gapBottom;
-          const yOffset = Math.sqrt(
-            distanceFromCenter * distanceFromCenter - cornerX * cornerX
-          );
-          finalY = sectionCenterY + badgeHeight / 2 + yOffset;
-        } else if (index === 3) {
-          // Left bottom badge - corner-based gap calculation
-          const badgeWidth = badgeData[index]?.width ?? 0;
-          finalX = -bottomX;
-          // Corner X position (top-right corner for left badge)
-          const cornerX = -bottomX + badgeWidth / 2;
-          // Calculate Y so corner is gapBottom from circle edge
-          const distanceFromCenter = circleRadius + gapBottom;
-          const yOffset = Math.sqrt(
-            distanceFromCenter * distanceFromCenter - cornerX * cornerX
-          );
-          finalY = sectionCenterY + badgeHeight / 2 + yOffset;
-        } else {
-          // Left side badge (index 4)
-          finalX = leftX;
-          finalY = sideY + sectionCenterY;
-        }
-
-        // Position badge at final orbital position immediately
-        gsap.set(badge, {
-          position: 'absolute',
-          left: '50%',
-          top: 0,
-          x: finalX,
-          y: finalY,
-          xPercent: -50,
-          opacity: 1,
-        });
-      });
-    }
-
-    // ========================================
     // MOBILE: SVG Wheel Carousel with HTML pill badges
     // ========================================
-    if (window.innerWidth <= 900) {
+    if (window.innerWidth <= 488) {
       const wheel = document.querySelector(
         '.experience-wheel__wheel'
       ) as SVGGElement;

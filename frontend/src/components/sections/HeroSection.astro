@@ -199,8 +199,7 @@ const ctaTextColor = ctaButton
     align-items: center;
     overflow: visible;
     background-color: var(--color-primary);
-    position: relative; /* Ensure positioning context */
-    will-change: clip-path; /* Optimize for animation */
+    position: relative;
   }
 
   .hero__background {
@@ -208,7 +207,6 @@ const ctaTextColor = ctaButton
     inset: 0;
     z-index: 0;
     transform: scale(var(--hero-scale, 1));
-    will-change: transform;
     transform-origin: center center;
   }
 

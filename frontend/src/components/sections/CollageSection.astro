@@ -111,7 +111,6 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     display: flex;
     gap: var(--image-gap);
     height: 100%;
-    will-change: transform;
   }
 
   .collage__image-wrapper {
@@ -127,7 +126,6 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     height: 100%;
     object-fit: cover;
     object-position: var(--hotspot-x, 50%) var(--hotspot-y, 50%);
-    will-change: transform;
     transform: scale(1.1);
     filter: grayscale(1) contrast(1.2);
     transition: filter 0.6s ease;
@@ -210,12 +208,9 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     display: inline;
     opacity: 0;
     transform: translateY(20px) translateZ(0);
-    will-change: transform, opacity;
   }
 
-  /* GPU acceleration for animated card */
   .collage__content {
-    will-change: transform, opacity;
     transform: translateZ(0);
   }
 
