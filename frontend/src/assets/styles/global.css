@@ -200,3 +200,8 @@ button {
   right: 0;
   z-index: 0;
 }
+
+/* Offset content below fixed header */
+main {
+  padding-top: var(--header-height);
+}
