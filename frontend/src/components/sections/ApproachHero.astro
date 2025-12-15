@@ -11,7 +11,13 @@ interface ColorData {
 interface Props {
   heading: string;
   headingHighlight?: string;
+  highlightColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  highlightColorShade?: number;
+  highlightCustomColor?: ColorData;
   showDivider?: boolean;
+  dividerColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  dividerColorShade?: number;
+  dividerCustomColor?: ColorData;
   backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
@@ -20,7 +26,13 @@ interface Props {
 const {
   heading,
   headingHighlight,
+  highlightColorType = 'accent',
+  highlightColorShade = 0,
+  highlightCustomColor,
   showDivider = true,
+  dividerColorType = 'secondary',
+  dividerColorShade = 0,
+  dividerCustomColor,
   backgroundColorType = 'primary',
   backgroundColorShade = 90,
   backgroundCustomColor,
@@ -40,15 +52,63 @@ const backgroundColor = resolveColorSelection(
   siteColors
 );
 
-const cssVars = `--approach-hero-bg: ${backgroundColor}`;
+// Resolve highlight color
+let highlightColor: string;
+if (highlightColorType === 'custom' && highlightCustomColor?.value) {
+  highlightColor = highlightCustomColor.value;
+} else {
+  highlightColor = resolveColorSelection(
+    {
+      colorType: highlightColorType,
+      shade: highlightColorShade,
+      customColor: highlightCustomColor,
+    },
+    siteColors
+  );
+}
+
+// Resolve divider color
+let dividerColor: string;
+if (dividerColorType === 'custom' && dividerCustomColor?.value) {
+  dividerColor = dividerCustomColor.value;
+} else {
+  dividerColor = resolveColorSelection(
+    {
+      colorType: dividerColorType,
+      shade: dividerColorShade,
+      customColor: dividerCustomColor,
+    },
+    siteColors
+  );
+}
+
+const cssVars = `--approach-hero-bg: ${backgroundColor}; --approach-hero-highlight: ${highlightColor}; --approach-hero-divider: ${dividerColor}`;
+
+// Split heading into parts if highlight text is provided and found
+function renderHeadingParts() {
+  if (!headingHighlight || !heading.includes(headingHighlight)) {
+    return { before: heading, highlight: null, after: null };
+  }
+  const index = heading.indexOf(headingHighlight);
+  return {
+    before: heading.slice(0, index),
+    highlight: headingHighlight,
+    after: heading.slice(index + headingHighlight.length),
+  };
+}
+
+const parts = renderHeadingParts();
 ---
 
 <section class="approach-hero" style={cssVars}>
   <div class="approach-hero__container">
     <h1 class="approach-hero__heading">
-      {heading}
-      {headingHighlight && (
-        <span class="approach-hero__highlight">{headingHighlight}</span>
+      {parts.highlight ? (
+        <>
+          {parts.before}<span class="approach-hero__highlight">{parts.highlight}</span>{parts.after}
+        </>
+      ) : (
+        heading
       )}
     </h1>
     {showDivider && <div class="approach-hero__divider" />}
@@ -78,14 +138,14 @@ const cssVars = `--approach-hero-bg: ${backgroundColor}`;
 
   .approach-hero__highlight {
     font-style: italic;
-    color: var(--color-text-muted);
+    color: var(--approach-hero-highlight, var(--color-text-muted));
   }
 
   .approach-hero__divider {
-    width: 4rem;
-    height: 2px;
-    background-color: var(--color-text-muted);
+    width: 6rem;
+    height: 0.25rem;
+    background-color: var(--approach-hero-divider, var(--color-secondary));
     margin: 0 auto;
-    opacity: 0.5;
+    border-radius: 9999px;
   }
 </style>

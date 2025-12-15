@@ -556,7 +556,13 @@ export const approachPageQuery = groq`
     // Hero
     heroHeading,
     heroHeadingHighlight,
+    heroHighlightColorType,
+    heroHighlightColorShade,
+    heroHighlightCustomColor { label, value },
     heroShowDivider,
+    heroDividerColorType,
+    heroDividerColorShade,
+    heroDividerCustomColor { label, value },
     heroBackgroundColorType,
     heroBackgroundColorShade,
     heroBackgroundCustomColor { label, value },

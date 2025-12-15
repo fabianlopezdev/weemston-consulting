@@ -84,33 +84,6 @@ export default defineType({
 
     // Hero Section
     {
-      name: 'heroHeading',
-      title: 'Heading',
-      type: 'string',
-      group: 'hero',
-      fieldset: 'heroFields',
-      initialValue: 'Thoughtful partnership is the foundation of',
-    },
-    {
-      name: 'heroHeadingHighlight',
-      title: 'Heading Highlight',
-      type: 'string',
-      group: 'hero',
-      fieldset: 'heroFields',
-      description:
-        'This text appears in italic with a muted color at the end of the heading.',
-      initialValue: 'lasting impact.',
-    },
-    {
-      name: 'heroShowDivider',
-      title: 'Show Divider',
-      type: 'boolean',
-      group: 'hero',
-      fieldset: 'heroFields',
-      initialValue: true,
-      description: 'Toggle the horizontal line below the heading.',
-    },
-    {
       name: 'heroBackgroundColorType',
       title: 'Background Color',
       type: 'string',
@@ -146,6 +119,117 @@ export default defineType({
       group: 'hero',
       fieldset: 'heroFields',
       hidden: ({ parent }) => parent?.heroBackgroundColorType !== 'custom',
+    },
+    {
+      name: 'heroHeading',
+      title: 'Heading',
+      type: 'string',
+      group: 'hero',
+      fieldset: 'heroFields',
+      initialValue: 'Thoughtful partnership is the foundation of lasting impact.',
+    },
+    {
+      name: 'heroHeadingHighlight',
+      title: 'Heading Highlight',
+      type: 'string',
+      group: 'hero',
+      fieldset: 'heroFields',
+      description:
+        'Enter the exact text from the heading that should be highlighted (italic). Must match exactly.',
+      initialValue: 'lasting impact.',
+    },
+    {
+      name: 'heroHighlightColorType',
+      title: 'Highlight Color',
+      type: 'string',
+      group: 'hero',
+      fieldset: 'heroFields',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.heroHeadingHighlight,
+    },
+    {
+      name: 'heroHighlightColorShade',
+      title: 'Highlight Shade',
+      type: 'number',
+      group: 'hero',
+      fieldset: 'heroFields',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.heroHeadingHighlight ||
+        parent?.heroHighlightColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'heroHighlightCustomColor',
+      title: 'Custom Highlight Color',
+      type: 'simplerColor',
+      group: 'hero',
+      fieldset: 'heroFields',
+      hidden: ({ parent }) =>
+        !parent?.heroHeadingHighlight ||
+        parent?.heroHighlightColorType !== 'custom',
+    },
+    {
+      name: 'heroShowDivider',
+      title: 'Show Divider',
+      type: 'boolean',
+      group: 'hero',
+      fieldset: 'heroFields',
+      initialValue: true,
+      description: 'Toggle the horizontal line below the heading.',
+    },
+    {
+      name: 'heroDividerColorType',
+      title: 'Divider Color',
+      type: 'string',
+      group: 'hero',
+      fieldset: 'heroFields',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'secondary',
+      hidden: ({ parent }) => !parent?.heroShowDivider,
+    },
+    {
+      name: 'heroDividerColorShade',
+      title: 'Divider Shade',
+      type: 'number',
+      group: 'hero',
+      fieldset: 'heroFields',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.heroShowDivider ||
+        parent?.heroDividerColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'heroDividerCustomColor',
+      title: 'Custom Divider Color',
+      type: 'simplerColor',
+      group: 'hero',
+      fieldset: 'heroFields',
+      hidden: ({ parent }) =>
+        !parent?.heroShowDivider ||
+        parent?.heroDividerColorType !== 'custom',
     },
 
     // Core Values Section
