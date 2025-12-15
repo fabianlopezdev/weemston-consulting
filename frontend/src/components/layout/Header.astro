@@ -90,8 +90,10 @@ const showText =
 <style>
   .site-header {
     padding-block: var(--space-md);
-    position: sticky;
-    inset-block-start: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: var(--z-sticky);
     background-color: rgba(255, 255, 255, 0.8);
     -webkit-backdrop-filter: blur(12px);
@@ -198,10 +200,6 @@ const showText =
   }
 
   @media (max-width: 768px) {
-    .site-header {
-      position: sticky;
-    }
-
     nav {
       position: relative;
     }
@@ -254,36 +252,58 @@ const showText =
 </style>
 
 <script>
-  import { setupAnimationLifecycle, gsap, ScrollTrigger } from '@lib/animation';
+  // Header scroll hide/show behavior
+  let lastScrollY = 0;
+  let ticking = false;
 
-  setupAnimationLifecycle(() => {
-    const header = document.querySelector('.site-header');
+  function initHeaderScroll() {
+    const header = document.querySelector('.site-header') as HTMLElement;
     const hamburger = document.querySelector('.hamburger');
     if (!header) return;
 
-    // Use ScrollTrigger to handle scroll direction
-    ScrollTrigger.create({
-      onUpdate: (self) => {
-        // Don't hide header when mobile menu is open
-        if (hamburger?.classList.contains('is-open')) return;
+    // Reset state on init
+    lastScrollY = window.scrollY;
+    header.style.transform = 'translateY(0)';
+    header.style.transition = 'transform 0.3s ease-out';
 
-        // Use self.scroll() to get current scroll position (works with Lenis)
-        const scrollTop = self.scroll();
-        const direction = self.direction;
+    function updateHeader() {
+      // Don't hide header when mobile menu is open
+      if (hamburger?.classList.contains('is-open')) {
+        ticking = false;
+        return;
+      }
 
-        // Direction: 1 = down, -1 = up
-        // Show if scrolling up OR at the very top (within first 50px)
-        const shouldShow = direction === -1 || scrollTop < 50;
+      const currentScrollY = window.scrollY;
+      const direction = currentScrollY > lastScrollY ? 'down' : 'up';
 
-        gsap.to(header, {
-          yPercent: shouldShow ? 0 : -100,
-          duration: 0.3,
-          ease: 'power2.out',
-          overwrite: true,
-        });
+      // Show header if scrolling up OR at top (within 50px)
+      const shouldShow = direction === 'up' || currentScrollY < 50;
+
+      header.style.transform = shouldShow
+        ? 'translateY(0)'
+        : 'translateY(-100%)';
+
+      lastScrollY = currentScrollY;
+      ticking = false;
+    }
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          requestAnimationFrame(updateHeader);
+          ticking = true;
+        }
       },
-    });
-  });
+      { passive: true }
+    );
+  }
+
+  // Initialize on page load
+  initHeaderScroll();
+
+  // Re-initialize on Astro page transitions (if ViewTransitions added later)
+  document.addEventListener('astro:page-load', initHeaderScroll);
 
   // Mobile menu toggle
   const hamburger = document.querySelector('.hamburger');
