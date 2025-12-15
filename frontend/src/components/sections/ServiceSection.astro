@@ -1,0 +1,341 @@
+---
+import { resolveLinkUrl } from '@lib/sanity/linkResolver';
+
+interface LinkData {
+  text?: string;
+  linkType: 'internal' | 'external';
+  internalPageType?: string;
+  serviceReference?: { slug: { current: string } };
+  caseStudyReference?: { slug: { current: string } };
+  legalReference?: { slug: { current: string } };
+  externalUrl?: string;
+  openInNewTab?: boolean;
+}
+
+interface Props {
+  tag?: string;
+  title: string;
+  leadText?: string;
+  description?: string;
+  listStyle?: 'checkmark' | 'arrow' | 'bullet';
+  listTitle?: string;
+  listItems?: string[];
+  caseStudiesLinkText?: string;
+  caseStudiesLink?: LinkData;
+  icon?: string;
+  imagePosition?: 'left' | 'right';
+  backgroundColor?: 'white' | 'cream';
+}
+
+const {
+  tag,
+  title,
+  leadText,
+  description,
+  listStyle = 'checkmark',
+  listTitle,
+  listItems = [],
+  caseStudiesLinkText,
+  caseStudiesLink,
+  icon = 'settings',
+  imagePosition = 'left',
+  backgroundColor = 'white',
+} = Astro.props;
+
+// Resolve link URL
+const linkUrl = caseStudiesLink ? resolveLinkUrl(caseStudiesLink) : '#';
+const isExternal = caseStudiesLink?.linkType === 'external';
+
+// Icon SVG paths
+const iconPaths: Record<string, string> = {
+  settings:
+    '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>',
+  target:
+    '<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>',
+  users:
+    '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
+  chart:
+    '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>',
+  lightbulb:
+    '<line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8a6 6 0 1 0-12 0c0 1.54.64 2.89 1.68 3.86.63.61 1 1.25 1 2.14V14a2 2 0 0 0 2 2h2.82a2 2 0 0 0 2-2z"></path>',
+  handshake:
+    '<path d="M11 17a4 4 0 0 1-4-4V5a2 2 0 0 1 2-2h2"></path><path d="M13 3h2a2 2 0 0 1 2 2v8a4 4 0 0 1-4 4"></path><path d="m3 15 4-4"></path><path d="m17 11 4 4"></path><path d="M12 17v4"></path><path d="M8 21h8"></path>',
+  compass:
+    '<circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>',
+  calendar:
+    '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>',
+  presentation:
+    '<path d="M2 3h20"></path><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"></path><path d="m7 21 5-5 5 5"></path>',
+};
+
+const sectionClasses = [
+  'service-section',
+  backgroundColor === 'cream' ? 'service-section--cream' : '',
+]
+  .filter(Boolean)
+  .join(' ');
+
+const gridClasses = [
+  'service-section__grid',
+  imagePosition === 'right' ? 'service-section__grid--reversed' : '',
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<article class={sectionClasses}>
+  <div class="container">
+    <div class={gridClasses}>
+      <div class="service-section__image-container">
+        <svg
+          class="service-section__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          set:html={iconPaths[icon] || iconPaths.settings}
+        />
+      </div>
+      <div class="service-section__content">
+        {tag && <span class="service-section__tag">{tag}</span>}
+        <h2 class="service-section__title">{title}</h2>
+        {leadText && <p class="service-section__lead">{leadText}</p>}
+        {
+          description && (
+            <p class="service-section__description">{description}</p>
+          )
+        }
+
+        {
+          listItems.length > 0 && (
+            <div
+              class={`service-section__list-wrapper ${listTitle ? 'service-section__list-wrapper--boxed' : ''}`}
+            >
+              {listTitle && (
+                <strong class="service-section__list-title">{listTitle}</strong>
+              )}
+              <ul
+                class={`service-section__list service-section__list--${listStyle}`}
+              >
+                {listItems.map((item) => (
+                  <li>
+                    {listStyle === 'checkmark' && (
+                      <svg
+                        class="service-section__list-icon"
+                        viewBox="0 0 24 24"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                    {listStyle === 'arrow' && (
+                      <span class="service-section__list-arrow">&rarr;</span>
+                    )}
+                    {listStyle === 'bullet' && (
+                      <span class="service-section__list-bullet">&bull;</span>
+                    )}
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+
+        {
+          caseStudiesLinkText && (
+            <a
+              href={linkUrl}
+              class="service-section__link"
+              target={
+                isExternal || caseStudiesLink?.openInNewTab
+                  ? '_blank'
+                  : undefined
+              }
+              rel={
+                isExternal || caseStudiesLink?.openInNewTab
+                  ? 'noopener noreferrer'
+                  : undefined
+              }
+            >
+              {caseStudiesLinkText} &rarr;
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</article>
+
+<style>
+  .service-section {
+    padding: var(--space-2xl) 0;
+    background-color: var(--color-background);
+  }
+
+  .service-section--cream {
+    background-color: var(--color-surface, #f5f5f5);
+  }
+
+  .service-section__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .service-section__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2xl);
+    }
+
+    .service-section__grid--reversed {
+      direction: rtl;
+    }
+
+    .service-section__grid--reversed > * {
+      direction: ltr;
+    }
+  }
+
+  .service-section__image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border, #e5e5e5);
+  }
+
+  .service-section--cream .service-section__image-container {
+    background-color: var(--color-background);
+  }
+
+  .service-section__icon {
+    width: 80px;
+    height: 80px;
+    color: var(--color-accent);
+    opacity: 0.6;
+  }
+
+  .service-section__content {
+    padding: var(--space-md) 0;
+  }
+
+  .service-section__tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+  }
+
+  .service-section__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-accent);
+    margin: 0 0 var(--space-md);
+  }
+
+  .service-section__lead {
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+    line-height: 1.6;
+    margin: 0 0 var(--space-sm);
+    font-weight: 500;
+  }
+
+  .service-section__description {
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    margin: 0 0 var(--space-lg);
+  }
+
+  /* List wrapper */
+  .service-section__list-wrapper {
+    margin-bottom: var(--space-lg);
+  }
+
+  .service-section__list-wrapper--boxed {
+    background-color: color-mix(in srgb, var(--color-surface) 50%, transparent);
+    padding: var(--space-md);
+    border-radius: 4px;
+  }
+
+  .service-section__list-title {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text);
+    margin-bottom: var(--space-sm);
+  }
+
+  /* Lists */
+  .service-section__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .service-section__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    padding: var(--space-xs) 0;
+    color: var(--color-text);
+    line-height: 1.5;
+  }
+
+  .service-section__list-icon {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--color-accent);
+    stroke-width: 2;
+    fill: none;
+    stroke: currentColor;
+  }
+
+  .service-section__list-arrow,
+  .service-section__list-bullet {
+    flex-shrink: 0;
+    color: var(--color-accent);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .service-section__list-arrow {
+    font-size: 1rem;
+  }
+
+  .service-section__list-bullet {
+    font-size: 1.25rem;
+    margin-top: -2px;
+  }
+
+  /* Link */
+  .service-section__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: gap 0.2s ease;
+  }
+
+  .service-section__link:hover {
+    gap: 0.5rem;
+    text-decoration: underline;
+  }
+</style>

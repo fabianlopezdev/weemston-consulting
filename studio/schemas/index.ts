@@ -8,6 +8,7 @@ import buttonColor from './objects/buttonColor';
 import experienceCard from './objects/experienceCard';
 import howWeWorkCard from './objects/howWeWorkCard';
 import approachValueCard from './objects/approachValueCard';
+import serviceSection from './objects/serviceSection';
 
 // Section types
 import heroSection from './objects/sections/heroSection';
@@ -48,6 +49,7 @@ export const schemaTypes = [
   experienceCard,
   howWeWorkCard,
   approachValueCard,
+  serviceSection,
   // Sections
   heroSection,
   featuredServicesSection,

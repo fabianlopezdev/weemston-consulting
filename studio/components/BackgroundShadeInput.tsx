@@ -104,6 +104,10 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'taglineColorType';
   } else if (fieldName === 'titleColorShade') {
     colorTypeFieldName = 'titleColorType';
+  } else if (fieldName === 'heroHighlightColorShade') {
+    colorTypeFieldName = 'heroHighlightColorType';
+  } else if (fieldName === 'heroDividerColorShade') {
+    colorTypeFieldName = 'heroDividerColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';
