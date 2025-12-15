@@ -38,7 +38,8 @@ const linkProjection = `
   caseStudyReference-> { slug },
   legalReference-> { slug },
   externalUrl,
-  openInNewTab
+  openInNewTab,
+  icon
 `;
 
 // Site Settings (field-level i18n)

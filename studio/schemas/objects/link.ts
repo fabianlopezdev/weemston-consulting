@@ -115,6 +115,31 @@ export default defineType({
       initialValue: ({ parent }: { parent?: { linkType?: string } }) =>
         parent?.linkType === 'external',
     },
+    {
+      name: 'icon',
+      title: 'Icon (optional)',
+      type: 'string',
+      description: 'Optional icon to display next to the button text',
+      options: {
+        list: [
+          { title: 'None', value: 'none' },
+          { title: 'Arrow Right', value: 'arrowRight' },
+          { title: 'Arrow Up Right', value: 'arrowUpRight' },
+          { title: 'Chevron Right', value: 'chevronRight' },
+          { title: 'Search', value: 'search' },
+          { title: 'Compass', value: 'compass' },
+          { title: 'Heart', value: 'heart' },
+          { title: 'Star', value: 'star' },
+          { title: 'Target', value: 'target' },
+          { title: 'Users', value: 'users' },
+          { title: 'Lightbulb', value: 'lightbulb' },
+          { title: 'Chart', value: 'chart' },
+          { title: 'Shield', value: 'shield' },
+          { title: 'Handshake', value: 'handshake' },
+        ],
+      },
+      initialValue: 'none',
+    },
   ],
   preview: {
     select: {

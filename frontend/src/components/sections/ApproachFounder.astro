@@ -93,33 +93,39 @@ const contentParts = parseContent(content || '', quote);
 <section class="founder-section">
   <div class="container">
     <div class="founder-section__grid">
-      {imageUrl && (
-        <div class="founder-section__image-wrapper">
-          <img
-            src={imageUrl}
-            alt={image?.alt || ''}
-            class="founder-section__image"
-            loading="lazy"
-            decoding="async"
-            style={imageLqip ? `background-image: url(${imageLqip}); background-size: cover;` : ''}
-          />
-        </div>
-      )}
+      {
+        imageUrl && (
+          <div class="founder-section__image-wrapper">
+            <img
+              src={imageUrl}
+              alt={image?.alt || ''}
+              class="founder-section__image"
+              loading="lazy"
+              decoding="async"
+              style={
+                imageLqip
+                  ? `background-image: url(${imageLqip}); background-size: cover;`
+                  : ''
+              }
+            />
+          </div>
+        )
+      }
       <div class="founder-section__content">
-        {tagline && (
-          <span class="founder-section__tagline">{tagline}</span>
-        )}
+        {tagline && <span class="founder-section__tagline">{tagline}</span>}
         <h2 class="founder-section__title">{title}</h2>
         <div class="founder-section__text">
-          {contentParts.map((part) => (
-            part.type === 'quote' ? (
-              <blockquote class="founder-section__quote">
-                "{part.text}"
-              </blockquote>
-            ) : (
-              <p>{part.text}</p>
+          {
+            contentParts.map((part) =>
+              part.type === 'quote' ? (
+                <blockquote class="founder-section__quote">
+                  "{part.text}"
+                </blockquote>
+              ) : (
+                <p>{part.text}</p>
+              )
             )
-          ))}
+          }
         </div>
       </div>
     </div>
@@ -128,7 +134,7 @@ const contentParts = parseContent(content || '', quote);
 
 <style>
   .founder-section {
-    padding: var(--space-2xl) 0;
+    padding-bottom: var(--space-2xl);
   }
 
   .founder-section__grid {

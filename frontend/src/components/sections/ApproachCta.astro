@@ -1,5 +1,9 @@
 ---
-import { resolveColorSelection, resolveButtonColor, resolveButtonTextColor } from '@lib/sanity/colorResolver';
+import {
+  resolveColorSelection,
+  resolveButtonColor,
+  resolveButtonTextColor,
+} from '@lib/sanity/colorResolver';
 import { resolveLinkUrl } from '@lib/sanity/linkResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
@@ -26,13 +30,46 @@ interface LinkData {
   legalReference?: { slug: { current: string } };
   externalUrl?: string;
   openInNewTab?: boolean;
+  icon?: string;
 }
+
+// Icon SVG paths (stroke-based)
+const iconPaths: Record<string, string> = {
+  arrowRight:
+    '<line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline>',
+  arrowUpRight:
+    '<line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>',
+  chevronRight: '<polyline points="9 18 15 12 9 6"></polyline>',
+  search:
+    '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>',
+  compass:
+    '<circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>',
+  heart:
+    '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>',
+  star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>',
+  target:
+    '<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>',
+  users:
+    '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
+  lightbulb:
+    '<line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8a6 6 0 1 0-12 0c0 1.54.64 2.89 1.68 3.86.63.61 1 1.25 1 2.14V14a2 2 0 0 0 2 2h2.82a2 2 0 0 0 2-2z"></path>',
+  chart:
+    '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>',
+  handshake:
+    '<path d="M11 17a4 4 0 0 1-4-4V5a2 2 0 0 1 2-2h2"></path><path d="M13 3h2a2 2 0 0 1 2 2v8a4 4 0 0 1-4 4"></path><path d="m3 15 4-4"></path><path d="m17 11 4 4"></path><path d="M12 17v4"></path><path d="M8 21h8"></path>',
+};
 
 interface Props {
   title: string;
   description?: string;
   button?: LinkData;
-  backgroundColorType?: 'default' | 'primary' | 'secondary' | 'accent' | 'custom';
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
 }
@@ -51,16 +88,17 @@ const settings = await client.fetch(siteSettingsQuery);
 const siteColors = settings?.colors;
 
 // Resolve background color
-const backgroundColor = backgroundColorType === 'default'
-  ? null
-  : resolveColorSelection(
-      {
-        colorType: backgroundColorType,
-        shade: backgroundColorShade,
-        customColor: backgroundCustomColor,
-      },
-      siteColors
-    );
+const backgroundColor =
+  backgroundColorType === 'default'
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: backgroundColorType,
+          shade: backgroundColorShade,
+          customColor: backgroundCustomColor,
+        },
+        siteColors
+      );
 
 // Resolve button colors
 const buttonBgColor = button?.buttonColor
@@ -74,28 +112,47 @@ const buttonTextColor = button?.buttonColor
 const buttonUrl = button ? resolveLinkUrl(button) : '/';
 const isExternal = button?.linkType === 'external';
 
-const cssVars = backgroundColor
-  ? `--cta-bg: ${backgroundColor}`
-  : '';
+// Get icon path if specified
+const buttonIcon =
+  button?.icon && button.icon !== 'none' ? iconPaths[button.icon] : null;
+
+const cssVars = backgroundColor ? `--cta-bg: ${backgroundColor}` : '';
 ---
 
 <section class="approach-cta" style={cssVars}>
   <div class="container">
     <h3 class="approach-cta__title">{title}</h3>
-    {description && (
-      <p class="approach-cta__description">{description}</p>
-    )}
-    {button?.text && (
-      <a
-        href={buttonUrl}
-        class="approach-cta__button"
-        style={`--btn-bg: ${buttonBgColor}; --btn-text: ${buttonTextColor}`}
-        target={isExternal || button.openInNewTab ? '_blank' : undefined}
-        rel={isExternal || button.openInNewTab ? 'noopener noreferrer' : undefined}
-      >
-        {button.text}
-      </a>
-    )}
+    {description && <p class="approach-cta__description">{description}</p>}
+    {
+      button?.text && (
+        <a
+          href={buttonUrl}
+          class="approach-cta__button"
+          style={`--btn-bg: ${buttonBgColor}; --btn-text: ${buttonTextColor}`}
+          target={isExternal || button.openInNewTab ? '_blank' : undefined}
+          rel={
+            isExternal || button.openInNewTab
+              ? 'noopener noreferrer'
+              : undefined
+          }
+        >
+          {button.text}
+          {buttonIcon && (
+            <svg
+              class="approach-cta__button-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              set:html={buttonIcon}
+            />
+          )}
+        </a>
+      )
+    }
   </div>
 </section>
 
@@ -112,7 +169,7 @@ const cssVars = backgroundColor
     font-weight: 500;
     line-height: 1.2;
     color: var(--color-accent);
-    margin: 0 0 var(--space-sm);
+    margin: 0 0 var(--space-lg);
   }
 
   .approach-cta__description {
@@ -128,18 +185,27 @@ const cssVars = backgroundColor
     gap: 0.5rem;
     background-color: var(--btn-bg, var(--color-accent));
     color: var(--btn-text, var(--color-text-contrast));
-    padding: var(--button-padding-vertical, 0.75rem) var(--button-padding-horizontal, 2rem);
-    border-radius: var(--button-border-radius, 2px);
+    padding: var(--button-padding-vertical, var(--space-md))
+      var(--button-padding-horizontal, var(--space-lg));
+    border-radius: var(--button-border-radius, 4px);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 1rem;
     font-family: var(--font-sans);
-    border: 1px solid var(--btn-bg, var(--color-accent));
-    transition: all 0.2s ease;
+    transition:
+      transform 0.2s,
+      background-color 0.2s,
+      color 0.2s;
   }
 
   .approach-cta__button:hover {
-    background-color: transparent;
-    color: var(--btn-bg, var(--color-accent));
+    transform: translateY(-2px);
+    filter: brightness(0.9);
+  }
+
+  .approach-cta__button-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
   }
 </style>
