@@ -1,0 +1,91 @@
+---
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface Props {
+  heading: string;
+  headingHighlight?: string;
+  showDivider?: boolean;
+  backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+}
+
+const {
+  heading,
+  headingHighlight,
+  showDivider = true,
+  backgroundColorType = 'primary',
+  backgroundColorShade = 90,
+  backgroundCustomColor,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color
+const backgroundColor = resolveColorSelection(
+  {
+    colorType: backgroundColorType,
+    shade: backgroundColorShade,
+    customColor: backgroundCustomColor,
+  },
+  siteColors
+);
+
+const cssVars = `--approach-hero-bg: ${backgroundColor}`;
+---
+
+<section class="approach-hero" style={cssVars}>
+  <div class="approach-hero__container">
+    <h1 class="approach-hero__heading">
+      {heading}
+      {headingHighlight && (
+        <span class="approach-hero__highlight">{headingHighlight}</span>
+      )}
+    </h1>
+    {showDivider && <div class="approach-hero__divider" />}
+  </div>
+</section>
+
+<style>
+  .approach-hero {
+    background-color: var(--approach-hero-bg, var(--color-primary-light));
+    padding: clamp(6rem, 10vw, 8rem) var(--space-md) clamp(4rem, 8vw, 6rem);
+    text-align: center;
+  }
+
+  .approach-hero__container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .approach-hero__heading {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-accent);
+    margin: 0 0 var(--space-lg);
+  }
+
+  .approach-hero__highlight {
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+
+  .approach-hero__divider {
+    width: 4rem;
+    height: 2px;
+    background-color: var(--color-text-muted);
+    margin: 0 auto;
+    opacity: 0.5;
+  }
+</style>

@@ -1,0 +1,70 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { sanityClient as client } from 'sanity:client';
+import { approachPageQuery } from '@lib/sanity/queries';
+import ApproachHero from '@components/sections/ApproachHero.astro';
+import ApproachCoreValues from '@components/sections/ApproachCoreValues.astro';
+import ApproachFounder from '@components/sections/ApproachFounder.astro';
+import ApproachHighlight from '@components/sections/ApproachHighlight.astro';
+import ApproachCta from '@components/sections/ApproachCta.astro';
+
+const page = await client.fetch(approachPageQuery);
+
+if (!page) {
+  return Astro.redirect('/404');
+}
+---
+
+<BaseLayout title={page.title} description={page.metaDescription}>
+  {/* Hero Section */}
+  <ApproachHero
+    heading={page.heroHeading}
+    headingHighlight={page.heroHeadingHighlight}
+    showDivider={page.heroShowDivider}
+    backgroundColorType={page.heroBackgroundColorType}
+    backgroundColorShade={page.heroBackgroundColorShade}
+    backgroundCustomColor={page.heroBackgroundCustomColor}
+  />
+
+  {/* Core Values Cards */}
+  {page.coreValuesCards && page.coreValuesCards.length > 0 && (
+    <ApproachCoreValues
+      title={page.coreValuesTitle}
+      cards={page.coreValuesCards}
+    />
+  )}
+
+  {/* Founder Section */}
+  {page.founderTitle && (
+    <ApproachFounder
+      tagline={page.founderTagline}
+      title={page.founderTitle}
+      content={page.founderContent}
+      quote={page.founderQuote}
+      image={page.founderImage}
+    />
+  )}
+
+  {/* Highlight Section */}
+  {page.highlightTitle && (
+    <ApproachHighlight
+      title={page.highlightTitle}
+      content={page.highlightContent}
+      backgroundColorType={page.highlightBackgroundColorType}
+      backgroundColorShade={page.highlightBackgroundColorShade}
+      backgroundCustomColor={page.highlightBackgroundCustomColor}
+    />
+  )}
+
+  {/* CTA Section */}
+  {page.ctaTitle && (
+    <ApproachCta
+      title={page.ctaTitle}
+      description={page.ctaDescription}
+      button={page.ctaButton}
+      backgroundColorType={page.ctaBackgroundColorType}
+      backgroundColorShade={page.ctaBackgroundColorShade}
+      backgroundCustomColor={page.ctaBackgroundCustomColor}
+    />
+  )}
+</BaseLayout>

@@ -10,6 +10,7 @@ interface InternalLink {
     | 'caseStudiesPage'
     | 'contactPage'
     | 'aboutPage'
+    | 'approachPage'
     | 'caseStudy'
     | 'legal';
   caseStudyReference?: { slug: { current: string } };
@@ -41,6 +42,7 @@ const PAGE_TYPE_URLS: Record<string, string> = {
   caseStudiesPage: '/case-studies',
   contactPage: '/contact',
   aboutPage: '/about',
+  approachPage: '/approach',
 };
 
 /**

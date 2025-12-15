@@ -1,0 +1,100 @@
+---
+import PortableText from '@components/sanity/PortableText.astro';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import type { PortableTextBlock } from '@portabletext/types';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface Props {
+  title: string;
+  content?: PortableTextBlock[];
+  backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+}
+
+const {
+  title,
+  content,
+  backgroundColorType = 'accent',
+  backgroundColorShade = 0,
+  backgroundCustomColor,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color
+const backgroundColor = resolveColorSelection(
+  {
+    colorType: backgroundColorType,
+    shade: backgroundColorShade,
+    customColor: backgroundCustomColor,
+  },
+  siteColors
+);
+
+// Determine if we need light or dark text based on background
+// For accent color (typically dark), use light text
+const isDarkBackground = backgroundColorShade < 50;
+
+const cssVars = [
+  `--highlight-bg: ${backgroundColor}`,
+  `--highlight-title-color: ${isDarkBackground ? 'var(--color-primary-light, #fff4e6)' : 'var(--color-accent)'}`,
+  `--highlight-text-color: ${isDarkBackground ? 'rgba(255, 255, 255, 0.9)' : 'var(--color-text)'}`,
+].join('; ');
+---
+
+<section class="highlight-section" style={cssVars}>
+  <div class="container">
+    <h2 class="highlight-section__title">{title}</h2>
+    {content && (
+      <div class="highlight-section__content">
+        <PortableText content={content} />
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .highlight-section {
+    background-color: var(--highlight-bg, var(--color-accent));
+    padding: var(--space-2xl) 0;
+    text-align: center;
+  }
+
+  .highlight-section__title {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 500;
+    color: var(--highlight-title-color);
+    margin: 0 0 var(--space-lg);
+  }
+
+  .highlight-section__content {
+    max-width: 800px;
+    margin: 0 auto;
+    font-size: var(--font-size-lg);
+    color: var(--highlight-text-color);
+  }
+
+  .highlight-section__content :global(p) {
+    margin-bottom: var(--space-md);
+    line-height: 1.7;
+  }
+
+  .highlight-section__content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .highlight-section__content :global(a) {
+    color: var(--highlight-title-color);
+    text-decoration: underline;
+  }
+</style>

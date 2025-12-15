@@ -545,3 +545,51 @@ export const aboutPageQuery = groq`
     ogImage
   }
 `;
+
+// Approach Page (singleton)
+export const approachPageQuery = groq`
+  *[_type == "approachPage"][0] {
+    _id,
+    title,
+    metaDescription,
+    ogImage,
+    // Hero
+    heroHeading,
+    heroHeadingHighlight,
+    heroShowDivider,
+    heroBackgroundColorType,
+    heroBackgroundColorShade,
+    heroBackgroundCustomColor { label, value },
+    // Core Values
+    coreValuesTitle,
+    coreValuesCards[] {
+      _key,
+      icon,
+      title,
+      description
+    },
+    // Founder Section
+    founderTagline,
+    founderTitle,
+    founderContent,
+    founderQuote,
+    founderImage {
+      ${imageProjection}
+    },
+    // Highlight Section
+    highlightTitle,
+    highlightContent,
+    highlightBackgroundColorType,
+    highlightBackgroundColorShade,
+    highlightBackgroundCustomColor { label, value },
+    // CTA Section
+    ctaTitle,
+    ctaDescription,
+    ctaButton {
+      ${linkProjection}
+    },
+    ctaBackgroundColorType,
+    ctaBackgroundColorShade,
+    ctaBackgroundCustomColor { label, value }
+  }
+`;

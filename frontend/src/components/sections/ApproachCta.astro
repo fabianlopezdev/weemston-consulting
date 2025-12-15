@@ -1,0 +1,144 @@
+---
+import { resolveColorSelection, resolveButtonColor, resolveButtonTextColor } from '@lib/sanity/colorResolver';
+import { resolveLinkUrl } from '@lib/sanity/linkResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface ButtonColor {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  useBaseTextColor?: boolean;
+  customColor?: ColorData;
+}
+
+interface LinkData {
+  text?: string;
+  buttonColor?: ButtonColor;
+  linkType: 'internal' | 'external';
+  internalPageType?: string;
+  serviceReference?: { slug: { current: string } };
+  caseStudyReference?: { slug: { current: string } };
+  legalReference?: { slug: { current: string } };
+  externalUrl?: string;
+  openInNewTab?: boolean;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  button?: LinkData;
+  backgroundColorType?: 'default' | 'primary' | 'secondary' | 'accent' | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+}
+
+const {
+  title,
+  description,
+  button,
+  backgroundColorType = 'primary',
+  backgroundColorShade = 90,
+  backgroundCustomColor,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color
+const backgroundColor = backgroundColorType === 'default'
+  ? null
+  : resolveColorSelection(
+      {
+        colorType: backgroundColorType,
+        shade: backgroundColorShade,
+        customColor: backgroundCustomColor,
+      },
+      siteColors
+    );
+
+// Resolve button colors
+const buttonBgColor = button?.buttonColor
+  ? resolveButtonColor(button.buttonColor, siteColors)
+  : 'var(--color-accent)';
+const buttonTextColor = button?.buttonColor
+  ? resolveButtonTextColor(button.buttonColor, siteColors)
+  : 'var(--color-text-contrast)';
+
+// Resolve button URL
+const buttonUrl = button ? resolveLinkUrl(button) : '/';
+const isExternal = button?.linkType === 'external';
+
+const cssVars = backgroundColor
+  ? `--cta-bg: ${backgroundColor}`
+  : '';
+---
+
+<section class="approach-cta" style={cssVars}>
+  <div class="container">
+    <h3 class="approach-cta__title">{title}</h3>
+    {description && (
+      <p class="approach-cta__description">{description}</p>
+    )}
+    {button?.text && (
+      <a
+        href={buttonUrl}
+        class="approach-cta__button"
+        style={`--btn-bg: ${buttonBgColor}; --btn-text: ${buttonTextColor}`}
+        target={isExternal || button.openInNewTab ? '_blank' : undefined}
+        rel={isExternal || button.openInNewTab ? 'noopener noreferrer' : undefined}
+      >
+        {button.text}
+      </a>
+    )}
+  </div>
+</section>
+
+<style>
+  .approach-cta {
+    background-color: var(--cta-bg, var(--color-background));
+    padding: var(--space-2xl) 0;
+    text-align: center;
+  }
+
+  .approach-cta__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 500;
+    color: var(--color-accent);
+    margin: 0 0 var(--space-sm);
+  }
+
+  .approach-cta__description {
+    max-width: 600px;
+    margin: 0 auto var(--space-lg);
+    color: var(--color-text-muted);
+    line-height: 1.7;
+  }
+
+  .approach-cta__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--btn-bg, var(--color-accent));
+    color: var(--btn-text, var(--color-text-contrast));
+    padding: var(--button-padding-vertical, 0.75rem) var(--button-padding-horizontal, 2rem);
+    border-radius: var(--button-border-radius, 2px);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    font-family: var(--font-sans);
+    border: 1px solid var(--btn-bg, var(--color-accent));
+    transition: all 0.2s ease;
+  }
+
+  .approach-cta__button:hover {
+    background-color: transparent;
+    color: var(--btn-bg, var(--color-accent));
+  }
+</style>

@@ -7,6 +7,7 @@ import navigationLink from './objects/navigationLink';
 import buttonColor from './objects/buttonColor';
 import experienceCard from './objects/experienceCard';
 import howWeWorkCard from './objects/howWeWorkCard';
+import approachValueCard from './objects/approachValueCard';
 
 // Section types
 import heroSection from './objects/sections/heroSection';
@@ -34,6 +35,7 @@ import servicesPage from './singletons/servicesPage';
 import caseStudiesPage from './singletons/caseStudiesPage';
 import contactPage from './singletons/contactPage';
 import aboutPage from './singletons/aboutPage';
+import approachPage from './singletons/approachPage';
 
 export const schemaTypes = [
   // Objects
@@ -45,6 +47,7 @@ export const schemaTypes = [
   buttonColor,
   experienceCard,
   howWeWorkCard,
+  approachValueCard,
   // Sections
   heroSection,
   featuredServicesSection,
@@ -69,4 +72,5 @@ export const schemaTypes = [
   caseStudiesPage,
   contactPage,
   aboutPage,
+  approachPage,
 ];

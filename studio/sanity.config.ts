@@ -18,6 +18,7 @@ import {
   HiBriefcase,
   HiTrendingUp,
   HiChatAlt,
+  HiLightBulb,
 } from 'react-icons/hi';
 import { DocumentListWithBanner } from './components/DocumentListWithBanner';
 
@@ -29,6 +30,7 @@ const singletonTypes = new Set([
   'caseStudiesPage',
   'contactPage',
   'aboutPage',
+  'approachPage',
 ]);
 
 export default defineConfig({
@@ -179,6 +181,16 @@ export default defineConfig({
                   : S.document()
                       .schemaType('aboutPage')
                       .documentId(`aboutPage-${baseLanguage?.id || 'en'}`)
+              ),
+            // Our Approach Page
+            S.listItem()
+              .title('Our Approach Page')
+              .icon(HiLightBulb)
+              .id('approachPage-singleton')
+              .child(
+                S.document()
+                  .schemaType('approachPage')
+                  .documentId('approachPage')
               ),
             // Legal Pages
             S.listItem()
