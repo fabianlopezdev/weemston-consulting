@@ -37,6 +37,7 @@ export default defineType({
           { title: 'Case Studies Page', value: 'caseStudiesPage' },
           { title: 'Contact Page', value: 'contactPage' },
           { title: 'About Page', value: 'aboutPage' },
+          { title: 'Our Approach Page', value: 'approachPage' },
           { title: 'Individual Case Study', value: 'caseStudy' },
           { title: 'Legal Page', value: 'legal' },
         ],
@@ -140,6 +141,7 @@ export default defineType({
           caseStudiesPage: 'Case Studies Page',
           contactPage: 'Contact Page',
           aboutPage: 'About Page',
+          approachPage: 'Our Approach Page',
         };
 
         if (internalPageType === 'service' && serviceName) {
