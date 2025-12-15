@@ -143,7 +143,14 @@ const cssVars = [
 
 // Generate image URL
 const imageUrl = image?.asset
-  ? urlForImageWithSeoFilename(image, { width: 800, quality: 85 })
+  ? urlForImageWithSeoFilename(
+      image as {
+        asset?: { _ref?: string };
+        alt?: string;
+        seoFilename?: string;
+      },
+      { width: 800, quality: 85 }
+    )
   : null;
 
 const imageLqip = image?.asset?.metadata?.lqip;

@@ -119,11 +119,24 @@ const titleColor = resolveColorSelection(
 );
 
 // Resolve button colors
-const buttonBgColor = button?.buttonColor
-  ? resolveButtonColor(button.buttonColor, siteColors)
+const buttonBgColor = button?.buttonColor?.colorType
+  ? resolveButtonColor(
+      button.buttonColor as {
+        colorType: string;
+        shade?: number;
+        useBaseTextColor?: boolean;
+      },
+      siteColors
+    )
   : 'var(--color-accent)';
-const buttonTextColor = button?.buttonColor
-  ? resolveButtonTextColor(button.buttonColor, siteColors)
+const buttonTextColor = button?.buttonColor?.colorType
+  ? resolveButtonTextColor(
+      button.buttonColor as {
+        colorType: string;
+        shade?: number;
+        useBaseTextColor?: boolean;
+      }
+    )
   : 'var(--color-text-contrast)';
 
 // Resolve button URL
