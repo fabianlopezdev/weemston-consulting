@@ -24,9 +24,40 @@ interface ValueCard {
 interface Props {
   title?: string;
   cards: ValueCard[];
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  cardBackgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  cardBackgroundColorShade?: number;
+  cardBackgroundCustomColor?: ColorData;
+  cardTitleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  cardTitleColorShade?: number;
+  cardTitleCustomColor?: ColorData;
 }
 
-const { title, cards } = Astro.props;
+const {
+  title,
+  cards,
+  backgroundColorType = 'default',
+  backgroundColorShade = 90,
+  backgroundCustomColor,
+  cardBackgroundColorType = 'default',
+  cardBackgroundColorShade = 95,
+  cardBackgroundCustomColor,
+  cardTitleColorType = 'accent',
+  cardTitleColorShade = 0,
+  cardTitleCustomColor,
+} = Astro.props;
 
 // Fetch site settings for colors
 const settings = await client.fetch(siteSettingsQuery);
@@ -50,43 +81,43 @@ function lightenColor(hex: string, amount: number): string {
 
 // Icon SVG paths (stroke-based icons matching the design)
 const iconPaths: Record<string, string> = {
-  search: '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>',
-  layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline>',
-  lightbulb: '<line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8a6 6 0 1 0-12 0c0 1.54.64 2.89 1.68 3.86.63.61 1 1.25 1 2.14V14a2 2 0 0 0 2 2h2.82a2 2 0 0 0 2-2z"></path>',
-  users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
-  heart: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>',
-  chart: '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>',
-  target: '<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>',
-  compass: '<circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>',
-  handshake: '<path d="M11 17a4 4 0 0 1-4-4V5a2 2 0 0 1 2-2h2"></path><path d="M13 3h2a2 2 0 0 1 2 2v8a4 4 0 0 1-4 4"></path><path d="m3 15 4-4"></path><path d="m17 11 4 4"></path><path d="M12 17v4"></path><path d="M8 21h8"></path>',
+  search:
+    '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>',
+  layers:
+    '<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline>',
+  lightbulb:
+    '<line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8a6 6 0 1 0-12 0c0 1.54.64 2.89 1.68 3.86.63.61 1 1.25 1 2.14V14a2 2 0 0 0 2 2h2.82a2 2 0 0 0 2-2z"></path>',
+  users:
+    '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
+  heart:
+    '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>',
+  chart:
+    '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>',
+  target:
+    '<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>',
+  compass:
+    '<circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>',
+  handshake:
+    '<path d="M11 17a4 4 0 0 1-4-4V5a2 2 0 0 1 2-2h2"></path><path d="M13 3h2a2 2 0 0 1 2 2v8a4 4 0 0 1-4 4"></path><path d="m3 15 4-4"></path><path d="m17 11 4 4"></path><path d="M12 17v4"></path><path d="M8 21h8"></path>',
   star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>',
   shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>',
-  puzzle: '<path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"></path>',
+  puzzle:
+    '<path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"></path>',
 };
 
-// Helper to resolve color for each card
-function getCardColors(card: ValueCard) {
-  const iconColor = card.iconColorType === 'custom' && card.iconCustomColor?.value
-    ? card.iconCustomColor.value
-    : resolveColorSelection(
-        {
-          colorType: card.iconColorType || 'accent',
-          shade: card.iconColorShade || 0,
-          customColor: card.iconCustomColor,
-        },
-        siteColors
-      );
-
-  const titleColor = card.titleColorType === 'custom' && card.titleCustomColor?.value
-    ? card.titleCustomColor.value
-    : resolveColorSelection(
-        {
-          colorType: card.titleColorType || 'accent',
-          shade: card.titleColorShade || 0,
-          customColor: card.titleCustomColor,
-        },
-        siteColors
-      );
+// Helper to resolve icon colors for each card
+function getCardIconColors(card: ValueCard) {
+  const iconColor =
+    card.iconColorType === 'custom' && card.iconCustomColor?.value
+      ? card.iconCustomColor.value
+      : resolveColorSelection(
+          {
+            colorType: card.iconColorType || 'accent',
+            shade: card.iconColorShade || 0,
+            customColor: card.iconCustomColor,
+          },
+          siteColors
+        );
 
   // Create a light background version of the icon color
   // For custom colors, lighten by 85% to create a subtle background
@@ -105,37 +136,83 @@ function getCardColors(card: ValueCard) {
     );
   }
 
-  return { iconColor, titleColor, iconBgColor };
+  return { iconColor, iconBgColor };
 }
+
+// Resolve section background color
+const sectionBackgroundColor =
+  backgroundColorType === 'default'
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: backgroundColorType,
+          shade: backgroundColorShade,
+          customColor: backgroundCustomColor,
+        },
+        siteColors
+      );
+
+// Resolve card background color
+const cardBackgroundColor =
+  cardBackgroundColorType === 'default'
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: cardBackgroundColorType,
+          shade: cardBackgroundColorShade,
+          customColor: cardBackgroundCustomColor,
+        },
+        siteColors
+      );
+
+// Resolve section-level card title color
+const cardTitleColor = resolveColorSelection(
+  {
+    colorType: cardTitleColorType,
+    shade: cardTitleColorShade,
+    customColor: cardTitleCustomColor,
+  },
+  siteColors
+);
+
+const sectionCssVars = [
+  sectionBackgroundColor ? `--section-bg: ${sectionBackgroundColor}` : null,
+  cardBackgroundColor ? `--card-bg: ${cardBackgroundColor}` : null,
+  `--card-title-color: ${cardTitleColor}`,
+]
+  .filter(Boolean)
+  .join('; ');
 ---
 
-<section class="core-values">
+<section class="core-values" style={sectionCssVars}>
   <div class="container">
     {title && <h2 class="visually-hidden">{title}</h2>}
     <div class="core-values__grid">
-      {cards.map((card) => {
-        const colors = getCardColors(card);
-        const cardStyle = `--card-icon-color: ${colors.iconColor}; --card-icon-bg: ${colors.iconBgColor}; --card-title-color: ${colors.titleColor}`;
-        return (
-          <div class="core-values__card" style={cardStyle}>
-            <div class="core-values__icon-wrapper">
-              <svg
-                class="core-values__icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-                set:html={iconPaths[card.icon] || iconPaths.star}
-              />
+      {
+        cards.map((card) => {
+          const colors = getCardIconColors(card);
+          const cardStyle = `--card-icon-color: ${colors.iconColor}; --card-icon-bg: ${colors.iconBgColor}`;
+          return (
+            <div class="core-values__card" style={cardStyle}>
+              <div class="core-values__icon-wrapper">
+                <svg
+                  class="core-values__icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  set:html={iconPaths[card.icon] || iconPaths.star}
+                />
+              </div>
+              <h3 class="core-values__title">{card.title}</h3>
+              <p class="core-values__description">{card.description}</p>
             </div>
-            <h3 class="core-values__title">{card.title}</h3>
-            <p class="core-values__description">{card.description}</p>
-          </div>
-        );
-      })}
+          );
+        })
+      }
     </div>
   </div>
 </section>
@@ -143,6 +220,7 @@ function getCardColors(card: ValueCard) {
 <style>
   .core-values {
     padding: var(--space-2xl) 0;
+    background-color: var(--section-bg, transparent);
   }
 
   .core-values__grid {
@@ -153,7 +231,7 @@ function getCardColors(card: ValueCard) {
 
   /* p-8 bg-white rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow */
   .core-values__card {
-    background: white;
+    background: var(--card-bg, white);
     padding: 2rem; /* p-8 */
     border-radius: 0.75rem; /* rounded-xl */
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* shadow-sm */
@@ -162,7 +240,9 @@ function getCardColors(card: ValueCard) {
   }
 
   .core-values__card:hover {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-md */
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-md */
   }
 
   /* w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-teal-700 mb-6 mx-auto md:mx-0 */

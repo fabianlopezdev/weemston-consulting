@@ -126,7 +126,8 @@ export default defineType({
       type: 'string',
       group: 'hero',
       fieldset: 'heroFields',
-      initialValue: 'Thoughtful partnership is the foundation of lasting impact.',
+      initialValue:
+        'Thoughtful partnership is the foundation of lasting impact.',
     },
     {
       name: 'heroHeadingHighlight',
@@ -214,8 +215,7 @@ export default defineType({
       fieldset: 'heroFields',
       initialValue: 0,
       hidden: ({ parent }) =>
-        !parent?.heroShowDivider ||
-        parent?.heroDividerColorType === 'custom',
+        !parent?.heroShowDivider || parent?.heroDividerColorType === 'custom',
       validation: (Rule) => Rule.min(0).max(100).integer(),
       components: {
         input: BackgroundShadeInput,
@@ -228,11 +228,129 @@ export default defineType({
       group: 'hero',
       fieldset: 'heroFields',
       hidden: ({ parent }) =>
-        !parent?.heroShowDivider ||
-        parent?.heroDividerColorType !== 'custom',
+        !parent?.heroShowDivider || parent?.heroDividerColorType !== 'custom',
     },
 
     // Core Values Section
+    {
+      name: 'coreValuesBackgroundColorType',
+      title: 'Section Background Color',
+      type: 'string',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      options: {
+        list: [
+          { title: 'Default (White)', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+    },
+    {
+      name: 'coreValuesBackgroundColorShade',
+      title: 'Background Shade',
+      type: 'number',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      initialValue: 90,
+      hidden: ({ parent }) =>
+        parent?.coreValuesBackgroundColorType === 'custom' ||
+        parent?.coreValuesBackgroundColorType === 'default',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'coreValuesBackgroundCustomColor',
+      title: 'Custom Background Color',
+      type: 'simplerColor',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      hidden: ({ parent }) =>
+        parent?.coreValuesBackgroundColorType !== 'custom',
+    },
+    {
+      name: 'coreValuesCardBackgroundColorType',
+      title: 'Card Background Color',
+      type: 'string',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      options: {
+        list: [
+          { title: 'Default (White)', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+    },
+    {
+      name: 'coreValuesCardBackgroundColorShade',
+      title: 'Card Background Shade',
+      type: 'number',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      initialValue: 90,
+      hidden: ({ parent }) =>
+        parent?.coreValuesCardBackgroundColorType === 'custom' ||
+        parent?.coreValuesCardBackgroundColorType === 'default',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'coreValuesCardBackgroundCustomColor',
+      title: 'Custom Card Background Color',
+      type: 'simplerColor',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      hidden: ({ parent }) =>
+        parent?.coreValuesCardBackgroundColorType !== 'custom',
+    },
+    {
+      name: 'coreValuesCardTitleColorType',
+      title: 'Card Title Color',
+      type: 'string',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+    },
+    {
+      name: 'coreValuesCardTitleColorShade',
+      title: 'Card Title Shade',
+      type: 'number',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.coreValuesCardTitleColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'coreValuesCardTitleCustomColor',
+      title: 'Custom Card Title Color',
+      type: 'simplerColor',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      hidden: ({ parent }) => parent?.coreValuesCardTitleColorType !== 'custom',
+    },
     {
       name: 'coreValuesTitle',
       title: 'Section Title (optional)',
@@ -253,6 +371,46 @@ export default defineType({
 
     // Founder Section
     {
+      name: 'founderBackgroundColorType',
+      title: 'Background Color',
+      type: 'string',
+      group: 'founder',
+      fieldset: 'founderFields',
+      options: {
+        list: [
+          { title: 'Default (White)', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+    },
+    {
+      name: 'founderBackgroundColorShade',
+      title: 'Background Shade',
+      type: 'number',
+      group: 'founder',
+      fieldset: 'founderFields',
+      initialValue: 90,
+      hidden: ({ parent }) =>
+        parent?.founderBackgroundColorType === 'custom' ||
+        parent?.founderBackgroundColorType === 'default',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'founderBackgroundCustomColor',
+      title: 'Custom Background Color',
+      type: 'simplerColor',
+      group: 'founder',
+      fieldset: 'founderFields',
+      hidden: ({ parent }) => parent?.founderBackgroundColorType !== 'custom',
+    },
+    {
       name: 'founderTagline',
       title: 'Tagline',
       type: 'string',
@@ -262,12 +420,89 @@ export default defineType({
       initialValue: "The Founder's Lens",
     },
     {
+      name: 'founderTaglineColorType',
+      title: 'Tagline Color',
+      type: 'string',
+      group: 'founder',
+      fieldset: 'founderFields',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.founderTagline,
+    },
+    {
+      name: 'founderTaglineColorShade',
+      title: 'Tagline Shade',
+      type: 'number',
+      group: 'founder',
+      fieldset: 'founderFields',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.founderTagline || parent?.founderTaglineColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'founderTaglineCustomColor',
+      title: 'Custom Tagline Color',
+      type: 'simplerColor',
+      group: 'founder',
+      fieldset: 'founderFields',
+      hidden: ({ parent }) =>
+        !parent?.founderTagline || parent?.founderTaglineColorType !== 'custom',
+    },
+    {
       name: 'founderTitle',
       title: 'Title',
       type: 'string',
       group: 'founder',
       fieldset: 'founderFields',
       initialValue: 'A Personal Approach to Operational Strategy',
+    },
+    {
+      name: 'founderTitleColorType',
+      title: 'Title Color',
+      type: 'string',
+      group: 'founder',
+      fieldset: 'founderFields',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+    },
+    {
+      name: 'founderTitleColorShade',
+      title: 'Title Shade',
+      type: 'number',
+      group: 'founder',
+      fieldset: 'founderFields',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.founderTitleColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'founderTitleCustomColor',
+      title: 'Custom Title Color',
+      type: 'simplerColor',
+      group: 'founder',
+      fieldset: 'founderFields',
+      hidden: ({ parent }) => parent?.founderTitleColorType !== 'custom',
     },
     {
       name: 'founderContent',
@@ -280,6 +515,23 @@ export default defineType({
         'Full text content including the quote. Use blank lines to separate paragraphs.',
     },
     {
+      name: 'founderTextColor',
+      title: 'Content Text Color',
+      type: 'string',
+      group: 'founder',
+      fieldset: 'founderFields',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'muted',
+    },
+    {
       name: 'founderQuote',
       title: 'Quote Highlight',
       type: 'text',
@@ -288,6 +540,46 @@ export default defineType({
       fieldset: 'founderFields',
       description:
         'Enter the exact text from Content that should be styled as a blockquote. Must match exactly.',
+    },
+    {
+      name: 'founderQuoteColorType',
+      title: 'Quote Color',
+      type: 'string',
+      group: 'founder',
+      fieldset: 'founderFields',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.founderQuote,
+    },
+    {
+      name: 'founderQuoteColorShade',
+      title: 'Quote Shade',
+      type: 'number',
+      group: 'founder',
+      fieldset: 'founderFields',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.founderQuote || parent?.founderQuoteColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'founderQuoteCustomColor',
+      title: 'Custom Quote Color',
+      type: 'simplerColor',
+      group: 'founder',
+      fieldset: 'founderFields',
+      hidden: ({ parent }) =>
+        !parent?.founderQuote || parent?.founderQuoteColorType !== 'custom',
     },
     {
       name: 'founderImage',
@@ -301,7 +593,8 @@ export default defineType({
           name: 'alt',
           title: 'Alt Text',
           type: 'string',
-          description: 'Describes the image for screen readers and search engines.',
+          description:
+            'Describes the image for screen readers and search engines.',
         },
         {
           name: 'seoFilename',
@@ -358,6 +651,43 @@ export default defineType({
       group: 'highlight',
       fieldset: 'highlightFields',
       initialValue: 'The Coaching Difference',
+    },
+    {
+      name: 'highlightTitleColorType',
+      title: 'Title Color',
+      type: 'string',
+      group: 'highlight',
+      fieldset: 'highlightFields',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+    },
+    {
+      name: 'highlightTitleColorShade',
+      title: 'Title Shade',
+      type: 'number',
+      group: 'highlight',
+      fieldset: 'highlightFields',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.highlightTitleColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'highlightTitleCustomColor',
+      title: 'Custom Title Color',
+      type: 'simplerColor',
+      group: 'highlight',
+      fieldset: 'highlightFields',
+      hidden: ({ parent }) => parent?.highlightTitleColorType !== 'custom',
     },
     {
       name: 'highlightContent',
@@ -435,6 +765,43 @@ export default defineType({
       initialValue: 'We Stay in the Work',
     },
     {
+      name: 'ctaTitleColorType',
+      title: 'Title Color',
+      type: 'string',
+      group: 'cta',
+      fieldset: 'ctaFields',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+    },
+    {
+      name: 'ctaTitleColorShade',
+      title: 'Title Shade',
+      type: 'number',
+      group: 'cta',
+      fieldset: 'ctaFields',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.ctaTitleColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'ctaTitleCustomColor',
+      title: 'Custom Title Color',
+      type: 'simplerColor',
+      group: 'cta',
+      fieldset: 'ctaFields',
+      hidden: ({ parent }) => parent?.ctaTitleColorType !== 'custom',
+    },
+    {
       name: 'ctaDescription',
       title: 'Description',
       type: 'text',
@@ -443,6 +810,23 @@ export default defineType({
       fieldset: 'ctaFields',
       initialValue:
         'Unlike many consultants who give advice and move on, we partner with leaders and teams to implement change in real time.',
+    },
+    {
+      name: 'ctaTextColor',
+      title: 'Description Text Color',
+      type: 'string',
+      group: 'cta',
+      fieldset: 'ctaFields',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'muted',
     },
     {
       name: 'ctaButton',

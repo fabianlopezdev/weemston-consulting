@@ -1,5 +1,8 @@
 ---
 import { urlForImageWithSeoFilename } from '@lib/sanity/image';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
 
 interface ImageAsset {
   _id: string;
@@ -22,15 +25,121 @@ interface SanityImage {
   crop?: { top: number; bottom: number; left: number; right: number };
 }
 
-interface Props {
-  tagline?: string;
-  title: string;
-  content?: string;
-  quote?: string;
-  image?: SanityImage;
+interface ColorData {
+  label?: string;
+  value: string;
 }
 
-const { tagline, title, content, quote, image } = Astro.props;
+interface Props {
+  tagline?: string;
+  taglineColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  taglineColorShade?: number;
+  taglineCustomColor?: ColorData;
+  title: string;
+  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  titleColorShade?: number;
+  titleCustomColor?: ColorData;
+  content?: string;
+  textColor?: 'base' | 'muted' | 'contrast';
+  quote?: string;
+  quoteColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  quoteColorShade?: number;
+  quoteCustomColor?: ColorData;
+  image?: SanityImage;
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+}
+
+const {
+  tagline,
+  taglineColorType = 'accent',
+  taglineColorShade = 0,
+  taglineCustomColor,
+  title,
+  titleColorType = 'accent',
+  titleColorShade = 0,
+  titleCustomColor,
+  content,
+  textColor = 'muted',
+  quote,
+  quoteColorType = 'accent',
+  quoteColorShade = 0,
+  quoteCustomColor,
+  image,
+  backgroundColorType = 'default',
+  backgroundColorShade = 90,
+  backgroundCustomColor,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color
+const backgroundColor =
+  backgroundColorType === 'default'
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: backgroundColorType,
+          shade: backgroundColorShade,
+          customColor: backgroundCustomColor,
+        },
+        siteColors
+      );
+
+// Resolve tagline color
+const taglineColor = resolveColorSelection(
+  {
+    colorType: taglineColorType,
+    shade: taglineColorShade,
+    customColor: taglineCustomColor,
+  },
+  siteColors
+);
+
+// Resolve title color
+const titleColor = resolveColorSelection(
+  {
+    colorType: titleColorType,
+    shade: titleColorShade,
+    customColor: titleCustomColor,
+  },
+  siteColors
+);
+
+// Resolve quote color
+const quoteColor = resolveColorSelection(
+  {
+    colorType: quoteColorType,
+    shade: quoteColorShade,
+    customColor: quoteCustomColor,
+  },
+  siteColors
+);
+
+// Text color mapping (for content)
+const textColorMap = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'rgba(255, 255, 255, 0.9)',
+};
+
+const cssVars = [
+  backgroundColor ? `--founder-bg: ${backgroundColor}` : null,
+  `--founder-tagline-color: ${taglineColor}`,
+  `--founder-title-color: ${titleColor}`,
+  `--founder-text-color: ${textColorMap[textColor]}`,
+  `--founder-quote-color: ${quoteColor}`,
+]
+  .filter(Boolean)
+  .join('; ');
 
 // Generate image URL
 const imageUrl = image?.asset
@@ -90,7 +199,7 @@ function parseContent(content: string, quote?: string): ContentPart[] {
 const contentParts = parseContent(content || '', quote);
 ---
 
-<section class="founder-section">
+<section class="founder-section" style={cssVars}>
   <div class="container">
     <div class="founder-section__grid">
       {
@@ -135,6 +244,7 @@ const contentParts = parseContent(content || '', quote);
 <style>
   .founder-section {
     padding-bottom: var(--space-2xl);
+    background-color: var(--founder-bg, transparent);
   }
 
   .founder-section__grid {
@@ -177,7 +287,7 @@ const contentParts = parseContent(content || '', quote);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--color-accent);
+    color: var(--founder-tagline-color, var(--color-accent));
     margin-bottom: var(--space-sm);
   }
 
@@ -186,12 +296,12 @@ const contentParts = parseContent(content || '', quote);
     font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 500;
     line-height: 1.2;
-    color: var(--color-accent);
+    color: var(--founder-title-color, var(--color-accent));
     margin: 0 0 var(--space-lg);
   }
 
   .founder-section__text {
-    color: var(--color-text-muted);
+    color: var(--founder-text-color, var(--color-text-muted));
   }
 
   .founder-section__text p {
@@ -204,13 +314,13 @@ const contentParts = parseContent(content || '', quote);
   }
 
   .founder-section__quote {
-    border-left: 3px solid var(--color-accent);
+    border-left: 3px solid var(--founder-quote-color, var(--color-accent));
     padding-left: var(--space-md);
     margin: var(--space-lg) 0;
     font-family: var(--font-heading);
     font-size: clamp(1.125rem, 2.5vw, 1.35rem);
     font-style: italic;
-    color: var(--color-accent);
+    color: var(--founder-quote-color, var(--color-accent));
     line-height: 1.5;
   }
 

@@ -568,6 +568,15 @@ export const approachPageQuery = groq`
     heroBackgroundColorShade,
     heroBackgroundCustomColor { label, value },
     // Core Values
+    coreValuesBackgroundColorType,
+    coreValuesBackgroundColorShade,
+    coreValuesBackgroundCustomColor { label, value },
+    coreValuesCardBackgroundColorType,
+    coreValuesCardBackgroundColorShade,
+    coreValuesCardBackgroundCustomColor { label, value },
+    coreValuesCardTitleColorType,
+    coreValuesCardTitleColorShade,
+    coreValuesCardTitleCustomColor { label, value },
     coreValuesTitle,
     coreValuesCards[] {
       _key,
@@ -582,15 +591,31 @@ export const approachPageQuery = groq`
       description
     },
     // Founder Section
+    founderBackgroundColorType,
+    founderBackgroundColorShade,
+    founderBackgroundCustomColor { label, value },
     founderTagline,
+    founderTaglineColorType,
+    founderTaglineColorShade,
+    founderTaglineCustomColor { label, value },
     founderTitle,
+    founderTitleColorType,
+    founderTitleColorShade,
+    founderTitleCustomColor { label, value },
     founderContent,
+    founderTextColor,
     founderQuote,
+    founderQuoteColorType,
+    founderQuoteColorShade,
+    founderQuoteCustomColor { label, value },
     founderImage {
       ${imageProjection}
     },
     // Highlight Section
     highlightTitle,
+    highlightTitleColorType,
+    highlightTitleColorShade,
+    highlightTitleCustomColor { label, value },
     highlightContent,
     highlightTextColor,
     highlightBackgroundColorType,
@@ -598,7 +623,11 @@ export const approachPageQuery = groq`
     highlightBackgroundCustomColor { label, value },
     // CTA Section
     ctaTitle,
+    ctaTitleColorType,
+    ctaTitleColorShade,
+    ctaTitleCustomColor { label, value },
     ctaDescription,
+    ctaTextColor,
     ctaButton {
       ${linkProjection}
     },

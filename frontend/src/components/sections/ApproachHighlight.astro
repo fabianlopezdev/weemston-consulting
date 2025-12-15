@@ -12,6 +12,9 @@ interface ColorData {
 
 interface Props {
   title: string;
+  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  titleColorShade?: number;
+  titleCustomColor?: ColorData;
   content?: PortableTextBlock[];
   textColor?: 'base' | 'muted' | 'contrast';
   backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
@@ -21,6 +24,9 @@ interface Props {
 
 const {
   title,
+  titleColorType = 'accent',
+  titleColorShade = 0,
+  titleCustomColor,
   content,
   textColor = 'base',
   backgroundColorType = 'accent',
@@ -42,22 +48,26 @@ const backgroundColor = resolveColorSelection(
   siteColors
 );
 
-// Determine text colors based on textColor prop
+// Resolve title color
+const titleColor = resolveColorSelection(
+  {
+    colorType: titleColorType,
+    shade: titleColorShade,
+    customColor: titleCustomColor,
+  },
+  siteColors
+);
+
+// Determine colors based on props
 const textColorMap = {
   base: 'var(--color-text)',
   muted: 'var(--color-text-muted)',
   contrast: 'rgba(255, 255, 255, 0.9)',
 };
 
-const titleColorMap = {
-  base: 'var(--color-accent)',
-  muted: 'var(--color-accent)',
-  contrast: 'var(--color-primary-light, #fff4e6)',
-};
-
 const cssVars = [
   `--highlight-bg: ${backgroundColor}`,
-  `--highlight-title-color: ${titleColorMap[textColor]}`,
+  `--highlight-title-color: ${titleColor}`,
   `--highlight-text-color: ${textColorMap[textColor]}`,
 ].join('; ');
 ---
@@ -73,16 +83,19 @@ const cssVars = [
       stroke-linejoin="round"
     >
       <circle cx="12" cy="12" r="10"></circle>
-      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"
+      ></polygon>
     </svg>
   </div>
   <div class="container highlight-section__container">
     <h2 class="highlight-section__title">{title}</h2>
-    {content && (
-      <div class="highlight-section__content">
-        <PortableText content={content} />
-      </div>
-    )}
+    {
+      content && (
+        <div class="highlight-section__content">
+          <PortableText content={content} />
+        </div>
+      )
+    }
   </div>
 </section>
 

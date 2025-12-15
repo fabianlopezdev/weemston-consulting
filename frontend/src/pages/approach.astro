@@ -33,45 +33,82 @@ if (!page) {
   />
 
   {/* Core Values Cards */}
-  {page.coreValuesCards && page.coreValuesCards.length > 0 && (
-    <ApproachCoreValues
-      title={page.coreValuesTitle}
-      cards={page.coreValuesCards}
-    />
-  )}
+  {
+    page.coreValuesCards && page.coreValuesCards.length > 0 && (
+      <ApproachCoreValues
+        title={page.coreValuesTitle}
+        cards={page.coreValuesCards}
+        backgroundColorType={page.coreValuesBackgroundColorType}
+        backgroundColorShade={page.coreValuesBackgroundColorShade}
+        backgroundCustomColor={page.coreValuesBackgroundCustomColor}
+        cardBackgroundColorType={page.coreValuesCardBackgroundColorType}
+        cardBackgroundColorShade={page.coreValuesCardBackgroundColorShade}
+        cardBackgroundCustomColor={page.coreValuesCardBackgroundCustomColor}
+        cardTitleColorType={page.coreValuesCardTitleColorType}
+        cardTitleColorShade={page.coreValuesCardTitleColorShade}
+        cardTitleCustomColor={page.coreValuesCardTitleCustomColor}
+      />
+    )
+  }
 
   {/* Founder Section */}
-  {page.founderTitle && (
-    <ApproachFounder
-      tagline={page.founderTagline}
-      title={page.founderTitle}
-      content={page.founderContent}
-      quote={page.founderQuote}
-      image={page.founderImage}
-    />
-  )}
+  {
+    page.founderTitle && (
+      <ApproachFounder
+        tagline={page.founderTagline}
+        taglineColorType={page.founderTaglineColorType}
+        taglineColorShade={page.founderTaglineColorShade}
+        taglineCustomColor={page.founderTaglineCustomColor}
+        title={page.founderTitle}
+        titleColorType={page.founderTitleColorType}
+        titleColorShade={page.founderTitleColorShade}
+        titleCustomColor={page.founderTitleCustomColor}
+        content={page.founderContent}
+        textColor={page.founderTextColor}
+        quote={page.founderQuote}
+        quoteColorType={page.founderQuoteColorType}
+        quoteColorShade={page.founderQuoteColorShade}
+        quoteCustomColor={page.founderQuoteCustomColor}
+        image={page.founderImage}
+        backgroundColorType={page.founderBackgroundColorType}
+        backgroundColorShade={page.founderBackgroundColorShade}
+        backgroundCustomColor={page.founderBackgroundCustomColor}
+      />
+    )
+  }
 
   {/* Highlight Section */}
-  {page.highlightTitle && (
-    <ApproachHighlight
-      title={page.highlightTitle}
-      content={page.highlightContent}
-      textColor={page.highlightTextColor}
-      backgroundColorType={page.highlightBackgroundColorType}
-      backgroundColorShade={page.highlightBackgroundColorShade}
-      backgroundCustomColor={page.highlightBackgroundCustomColor}
-    />
-  )}
+  {
+    page.highlightTitle && (
+      <ApproachHighlight
+        title={page.highlightTitle}
+        titleColorType={page.highlightTitleColorType}
+        titleColorShade={page.highlightTitleColorShade}
+        titleCustomColor={page.highlightTitleCustomColor}
+        content={page.highlightContent}
+        textColor={page.highlightTextColor}
+        backgroundColorType={page.highlightBackgroundColorType}
+        backgroundColorShade={page.highlightBackgroundColorShade}
+        backgroundCustomColor={page.highlightBackgroundCustomColor}
+      />
+    )
+  }
 
   {/* CTA Section */}
-  {page.ctaTitle && (
-    <ApproachCta
-      title={page.ctaTitle}
-      description={page.ctaDescription}
-      button={page.ctaButton}
-      backgroundColorType={page.ctaBackgroundColorType}
-      backgroundColorShade={page.ctaBackgroundColorShade}
-      backgroundCustomColor={page.ctaBackgroundCustomColor}
-    />
-  )}
+  {
+    page.ctaTitle && (
+      <ApproachCta
+        title={page.ctaTitle}
+        titleColorType={page.ctaTitleColorType}
+        titleColorShade={page.ctaTitleColorShade}
+        titleCustomColor={page.ctaTitleCustomColor}
+        description={page.ctaDescription}
+        textColor={page.ctaTextColor}
+        button={page.ctaButton}
+        backgroundColorType={page.ctaBackgroundColorType}
+        backgroundColorShade={page.ctaBackgroundColorShade}
+        backgroundCustomColor={page.ctaBackgroundCustomColor}
+      />
+    )
+  }
 </BaseLayout>

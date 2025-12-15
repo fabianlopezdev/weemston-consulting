@@ -116,8 +116,24 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'ctaBackgroundColorType';
   } else if (fieldName === 'iconColorShade') {
     colorTypeFieldName = 'iconColorType';
-  } else if (fieldName === 'titleColorShade') {
-    colorTypeFieldName = 'titleColorType';
+  } else if (fieldName === 'founderTaglineColorShade') {
+    colorTypeFieldName = 'founderTaglineColorType';
+  } else if (fieldName === 'founderTitleColorShade') {
+    colorTypeFieldName = 'founderTitleColorType';
+  } else if (fieldName === 'founderQuoteColorShade') {
+    colorTypeFieldName = 'founderQuoteColorType';
+  } else if (fieldName === 'founderBackgroundColorShade') {
+    colorTypeFieldName = 'founderBackgroundColorType';
+  } else if (fieldName === 'coreValuesBackgroundColorShade') {
+    colorTypeFieldName = 'coreValuesBackgroundColorType';
+  } else if (fieldName === 'coreValuesCardBackgroundColorShade') {
+    colorTypeFieldName = 'coreValuesCardBackgroundColorType';
+  } else if (fieldName === 'coreValuesCardTitleColorShade') {
+    colorTypeFieldName = 'coreValuesCardTitleColorType';
+  } else if (fieldName === 'highlightTitleColorShade') {
+    colorTypeFieldName = 'highlightTitleColorType';
+  } else if (fieldName === 'ctaTitleColorShade') {
+    colorTypeFieldName = 'ctaTitleColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';

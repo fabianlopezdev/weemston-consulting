@@ -62,7 +62,11 @@ const iconPaths: Record<string, string> = {
 
 interface Props {
   title: string;
+  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  titleColorShade?: number;
+  titleCustomColor?: ColorData;
   description?: string;
+  textColor?: 'base' | 'muted' | 'contrast';
   button?: LinkData;
   backgroundColorType?:
     | 'default'
@@ -76,7 +80,11 @@ interface Props {
 
 const {
   title,
+  titleColorType = 'accent',
+  titleColorShade = 0,
+  titleCustomColor,
   description,
+  textColor = 'muted',
   button,
   backgroundColorType = 'primary',
   backgroundColorShade = 90,
@@ -100,6 +108,16 @@ const backgroundColor =
         siteColors
       );
 
+// Resolve title color
+const titleColor = resolveColorSelection(
+  {
+    colorType: titleColorType,
+    shade: titleColorShade,
+    customColor: titleCustomColor,
+  },
+  siteColors
+);
+
 // Resolve button colors
 const buttonBgColor = button?.buttonColor
   ? resolveButtonColor(button.buttonColor, siteColors)
@@ -116,7 +134,20 @@ const isExternal = button?.linkType === 'external';
 const buttonIcon =
   button?.icon && button.icon !== 'none' ? iconPaths[button.icon] : null;
 
-const cssVars = backgroundColor ? `--cta-bg: ${backgroundColor}` : '';
+// Color mappings
+const textColorMap = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'rgba(255, 255, 255, 0.9)',
+};
+
+const cssVars = [
+  backgroundColor ? `--cta-bg: ${backgroundColor}` : null,
+  `--cta-title-color: ${titleColor}`,
+  `--cta-text-color: ${textColorMap[textColor]}`,
+]
+  .filter(Boolean)
+  .join('; ');
 ---
 
 <section class="approach-cta" style={cssVars}>
@@ -168,14 +199,14 @@ const cssVars = backgroundColor ? `--cta-bg: ${backgroundColor}` : '';
     font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 500;
     line-height: 1.2;
-    color: var(--color-accent);
+    color: var(--cta-title-color, var(--color-accent));
     margin: 0 0 var(--space-lg);
   }
 
   .approach-cta__description {
     max-width: 600px;
     margin: 0 auto var(--space-lg);
-    color: var(--color-text-muted);
+    color: var(--cta-text-color, var(--color-text-muted));
     line-height: 1.7;
   }
 
