@@ -103,13 +103,17 @@ const parts = renderHeadingParts();
 <section class="approach-hero" style={cssVars}>
   <div class="approach-hero__container">
     <h1 class="approach-hero__heading">
-      {parts.highlight ? (
-        <>
-          {parts.before}<span class="approach-hero__highlight">{parts.highlight}</span>{parts.after}
-        </>
-      ) : (
-        heading
-      )}
+      {
+        parts.highlight ? (
+          <>
+            {parts.before}
+            <span class="approach-hero__highlight">{parts.highlight}</span>
+            {parts.after}
+          </>
+        ) : (
+          heading
+        )
+      }
     </h1>
     {showDivider && <div class="approach-hero__divider" />}
   </div>
@@ -149,3 +153,69 @@ const parts = renderHeadingParts();
     border-radius: 9999px;
   }
 </style>
+
+<script>
+  import {
+    setupAnimationLifecycle,
+    gsap,
+    ScrollTrigger,
+  } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const heading = document.querySelector('.approach-hero__heading');
+    const divider = document.querySelector('.approach-hero__divider');
+
+    if (!heading) return;
+
+    // Initial states
+    gsap.set(heading, { opacity: 0, y: 40 });
+    if (divider) {
+      gsap.set(divider, { opacity: 0, scaleX: 0 });
+    }
+
+    // Create entrance timeline
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.approach-hero',
+        start: 'top 80%',
+        once: true,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      },
+    });
+
+    // Heading fades in and rises
+    tl.to(heading, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power3.out',
+    });
+
+    // Divider expands from center
+    if (divider) {
+      tl.to(
+        divider,
+        {
+          opacity: 1,
+          scaleX: 1,
+          duration: 0.6,
+          ease: 'power2.out',
+        },
+        '-=0.3'
+      );
+    }
+
+    // Subtle parallax on scroll
+    ScrollTrigger.create({
+      trigger: '.approach-hero',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: 1,
+      onUpdate: (self) => {
+        const progress = self.progress;
+        gsap.set(heading, { y: progress * 30 });
+      },
+    });
+  });
+</script>

@@ -238,5 +238,78 @@ const cssVars = [
     width: 1.125rem;
     height: 1.125rem;
     flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+
+  .approach-cta__button:hover .approach-cta__button-icon {
+    transform: translateX(3px);
   }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const section = document.querySelector('.approach-cta');
+    const title = document.querySelector('.approach-cta__title');
+    const description = document.querySelector('.approach-cta__description');
+    const button = document.querySelector('.approach-cta__button');
+
+    if (!section) return;
+
+    // Initial states
+    if (title) gsap.set(title, { opacity: 0, y: 30 });
+    if (description) gsap.set(description, { opacity: 0, y: 20 });
+    if (button) gsap.set(button, { opacity: 0, y: 20, scale: 0.95 });
+
+    // Create timeline
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top 75%',
+        once: true,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      },
+    });
+
+    // Title fades in
+    if (title) {
+      tl.to(title, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power3.out',
+      });
+    }
+
+    // Description follows
+    if (description) {
+      tl.to(
+        description,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'power2.out',
+        },
+        '-=0.3'
+      );
+    }
+
+    // Button enters with a pop
+    if (button) {
+      tl.to(
+        button,
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.5,
+          ease: 'back.out(1.4)',
+        },
+        '-=0.2'
+      );
+    }
+  });
+</script>

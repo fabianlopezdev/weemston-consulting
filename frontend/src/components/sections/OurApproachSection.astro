@@ -76,3 +76,75 @@ const plainText = getPlainText(content);
     margin-block-end: 0;
   }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const section = document.querySelector('.our-approach-section');
+    const title = document.querySelector('.our-approach-section__title');
+    const intro = document.querySelector('.our-approach-section__intro');
+    const paragraphs = document.querySelectorAll(
+      '.our-approach-section__paragraph'
+    );
+
+    if (!section) return;
+
+    // Initial states
+    if (title) gsap.set(title, { opacity: 0, y: 30 });
+    if (intro) gsap.set(intro, { opacity: 0, y: 20 });
+    paragraphs.forEach((p) => gsap.set(p, { opacity: 0, y: 25 }));
+
+    // Create timeline for header
+    const headerTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top 80%',
+        once: true,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      },
+    });
+
+    // Title fades in
+    if (title) {
+      headerTl.to(title, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power3.out',
+      });
+    }
+
+    // Intro follows
+    if (intro) {
+      headerTl.to(
+        intro,
+        {
+          opacity: 0.8, // Match original opacity
+          y: 0,
+          duration: 0.5,
+          ease: 'power2.out',
+        },
+        '-=0.3'
+      );
+    }
+
+    // Paragraphs reveal progressively on scroll
+    paragraphs.forEach((paragraph, index) => {
+      gsap.to(paragraph, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: paragraph,
+          start: 'top 85%',
+          once: true,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+        },
+        delay: index * 0.05, // Very slight stagger for smooth reveal
+      });
+    });
+  });
+</script>

@@ -159,3 +159,82 @@ const cssVars = [
     text-decoration: underline;
   }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const compass = document.querySelector('.highlight-section__compass');
+    const title = document.querySelector('.highlight-section__title');
+    const content = document.querySelector('.highlight-section__content');
+    const section = document.querySelector('.highlight-section');
+
+    if (!section) return;
+
+    // Continuous slow rotation for compass (non-scroll-triggered)
+    if (compass) {
+      gsap.to(compass, {
+        rotation: 360,
+        duration: 60,
+        ease: 'none',
+        repeat: -1,
+        transformOrigin: 'center center',
+      });
+
+      // Subtle scale on scroll
+      gsap.fromTo(
+        compass,
+        { scale: 0.9, opacity: 0.05 },
+        {
+          scale: 1.1,
+          opacity: 0.15,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+        }
+      );
+    }
+
+    // Initial states for content
+    if (title) gsap.set(title, { opacity: 0, y: 30 });
+    if (content) gsap.set(content, { opacity: 0, y: 20 });
+
+    // Content timeline
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top 70%',
+        once: true,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      },
+    });
+
+    if (title) {
+      tl.to(title, {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: 'power3.out',
+      });
+    }
+
+    if (content) {
+      tl.to(
+        content,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+        },
+        '-=0.4'
+      );
+    }
+  });
+</script>

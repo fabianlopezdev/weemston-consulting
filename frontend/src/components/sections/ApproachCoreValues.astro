@@ -300,3 +300,55 @@ const sectionCssVars = [
     border: 0;
   }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const cards = document.querySelectorAll('.core-values__card');
+    const icons = document.querySelectorAll('.core-values__icon-wrapper');
+
+    if (cards.length === 0) return;
+
+    // Initial states
+    gsap.set(cards, { opacity: 0, y: 50 });
+    gsap.set(icons, { scale: 0.8, rotation: -10 });
+
+    // Staggered card entrance
+    cards.forEach((card, index) => {
+      const icon = card.querySelector('.core-values__icon-wrapper');
+
+      gsap.to(card, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: card,
+          start: 'top 85%',
+          once: true,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+        },
+        delay: index * 0.1,
+      });
+
+      // Icon pops in slightly after card
+      if (icon) {
+        gsap.to(icon, {
+          scale: 1,
+          rotation: 0,
+          duration: 0.5,
+          ease: 'back.out(1.7)',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 85%',
+            once: true,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+          delay: index * 0.1 + 0.2,
+        });
+      }
+    });
+  });
+</script>

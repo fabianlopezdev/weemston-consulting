@@ -331,4 +331,131 @@ const contentParts = parseContent(content || '', quote);
   .founder-section__quote + p {
     margin-top: var(--space-lg);
   }
+
+  /* Animation styles */
+  .founder-section__image-wrapper {
+    clip-path: inset(10% round 1rem);
+    transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .founder-section__image-wrapper.is-revealed {
+    clip-path: inset(0% round 0);
+  }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const section = document.querySelector('.founder-section');
+    const imageWrapper = document.querySelector(
+      '.founder-section__image-wrapper'
+    );
+    const image = document.querySelector('.founder-section__image');
+    const tagline = document.querySelector('.founder-section__tagline');
+    const title = document.querySelector('.founder-section__title');
+    const paragraphs = document.querySelectorAll('.founder-section__text p');
+    const quote = document.querySelector('.founder-section__quote');
+
+    if (!section) return;
+
+    // Initial states for content elements
+    if (tagline) gsap.set(tagline, { opacity: 0, y: 20 });
+    if (title) gsap.set(title, { opacity: 0, y: 30 });
+    paragraphs.forEach((p) => gsap.set(p, { opacity: 0, y: 25 }));
+    if (quote) gsap.set(quote, { opacity: 0, x: -30 });
+    if (image) gsap.set(image, { scale: 1.1 });
+
+    // Image reveal with clip-path animation
+    if (imageWrapper) {
+      gsap.to(imageWrapper, {
+        scrollTrigger: {
+          trigger: imageWrapper,
+          start: 'top 75%',
+          once: true,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          onEnter: () => imageWrapper.classList.add('is-revealed'),
+        },
+      });
+
+      // Ken Burns effect on image
+      if (image) {
+        gsap.to(image, {
+          scale: 1,
+          duration: 1.2,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: imageWrapper,
+            start: 'top 75%',
+            once: true,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+        });
+      }
+    }
+
+    // Create content timeline
+    const contentTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.founder-section__content',
+        start: 'top 80%',
+        once: true,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      },
+    });
+
+    // Tagline fades in first
+    if (tagline) {
+      contentTl.to(tagline, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+      });
+    }
+
+    // Title follows
+    if (title) {
+      contentTl.to(
+        title,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+        },
+        '-=0.2'
+      );
+    }
+
+    // Paragraphs stagger in
+    if (paragraphs.length > 0) {
+      contentTl.to(
+        paragraphs,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'power2.out',
+          stagger: 0.15,
+        },
+        '-=0.3'
+      );
+    }
+
+    // Quote slides in from left
+    if (quote) {
+      contentTl.to(
+        quote,
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+        },
+        '-=0.4'
+      );
+    }
+  });
+</script>
