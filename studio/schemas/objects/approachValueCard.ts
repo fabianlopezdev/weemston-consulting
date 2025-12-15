@@ -1,4 +1,5 @@
 import { defineType } from 'sanity';
+import { BackgroundShadeInput } from '../../components/BackgroundShadeInput';
 
 export default defineType({
   name: 'approachValueCard',
@@ -29,9 +30,71 @@ export default defineType({
       initialValue: 'search',
     },
     {
+      name: 'iconColorType',
+      title: 'Icon Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+    },
+    {
+      name: 'iconColorShade',
+      title: 'Icon Shade',
+      type: 'number',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.iconColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'iconCustomColor',
+      title: 'Custom Icon Color',
+      type: 'simplerColor',
+      hidden: ({ parent }) => parent?.iconColorType !== 'custom',
+    },
+    {
       name: 'title',
       title: 'Title',
       type: 'string',
+    },
+    {
+      name: 'titleColorType',
+      title: 'Title Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+    },
+    {
+      name: 'titleColorShade',
+      title: 'Title Shade',
+      type: 'number',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.titleColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'titleCustomColor',
+      title: 'Custom Title Color',
+      type: 'simplerColor',
+      hidden: ({ parent }) => parent?.titleColorType !== 'custom',
     },
     {
       name: 'description',

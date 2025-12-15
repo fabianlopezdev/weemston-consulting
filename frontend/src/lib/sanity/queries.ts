@@ -571,7 +571,13 @@ export const approachPageQuery = groq`
     coreValuesCards[] {
       _key,
       icon,
+      iconColorType,
+      iconColorShade,
+      iconCustomColor { label, value },
       title,
+      titleColorType,
+      titleColorShade,
+      titleCustomColor { label, value },
       description
     },
     // Founder Section
