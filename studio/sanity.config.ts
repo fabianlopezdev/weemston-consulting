@@ -92,23 +92,9 @@ export default defineConfig({
               .icon(HiCollection)
               .id('servicesPage-singleton')
               .child(
-                isMultiLanguage
-                  ? S.list()
-                      .title('Services Page by Language')
-                      .items(
-                        supportedLanguages.map((lang) =>
-                          S.listItem()
-                            .title(lang.title)
-                            .child(
-                              S.document()
-                                .schemaType('servicesPage')
-                                .documentId(`servicesPage-${lang.id}`)
-                            )
-                        )
-                      )
-                  : S.document()
-                      .schemaType('servicesPage')
-                      .documentId(`servicesPage-${baseLanguage?.id || 'en'}`)
+                S.document()
+                  .schemaType('servicesPage')
+                  .documentId('servicesPage')
               ),
             // Case Studies Page
             S.listItem()

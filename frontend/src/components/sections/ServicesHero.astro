@@ -1,0 +1,262 @@
+---
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface Props {
+  heading: string;
+  headingHighlight?: string;
+  highlightColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  highlightColorShade?: number;
+  highlightCustomColor?: ColorData;
+  showDivider?: boolean;
+  dividerColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  dividerColorShade?: number;
+  dividerCustomColor?: ColorData;
+  tagline?: string;
+  taglineColor?: 'base' | 'muted' | 'contrast';
+  backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+}
+
+const {
+  heading,
+  headingHighlight,
+  highlightColorType = 'accent',
+  highlightColorShade = 0,
+  highlightCustomColor,
+  showDivider = true,
+  dividerColorType = 'secondary',
+  dividerColorShade = 0,
+  dividerCustomColor,
+  tagline,
+  taglineColor = 'muted',
+  backgroundColorType = 'primary',
+  backgroundColorShade = 90,
+  backgroundCustomColor,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color
+const backgroundColor = resolveColorSelection(
+  {
+    colorType: backgroundColorType,
+    shade: backgroundColorShade,
+    customColor: backgroundCustomColor,
+  },
+  siteColors
+);
+
+// Resolve highlight color
+let highlightColor: string;
+if (highlightColorType === 'custom' && highlightCustomColor?.value) {
+  highlightColor = highlightCustomColor.value;
+} else {
+  highlightColor = resolveColorSelection(
+    {
+      colorType: highlightColorType,
+      shade: highlightColorShade,
+      customColor: highlightCustomColor,
+    },
+    siteColors
+  );
+}
+
+// Resolve divider color
+let dividerColor: string;
+if (dividerColorType === 'custom' && dividerCustomColor?.value) {
+  dividerColor = dividerCustomColor.value;
+} else {
+  dividerColor = resolveColorSelection(
+    {
+      colorType: dividerColorType,
+      shade: dividerColorShade,
+      customColor: dividerCustomColor,
+    },
+    siteColors
+  );
+}
+
+// Resolve tagline color
+const taglineColorMap: Record<string, string> = {
+  base: 'var(--color-text-base)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'var(--color-text-contrast)',
+};
+const resolvedTaglineColor =
+  taglineColorMap[taglineColor] || taglineColorMap.muted;
+
+const cssVars = `--services-hero-bg: ${backgroundColor}; --services-hero-highlight: ${highlightColor}; --services-hero-divider: ${dividerColor}; --services-hero-tagline: ${resolvedTaglineColor}`;
+
+// Split heading into parts if highlight text is provided and found
+function renderHeadingParts() {
+  if (!headingHighlight || !heading.includes(headingHighlight)) {
+    return { before: heading, highlight: null, after: null };
+  }
+  const index = heading.indexOf(headingHighlight);
+  return {
+    before: heading.slice(0, index),
+    highlight: headingHighlight,
+    after: heading.slice(index + headingHighlight.length),
+  };
+}
+
+const parts = renderHeadingParts();
+---
+
+<section class="services-hero" style={cssVars}>
+  <div class="services-hero__container">
+    <h1 class="services-hero__heading">
+      {
+        parts.highlight ? (
+          <>
+            {parts.before}
+            <span class="services-hero__highlight">{parts.highlight}</span>
+            {parts.after}
+          </>
+        ) : (
+          heading
+        )
+      }
+    </h1>
+    {showDivider && <div class="services-hero__divider" />}
+    {tagline && <p class="services-hero__tagline">{tagline}</p>}
+  </div>
+</section>
+
+<style>
+  .services-hero {
+    background-color: var(--services-hero-bg, var(--color-primary-light));
+    padding: clamp(6rem, 10vw, 8rem) var(--space-md) clamp(4rem, 8vw, 6rem);
+    text-align: center;
+  }
+
+  .services-hero__container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .services-hero__heading {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-accent);
+    margin: 0 0 var(--space-lg);
+  }
+
+  .services-hero__highlight {
+    font-style: italic;
+    color: var(--services-hero-highlight, var(--color-text-muted));
+  }
+
+  .services-hero__divider {
+    width: 6rem;
+    height: 0.25rem;
+    background-color: var(--services-hero-divider, var(--color-secondary));
+    margin: 0 auto;
+    border-radius: 9999px;
+  }
+
+  .services-hero__tagline {
+    font-size: var(--font-size-lg);
+    color: var(--services-hero-tagline, var(--color-text-muted));
+    line-height: 1.6;
+    margin: var(--space-lg) 0 0;
+    max-width: 700px;
+    margin-inline: auto;
+  }
+</style>
+
+<script>
+  import {
+    setupAnimationLifecycle,
+    gsap,
+    ScrollTrigger,
+  } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const heading = document.querySelector('.services-hero__heading');
+    const divider = document.querySelector('.services-hero__divider');
+    const tagline = document.querySelector('.services-hero__tagline');
+
+    if (!heading) return;
+
+    // Initial states
+    gsap.set(heading, { opacity: 0, y: 40 });
+    if (divider) {
+      gsap.set(divider, { opacity: 0, scaleX: 0 });
+    }
+    if (tagline) {
+      gsap.set(tagline, { opacity: 0, y: 20 });
+    }
+
+    // Create entrance timeline
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.services-hero',
+        start: 'top 80%',
+        once: true,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      },
+    });
+
+    // Heading fades in and rises
+    tl.to(heading, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power3.out',
+    });
+
+    // Divider expands from center
+    if (divider) {
+      tl.to(
+        divider,
+        {
+          opacity: 1,
+          scaleX: 1,
+          duration: 0.6,
+          ease: 'power2.out',
+        },
+        '-=0.3'
+      );
+    }
+
+    // Tagline fades in
+    if (tagline) {
+      tl.to(
+        tagline,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+        },
+        '-=0.2'
+      );
+    }
+
+    // Subtle parallax on scroll
+    ScrollTrigger.create({
+      trigger: '.services-hero',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: 1,
+      onUpdate: (self) => {
+        const progress = self.progress;
+        gsap.set(heading, { y: progress * 30 });
+      },
+    });
+  });
+</script>

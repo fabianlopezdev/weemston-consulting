@@ -1,112 +1,55 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { sanityClient as client } from 'sanity:client';
-import { servicesPageQuery } from '@lib/sanity/queries';
-import HeroSection from '@components/sections/HeroSection.astro';
-import SectionRenderer from '@components/sections/SectionRenderer.astro';
-import PortableText from '@components/sanity/PortableText.astro';
+import { servicesPageNewQuery } from '@lib/sanity/queries';
+import ServicesHero from '@components/sections/ServicesHero.astro';
+import ServiceSection from '@components/sections/ServiceSection.astro';
 
-const lang = Astro.locals.lang || 'en';
-const servicesPage = await client.fetch(servicesPageQuery, {
-  documentId: `servicesPage-${lang}`,
-});
+const page = await client.fetch(servicesPageNewQuery);
 
-if (!servicesPage) {
+if (!page) {
   return Astro.redirect('/404');
 }
-
-// Filter enabled sections
-const visibleSections =
-  servicesPage.sections?.filter((section: any) => section.enabled) || [];
 ---
 
-<BaseLayout
-  title={servicesPage.title}
-  description={servicesPage.metaDescription}
->
-  {servicesPage.hero && <HeroSection {...servicesPage.hero} />}
+<BaseLayout title={page.title} description={page.metaDescription}>
+  {/* Hero Section */}
+  <ServicesHero
+    heading={page.heroHeading}
+    headingHighlight={page.heroHeadingHighlight}
+    highlightColorType={page.heroHighlightColorType}
+    highlightColorShade={page.heroHighlightColorShade}
+    highlightCustomColor={page.heroHighlightCustomColor}
+    showDivider={page.heroShowDivider}
+    dividerColorType={page.heroDividerColorType}
+    dividerColorShade={page.heroDividerColorShade}
+    dividerCustomColor={page.heroDividerCustomColor}
+    tagline={page.heroTagline}
+    taglineColor={page.heroTaglineColor}
+    backgroundColorType={page.heroBackgroundColorType}
+    backgroundColorShade={page.heroBackgroundColorShade}
+    backgroundCustomColor={page.heroBackgroundCustomColor}
+  />
 
+  {/* Service Sections */}
   {
-    servicesPage.intro && (
-      <section class="services-intro">
-        <div class="container">
-          <p class="intro-text">{servicesPage.intro}</p>
-        </div>
-      </section>
-    )
+    page.serviceSections &&
+      page.serviceSections.length > 0 &&
+      page.serviceSections.map((section: any) => (
+        <ServiceSection
+          tag={section.tag}
+          title={section.title}
+          leadText={section.leadText}
+          description={section.description}
+          listStyle={section.listStyle}
+          listTitle={section.listTitle}
+          listItems={section.listItems}
+          caseStudiesLinkText={section.caseStudiesLinkText}
+          caseStudiesLink={section.caseStudiesLink}
+          icon={section.icon}
+          imagePosition={section.imagePosition}
+          backgroundColor={section.backgroundColor}
+        />
+      ))
   }
-
-  {
-    servicesPage.services && servicesPage.services.length > 0 && (
-      <section class="services-list">
-        <div class="container">
-          <div class="services-grid">
-            {servicesPage.services.map((service: any) => (
-              <div class="service-card">
-                <h3 class="service-card__title">{service.title}</h3>
-                {service.content && (
-                  <div class="service-card__description">
-                    <PortableText content={service.content} />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  {visibleSections.map((section: any) => <SectionRenderer section={section} />)}
 </BaseLayout>
-
-<style>
-  .services-intro {
-    padding: var(--space-xl) 0;
-    background: var(--color-surface-alt, #f9f9f9);
-  }
-
-  .intro-text {
-    font-size: var(--font-size-lg);
-    line-height: 1.8;
-    max-width: 800px;
-    margin-inline: auto;
-    text-align: center;
-    opacity: 0.9;
-  }
-
-  .services-list {
-    padding: var(--space-2xl) 0;
-  }
-
-  .services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-lg);
-  }
-
-  .service-card {
-    padding: var(--space-lg);
-    border: 1px solid var(--color-border, #e0e0e0);
-    border-radius: var(--border-radius, 8px);
-    transition:
-      transform 0.2s,
-      box-shadow 0.2s;
-  }
-
-  .service-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  }
-
-  .service-card__title {
-    font-size: var(--font-size-lg);
-    margin-block-end: var(--space-sm);
-  }
-
-  .service-card__description {
-    font-size: var(--font-size-sm);
-    opacity: 0.8;
-    line-height: 1.6;
-  }
-</style>

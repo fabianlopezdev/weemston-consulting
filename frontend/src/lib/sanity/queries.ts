@@ -636,3 +636,46 @@ export const approachPageQuery = groq`
     ctaBackgroundCustomColor { label, value }
   }
 `;
+
+// Services Page (new design - singleton)
+export const servicesPageNewQuery = groq`
+  *[_type == "servicesPage"][0] {
+    _id,
+    title,
+    metaDescription,
+    ogImage,
+    // Hero
+    heroBackgroundColorType,
+    heroBackgroundColorShade,
+    heroBackgroundCustomColor { label, value },
+    heroHeading,
+    heroHeadingHighlight,
+    heroHighlightColorType,
+    heroHighlightColorShade,
+    heroHighlightCustomColor { label, value },
+    heroShowDivider,
+    heroDividerColorType,
+    heroDividerColorShade,
+    heroDividerCustomColor { label, value },
+    heroTagline,
+    heroTaglineColor,
+    // Service Sections
+    serviceSections[] {
+      _key,
+      tag,
+      title,
+      leadText,
+      description,
+      listStyle,
+      listTitle,
+      listItems,
+      caseStudiesLinkText,
+      caseStudiesLink {
+        ${linkProjection}
+      },
+      icon,
+      imagePosition,
+      backgroundColor
+    }
+  }
+`;

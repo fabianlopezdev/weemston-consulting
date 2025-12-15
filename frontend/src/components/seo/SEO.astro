@@ -23,6 +23,39 @@ const canonicalUrl = getAbsoluteUrl(currentUrl);
 const alternateLinks = getAlternateLinks(currentUrl);
 
 const ogImage = image ? getAbsoluteUrl(image) : undefined;
+
+// Only include openGraph if we have an image (required by astro-seo validation)
+const openGraphConfig = ogImage
+  ? {
+      openGraph: {
+        basic: {
+          title,
+          type: article ? 'article' : 'website',
+          image: ogImage,
+          url: canonicalUrl,
+        },
+        optional: {
+          ...(description ? { description } : {}),
+          siteName: title,
+        },
+        image: { url: ogImage },
+        ...(article
+          ? {
+              article: {
+                ...(article.publishedTime
+                  ? { publishedTime: article.publishedTime }
+                  : {}),
+                ...(article.modifiedTime
+                  ? { modifiedTime: article.modifiedTime }
+                  : {}),
+                ...(article.authors ? { authors: article.authors } : {}),
+                ...(article.tags ? { tags: article.tags } : {}),
+              },
+            }
+          : {}),
+      },
+    }
+  : {};
 ---
 
 <AstroSEO
@@ -31,33 +64,7 @@ const ogImage = image ? getAbsoluteUrl(image) : undefined;
   canonical={canonicalUrl}
   noindex={noIndex}
   nofollow={noIndex}
-  openGraph={{
-    basic: {
-      title,
-      type: article ? 'article' : 'website',
-      image: ogImage || '',
-      url: canonicalUrl,
-    },
-    optional: {
-      ...(description ? { description } : {}),
-      siteName: title,
-    },
-    ...(ogImage ? { image: { url: ogImage } } : {}),
-    ...(article
-      ? {
-          article: {
-            ...(article.publishedTime
-              ? { publishedTime: article.publishedTime }
-              : {}),
-            ...(article.modifiedTime
-              ? { modifiedTime: article.modifiedTime }
-              : {}),
-            ...(article.authors ? { authors: article.authors } : {}),
-            ...(article.tags ? { tags: article.tags } : {}),
-          },
-        }
-      : {}),
-  }}
+  {...openGraphConfig}
   twitter={ogImage
     ? {
         card: 'summary_large_image' as const,
