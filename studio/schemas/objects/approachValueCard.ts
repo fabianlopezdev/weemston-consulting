@@ -27,20 +27,17 @@ export default defineType({
         layout: 'dropdown',
       },
       initialValue: 'search',
-      validation: (Rule) => Rule.required(),
     },
     {
       name: 'title',
       title: 'Title',
       type: 'string',
-      validation: (Rule) => Rule.required(),
     },
     {
       name: 'description',
       title: 'Description',
       type: 'text',
       rows: 3,
-      validation: (Rule) => Rule.required(),
     },
   ],
   preview: {

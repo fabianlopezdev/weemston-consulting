@@ -20,6 +20,32 @@ export default defineType({
         'Also called OG Image. The image shown when this page is shared on social media. If left empty, social media platforms may show no preview image or extract one from the page.',
       options: { collapsible: true, collapsed: true },
     },
+    // Section dividers for "All Fields" view
+    {
+      name: 'heroFields',
+      title: '🎯 Hero Section',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'coreValuesFields',
+      title: '💡 Core Values Section',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'founderFields',
+      title: '👤 Founder Section',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'highlightFields',
+      title: '✨ Highlight Section',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'ctaFields',
+      title: '📣 Call to Action Section',
+      options: { collapsible: true, collapsed: false },
+    },
   ],
   groups: [
     { name: 'hero', title: 'Hero Section' },
@@ -35,7 +61,6 @@ export default defineType({
       title: 'Page Title',
       type: 'string',
       description: 'This will be used as the SEO title in search results.',
-      validation: (Rule) => Rule.required(),
       initialValue: 'Our Approach',
     },
     {
@@ -63,7 +88,7 @@ export default defineType({
       title: 'Heading',
       type: 'string',
       group: 'hero',
-      validation: (Rule) => Rule.required(),
+      fieldset: 'heroFields',
       initialValue: 'Thoughtful partnership is the foundation of',
     },
     {
@@ -71,6 +96,7 @@ export default defineType({
       title: 'Heading Highlight',
       type: 'string',
       group: 'hero',
+      fieldset: 'heroFields',
       description:
         'This text appears in italic with a muted color at the end of the heading.',
       initialValue: 'lasting impact.',
@@ -80,6 +106,7 @@ export default defineType({
       title: 'Show Divider',
       type: 'boolean',
       group: 'hero',
+      fieldset: 'heroFields',
       initialValue: true,
       description: 'Toggle the horizontal line below the heading.',
     },
@@ -88,6 +115,7 @@ export default defineType({
       title: 'Background Color',
       type: 'string',
       group: 'hero',
+      fieldset: 'heroFields',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -103,6 +131,7 @@ export default defineType({
       title: 'Background Shade',
       type: 'number',
       group: 'hero',
+      fieldset: 'heroFields',
       initialValue: 90,
       hidden: ({ parent }) => parent?.heroBackgroundColorType === 'custom',
       validation: (Rule) => Rule.min(0).max(100).integer(),
@@ -115,6 +144,7 @@ export default defineType({
       title: 'Custom Background Color',
       type: 'simplerColor',
       group: 'hero',
+      fieldset: 'heroFields',
       hidden: ({ parent }) => parent?.heroBackgroundColorType !== 'custom',
     },
 
@@ -124,6 +154,7 @@ export default defineType({
       title: 'Section Title (optional)',
       type: 'string',
       group: 'coreValues',
+      fieldset: 'coreValuesFields',
       description:
         'Hidden visually but available for SEO/accessibility. Leave empty to hide entirely.',
     },
@@ -132,8 +163,8 @@ export default defineType({
       title: 'Value Cards',
       type: 'array',
       group: 'coreValues',
+      fieldset: 'coreValuesFields',
       of: [{ type: 'approachValueCard' }],
-      validation: (Rule) => Rule.min(1).error('At least one card is required'),
     },
 
     // Founder Section
@@ -142,6 +173,7 @@ export default defineType({
       title: 'Tagline',
       type: 'string',
       group: 'founder',
+      fieldset: 'founderFields',
       description: 'Small uppercase label above the title.',
       initialValue: "The Founder's Lens",
     },
@@ -150,7 +182,7 @@ export default defineType({
       title: 'Title',
       type: 'string',
       group: 'founder',
-      validation: (Rule) => Rule.required(),
+      fieldset: 'founderFields',
       initialValue: 'A Personal Approach to Operational Strategy',
     },
     {
@@ -158,6 +190,7 @@ export default defineType({
       title: 'Content',
       type: 'portableText',
       group: 'founder',
+      fieldset: 'founderFields',
       description: 'Main body text with rich text support.',
     },
     {
@@ -166,6 +199,7 @@ export default defineType({
       type: 'text',
       rows: 3,
       group: 'founder',
+      fieldset: 'founderFields',
       description: 'Blockquote styled with left accent border.',
       initialValue:
         'That experience taught me how to build from ambiguity, to create systems, roles, and experiences where none existed, and to lead through creativity and innovation.',
@@ -175,6 +209,7 @@ export default defineType({
       title: 'Image',
       type: 'image',
       group: 'founder',
+      fieldset: 'founderFields',
       options: { hotspot: true },
       fields: [
         {
@@ -182,7 +217,6 @@ export default defineType({
           title: 'Alt Text',
           type: 'string',
           description: 'Describes the image for screen readers and search engines.',
-          validation: (Rule) => Rule.required(),
         },
         {
           name: 'seoFilename',
@@ -200,7 +234,7 @@ export default defineType({
       title: 'Title',
       type: 'string',
       group: 'highlight',
-      validation: (Rule) => Rule.required(),
+      fieldset: 'highlightFields',
       initialValue: 'The Coaching Difference',
     },
     {
@@ -208,6 +242,7 @@ export default defineType({
       title: 'Content',
       type: 'portableText',
       group: 'highlight',
+      fieldset: 'highlightFields',
       description: 'Body paragraphs for the highlight section.',
     },
     {
@@ -215,6 +250,7 @@ export default defineType({
       title: 'Background Color',
       type: 'string',
       group: 'highlight',
+      fieldset: 'highlightFields',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -230,6 +266,7 @@ export default defineType({
       title: 'Background Shade',
       type: 'number',
       group: 'highlight',
+      fieldset: 'highlightFields',
       initialValue: 0,
       hidden: ({ parent }) => parent?.highlightBackgroundColorType === 'custom',
       validation: (Rule) => Rule.min(0).max(100).integer(),
@@ -242,6 +279,7 @@ export default defineType({
       title: 'Custom Background Color',
       type: 'simplerColor',
       group: 'highlight',
+      fieldset: 'highlightFields',
       hidden: ({ parent }) => parent?.highlightBackgroundColorType !== 'custom',
     },
 
@@ -251,7 +289,7 @@ export default defineType({
       title: 'Title',
       type: 'string',
       group: 'cta',
-      validation: (Rule) => Rule.required(),
+      fieldset: 'ctaFields',
       initialValue: 'We Stay in the Work',
     },
     {
@@ -260,6 +298,7 @@ export default defineType({
       type: 'text',
       rows: 2,
       group: 'cta',
+      fieldset: 'ctaFields',
       initialValue:
         'Unlike many consultants who give advice and move on, we partner with leaders and teams to implement change in real time.',
     },
@@ -268,12 +307,14 @@ export default defineType({
       title: 'Button',
       type: 'link',
       group: 'cta',
+      fieldset: 'ctaFields',
     },
     {
       name: 'ctaBackgroundColorType',
       title: 'Background Color',
       type: 'string',
       group: 'cta',
+      fieldset: 'ctaFields',
       options: {
         list: [
           { title: 'Default (White)', value: 'default' },
@@ -290,6 +331,7 @@ export default defineType({
       title: 'Background Shade',
       type: 'number',
       group: 'cta',
+      fieldset: 'ctaFields',
       initialValue: 90,
       hidden: ({ parent }) =>
         parent?.ctaBackgroundColorType === 'custom' ||
@@ -304,6 +346,7 @@ export default defineType({
       title: 'Custom Background Color',
       type: 'simplerColor',
       group: 'cta',
+      fieldset: 'ctaFields',
       hidden: ({ parent }) => parent?.ctaBackgroundColorType !== 'custom',
     },
   ],
