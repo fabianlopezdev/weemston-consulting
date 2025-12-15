@@ -272,21 +272,22 @@ export default defineType({
     {
       name: 'founderContent',
       title: 'Content',
-      type: 'portableText',
+      type: 'text',
+      rows: 10,
       group: 'founder',
       fieldset: 'founderFields',
-      description: 'Main body text with rich text support.',
+      description:
+        'Full text content including the quote. Use blank lines to separate paragraphs.',
     },
     {
       name: 'founderQuote',
-      title: 'Quote',
+      title: 'Quote Highlight',
       type: 'text',
       rows: 3,
       group: 'founder',
       fieldset: 'founderFields',
-      description: 'Blockquote styled with left accent border.',
-      initialValue:
-        'That experience taught me how to build from ambiguity, to create systems, roles, and experiences where none existed, and to lead through creativity and innovation.',
+      description:
+        'Enter the exact text from Content that should be styled as a blockquote. Must match exactly.',
     },
     {
       name: 'founderImage',

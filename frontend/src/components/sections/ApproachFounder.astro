@@ -1,7 +1,5 @@
 ---
-import PortableText from '@components/sanity/PortableText.astro';
 import { urlForImageWithSeoFilename } from '@lib/sanity/image';
-import type { PortableTextBlock } from '@portabletext/types';
 
 interface ImageAsset {
   _id: string;
@@ -27,7 +25,7 @@ interface SanityImage {
 interface Props {
   tagline?: string;
   title: string;
-  content?: PortableTextBlock[];
+  content?: string;
   quote?: string;
   image?: SanityImage;
 }
@@ -40,6 +38,56 @@ const imageUrl = image?.asset
   : null;
 
 const imageLqip = image?.asset?.metadata?.lqip;
+
+// Split content into parts: before quote, quote, after quote
+// Each part is further split into paragraphs by double newlines
+interface ContentPart {
+  type: 'paragraph' | 'quote';
+  text: string;
+}
+
+function parseContent(content: string, quote?: string): ContentPart[] {
+  if (!content) return [];
+
+  if (!quote || !content.includes(quote)) {
+    // No quote or quote not found - just split into paragraphs
+    return content
+      .split(/\n\n+/)
+      .map((text) => text.trim())
+      .filter((text) => text.length > 0)
+      .map((text) => ({ type: 'paragraph' as const, text }));
+  }
+
+  const parts: ContentPart[] = [];
+  const quoteIndex = content.indexOf(quote);
+
+  // Text before quote
+  const beforeQuote = content.slice(0, quoteIndex).trim();
+  if (beforeQuote) {
+    beforeQuote
+      .split(/\n\n+/)
+      .map((text) => text.trim())
+      .filter((text) => text.length > 0)
+      .forEach((text) => parts.push({ type: 'paragraph', text }));
+  }
+
+  // The quote itself
+  parts.push({ type: 'quote', text: quote });
+
+  // Text after quote
+  const afterQuote = content.slice(quoteIndex + quote.length).trim();
+  if (afterQuote) {
+    afterQuote
+      .split(/\n\n+/)
+      .map((text) => text.trim())
+      .filter((text) => text.length > 0)
+      .forEach((text) => parts.push({ type: 'paragraph', text }));
+  }
+
+  return parts;
+}
+
+const contentParts = parseContent(content || '', quote);
 ---
 
 <section class="founder-section">
@@ -62,16 +110,17 @@ const imageLqip = image?.asset?.metadata?.lqip;
           <span class="founder-section__tagline">{tagline}</span>
         )}
         <h2 class="founder-section__title">{title}</h2>
-        {content && (
-          <div class="founder-section__text">
-            <PortableText content={content} />
-          </div>
-        )}
-        {quote && (
-          <blockquote class="founder-section__quote">
-            "{quote}"
-          </blockquote>
-        )}
+        <div class="founder-section__text">
+          {contentParts.map((part) => (
+            part.type === 'quote' ? (
+              <blockquote class="founder-section__quote">
+                "{part.text}"
+              </blockquote>
+            ) : (
+              <p>{part.text}</p>
+            )
+          ))}
+        </div>
       </div>
     </div>
   </div>
@@ -101,6 +150,9 @@ const imageLqip = image?.asset?.metadata?.lqip;
     aspect-ratio: 4 / 5;
     overflow: hidden;
     background-color: var(--color-border, #e5e5e5);
+    max-width: 450px;
+    width: 100%;
+    margin: 0 auto;
   }
 
   .founder-section__image {
@@ -134,17 +186,34 @@ const imageLqip = image?.asset?.metadata?.lqip;
 
   .founder-section__text {
     color: var(--color-text-muted);
-    margin-bottom: var(--space-lg);
+  }
+
+  .founder-section__text p {
+    font-size: 1rem;
+    margin: 0 0 var(--space-md);
+    line-height: 1.625; /* leading-relaxed */
+  }
+
+  .founder-section__text p:last-child {
+    margin-bottom: 0;
   }
 
   .founder-section__quote {
     border-left: 3px solid var(--color-accent);
     padding-left: var(--space-md);
-    margin: var(--space-lg) 0 0;
+    margin: var(--space-lg) 0;
     font-family: var(--font-heading);
     font-size: clamp(1.125rem, 2.5vw, 1.35rem);
     font-style: italic;
     color: var(--color-accent);
     line-height: 1.5;
+  }
+
+  .founder-section__quote:last-child {
+    margin-bottom: 0;
+  }
+
+  .founder-section__quote + p {
+    margin-top: var(--space-lg);
   }
 </style>
