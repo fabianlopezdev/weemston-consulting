@@ -591,6 +591,7 @@ export const approachPageQuery = groq`
     // Highlight Section
     highlightTitle,
     highlightContent,
+    highlightTextColor,
     highlightBackgroundColorType,
     highlightBackgroundColorShade,
     highlightBackgroundCustomColor { label, value },

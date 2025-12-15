@@ -315,22 +315,6 @@ export default defineType({
 
     // Highlight Section
     {
-      name: 'highlightTitle',
-      title: 'Title',
-      type: 'string',
-      group: 'highlight',
-      fieldset: 'highlightFields',
-      initialValue: 'The Coaching Difference',
-    },
-    {
-      name: 'highlightContent',
-      title: 'Content',
-      type: 'portableText',
-      group: 'highlight',
-      fieldset: 'highlightFields',
-      description: 'Body paragraphs for the highlight section.',
-    },
-    {
       name: 'highlightBackgroundColorType',
       title: 'Background Color',
       type: 'string',
@@ -367,33 +351,41 @@ export default defineType({
       fieldset: 'highlightFields',
       hidden: ({ parent }) => parent?.highlightBackgroundColorType !== 'custom',
     },
-
-    // CTA Section
     {
-      name: 'ctaTitle',
+      name: 'highlightTitle',
       title: 'Title',
       type: 'string',
-      group: 'cta',
-      fieldset: 'ctaFields',
-      initialValue: 'We Stay in the Work',
+      group: 'highlight',
+      fieldset: 'highlightFields',
+      initialValue: 'The Coaching Difference',
     },
     {
-      name: 'ctaDescription',
-      title: 'Description',
-      type: 'text',
-      rows: 2,
-      group: 'cta',
-      fieldset: 'ctaFields',
-      initialValue:
-        'Unlike many consultants who give advice and move on, we partner with leaders and teams to implement change in real time.',
+      name: 'highlightContent',
+      title: 'Content',
+      type: 'portableText',
+      group: 'highlight',
+      fieldset: 'highlightFields',
+      description: 'Body paragraphs for the highlight section.',
     },
     {
-      name: 'ctaButton',
-      title: 'Button',
-      type: 'link',
-      group: 'cta',
-      fieldset: 'ctaFields',
+      name: 'highlightTextColor',
+      title: 'Content Text Color',
+      type: 'string',
+      group: 'highlight',
+      fieldset: 'highlightFields',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
     },
+
+    // CTA Section
     {
       name: 'ctaBackgroundColorType',
       title: 'Background Color',
@@ -433,6 +425,31 @@ export default defineType({
       group: 'cta',
       fieldset: 'ctaFields',
       hidden: ({ parent }) => parent?.ctaBackgroundColorType !== 'custom',
+    },
+    {
+      name: 'ctaTitle',
+      title: 'Title',
+      type: 'string',
+      group: 'cta',
+      fieldset: 'ctaFields',
+      initialValue: 'We Stay in the Work',
+    },
+    {
+      name: 'ctaDescription',
+      title: 'Description',
+      type: 'text',
+      rows: 2,
+      group: 'cta',
+      fieldset: 'ctaFields',
+      initialValue:
+        'Unlike many consultants who give advice and move on, we partner with leaders and teams to implement change in real time.',
+    },
+    {
+      name: 'ctaButton',
+      title: 'Button',
+      type: 'link',
+      group: 'cta',
+      fieldset: 'ctaFields',
     },
   ],
   preview: {

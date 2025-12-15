@@ -13,6 +13,7 @@ interface ColorData {
 interface Props {
   title: string;
   content?: PortableTextBlock[];
+  textColor?: 'base' | 'muted' | 'contrast';
   backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
@@ -21,6 +22,7 @@ interface Props {
 const {
   title,
   content,
+  textColor = 'base',
   backgroundColorType = 'accent',
   backgroundColorShade = 0,
   backgroundCustomColor,
@@ -40,19 +42,41 @@ const backgroundColor = resolveColorSelection(
   siteColors
 );
 
-// Determine if we need light or dark text based on background
-// For accent color (typically dark), use light text
-const isDarkBackground = backgroundColorShade < 50;
+// Determine text colors based on textColor prop
+const textColorMap = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'rgba(255, 255, 255, 0.9)',
+};
+
+const titleColorMap = {
+  base: 'var(--color-accent)',
+  muted: 'var(--color-accent)',
+  contrast: 'var(--color-primary-light, #fff4e6)',
+};
 
 const cssVars = [
   `--highlight-bg: ${backgroundColor}`,
-  `--highlight-title-color: ${isDarkBackground ? 'var(--color-primary-light, #fff4e6)' : 'var(--color-accent)'}`,
-  `--highlight-text-color: ${isDarkBackground ? 'rgba(255, 255, 255, 0.9)' : 'var(--color-text)'}`,
+  `--highlight-title-color: ${titleColorMap[textColor]}`,
+  `--highlight-text-color: ${textColorMap[textColor]}`,
 ].join('; ');
 ---
 
 <section class="highlight-section" style={cssVars}>
-  <div class="container">
+  <div class="highlight-section__compass" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="12" r="10"></circle>
+      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+    </svg>
+  </div>
+  <div class="container highlight-section__container">
     <h2 class="highlight-section__title">{title}</h2>
     {content && (
       <div class="highlight-section__content">
@@ -67,12 +91,37 @@ const cssVars = [
     background-color: var(--highlight-bg, var(--color-accent));
     padding: var(--space-2xl) 0;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .highlight-section__compass {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: clamp(250px, 30vw, 400px);
+    height: clamp(250px, 30vw, 400px);
+    opacity: 0.1;
+    color: var(--highlight-title-color);
+    transform: translate(20%, -20%);
+    pointer-events: none;
+  }
+
+  .highlight-section__compass svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .highlight-section__container {
+    position: relative;
+    z-index: 1;
   }
 
   .highlight-section__title {
     font-family: var(--font-heading);
-    font-size: clamp(2rem, 5vw, 3rem);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 500;
+    line-height: 1.2;
     color: var(--highlight-title-color);
     margin: 0 0 var(--space-lg);
   }
@@ -80,7 +129,6 @@ const cssVars = [
   .highlight-section__content {
     max-width: 800px;
     margin: 0 auto;
-    font-size: var(--font-size-lg);
     color: var(--highlight-text-color);
   }
 
