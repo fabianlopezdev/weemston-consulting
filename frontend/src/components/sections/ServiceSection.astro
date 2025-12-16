@@ -734,5 +734,76 @@ const gridClasses = [
         );
       }
     });
+
+    // ========================================
+    // Magnetic repulsion effect for case study pills
+    // ========================================
+    const caseStudyPills = document.querySelectorAll(
+      '.service-section__case-study-pill'
+    );
+
+    caseStudyPills.forEach((pill) => {
+      let baseX = 0;
+      let baseY = 0;
+      let rafId: number | null = null;
+      let lastMouseX = 0;
+      let lastMouseY = 0;
+
+      pill.addEventListener('mouseenter', () => {
+        // Capture current position as base
+        const gsapX = gsap.getProperty(pill, 'x');
+        const gsapY = gsap.getProperty(pill, 'y');
+        baseX = typeof gsapX === 'number' ? gsapX : 0;
+        baseY = typeof gsapY === 'number' ? gsapY : 0;
+      });
+
+      pill.addEventListener('mousemove', ((e: MouseEvent) => {
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+
+        if (rafId !== null) return;
+
+        rafId = requestAnimationFrame(() => {
+          const rect = pill.getBoundingClientRect();
+          const pillCenterX = rect.left + rect.width / 2;
+          const pillCenterY = rect.top + rect.height / 2;
+
+          const deltaX = pillCenterX - lastMouseX;
+          const deltaY = pillCenterY - lastMouseY;
+          const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+          if (distance > 0) {
+            const pushStrength = 6;
+            const pushX = (deltaX / distance) * pushStrength;
+            const pushY = (deltaY / distance) * pushStrength;
+
+            gsap.to(pill, {
+              x: baseX + pushX,
+              y: baseY + pushY,
+              duration: 0.2,
+              ease: 'power2.out',
+              overwrite: true,
+            });
+          }
+
+          rafId = null;
+        });
+      }) as EventListener);
+
+      pill.addEventListener('mouseleave', () => {
+        if (rafId !== null) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+
+        gsap.to(pill, {
+          x: baseX,
+          y: baseY,
+          duration: 0.3,
+          ease: 'back.out(1.7)',
+          overwrite: true,
+        });
+      });
+    });
   });
 </script>
