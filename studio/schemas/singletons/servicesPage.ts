@@ -240,15 +240,21 @@ export default defineType({
       hidden: ({ parent }) => !parent?.heroTagline,
     },
 
-    // Services Sections
+    // Services - References to service documents
     {
-      name: 'serviceSections',
-      title: 'Service Sections',
+      name: 'services',
+      title: 'Services',
       type: 'array',
       group: 'services',
       fieldset: 'servicesFields',
-      of: [{ type: 'serviceSection' }],
-      description: 'Add and arrange your service sections',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'service' }],
+        },
+      ],
+      description:
+        'Select and arrange the services to display on this page. Services are managed in the Services collection.',
     },
   ],
   preview: {

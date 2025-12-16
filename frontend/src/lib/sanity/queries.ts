@@ -659,23 +659,23 @@ export const servicesPageNewQuery = groq`
     heroDividerCustomColor { label, value },
     heroTagline,
     heroTaglineColor,
-    // Service Sections
-    serviceSections[] {
-      _key,
-      tag,
+    // Services - dereferenced from service documents
+    services[]-> {
+      _id,
       title,
+      tag,
       leadText,
       description,
+      icon,
+      imagePosition,
+      backgroundColor,
       listStyle,
       listTitle,
       listItems,
       caseStudiesLinkText,
       caseStudiesLink {
         ${linkProjection}
-      },
-      icon,
-      imagePosition,
-      backgroundColor
+      }
     }
   }
 `;

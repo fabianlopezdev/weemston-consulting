@@ -33,22 +33,22 @@ if (!page) {
 
   {/* Service Sections */}
   {
-    page.serviceSections &&
-      page.serviceSections.length > 0 &&
-      page.serviceSections.map((section: any) => (
+    page.services &&
+      page.services.length > 0 &&
+      page.services.map((service: any) => (
         <ServiceSection
-          tag={section.tag}
-          title={section.title}
-          leadText={section.leadText}
-          description={section.description}
-          listStyle={section.listStyle}
-          listTitle={section.listTitle}
-          listItems={section.listItems}
-          caseStudiesLinkText={section.caseStudiesLinkText}
-          caseStudiesLink={section.caseStudiesLink}
-          icon={section.icon}
-          imagePosition={section.imagePosition}
-          backgroundColor={section.backgroundColor}
+          tag={service.tag}
+          title={service.title}
+          leadText={service.leadText}
+          description={service.description}
+          listStyle={service.listStyle}
+          listTitle={service.listTitle}
+          listItems={service.listItems}
+          caseStudiesLinkText={service.caseStudiesLinkText}
+          caseStudiesLink={service.caseStudiesLink}
+          icon={service.icon}
+          imagePosition={service.imagePosition}
+          backgroundColor={service.backgroundColor}
         />
       ))
   }
