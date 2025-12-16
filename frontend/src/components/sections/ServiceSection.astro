@@ -1,5 +1,13 @@
 ---
 import { resolveLinkUrl } from '@lib/sanity/linkResolver';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
 
 interface LinkData {
   text?: string;
@@ -17,14 +25,53 @@ interface Props {
   title: string;
   leadText?: string;
   description?: string;
+  icon?: string;
+  imagePosition?: 'left' | 'right';
+  // Color settings
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  titleColorShade?: number;
+  titleCustomColor?: ColorData;
+  tagColor?: 'primary' | 'secondary' | 'accent';
+  leadTextColor?: 'base' | 'muted' | 'contrast';
+  descriptionTextColor?: 'base' | 'muted' | 'contrast';
+  iconColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  iconColorShade?: number;
+  iconCustomColor?: ColorData;
+  iconContainerColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  iconContainerColorShade?: number;
+  iconContainerCustomColor?: ColorData;
+  // List settings
   listStyle?: 'checkmark' | 'arrow' | 'bullet';
   listTitle?: string;
   listItems?: string[];
+  listTextColor?: 'base' | 'muted' | 'contrast';
+  listContainerColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  listContainerColorShade?: number;
+  listContainerCustomColor?: ColorData;
+  listIconColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  listIconColorShade?: number;
+  listIconCustomColor?: ColorData;
+  // Link
   caseStudiesLinkText?: string;
   caseStudiesLink?: LinkData;
-  icon?: string;
-  imagePosition?: 'left' | 'right';
-  backgroundColor?: 'white' | 'cream';
 }
 
 const {
@@ -32,15 +79,140 @@ const {
   title,
   leadText,
   description,
+  icon = 'settings',
+  imagePosition = 'left',
+  // Color settings
+  backgroundColorType = 'default',
+  backgroundColorShade = 0,
+  backgroundCustomColor,
+  titleColorType = 'accent',
+  titleColorShade = 0,
+  titleCustomColor,
+  tagColor = 'accent',
+  leadTextColor = 'base',
+  descriptionTextColor = 'muted',
+  iconColorType = 'accent',
+  iconColorShade = 0,
+  iconCustomColor,
+  iconContainerColorType = 'default',
+  iconContainerColorShade = 0,
+  iconContainerCustomColor,
+  // List settings
   listStyle = 'checkmark',
   listTitle,
   listItems = [],
+  listTextColor = 'base',
+  listContainerColorType = 'default',
+  listContainerColorShade = 0,
+  listContainerCustomColor,
+  listIconColorType = 'accent',
+  listIconColorShade = 0,
+  listIconCustomColor,
+  // Link
   caseStudiesLinkText,
   caseStudiesLink,
-  icon = 'settings',
-  imagePosition = 'left',
-  backgroundColor = 'white',
 } = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve colors (null if default)
+const backgroundColor =
+  backgroundColorType === 'default' || !backgroundColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: backgroundColorType,
+          shade: backgroundColorShade,
+          customColor: backgroundCustomColor,
+        },
+        siteColors
+      );
+
+const titleColor = resolveColorSelection(
+  {
+    colorType: titleColorType,
+    shade: titleColorShade,
+    customColor: titleCustomColor,
+  },
+  siteColors
+);
+
+const resolvedTagColor = resolveColorSelection(
+  { colorType: tagColor, shade: 0 },
+  siteColors
+);
+
+const iconColor = resolveColorSelection(
+  {
+    colorType: iconColorType,
+    shade: iconColorShade,
+    customColor: iconCustomColor,
+  },
+  siteColors
+);
+
+const iconContainerColor =
+  iconContainerColorType === 'default' || !iconContainerColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: iconContainerColorType,
+          shade: iconContainerColorShade,
+          customColor: iconContainerCustomColor,
+        },
+        siteColors
+      );
+
+const listContainerColor =
+  listContainerColorType === 'default' || !listContainerColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: listContainerColorType,
+          shade: listContainerColorShade,
+          customColor: listContainerCustomColor,
+        },
+        siteColors
+      );
+
+const listIconColor = resolveColorSelection(
+  {
+    colorType: listIconColorType,
+    shade: listIconColorShade,
+    customColor: listIconCustomColor,
+  },
+  siteColors
+);
+
+// Text color map
+const textColorMap: Record<string, string> = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'var(--color-text-contrast)',
+};
+
+const resolvedLeadTextColor = textColorMap[leadTextColor] || textColorMap.base;
+const resolvedDescriptionTextColor =
+  textColorMap[descriptionTextColor] || textColorMap.muted;
+const resolvedListTextColor = textColorMap[listTextColor] || textColorMap.base;
+
+// Build CSS variables (only include non-null values)
+const cssVarParts: string[] = [];
+if (backgroundColor) cssVarParts.push(`--service-bg: ${backgroundColor}`);
+cssVarParts.push(`--service-title: ${titleColor}`);
+cssVarParts.push(`--service-tag: ${resolvedTagColor}`);
+cssVarParts.push(`--service-lead: ${resolvedLeadTextColor}`);
+cssVarParts.push(`--service-description: ${resolvedDescriptionTextColor}`);
+cssVarParts.push(`--service-icon: ${iconColor}`);
+if (iconContainerColor)
+  cssVarParts.push(`--service-icon-container: ${iconContainerColor}`);
+if (listContainerColor)
+  cssVarParts.push(`--service-list-container: ${listContainerColor}`);
+cssVarParts.push(`--service-list-icon: ${listIconColor}`);
+cssVarParts.push(`--service-list-text: ${resolvedListTextColor}`);
+const cssVars = cssVarParts.join('; ');
 
 // Resolve link URL
 const linkUrl = caseStudiesLink ? resolveLinkUrl(caseStudiesLink) : '#';
@@ -68,13 +240,6 @@ const iconPaths: Record<string, string> = {
     '<path d="M2 3h20"></path><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"></path><path d="m7 21 5-5 5 5"></path>',
 };
 
-const sectionClasses = [
-  'service-section',
-  backgroundColor === 'cream' ? 'service-section--cream' : '',
-]
-  .filter(Boolean)
-  .join(' ');
-
 const gridClasses = [
   'service-section__grid',
   imagePosition === 'right' ? 'service-section__grid--reversed' : '',
@@ -83,7 +248,7 @@ const gridClasses = [
   .join(' ');
 ---
 
-<article class={sectionClasses}>
+<article class="service-section" style={cssVars}>
   <div class="container">
     <div class={gridClasses}>
       <div class="service-section__image-container">
@@ -112,7 +277,7 @@ const gridClasses = [
         {
           listItems.length > 0 && (
             <div
-              class={`service-section__list-wrapper ${listTitle ? 'service-section__list-wrapper--boxed' : ''}`}
+              class={`service-section__list-wrapper ${listTitle || listContainerColor ? 'service-section__list-wrapper--boxed' : ''}`}
             >
               {listTitle && (
                 <strong class="service-section__list-title">{listTitle}</strong>
@@ -172,11 +337,7 @@ const gridClasses = [
 <style>
   .service-section {
     padding: var(--space-2xl) 0;
-    background-color: var(--color-background);
-  }
-
-  .service-section--cream {
-    background-color: var(--color-surface, #f5f5f5);
+    background-color: var(--service-bg, var(--color-background));
   }
 
   .service-section__grid {
@@ -206,18 +367,15 @@ const gridClasses = [
     align-items: center;
     justify-content: center;
     aspect-ratio: 1;
-    background-color: var(--color-background);
+    background-color: var(--service-icon-container, var(--color-background));
     border: 1px solid var(--color-border, #e5e5e5);
-  }
-
-  .service-section--cream .service-section__image-container {
-    background-color: var(--color-background);
+    border-radius: 0.75rem;
   }
 
   .service-section__icon {
     width: 80px;
     height: 80px;
-    color: var(--color-accent);
+    color: var(--service-icon, var(--color-accent));
     opacity: 0.6;
   }
 
@@ -231,7 +389,7 @@ const gridClasses = [
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--color-accent);
+    color: var(--service-tag, var(--color-accent));
     margin-bottom: var(--space-sm);
   }
 
@@ -240,13 +398,13 @@ const gridClasses = [
     font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 500;
     line-height: 1.2;
-    color: var(--color-accent);
+    color: var(--service-title, var(--color-accent));
     margin: 0 0 var(--space-md);
   }
 
   .service-section__lead {
     font-size: var(--font-size-lg);
-    color: var(--color-text);
+    color: var(--service-lead, var(--color-text));
     line-height: 1.6;
     margin: 0 0 var(--space-sm);
     font-weight: 500;
@@ -254,7 +412,7 @@ const gridClasses = [
 
   .service-section__description {
     font-size: var(--font-size-base);
-    color: var(--color-text-muted);
+    color: var(--service-description, var(--color-text-muted));
     line-height: 1.7;
     margin: 0 0 var(--space-lg);
   }
@@ -265,9 +423,12 @@ const gridClasses = [
   }
 
   .service-section__list-wrapper--boxed {
-    background-color: color-mix(in srgb, var(--color-surface) 50%, transparent);
+    background-color: var(
+      --service-list-container,
+      color-mix(in srgb, var(--color-surface) 50%, transparent)
+    );
     padding: var(--space-md);
-    border-radius: 4px;
+    border-radius: 0.75rem;
   }
 
   .service-section__list-title {
@@ -275,7 +436,7 @@ const gridClasses = [
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--color-text);
+    color: var(--service-list-text, var(--color-text));
     margin-bottom: var(--space-sm);
   }
 
@@ -291,7 +452,7 @@ const gridClasses = [
     align-items: flex-start;
     gap: var(--space-sm);
     padding: var(--space-xs) 0;
-    color: var(--color-text);
+    color: var(--service-list-text, var(--color-text));
     line-height: 1.5;
   }
 
@@ -299,7 +460,7 @@ const gridClasses = [
     flex-shrink: 0;
     width: 1.25rem;
     height: 1.25rem;
-    color: var(--color-accent);
+    color: var(--service-list-icon, var(--color-accent));
     stroke-width: 2;
     fill: none;
     stroke: currentColor;
@@ -308,7 +469,7 @@ const gridClasses = [
   .service-section__list-arrow,
   .service-section__list-bullet {
     flex-shrink: 0;
-    color: var(--color-accent);
+    color: var(--service-list-icon, var(--color-accent));
     font-weight: 600;
     line-height: 1.5;
   }
@@ -329,7 +490,7 @@ const gridClasses = [
     gap: 0.25rem;
     font-size: var(--font-size-base);
     font-weight: 500;
-    color: var(--color-accent);
+    color: var(--service-title, var(--color-accent));
     text-decoration: none;
     transition: gap 0.2s ease;
   }

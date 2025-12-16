@@ -134,6 +134,12 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'highlightTitleColorType';
   } else if (fieldName === 'ctaTitleColorShade') {
     colorTypeFieldName = 'ctaTitleColorType';
+  } else if (fieldName === 'iconContainerColorShade') {
+    colorTypeFieldName = 'iconContainerColorType';
+  } else if (fieldName === 'listContainerColorShade') {
+    colorTypeFieldName = 'listContainerColorType';
+  } else if (fieldName === 'listIconColorShade') {
+    colorTypeFieldName = 'listIconColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';
