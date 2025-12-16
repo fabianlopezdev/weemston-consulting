@@ -666,7 +666,11 @@ export const servicesPageNewQuery = groq`
       tag,
       leadText,
       description,
+      iconType,
       icon,
+      iconImage {
+        ${imageProjection}
+      },
       imagePosition,
       // Color settings
       backgroundColorType,

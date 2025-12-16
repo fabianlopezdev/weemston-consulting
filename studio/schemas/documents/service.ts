@@ -78,6 +78,21 @@ export default defineType({
       description: 'Main body text for this service',
     },
     {
+      name: 'iconType',
+      title: 'Icon Type',
+      type: 'string',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'SVG Icon', value: 'svg' },
+          { title: 'Custom Image', value: 'image' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'svg',
+    },
+    {
       name: 'icon',
       title: 'Icon',
       type: 'string',
@@ -96,6 +111,25 @@ export default defineType({
         ],
       },
       initialValue: 'settings',
+      hidden: ({ parent }) => parent?.iconType === 'image',
+    },
+    {
+      name: 'iconImage',
+      title: 'Icon Image',
+      type: 'image',
+      fieldset: 'servicesPage',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        {
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          description: 'Describe the image for accessibility',
+        },
+      ],
+      hidden: ({ parent }) => parent?.iconType !== 'image',
     },
     {
       name: 'imagePosition',

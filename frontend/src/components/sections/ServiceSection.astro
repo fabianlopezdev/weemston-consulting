@@ -3,6 +3,8 @@ import { resolveLinkUrl } from '@lib/sanity/linkResolver';
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
+import Image from '@components/media/Image.astro';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
 interface ColorData {
   label?: string;
@@ -20,12 +22,18 @@ interface LinkData {
   openInNewTab?: boolean;
 }
 
+interface IconImageData extends SanityImageSource {
+  alt?: string;
+}
+
 interface Props {
   tag?: string;
   title: string;
   leadText?: string;
   description?: string;
+  iconType?: 'svg' | 'image';
   icon?: string;
+  iconImage?: IconImageData;
   imagePosition?: 'left' | 'right';
   // Color settings
   backgroundColorType?:
@@ -79,7 +87,9 @@ const {
   title,
   leadText,
   description,
+  iconType = 'svg',
   icon = 'settings',
+  iconImage,
   imagePosition = 'left',
   // Color settings
   backgroundColorType = 'default',
@@ -252,17 +262,28 @@ const gridClasses = [
   <div class="container">
     <div class={gridClasses}>
       <div class="service-section__image-container">
-        <svg
-          class="service-section__icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-          set:html={iconPaths[icon] || iconPaths.settings}
-        />
+        {
+          iconType === 'image' && iconImage?.asset ? (
+            <Image
+              image={iconImage}
+              alt={iconImage.alt || title}
+              class="service-section__image"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          ) : (
+            <svg
+              class="service-section__icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              set:html={iconPaths[icon] || iconPaths.settings}
+            />
+          )
+        }
       </div>
       <div class="service-section__content">
         {tag && <span class="service-section__tag">{tag}</span>}
@@ -377,6 +398,20 @@ const gridClasses = [
     height: 80px;
     color: var(--service-icon, var(--color-accent));
     opacity: 0.6;
+  }
+
+  .service-section__image-container:has(.service-section__image) {
+    aspect-ratio: auto;
+    background-color: transparent;
+    border: none;
+    overflow: hidden;
+  }
+
+  .service-section__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0.75rem;
   }
 
   .service-section__content {
