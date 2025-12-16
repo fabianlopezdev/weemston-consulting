@@ -103,50 +103,56 @@ export const allServicesQuery = groq`
   }
 `;
 
-// Case Studies (document-level i18n)
-export const caseStudyQuery = groq`
-  *[_type == "caseStudy" && slug.current == $slug && language == $language][0] {
-    _id,
-    title,
-    slug,
-    language,
-    client,
-    industry,
-    publishedAt,
-    featured,
-    mainImage {
-      ${imageProjection}
-    },
-    challenge,
-    solution,
-    results,
-    testimonial {
-      quote,
-      author,
-      position
-    },
-    gallery[],
-    seo {
-      metaTitle,
-      metaDescription,
-      ogImage
-    }
-  }
+// Case Study projection (for use in service documents)
+const caseStudyProjection = `
+  _id,
+  title,
+  language,
+  // Hero Section
+  mainImage {
+    ${imageProjection}
+  },
+  icon,
+  category,
+  client,
+  role,
+  // Hero Colors
+  overlayColorType,
+  overlayColorShade,
+  overlayCustomColor { label, value },
+  overlayOpacity,
+  iconBgColorType,
+  iconBgColorShade,
+  iconBgCustomColor { label, value },
+  iconColorType,
+  iconColorShade,
+  iconCustomColor { label, value },
+  categoryColor,
+  clientColor,
+  roleColor,
+  // Content Section
+  date,
+  description,
+  contributionsTitle,
+  contributions,
+  // Content Colors
+  contentBgColorType,
+  contentBgColorShade,
+  contentBgCustomColor { label, value },
+  dateColor,
+  descriptionColor,
+  contributionsTitleColorType,
+  contributionsTitleColorShade,
+  contributionsTitleCustomColor { label, value },
+  contributionsTextColor,
+  bulletColorType,
+  bulletColorShade,
+  bulletCustomColor { label, value }
 `;
 
 export const allCaseStudiesQuery = groq`
-  *[_type == "caseStudy" && language == $language] | order(publishedAt desc) {
-    _id,
-    title,
-    slug,
-    language,
-    client,
-    industry,
-    publishedAt,
-    featured,
-    mainImage {
-      ${imageProjection}
-    }
+  *[_type == "caseStudy" && language == $language] | order(_createdAt desc) {
+    ${caseStudyProjection}
   }
 `;
 

@@ -3,7 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { sanityClient as client } from 'sanity:client';
 import { allCaseStudiesQuery } from '@lib/sanity/queries';
 import { createTranslator } from '@lib/i18n/translations';
-import Image from '@components/media/Image.astro';
+import CaseStudyCard from '@components/cards/CaseStudyCard.astro';
 
 const lang = Astro.locals.lang || 'en';
 const t = createTranslator(lang);
@@ -11,89 +11,76 @@ const caseStudies = await client.fetch(allCaseStudiesQuery, { language: lang });
 ---
 
 <BaseLayout title={t('seo.case_studies_title')}>
-  <div class="container">
+  <div class="container case-studies-page">
     <h1>{t('nav.case_studies')}</h1>
     <div class="case-studies-grid">
       {
-        caseStudies.map(
-          (caseStudy: {
-            _id: string;
-            title: string;
-            slug: { current: string };
-            client?: string;
-            industry?: string;
-            mainImage?: { asset: unknown; alt?: string };
-          }) => (
-            <article class="case-study-card">
-              {caseStudy.mainImage && (
-                <Image
-                  image={caseStudy.mainImage}
-                  alt={caseStudy.mainImage.alt || caseStudy.title}
-                  width={600}
-                  class="case-study-image"
-                />
-              )}
-              <div class="case-study-content">
-                {caseStudy.client && (
-                  <span class="client-name">{caseStudy.client}</span>
-                )}
-                <h2>
-                  <a href={`/case-studies/${caseStudy.slug.current}`}>
-                    {caseStudy.title}
-                  </a>
-                </h2>
-                {caseStudy.industry && (
-                  <p class="industry">{caseStudy.industry}</p>
-                )}
-              </div>
-            </article>
-          )
-        )
+        caseStudies.map((caseStudy: any) => (
+          <CaseStudyCard
+            mainImage={caseStudy.mainImage}
+            icon={caseStudy.icon}
+            category={caseStudy.category}
+            client={caseStudy.client}
+            role={caseStudy.role}
+            overlayColorType={caseStudy.overlayColorType}
+            overlayColorShade={caseStudy.overlayColorShade}
+            overlayCustomColor={caseStudy.overlayCustomColor}
+            overlayOpacity={caseStudy.overlayOpacity}
+            iconBgColorType={caseStudy.iconBgColorType}
+            iconBgColorShade={caseStudy.iconBgColorShade}
+            iconBgCustomColor={caseStudy.iconBgCustomColor}
+            iconColorType={caseStudy.iconColorType}
+            iconColorShade={caseStudy.iconColorShade}
+            iconCustomColor={caseStudy.iconCustomColor}
+            categoryColor={caseStudy.categoryColor}
+            clientColor={caseStudy.clientColor}
+            roleColor={caseStudy.roleColor}
+            date={caseStudy.date}
+            description={caseStudy.description}
+            contributionsTitle={caseStudy.contributionsTitle}
+            contributions={caseStudy.contributions}
+            contentBgColorType={caseStudy.contentBgColorType}
+            contentBgColorShade={caseStudy.contentBgColorShade}
+            contentBgCustomColor={caseStudy.contentBgCustomColor}
+            dateColor={caseStudy.dateColor}
+            descriptionColor={caseStudy.descriptionColor}
+            contributionsTitleColorType={caseStudy.contributionsTitleColorType}
+            contributionsTitleColorShade={
+              caseStudy.contributionsTitleColorShade
+            }
+            contributionsTitleCustomColor={
+              caseStudy.contributionsTitleCustomColor
+            }
+            contributionsTextColor={caseStudy.contributionsTextColor}
+            bulletColorType={caseStudy.bulletColorType}
+            bulletColorShade={caseStudy.bulletColorShade}
+            bulletCustomColor={caseStudy.bulletCustomColor}
+          />
+        ))
       }
     </div>
   </div>
 </BaseLayout>
 
 <style>
+  .case-studies-page {
+    padding-top: var(--space-2xl);
+    padding-bottom: var(--space-2xl);
+  }
+
+  .case-studies-page h1 {
+    margin-bottom: var(--space-xl);
+  }
+
   .case-studies-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: var(--space-2xl);
-    margin-block-start: var(--space-xl);
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
   }
 
-  .case-study-card {
-    border: var(--border-width-thin) solid var(--color-border);
-    border-radius: var(--border-radius-md);
-    overflow: hidden;
-    transition: transform var(--transition-fast);
-  }
-
-  .case-study-card:hover {
-    transform: translateY(-4px);
-  }
-
-  .case-study-content {
-    padding: var(--space-lg);
-  }
-
-  .client-name {
-    display: block;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-primary);
-    margin-block-end: var(--space-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  h2 {
-    margin-block-end: var(--space-sm);
-  }
-
-  .industry {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-    margin-block-start: var(--space-xs);
+  @media (min-width: 768px) {
+    .case-studies-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 </style>

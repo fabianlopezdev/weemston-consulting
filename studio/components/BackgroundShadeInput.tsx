@@ -140,6 +140,16 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'listContainerColorType';
   } else if (fieldName === 'listIconColorShade') {
     colorTypeFieldName = 'listIconColorType';
+  } else if (fieldName === 'overlayColorShade') {
+    colorTypeFieldName = 'overlayColorType';
+  } else if (fieldName === 'iconBgColorShade') {
+    colorTypeFieldName = 'iconBgColorType';
+  } else if (fieldName === 'contentBgColorShade') {
+    colorTypeFieldName = 'contentBgColorType';
+  } else if (fieldName === 'contributionsTitleColorShade') {
+    colorTypeFieldName = 'contributionsTitleColorType';
+  } else if (fieldName === 'bulletColorShade') {
+    colorTypeFieldName = 'bulletColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';

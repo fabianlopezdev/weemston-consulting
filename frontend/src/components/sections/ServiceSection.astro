@@ -4,7 +4,6 @@ import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import Image from '@components/media/Image.astro';
-import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
 interface ColorData {
   label?: string;
@@ -22,8 +21,11 @@ interface LinkData {
   openInNewTab?: boolean;
 }
 
-interface IconImageData extends SanityImageSource {
+interface IconImageData {
+  asset?: { _id: string; url?: string };
   alt?: string;
+  hotspot?: { x: number; y: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
 }
 
 interface Props {

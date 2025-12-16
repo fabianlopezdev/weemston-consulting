@@ -1,0 +1,488 @@
+---
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import Image from '@components/media/Image.astro';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface ImageData {
+  asset?: { _id: string; url?: string };
+  alt?: string;
+  hotspot?: { x: number; y: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface Props {
+  // Hero Section
+  mainImage: ImageData;
+  icon?: string;
+  category: string;
+  client: string;
+  role?: string;
+  // Hero Colors
+  overlayColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  overlayColorShade?: number;
+  overlayCustomColor?: ColorData;
+  overlayOpacity?: number;
+  iconBgColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  iconBgColorShade?: number;
+  iconBgCustomColor?: ColorData;
+  iconColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  iconColorShade?: number;
+  iconCustomColor?: ColorData;
+  categoryColor?: 'base' | 'muted' | 'contrast';
+  clientColor?: 'base' | 'muted' | 'contrast';
+  roleColor?: 'base' | 'muted' | 'contrast';
+  // Content Section
+  date?: string;
+  description?: string;
+  contributionsTitle?: string;
+  contributions?: string[];
+  // Content Colors
+  contentBgColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  contentBgColorShade?: number;
+  contentBgCustomColor?: ColorData;
+  dateColor?: 'base' | 'muted' | 'contrast';
+  descriptionColor?: 'base' | 'muted' | 'contrast';
+  contributionsTitleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  contributionsTitleColorShade?: number;
+  contributionsTitleCustomColor?: ColorData;
+  contributionsTextColor?: 'base' | 'muted' | 'contrast';
+  bulletColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  bulletColorShade?: number;
+  bulletCustomColor?: ColorData;
+}
+
+const {
+  // Hero
+  mainImage,
+  icon = 'globe',
+  category,
+  client: clientName,
+  role,
+  overlayColorType = 'primary',
+  overlayColorShade = 0,
+  overlayCustomColor,
+  overlayOpacity = 70,
+  iconBgColorType = 'primary',
+  iconBgColorShade = 100,
+  iconBgCustomColor,
+  iconColorType = 'accent',
+  iconColorShade = 0,
+  iconCustomColor,
+  categoryColor = 'contrast',
+  clientColor = 'contrast',
+  roleColor = 'contrast',
+  // Content
+  date,
+  description,
+  contributionsTitle = 'KEY CONTRIBUTIONS',
+  contributions = [],
+  contentBgColorType = 'default',
+  contentBgColorShade = 95,
+  contentBgCustomColor,
+  dateColor = 'muted',
+  descriptionColor = 'base',
+  contributionsTitleColorType = 'accent',
+  contributionsTitleColorShade = 0,
+  contributionsTitleCustomColor,
+  contributionsTextColor = 'base',
+  bulletColorType = 'accent',
+  bulletColorShade = 0,
+  bulletCustomColor,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve hero colors
+const overlayColor = resolveColorSelection(
+  {
+    colorType: overlayColorType,
+    shade: overlayColorShade,
+    customColor: overlayCustomColor,
+  },
+  siteColors
+);
+
+const iconBgColor = resolveColorSelection(
+  {
+    colorType: iconBgColorType,
+    shade: iconBgColorShade,
+    customColor: iconBgCustomColor,
+  },
+  siteColors
+);
+
+const iconColor = resolveColorSelection(
+  {
+    colorType: iconColorType,
+    shade: iconColorShade,
+    customColor: iconCustomColor,
+  },
+  siteColors
+);
+
+// Resolve content colors
+const contentBgColor =
+  contentBgColorType === 'default' || !contentBgColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: contentBgColorType,
+          shade: contentBgColorShade,
+          customColor: contentBgCustomColor,
+        },
+        siteColors
+      );
+
+const contributionsTitleColor = resolveColorSelection(
+  {
+    colorType: contributionsTitleColorType,
+    shade: contributionsTitleColorShade,
+    customColor: contributionsTitleCustomColor,
+  },
+  siteColors
+);
+
+const bulletColor = resolveColorSelection(
+  {
+    colorType: bulletColorType,
+    shade: bulletColorShade,
+    customColor: bulletCustomColor,
+  },
+  siteColors
+);
+
+// Text color map
+const textColorMap: Record<string, string> = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'var(--color-text-contrast)',
+};
+
+const resolvedCategoryColor =
+  textColorMap[categoryColor] || textColorMap.contrast;
+const resolvedClientColor = textColorMap[clientColor] || textColorMap.contrast;
+const resolvedRoleColor = textColorMap[roleColor] || textColorMap.contrast;
+const resolvedDateColor = textColorMap[dateColor] || textColorMap.muted;
+const resolvedDescriptionColor =
+  textColorMap[descriptionColor] || textColorMap.base;
+const resolvedContributionsTextColor =
+  textColorMap[contributionsTextColor] || textColorMap.base;
+
+// Build CSS variables
+const cssVarParts: string[] = [
+  `--cs-overlay: ${overlayColor}`,
+  `--cs-overlay-opacity: ${overlayOpacity / 100}`,
+  `--cs-icon-bg: ${iconBgColor}`,
+  `--cs-icon-color: ${iconColor}`,
+  `--cs-category-color: ${resolvedCategoryColor}`,
+  `--cs-client-color: ${resolvedClientColor}`,
+  `--cs-role-color: ${resolvedRoleColor}`,
+  `--cs-date: ${resolvedDateColor}`,
+  `--cs-description: ${resolvedDescriptionColor}`,
+  `--cs-title: ${contributionsTitleColor}`,
+  `--cs-contributions-text: ${resolvedContributionsTextColor}`,
+  `--cs-bullet: ${bulletColor}`,
+];
+if (contentBgColor) cssVarParts.push(`--cs-content-bg: ${contentBgColor}`);
+const cssVars = cssVarParts.join('; ');
+
+// Icon SVG paths
+const iconPaths: Record<string, string> = {
+  globe:
+    '<circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>',
+  layers:
+    '<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline>',
+  settings:
+    '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>',
+  target:
+    '<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>',
+  users:
+    '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
+  chart:
+    '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>',
+  lightbulb:
+    '<line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8a6 6 0 1 0-12 0c0 1.54.64 2.89 1.68 3.86.63.61 1 1.25 1 2.14V14a2 2 0 0 0 2 2h2.82a2 2 0 0 0 2-2z"></path>',
+  handshake:
+    '<path d="M11 17a4 4 0 0 1-4-4V5a2 2 0 0 1 2-2h2"></path><path d="M13 3h2a2 2 0 0 1 2 2v8a4 4 0 0 1-4 4"></path><path d="m3 15 4-4"></path><path d="m17 11 4 4"></path><path d="M12 17v4"></path><path d="M8 21h8"></path>',
+  compass:
+    '<circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>',
+  calendar:
+    '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>',
+  presentation:
+    '<path d="M2 3h20"></path><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"></path><path d="m7 21 5-5 5 5"></path>',
+  briefcase:
+    '<rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>',
+  building:
+    '<rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path>',
+  code: '<polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>',
+  pencil:
+    '<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>',
+};
+---
+
+<article class="case-study-card" style={cssVars}>
+  {/* Hero Section - Top Half */}
+  <div class="case-study-card__hero">
+    <div class="case-study-card__image-wrapper">
+      <Image
+        image={mainImage}
+        alt={mainImage.alt || clientName}
+        class="case-study-card__image"
+        sizes="(max-width: 768px) 100vw, 50vw"
+      />
+      <div class="case-study-card__overlay"></div>
+    </div>
+
+    <div class="case-study-card__hero-content">
+      <div class="case-study-card__icon-wrapper">
+        <svg
+          class="case-study-card__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          set:html={iconPaths[icon] || iconPaths.globe}
+        />
+      </div>
+      <span class="case-study-card__category">{category}</span>
+      <h3 class="case-study-card__client">{clientName}</h3>
+      {role && <p class="case-study-card__role">{role}</p>}
+    </div>
+  </div>
+
+  {/* Content Section - Bottom Half */}
+  <div class="case-study-card__content">
+    <div class="case-study-card__content-grid">
+      <div class="case-study-card__left">
+        {date && <span class="case-study-card__date">{date}</span>}
+        {
+          description && (
+            <p class="case-study-card__description">{description}</p>
+          )
+        }
+      </div>
+
+      {
+        contributions && contributions.length > 0 && (
+          <div class="case-study-card__right">
+            <h4 class="case-study-card__contributions-title">
+              {contributionsTitle}
+            </h4>
+            <ul class="case-study-card__list">
+              {contributions.map((item) => (
+                <li>
+                  <span class="case-study-card__bullet" aria-hidden="true">
+                    &bull;
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</article>
+
+<style>
+  .case-study-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  /* Hero Section */
+  .case-study-card__hero {
+    position: relative;
+    min-height: 280px;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .case-study-card__image-wrapper {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .case-study-card__image-wrapper :global(.image-blur-wrapper),
+  .case-study-card__image-wrapper :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .case-study-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      color-mix(
+        in srgb,
+        var(--cs-overlay) calc(var(--cs-overlay-opacity) * 100%),
+        transparent
+      ),
+      color-mix(
+        in srgb,
+        var(--cs-overlay) calc(var(--cs-overlay-opacity) * 40%),
+        transparent
+      )
+    );
+  }
+
+  .case-study-card__hero-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
+
+  .case-study-card__icon-wrapper {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--cs-icon-bg, var(--color-primary-light));
+    border-radius: 50%;
+    margin-bottom: var(--space-xs);
+  }
+
+  .case-study-card__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--cs-icon-color, var(--color-accent));
+  }
+
+  .case-study-card__category {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--cs-category-color, var(--color-text-contrast));
+  }
+
+  .case-study-card__client {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 500;
+    line-height: 1.1;
+    color: var(--cs-client-color, var(--color-text-contrast));
+    margin: 0;
+  }
+
+  .case-study-card__role {
+    font-size: var(--font-size-sm);
+    color: var(--cs-role-color, var(--color-text-contrast));
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  /* Content Section */
+  .case-study-card__content {
+    background-color: var(--cs-content-bg, var(--color-surface));
+    padding: var(--space-lg);
+    flex: 1;
+  }
+
+  .case-study-card__content-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 640px) {
+    .case-study-card__content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-lg);
+    }
+  }
+
+  .case-study-card__left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .case-study-card__date {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--cs-date, var(--color-text-muted));
+  }
+
+  .case-study-card__description {
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    color: var(--cs-description, var(--color-text));
+    margin: 0;
+  }
+
+  .case-study-card__right {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .case-study-card__contributions-title {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--cs-title, var(--color-accent));
+    margin: 0;
+  }
+
+  .case-study-card__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .case-study-card__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    color: var(--cs-contributions-text, var(--color-text));
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+  }
+
+  .case-study-card__bullet {
+    flex-shrink: 0;
+    color: var(--cs-bullet, var(--color-accent));
+    font-size: 1.25rem;
+    line-height: 1;
+    margin-top: -0.1rem;
+  }
+</style>
