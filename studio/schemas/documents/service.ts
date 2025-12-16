@@ -79,13 +79,13 @@ export default defineType({
     },
     {
       name: 'iconType',
-      title: 'Icon Type',
+      title: 'Image Type',
       type: 'string',
       fieldset: 'servicesPage',
       options: {
         list: [
-          { title: 'SVG Icon', value: 'svg' },
-          { title: 'Custom Image', value: 'image' },
+          { title: 'Icon', value: 'svg' },
+          { title: 'Image', value: 'image' },
         ],
         layout: 'radio',
         direction: 'horizontal',
@@ -115,7 +115,7 @@ export default defineType({
     },
     {
       name: 'iconImage',
-      title: 'Icon Image',
+      title: 'Image',
       type: 'image',
       fieldset: 'servicesPage',
       options: {
