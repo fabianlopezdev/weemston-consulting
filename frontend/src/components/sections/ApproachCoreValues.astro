@@ -2,6 +2,7 @@
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
+import CoreValueCard from '@components/cards/CoreValueCard.astro';
 
 interface ColorData {
   label?: string;
@@ -191,25 +192,16 @@ const sectionCssVars = [
       {
         cards.map((card) => {
           const colors = getCardIconColors(card);
-          const cardStyle = `--card-icon-color: ${colors.iconColor}; --card-icon-bg: ${colors.iconBgColor}`;
           return (
-            <div class="core-values__card" style={cardStyle}>
-              <div class="core-values__icon-wrapper">
-                <svg
-                  class="core-values__icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                  set:html={iconPaths[card.icon] || iconPaths.star}
-                />
-              </div>
-              <h3 class="core-values__title">{card.title}</h3>
-              <p class="core-values__description">{card.description}</p>
-            </div>
+            <CoreValueCard
+              iconPath={(iconPaths[card.icon] || iconPaths.star) as string}
+              iconColor={colors.iconColor}
+              iconBgColor={colors.iconBgColor}
+              title={card.title}
+              titleColor={cardTitleColor}
+              description={card.description}
+              cardBgColor={cardBackgroundColor || undefined}
+            />
           );
         })
       }
@@ -227,65 +219,6 @@ const sectionCssVars = [
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--space-xl);
-  }
-
-  /* p-8 bg-white rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow */
-  .core-values__card {
-    background: var(--card-bg, white);
-    padding: 2rem; /* p-8 */
-    border-radius: 0.75rem; /* rounded-xl */
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* shadow-sm */
-    border: 1px solid rgb(241 245 249); /* border-slate-100 */
-    transition: box-shadow 0.15s ease;
-  }
-
-  .core-values__card:hover {
-    box-shadow:
-      0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-md */
-  }
-
-  /* w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-teal-700 mb-6 mx-auto md:mx-0 */
-  .core-values__icon-wrapper {
-    width: 3.5rem; /* w-14 */
-    height: 3.5rem; /* h-14 */
-    background-color: var(--card-icon-bg);
-    border-radius: 9999px; /* rounded-full */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--card-icon-color);
-    margin-bottom: 1.5rem; /* mb-6 */
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  @media (min-width: 768px) {
-    .core-values__icon-wrapper {
-      margin-left: 0; /* md:mx-0 */
-      margin-right: 0;
-    }
-  }
-
-  .core-values__icon {
-    width: 28px; /* size={28} */
-    height: 28px;
-  }
-
-  /* text-xl font-bold text-slate-900 mb-4 */
-  .core-values__title {
-    font-family: var(--font-body);
-    font-size: 1.25rem; /* text-xl */
-    font-weight: 700; /* font-bold */
-    color: var(--card-title-color);
-    margin: 0 0 1rem; /* mb-4 */
-  }
-
-  /* text-slate-600 */
-  .core-values__description {
-    color: rgb(71 85 105); /* text-slate-600 */
-    line-height: 1.7;
-    margin: 0;
   }
 
   .visually-hidden {
