@@ -2,7 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { sanityClient as client } from 'sanity:client';
 import { approachPageQuery } from '@lib/sanity/queries';
-import ApproachHero from '@components/sections/ApproachHero.astro';
+import InternalPageHero from '@components/sections/InternalPageHero.astro';
 import ApproachCoreValues from '@components/sections/ApproachCoreValues.astro';
 import ApproachFounder from '@components/sections/ApproachFounder.astro';
 import ApproachHighlight from '@components/sections/ApproachHighlight.astro';
@@ -17,7 +17,7 @@ if (!page) {
 
 <BaseLayout title={page.title} description={page.metaDescription}>
   {/* Hero Section */}
-  <ApproachHero
+  <InternalPageHero
     heading={page.heroHeading}
     headingHighlight={page.heroHeadingHighlight}
     highlightColorType={page.heroHighlightColorType}

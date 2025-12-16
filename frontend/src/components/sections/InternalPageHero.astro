@@ -95,7 +95,7 @@ const taglineColorMap: Record<string, string> = {
 const resolvedTaglineColor =
   taglineColorMap[taglineColor] || taglineColorMap.muted;
 
-const cssVars = `--services-hero-bg: ${backgroundColor}; --services-hero-highlight: ${highlightColor}; --services-hero-divider: ${dividerColor}; --services-hero-tagline: ${resolvedTaglineColor}`;
+const cssVars = `--internal-page-hero-bg: ${backgroundColor}; --internal-page-hero-highlight: ${highlightColor}; --internal-page-hero-divider: ${dividerColor}; --internal-page-hero-tagline: ${resolvedTaglineColor}`;
 
 // Split heading into parts if highlight text is provided and found
 function renderHeadingParts() {
@@ -113,14 +113,14 @@ function renderHeadingParts() {
 const parts = renderHeadingParts();
 ---
 
-<section class="services-hero" style={cssVars}>
-  <div class="services-hero__container">
-    <h1 class="services-hero__heading">
+<section class="internal-page-hero" style={cssVars}>
+  <div class="internal-page-hero__container">
+    <h1 class="internal-page-hero__heading">
       {
         parts.highlight ? (
           <>
             {parts.before}
-            <span class="services-hero__highlight">{parts.highlight}</span>
+            <span class="internal-page-hero__highlight">{parts.highlight}</span>
             {parts.after}
           </>
         ) : (
@@ -128,24 +128,24 @@ const parts = renderHeadingParts();
         )
       }
     </h1>
-    {showDivider && <div class="services-hero__divider" />}
-    {tagline && <p class="services-hero__tagline">{tagline}</p>}
+    {showDivider && <div class="internal-page-hero__divider" />}
+    {tagline && <p class="internal-page-hero__tagline">{tagline}</p>}
   </div>
 </section>
 
 <style>
-  .services-hero {
-    background-color: var(--services-hero-bg, var(--color-primary-light));
+  .internal-page-hero {
+    background-color: var(--internal-page-hero-bg, var(--color-primary-light));
     padding: clamp(6rem, 10vw, 8rem) var(--space-md) clamp(4rem, 8vw, 6rem);
     text-align: center;
   }
 
-  .services-hero__container {
+  .internal-page-hero__container {
     max-width: 900px;
     margin: 0 auto;
   }
 
-  .services-hero__heading {
+  .internal-page-hero__heading {
     font-family: var(--font-heading);
     font-size: clamp(2rem, 5vw, 3.5rem);
     font-weight: 500;
@@ -154,22 +154,22 @@ const parts = renderHeadingParts();
     margin: 0 0 var(--space-lg);
   }
 
-  .services-hero__highlight {
+  .internal-page-hero__highlight {
     font-style: italic;
-    color: var(--services-hero-highlight, var(--color-text-muted));
+    color: var(--internal-page-hero-highlight, var(--color-text-muted));
   }
 
-  .services-hero__divider {
+  .internal-page-hero__divider {
     width: 6rem;
     height: 0.25rem;
-    background-color: var(--services-hero-divider, var(--color-secondary));
+    background-color: var(--internal-page-hero-divider, var(--color-secondary));
     margin: 0 auto;
     border-radius: 9999px;
   }
 
-  .services-hero__tagline {
+  .internal-page-hero__tagline {
     font-size: var(--font-size-lg);
-    color: var(--services-hero-tagline, var(--color-text-muted));
+    color: var(--internal-page-hero-tagline, var(--color-text-muted));
     line-height: 1.6;
     margin: var(--space-lg) 0 0;
     max-width: 700px;
@@ -177,7 +177,7 @@ const parts = renderHeadingParts();
   }
 
   /* Word reveal wrapper for editorial animation */
-  .services-hero__heading :global(.services-hero__word-wrapper) {
+  .internal-page-hero__heading :global(.internal-page-hero__word-wrapper) {
     display: inline-block;
     overflow: hidden;
     vertical-align: top;
@@ -186,9 +186,9 @@ const parts = renderHeadingParts();
 
   /* Reduced motion: show all immediately */
   @media (prefers-reduced-motion: reduce) {
-    .services-hero__heading,
-    .services-hero__divider,
-    .services-hero__tagline {
+    .internal-page-hero__heading,
+    .internal-page-hero__divider,
+    .internal-page-hero__tagline {
       opacity: 1 !important;
       transform: none !important;
     }
@@ -211,10 +211,10 @@ const parts = renderHeadingParts();
     ).matches;
 
     const heading = document.querySelector(
-      '.services-hero__heading'
+      '.internal-page-hero__heading'
     ) as HTMLElement;
-    const divider = document.querySelector('.services-hero__divider');
-    const tagline = document.querySelector('.services-hero__tagline');
+    const divider = document.querySelector('.internal-page-hero__divider');
+    const tagline = document.querySelector('.internal-page-hero__tagline');
 
     if (!heading) return;
 
@@ -238,7 +238,7 @@ const parts = renderHeadingParts();
       wrapper.style.overflow = 'hidden';
       wrapper.style.verticalAlign = 'top';
       wrapper.style.paddingBottom = '0.15em'; // Extra padding for descenders
-      wrapper.classList.add('services-hero__word-wrapper');
+      wrapper.classList.add('internal-page-hero__word-wrapper');
 
       word.parentNode?.insertBefore(wrapper, word);
       wrapper.appendChild(word);
@@ -258,7 +258,7 @@ const parts = renderHeadingParts();
     // Create entrance timeline
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: '.services-hero',
+        trigger: '.internal-page-hero',
         start: 'top 80%',
         once: true,
         markers: ANIMATION_CONFIG.scrollTrigger.markers,
@@ -304,7 +304,7 @@ const parts = renderHeadingParts();
 
     // Subtle parallax on scroll - only affects visible words
     ScrollTrigger.create({
-      trigger: '.services-hero',
+      trigger: '.internal-page-hero',
       start: 'top top',
       end: 'bottom top',
       scrub: 1,
@@ -312,7 +312,7 @@ const parts = renderHeadingParts();
         const progress = self.progress;
         // Apply parallax to the word wrappers, not the words themselves
         const wrappers = document.querySelectorAll(
-          '.services-hero__word-wrapper'
+          '.internal-page-hero__word-wrapper'
         );
         gsap.set(wrappers, { y: progress * 30 });
       },

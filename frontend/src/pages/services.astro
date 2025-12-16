@@ -2,7 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { sanityClient as client } from 'sanity:client';
 import { servicesPageNewQuery } from '@lib/sanity/queries';
-import ServicesHero from '@components/sections/ServicesHero.astro';
+import InternalPageHero from '@components/sections/InternalPageHero.astro';
 import ServiceSection from '@components/sections/ServiceSection.astro';
 
 const page = await client.fetch(servicesPageNewQuery);
@@ -14,7 +14,7 @@ if (!page) {
 
 <BaseLayout title={page.title} description={page.metaDescription}>
   {/* Hero Section */}
-  <ServicesHero
+  <InternalPageHero
     heading={page.heroHeading}
     headingHighlight={page.heroHeadingHighlight}
     highlightColorType={page.heroHighlightColorType}
