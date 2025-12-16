@@ -717,7 +717,10 @@ const gridClasses = [
 
   /* Animation-ready states - simplified to main blocks */
   .service-section[data-animate] .service-section__media-column,
-  .service-section[data-animate] .service-section__content {
+  .service-section[data-animate] .service-section__content,
+  .service-section[data-animate] .service-section__content-column,
+  .service-section[data-animate] .service-section__list-column,
+  .service-section[data-animate] .service-section__case-studies--below {
     opacity: 0;
   }
 
@@ -732,7 +735,10 @@ const gridClasses = [
   /* Reduced motion: show all immediately */
   @media (prefers-reduced-motion: reduce) {
     .service-section[data-animate] .service-section__media-column,
-    .service-section[data-animate] .service-section__content {
+    .service-section[data-animate] .service-section__content,
+    .service-section[data-animate] .service-section__content-column,
+    .service-section[data-animate] .service-section__list-column,
+    .service-section[data-animate] .service-section__case-studies--below {
       opacity: 1 !important;
       transform: none !important;
     }
@@ -768,20 +774,39 @@ const gridClasses = [
         return;
       }
 
-      // Get main elements - simplified to just two columns
-      const mediaColumn = section.querySelector(
-        '.service-section__media-column'
-      );
-      const content = section.querySelector('.service-section__content');
+      // Check if this is a no-image layout
+      const isNoImage = section.getAttribute('data-no-image') === 'true';
+
+      // Get main elements based on layout type
+      let columnsToAnimate: Element[] = [];
+
+      if (isNoImage) {
+        const contentColumn = section.querySelector(
+          '.service-section__content-column'
+        );
+        const listColumn = section.querySelector(
+          '.service-section__list-column'
+        );
+        const caseStudiesBelow = section.querySelector(
+          '.service-section__case-studies--below'
+        );
+        columnsToAnimate = [contentColumn, listColumn, caseStudiesBelow].filter(
+          Boolean
+        ) as Element[];
+      } else {
+        const mediaColumn = section.querySelector(
+          '.service-section__media-column'
+        );
+        const content = section.querySelector('.service-section__content');
+        columnsToAnimate = [mediaColumn, content].filter(Boolean) as Element[];
+      }
+
       const title = section.querySelector('.service-section__title');
 
-      // Set initial states - just the two main blocks
-      if (mediaColumn) {
-        gsap.set(mediaColumn, { opacity: 0, y: 20 });
-      }
-      if (content) {
-        gsap.set(content, { opacity: 0, y: 20 });
-      }
+      // Set initial states for columns
+      columnsToAnimate.forEach((col) => {
+        gsap.set(col, { opacity: 0, y: 20 });
+      });
 
       // Split title into words for subtle editorial reveal
       let titleWords: HTMLElement[] = [];
@@ -816,8 +841,8 @@ const gridClasses = [
         },
       });
 
-      // Both columns fade in together - clean and simple
-      tl.to([mediaColumn, content].filter(Boolean), {
+      // All columns fade in together - clean and simple
+      tl.to(columnsToAnimate, {
         opacity: 1,
         y: 0,
         duration: 0.7,
