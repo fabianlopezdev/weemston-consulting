@@ -55,4 +55,6 @@ export {
   createHeroReveal,
   createFadeIn,
   createSectionContract,
+  createEditorialReveal,
+  createStaggeredEntrance,
 } from './presets';

@@ -53,6 +53,16 @@ export const ANIMATION_CONFIG = {
       start: 'top bottom-=10%',
       end: 'top center',
     },
+
+    /**
+     * Editorial style: Typography-focused, cinematic pacing
+     * Good for: Headings, featured text, magazine-style reveals
+     * Uses once: true (not scrub-based) for refined feel
+     */
+    editorialStyle: {
+      start: 'top 75%',
+      end: 'bottom center',
+    },
   },
 
   /**

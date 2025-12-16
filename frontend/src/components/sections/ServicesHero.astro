@@ -175,25 +175,79 @@ const parts = renderHeadingParts();
     max-width: 700px;
     margin-inline: auto;
   }
+
+  /* Word reveal wrapper for editorial animation */
+  .services-hero__heading :global(.services-hero__word-wrapper) {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.15em;
+  }
+
+  /* Reduced motion: show all immediately */
+  @media (prefers-reduced-motion: reduce) {
+    .services-hero__heading,
+    .services-hero__divider,
+    .services-hero__tagline {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
 </style>
 
 <script>
   import {
     setupAnimationLifecycle,
     gsap,
+    SplitText,
     ScrollTrigger,
   } from '@lib/animation/utils';
   import { ANIMATION_CONFIG } from '@lib/animation/config';
 
   setupAnimationLifecycle(() => {
-    const heading = document.querySelector('.services-hero__heading');
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    const heading = document.querySelector(
+      '.services-hero__heading'
+    ) as HTMLElement;
     const divider = document.querySelector('.services-hero__divider');
     const tagline = document.querySelector('.services-hero__tagline');
 
     if (!heading) return;
 
-    // Initial states
-    gsap.set(heading, { opacity: 0, y: 40 });
+    // If reduced motion, show everything immediately
+    if (prefersReducedMotion) {
+      gsap.set([heading, divider, tagline].filter(Boolean), {
+        opacity: 1,
+        transform: 'none',
+      });
+      return;
+    }
+
+    // Split heading into words for editorial reveal
+    const headingSplit = new SplitText(heading, { type: 'words' });
+    const headingWords = headingSplit.words as HTMLElement[];
+
+    // Wrap each word for clip overflow
+    headingWords.forEach((word) => {
+      const wrapper = document.createElement('span');
+      wrapper.style.display = 'inline-block';
+      wrapper.style.overflow = 'hidden';
+      wrapper.style.verticalAlign = 'top';
+      wrapper.style.paddingBottom = '0.15em'; // Extra padding for descenders
+      wrapper.classList.add('services-hero__word-wrapper');
+
+      word.parentNode?.insertBefore(wrapper, word);
+      wrapper.appendChild(word);
+
+      // Set initial state
+      gsap.set(word, { y: '100%', opacity: 0 });
+    });
+
+    // Initial states for other elements
     if (divider) {
       gsap.set(divider, { opacity: 0, scaleX: 0 });
     }
@@ -211,15 +265,16 @@ const parts = renderHeadingParts();
       },
     });
 
-    // Heading fades in and rises
-    tl.to(heading, {
-      opacity: 1,
+    // Heading words reveal with editorial stagger
+    tl.to(headingWords, {
       y: 0,
-      duration: 0.8,
+      opacity: 1,
+      duration: 0.7,
+      stagger: 0.05,
       ease: 'power3.out',
     });
 
-    // Divider expands from center
+    // Divider expands from center (overlaps with heading end)
     if (divider) {
       tl.to(
         divider,
@@ -247,7 +302,7 @@ const parts = renderHeadingParts();
       );
     }
 
-    // Subtle parallax on scroll
+    // Subtle parallax on scroll - only affects visible words
     ScrollTrigger.create({
       trigger: '.services-hero',
       start: 'top top',
@@ -255,7 +310,11 @@ const parts = renderHeadingParts();
       scrub: 1,
       onUpdate: (self) => {
         const progress = self.progress;
-        gsap.set(heading, { y: progress * 30 });
+        // Apply parallax to the word wrappers, not the words themselves
+        const wrappers = document.querySelectorAll(
+          '.services-hero__word-wrapper'
+        );
+        gsap.set(wrappers, { y: progress * 30 });
       },
     });
   });

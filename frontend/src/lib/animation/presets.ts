@@ -313,3 +313,190 @@ export function createSectionContract(
     },
   });
 }
+
+/**
+ * Editorial Reveal Animation
+ *
+ * Creates a refined, typography-focused reveal where text appears
+ * word-by-word or character-by-character with subtle vertical movement.
+ * Designed for headings and featured text in an editorial context.
+ *
+ * @param selector - CSS selector for the text elements
+ * @param options - Configuration options
+ *
+ * @example
+ * // Basic word-by-word reveal
+ * createEditorialReveal('.my-heading');
+ *
+ * // Character-by-character with custom timing
+ * createEditorialReveal('.title', {
+ *   splitType: 'chars',
+ *   stagger: 0.02,
+ *   duration: 0.4,
+ * });
+ */
+export function createEditorialReveal(
+  selector: string,
+  options: {
+    /** Split type: 'words' (default) or 'chars' for character animation */
+    splitType?: 'words' | 'chars';
+    /** Stagger delay between elements in seconds (default: 0.04) */
+    stagger?: number;
+    /** Duration per element in seconds (default: 0.6) */
+    duration?: number;
+    /** Starting Y offset as percentage (default: '100%') */
+    y?: string;
+    /** Easing function (default: 'power3.out') */
+    ease?: string;
+    /** Override trigger start position (default: 'top 75%') */
+    start?: string;
+  } = {}
+): gsap.core.Timeline | null {
+  const {
+    splitType = 'words',
+    stagger = 0.04,
+    duration = 0.6,
+    y = '100%',
+    ease = 'power3.out',
+    start = ANIMATION_CONFIG.triggers.editorialStyle?.start || 'top 75%',
+  } = options;
+
+  const elements = document.querySelectorAll(selector);
+  if (elements.length === 0) return null;
+
+  // Create a master timeline for all elements
+  const masterTl = gsap.timeline();
+
+  elements.forEach((el) => {
+    const htmlEl = el as HTMLElement;
+
+    // Split text into words or characters
+    const split = new SplitText(htmlEl, { type: splitType });
+    const items =
+      splitType === 'words'
+        ? (split.words as HTMLElement[])
+        : (split.chars as HTMLElement[]);
+
+    // Wrap each item for clip overflow
+    items.forEach((item) => {
+      const wrapper = document.createElement('span');
+      wrapper.style.display = 'inline-block';
+      wrapper.style.overflow = 'hidden';
+      wrapper.style.verticalAlign = 'top';
+      wrapper.style.paddingBottom = '0.1em'; // Prevent descender clipping
+      wrapper.classList.add('editorial-word-wrapper');
+
+      item.parentNode?.insertBefore(wrapper, item);
+      wrapper.appendChild(item);
+
+      // Set initial state on the item
+      gsap.set(item, { y, opacity: 0 });
+    });
+
+    // Create timeline for this element
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: htmlEl,
+        start,
+        once: true,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      },
+    });
+
+    // Animate items with stagger
+    tl.to(items, {
+      y: 0,
+      opacity: 1,
+      duration,
+      stagger,
+      ease,
+    });
+
+    masterTl.add(tl, 0);
+  });
+
+  return masterTl;
+}
+
+/**
+ * Staggered Entrance Animation
+ *
+ * Creates a choreographed entrance for multiple elements within a container.
+ * Commonly used for lists, cards, and sequential content with configurable
+ * direction and timing.
+ *
+ * @param selector - CSS selector for parent container(s)
+ * @param childSelector - CSS selector for child elements to animate
+ * @param options - Configuration options
+ *
+ * @example
+ * // Basic list animation
+ * createStaggeredEntrance('.my-list', 'li');
+ *
+ * // Horizontal slide with custom timing
+ * createStaggeredEntrance('.card-grid', '.card', {
+ *   x: 20,
+ *   y: 0,
+ *   stagger: 0.1,
+ * });
+ */
+export function createStaggeredEntrance(
+  selector: string,
+  childSelector: string,
+  options: {
+    /** Stagger delay between children in seconds (default: 0.08) */
+    stagger?: number;
+    /** Animation duration per child in seconds (default: 0.5) */
+    duration?: number;
+    /** Starting Y offset in pixels (default: 15) */
+    y?: number;
+    /** Starting X offset in pixels (default: 0) */
+    x?: number;
+    /** Starting opacity (default: 0) */
+    fromOpacity?: number;
+    /** Easing function (default: 'power2.out') */
+    ease?: string;
+    /** Override trigger start position (default: 'top 75%') */
+    start?: string;
+  } = {}
+): void {
+  const {
+    stagger = 0.08,
+    duration = 0.5,
+    y = 15,
+    x = 0,
+    fromOpacity = 0,
+    ease = 'power2.out',
+    start = ANIMATION_CONFIG.triggers.editorialStyle?.start || 'top 75%',
+  } = options;
+
+  const containers = document.querySelectorAll(selector);
+
+  containers.forEach((container) => {
+    const children = container.querySelectorAll(childSelector);
+    if (children.length === 0) return;
+
+    // Set initial states
+    gsap.set(children, { opacity: fromOpacity, x, y });
+
+    // Create timeline with scroll trigger
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: container,
+        start,
+        once: true,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      },
+    });
+
+    // Animate children with stagger
+    tl.to(children, {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      duration,
+      stagger,
+      ease,
+    });
+  });
+}

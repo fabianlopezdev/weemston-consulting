@@ -299,7 +299,12 @@ const gridClasses = [
   .join(' ');
 ---
 
-<article class="service-section" style={cssVars}>
+<article
+  class="service-section"
+  style={cssVars}
+  data-animate
+  data-reversed={imagePosition === 'right'}
+>
   <div class="container">
     <div class={gridClasses}>
       <div class="service-section__media-column">
@@ -605,4 +610,271 @@ const gridClasses = [
     text-decoration: none;
     transition: background-color 0.2s ease;
   }
+
+  /* Animation-ready states */
+  .service-section[data-animate] .service-section__media-column,
+  .service-section[data-animate] .service-section__tag,
+  .service-section[data-animate] .service-section__title,
+  .service-section[data-animate] .service-section__lead,
+  .service-section[data-animate] .service-section__description,
+  .service-section[data-animate] .service-section__list-wrapper,
+  .service-section[data-animate] .service-section__case-studies {
+    opacity: 0;
+  }
+
+  /* Word reveal clip container */
+  .service-section__title :global(.editorial-word-wrapper) {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.1em;
+  }
+
+  /* Tag clip reveal initial state */
+  .service-section[data-animate] .service-section__tag {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  /* List item initial state for stagger */
+  .service-section__list li {
+    will-change: transform, opacity;
+  }
+
+  /* Case study pill initial state */
+  .service-section__case-study-pill {
+    will-change: transform, opacity;
+  }
+
+  /* Reduced motion: show all immediately */
+  @media (prefers-reduced-motion: reduce) {
+    .service-section[data-animate] .service-section__media-column,
+    .service-section[data-animate] .service-section__tag,
+    .service-section[data-animate] .service-section__title,
+    .service-section[data-animate] .service-section__lead,
+    .service-section[data-animate] .service-section__description,
+    .service-section[data-animate] .service-section__list-wrapper,
+    .service-section[data-animate] .service-section__case-studies {
+      opacity: 1 !important;
+      transform: none !important;
+      clip-path: none !important;
+    }
+  }
 </style>
+
+<script>
+  import {
+    setupAnimationLifecycle,
+    gsap,
+    SplitText,
+  } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    const sections = document.querySelectorAll(
+      '.service-section[data-animate]'
+    );
+
+    sections.forEach((section) => {
+      const htmlSection = section as HTMLElement;
+
+      // If reduced motion, show everything immediately
+      if (prefersReducedMotion) {
+        gsap.set(section.querySelectorAll('[class*="service-section__"]'), {
+          opacity: 1,
+          transform: 'none',
+          clipPath: 'none',
+        });
+        return;
+      }
+
+      // Get elements within this section
+      const mediaColumn = section.querySelector(
+        '.service-section__media-column'
+      );
+      const tag = section.querySelector('.service-section__tag');
+      const title = section.querySelector('.service-section__title');
+      const lead = section.querySelector('.service-section__lead');
+      const description = section.querySelector(
+        '.service-section__description'
+      );
+      const listWrapper = section.querySelector(
+        '.service-section__list-wrapper'
+      );
+      const listItems = section.querySelectorAll('.service-section__list li');
+      const caseStudies = section.querySelector(
+        '.service-section__case-studies'
+      );
+      const caseStudyPills = section.querySelectorAll(
+        '.service-section__case-study-pill'
+      );
+
+      // Check if this is a reversed layout
+      const isReversed = htmlSection.dataset.reversed === 'true';
+
+      // Set initial states
+      if (mediaColumn) {
+        gsap.set(mediaColumn, { opacity: 0, scale: 0.95 });
+      }
+      if (tag) {
+        gsap.set(tag, { opacity: 0, clipPath: 'inset(0 0 100% 0)' });
+      }
+      if (lead) {
+        gsap.set(lead, { opacity: 0, y: 15 });
+      }
+      if (description) {
+        gsap.set(description, { opacity: 0, y: 10 });
+      }
+      if (listWrapper) {
+        gsap.set(listWrapper, { opacity: 1 }); // Wrapper visible, items hidden
+      }
+      if (listItems.length > 0) {
+        const xDirection = isReversed ? -10 : 10;
+        gsap.set(listItems, { opacity: 0, x: xDirection });
+      }
+      if (caseStudies) {
+        gsap.set(caseStudies, { opacity: 1 }); // Container visible, pills hidden
+      }
+      if (caseStudyPills.length > 0) {
+        gsap.set(caseStudyPills, { opacity: 0, y: 10 });
+      }
+
+      // Split title into words for editorial reveal
+      let titleWords: HTMLElement[] = [];
+      if (title) {
+        const titleSplit = new SplitText(title, { type: 'words' });
+        titleWords = titleSplit.words as HTMLElement[];
+
+        // Wrap each word for clip overflow
+        titleWords.forEach((word) => {
+          const wrapper = document.createElement('span');
+          wrapper.style.display = 'inline-block';
+          wrapper.style.overflow = 'hidden';
+          wrapper.style.verticalAlign = 'top';
+          wrapper.style.paddingBottom = '0.1em';
+          wrapper.classList.add('editorial-word-wrapper');
+
+          word.parentNode?.insertBefore(wrapper, word);
+          wrapper.appendChild(word);
+
+          // Set initial state
+          gsap.set(word, { y: '100%', opacity: 0 });
+        });
+
+        // Make title visible now that words are set up
+        gsap.set(title, { opacity: 1 });
+      }
+
+      // Create choreographed timeline
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: ANIMATION_CONFIG.triggers.editorialStyle.start,
+          once: true,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+        },
+      });
+
+      // Phase 1: Media column fades in with subtle scale
+      if (mediaColumn) {
+        tl.to(mediaColumn, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.6,
+          ease: 'power2.out',
+        });
+      }
+
+      // Phase 2: Tag clips open (overlaps with media)
+      if (tag) {
+        tl.to(
+          tag,
+          {
+            opacity: 1,
+            clipPath: 'inset(0 0 0% 0)',
+            duration: 0.4,
+            ease: 'power2.out',
+          },
+          '-=0.3'
+        );
+      }
+
+      // Phase 3: Title words reveal (editorial style)
+      if (titleWords.length > 0) {
+        tl.to(
+          titleWords,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.04,
+            ease: 'power3.out',
+          },
+          '-=0.2'
+        );
+      }
+
+      // Phase 4: Lead text fades in
+      if (lead) {
+        tl.to(
+          lead,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+          },
+          '-=0.1'
+        );
+      }
+
+      // Phase 5: Description fades in
+      if (description) {
+        tl.to(
+          description,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+          },
+          '-=0.2'
+        );
+      }
+
+      // Phase 6: List items stagger in
+      if (listItems.length > 0) {
+        tl.to(
+          listItems,
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.4,
+            stagger: 0.06,
+            ease: 'power2.out',
+          },
+          '-=0.2'
+        );
+      }
+
+      // Phase 7: Case study pills stagger in
+      if (caseStudyPills.length > 0) {
+        tl.to(
+          caseStudyPills,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.3,
+            stagger: 0.05,
+            ease: 'power2.out',
+          },
+          '-=0.1'
+        );
+      }
+    });
+  });
+</script>
