@@ -21,14 +21,8 @@ export default defineType({
       options: { collapsible: true, collapsed: false },
     },
     {
-      name: 'colorSettings',
-      title: '🎨 Color Settings',
-      description: 'Customize colors for this service section',
-      options: { collapsible: true, collapsed: true },
-    },
-    {
       name: 'listSection',
-      title: 'List Section',
+      title: '📝 List Section',
       description: 'Optional bulleted list to highlight key offerings',
       options: { collapsible: true, collapsed: true },
     },
@@ -59,6 +53,46 @@ export default defineType({
     },
 
     // Services Page Fields
+    // Background Color
+    {
+      name: 'backgroundColorType',
+      title: 'Background Color',
+      type: 'string',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+    },
+    {
+      name: 'backgroundColorShade',
+      title: 'Background Shade',
+      type: 'number',
+      fieldset: 'servicesPage',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        parent?.backgroundColorType === 'custom' ||
+        parent?.backgroundColorType === 'default' ||
+        !parent?.backgroundColorType,
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'backgroundCustomColor',
+      title: 'Custom Background Color',
+      type: 'simplerColor',
+      fieldset: 'servicesPage',
+      hidden: ({ parent }) => parent?.backgroundColorType !== 'custom',
+    },
+
+    // Tag
     {
       name: 'tag',
       title: 'Tag',
@@ -68,6 +102,60 @@ export default defineType({
         'Small uppercase label above the title (e.g., "01", "Strategy")',
     },
     {
+      name: 'tagColor',
+      title: 'Tag Color',
+      type: 'string',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.tag,
+    },
+
+    // Title Color
+    {
+      name: 'titleColorType',
+      title: 'Title Color',
+      type: 'string',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+    },
+    {
+      name: 'titleColorShade',
+      title: 'Title Shade',
+      type: 'number',
+      fieldset: 'servicesPage',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.titleColorType === 'custom',
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'titleCustomColor',
+      title: 'Custom Title Color',
+      type: 'simplerColor',
+      fieldset: 'servicesPage',
+      hidden: ({ parent }) => parent?.titleColorType !== 'custom',
+    },
+
+    // Lead Text
+    {
       name: 'leadText',
       title: 'Lead Text',
       type: 'text',
@@ -76,6 +164,25 @@ export default defineType({
       description: 'Bold introductory text below the title',
     },
     {
+      name: 'leadTextColor',
+      title: 'Lead Text Color',
+      type: 'string',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
+      hidden: ({ parent }) => !parent?.leadText,
+    },
+
+    // Description
+    {
       name: 'description',
       title: 'Description',
       type: 'text',
@@ -83,6 +190,25 @@ export default defineType({
       fieldset: 'servicesPage',
       description: 'Main body text for this service',
     },
+    {
+      name: 'descriptionTextColor',
+      title: 'Description Color',
+      type: 'string',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'muted',
+      hidden: ({ parent }) => !parent?.description,
+    },
+
+    // Image/Icon
     {
       name: 'iconType',
       title: 'Image Type',
@@ -120,6 +246,42 @@ export default defineType({
       hidden: ({ parent }) => parent?.iconType === 'image',
     },
     {
+      name: 'iconColorType',
+      title: 'Icon Color',
+      type: 'string',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+      hidden: ({ parent }) => parent?.iconType === 'image',
+    },
+    {
+      name: 'iconColorShade',
+      title: 'Icon Shade',
+      type: 'number',
+      fieldset: 'servicesPage',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        parent?.iconType === 'image' || parent?.iconColorType === 'custom',
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'iconCustomColor',
+      title: 'Custom Icon Color',
+      type: 'simplerColor',
+      fieldset: 'servicesPage',
+      hidden: ({ parent }) =>
+        parent?.iconType === 'image' || parent?.iconColorType !== 'custom',
+    },
+    {
       name: 'iconImage',
       title: 'Image',
       type: 'image',
@@ -138,6 +300,43 @@ export default defineType({
       hidden: ({ parent }) => parent?.iconType !== 'image',
     },
     {
+      name: 'iconContainerColorType',
+      title: 'Image/Icon Container Background',
+      type: 'string',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+    },
+    {
+      name: 'iconContainerColorShade',
+      title: 'Container Shade',
+      type: 'number',
+      fieldset: 'servicesPage',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        parent?.iconContainerColorType === 'custom' ||
+        parent?.iconContainerColorType === 'default' ||
+        !parent?.iconContainerColorType,
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'iconContainerCustomColor',
+      title: 'Custom Container Color',
+      type: 'simplerColor',
+      fieldset: 'servicesPage',
+      hidden: ({ parent }) => parent?.iconContainerColorType !== 'custom',
+    },
+    {
       name: 'imagePosition',
       title: 'Image/Icon Position',
       type: 'string',
@@ -153,213 +352,7 @@ export default defineType({
       initialValue: 'left',
     },
 
-    // Color Settings
-    {
-      name: 'backgroundColorType',
-      title: 'Background Color',
-      type: 'string',
-      fieldset: 'colorSettings',
-      options: {
-        list: [
-          { title: 'Default', value: 'default' },
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'default',
-    },
-    {
-      name: 'backgroundColorShade',
-      title: 'Background Shade',
-      type: 'number',
-      fieldset: 'colorSettings',
-      initialValue: 0,
-      hidden: ({ parent }) =>
-        parent?.backgroundColorType === 'custom' ||
-        parent?.backgroundColorType === 'default' ||
-        !parent?.backgroundColorType,
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'backgroundCustomColor',
-      title: 'Custom Background Color',
-      type: 'simplerColor',
-      fieldset: 'colorSettings',
-      hidden: ({ parent }) => parent?.backgroundColorType !== 'custom',
-    },
-    {
-      name: 'titleColorType',
-      title: 'Title Color',
-      type: 'string',
-      fieldset: 'colorSettings',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'accent',
-    },
-    {
-      name: 'titleColorShade',
-      title: 'Title Shade',
-      type: 'number',
-      fieldset: 'colorSettings',
-      initialValue: 0,
-      hidden: ({ parent }) => parent?.titleColorType === 'custom',
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'titleCustomColor',
-      title: 'Custom Title Color',
-      type: 'simplerColor',
-      fieldset: 'colorSettings',
-      hidden: ({ parent }) => parent?.titleColorType !== 'custom',
-    },
-    {
-      name: 'tagColor',
-      title: 'Tag Text Color',
-      type: 'string',
-      fieldset: 'colorSettings',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'accent',
-    },
-    {
-      name: 'leadTextColor',
-      title: 'Lead Text Color',
-      type: 'string',
-      fieldset: 'colorSettings',
-      options: {
-        list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Muted', value: 'muted' },
-          { title: 'Contrast', value: 'contrast' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'base',
-    },
-    {
-      name: 'descriptionTextColor',
-      title: 'Description Text Color',
-      type: 'string',
-      fieldset: 'colorSettings',
-      options: {
-        list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Muted', value: 'muted' },
-          { title: 'Contrast', value: 'contrast' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'muted',
-    },
-    {
-      name: 'iconColorType',
-      title: 'Icon Color',
-      type: 'string',
-      fieldset: 'colorSettings',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'accent',
-    },
-    {
-      name: 'iconColorShade',
-      title: 'Icon Shade',
-      type: 'number',
-      fieldset: 'colorSettings',
-      initialValue: 0,
-      hidden: ({ parent }) => parent?.iconColorType === 'custom',
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'iconCustomColor',
-      title: 'Custom Icon Color',
-      type: 'simplerColor',
-      fieldset: 'colorSettings',
-      hidden: ({ parent }) => parent?.iconColorType !== 'custom',
-    },
-    {
-      name: 'iconContainerColorType',
-      title: 'Icon Container Background',
-      type: 'string',
-      fieldset: 'colorSettings',
-      options: {
-        list: [
-          { title: 'Default', value: 'default' },
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'default',
-    },
-    {
-      name: 'iconContainerColorShade',
-      title: 'Icon Container Shade',
-      type: 'number',
-      fieldset: 'colorSettings',
-      initialValue: 0,
-      hidden: ({ parent }) =>
-        parent?.iconContainerColorType === 'custom' ||
-        parent?.iconContainerColorType === 'default' ||
-        !parent?.iconContainerColorType,
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'iconContainerCustomColor',
-      title: 'Custom Icon Container Color',
-      type: 'simplerColor',
-      fieldset: 'colorSettings',
-      hidden: ({ parent }) => parent?.iconContainerColorType !== 'custom',
-    },
-
     // List Section
-    {
-      name: 'listStyle',
-      title: 'List Style',
-      type: 'string',
-      fieldset: 'listSection',
-      options: {
-        list: [
-          { title: 'Checkmark', value: 'checkmark' },
-          { title: 'Arrow', value: 'arrow' },
-          { title: 'Bullet', value: 'bullet' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'checkmark',
-    },
     {
       name: 'listTitle',
       title: 'List Title',
@@ -376,6 +369,23 @@ export default defineType({
       description: 'Individual items in the list',
     },
     {
+      name: 'listStyle',
+      title: 'List Style',
+      type: 'string',
+      fieldset: 'listSection',
+      options: {
+        list: [
+          { title: 'Checkmark', value: 'checkmark' },
+          { title: 'Arrow', value: 'arrow' },
+          { title: 'Bullet', value: 'bullet' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'checkmark',
+      hidden: ({ parent }) => !parent?.listItems?.length,
+    },
+    {
       name: 'listTextColor',
       title: 'List Text Color',
       type: 'string',
@@ -390,6 +400,43 @@ export default defineType({
         direction: 'horizontal',
       },
       initialValue: 'base',
+      hidden: ({ parent }) => !parent?.listItems?.length,
+    },
+    {
+      name: 'listIconColorType',
+      title: 'List Icon/Bullet Color',
+      type: 'string',
+      fieldset: 'listSection',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.listItems?.length,
+    },
+    {
+      name: 'listIconColorShade',
+      title: 'List Icon Shade',
+      type: 'number',
+      fieldset: 'listSection',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.listItems?.length || parent?.listIconColorType === 'custom',
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'listIconCustomColor',
+      title: 'Custom List Icon Color',
+      type: 'simplerColor',
+      fieldset: 'listSection',
+      hidden: ({ parent }) =>
+        !parent?.listItems?.length || parent?.listIconColorType !== 'custom',
     },
     {
       name: 'listContainerColorType',
@@ -406,6 +453,7 @@ export default defineType({
         ],
       },
       initialValue: 'default',
+      hidden: ({ parent }) => !parent?.listItems?.length,
     },
     {
       name: 'listContainerColorShade',
@@ -414,6 +462,7 @@ export default defineType({
       fieldset: 'listSection',
       initialValue: 0,
       hidden: ({ parent }) =>
+        !parent?.listItems?.length ||
         parent?.listContainerColorType === 'custom' ||
         parent?.listContainerColorType === 'default' ||
         !parent?.listContainerColorType,
@@ -426,40 +475,9 @@ export default defineType({
       title: 'Custom List Container Color',
       type: 'simplerColor',
       fieldset: 'listSection',
-      hidden: ({ parent }) => parent?.listContainerColorType !== 'custom',
-    },
-    {
-      name: 'listIconColorType',
-      title: 'List Icon/Bullet Color',
-      type: 'string',
-      fieldset: 'listSection',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'accent',
-    },
-    {
-      name: 'listIconColorShade',
-      title: 'List Icon Shade',
-      type: 'number',
-      fieldset: 'listSection',
-      initialValue: 0,
-      hidden: ({ parent }) => parent?.listIconColorType === 'custom',
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'listIconCustomColor',
-      title: 'Custom List Icon Color',
-      type: 'simplerColor',
-      fieldset: 'listSection',
-      hidden: ({ parent }) => parent?.listIconColorType !== 'custom',
+      hidden: ({ parent }) =>
+        !parent?.listItems?.length ||
+        parent?.listContainerColorType !== 'custom',
     },
 
     // Case Studies Section
@@ -470,6 +488,97 @@ export default defineType({
       fieldset: 'caseStudiesSection',
       description:
         'Text above the case study buttons (e.g., "Clients that hire this service:")',
+    },
+    {
+      name: 'caseStudiesTitleColorType',
+      title: 'Section Title Color',
+      type: 'string',
+      fieldset: 'caseStudiesSection',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.caseStudiesSectionTitle,
+    },
+    {
+      name: 'caseStudiesTitleColorShade',
+      title: 'Section Title Shade',
+      type: 'number',
+      fieldset: 'caseStudiesSection',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.caseStudiesSectionTitle ||
+        parent?.caseStudiesTitleColorType === 'custom',
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'caseStudiesTitleCustomColor',
+      title: 'Custom Section Title Color',
+      type: 'simplerColor',
+      fieldset: 'caseStudiesSection',
+      hidden: ({ parent }) =>
+        !parent?.caseStudiesSectionTitle ||
+        parent?.caseStudiesTitleColorType !== 'custom',
+    },
+    {
+      name: 'caseStudiesPillBgColorType',
+      title: 'Pill Background Color',
+      type: 'string',
+      fieldset: 'caseStudiesSection',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+    },
+    {
+      name: 'caseStudiesPillBgColorShade',
+      title: 'Pill Background Shade',
+      type: 'number',
+      fieldset: 'caseStudiesSection',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        parent?.caseStudiesPillBgColorType === 'custom' ||
+        parent?.caseStudiesPillBgColorType === 'default' ||
+        !parent?.caseStudiesPillBgColorType,
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'caseStudiesPillBgCustomColor',
+      title: 'Custom Pill Background Color',
+      type: 'simplerColor',
+      fieldset: 'caseStudiesSection',
+      hidden: ({ parent }) => parent?.caseStudiesPillBgColorType !== 'custom',
+    },
+    {
+      name: 'caseStudiesPillTextColor',
+      title: 'Pill Text Color',
+      type: 'string',
+      fieldset: 'caseStudiesSection',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
     },
     {
       name: 'featuredCaseStudies',

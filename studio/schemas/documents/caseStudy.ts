@@ -14,22 +14,10 @@ export default defineType({
       options: { collapsible: true, collapsed: false },
     },
     {
-      name: 'imageColors',
-      title: '🎨 Image Section Colors',
-      description: 'Customize colors for the image overlay area',
-      options: { collapsible: true, collapsed: true },
-    },
-    {
       name: 'detailsSection',
       title: '📄 Details',
       description: 'Project timeline, description, and contributions',
       options: { collapsible: true, collapsed: false },
-    },
-    {
-      name: 'detailsColors',
-      title: '🎨 Details Section Colors',
-      description: 'Customize colors for the details area',
-      options: { collapsible: true, collapsed: true },
     },
   ],
   fields: [
@@ -39,6 +27,22 @@ export default defineType({
       title: 'Client Name',
       type: 'string',
       description: 'The main heading (e.g., "Fyn")',
+    },
+    {
+      name: 'clientColor',
+      title: 'Client Name Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'contrast',
+      hidden: ({ parent }) => !parent?.client,
     },
     defineLanguageField(),
 
@@ -71,6 +75,55 @@ export default defineType({
       ],
     },
     {
+      name: 'overlayColorType',
+      title: 'Overlay Color',
+      type: 'string',
+      fieldset: 'imageSection',
+      description: 'Color for the gradient overlay on the image',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'primary',
+      hidden: ({ parent }) => !parent?.mainImage,
+    },
+    {
+      name: 'overlayColorShade',
+      title: 'Overlay Shade',
+      type: 'number',
+      fieldset: 'imageSection',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.mainImage || parent?.overlayColorType === 'custom',
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'overlayCustomColor',
+      title: 'Custom Overlay Color',
+      type: 'simplerColor',
+      fieldset: 'imageSection',
+      hidden: ({ parent }) =>
+        !parent?.mainImage || parent?.overlayColorType !== 'custom',
+    },
+    {
+      name: 'overlayOpacity',
+      title: 'Overlay Opacity',
+      type: 'number',
+      fieldset: 'imageSection',
+      description: 'How much of the overlay color shows (0-100)',
+      initialValue: 70,
+      validation: (Rule) => Rule.min(0).max(100),
+      hidden: ({ parent }) => !parent?.mainImage,
+    },
+
+    // Icon
+    {
       name: 'icon',
       title: 'Icon',
       type: 'string',
@@ -98,104 +151,10 @@ export default defineType({
       initialValue: 'globe',
     },
     {
-      name: 'category',
-      title: 'Category',
-      type: 'string',
-      fieldset: 'imageSection',
-      description:
-        'Uppercase category tag (e.g., "OPERATIONS", "MEETING DESIGN")',
-    },
-    {
-      name: 'role',
-      title: 'Role / Subtitle',
-      type: 'string',
-      fieldset: 'imageSection',
-      description:
-        'Your role or service provided (e.g., "CFO Fractional Services")',
-    },
-
-    // Image Section Colors
-    {
-      name: 'overlayColorType',
-      title: 'Overlay Color',
-      type: 'string',
-      fieldset: 'imageColors',
-      description: 'Color for the gradient overlay on the image',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'primary',
-    },
-    {
-      name: 'overlayColorShade',
-      title: 'Overlay Shade',
-      type: 'number',
-      fieldset: 'imageColors',
-      initialValue: 0,
-      hidden: ({ parent }) => parent?.overlayColorType === 'custom',
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'overlayCustomColor',
-      title: 'Custom Overlay Color',
-      type: 'simplerColor',
-      fieldset: 'imageColors',
-      hidden: ({ parent }) => parent?.overlayColorType !== 'custom',
-    },
-    {
-      name: 'overlayOpacity',
-      title: 'Overlay Opacity',
-      type: 'number',
-      fieldset: 'imageColors',
-      description: 'How much of the overlay color shows (0-100)',
-      initialValue: 70,
-      validation: (Rule) => Rule.min(0).max(100),
-    },
-    {
-      name: 'iconBgColorType',
-      title: 'Icon Background Color',
-      type: 'string',
-      fieldset: 'imageColors',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'primary',
-    },
-    {
-      name: 'iconBgColorShade',
-      title: 'Icon Background Shade',
-      type: 'number',
-      fieldset: 'imageColors',
-      initialValue: 100,
-      hidden: ({ parent }) => parent?.iconBgColorType === 'custom',
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'iconBgCustomColor',
-      title: 'Custom Icon Background Color',
-      type: 'simplerColor',
-      fieldset: 'imageColors',
-      hidden: ({ parent }) => parent?.iconBgColorType !== 'custom',
-    },
-    {
       name: 'iconColorType',
       title: 'Icon Color',
       type: 'string',
-      fieldset: 'imageColors',
+      fieldset: 'imageSection',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -205,14 +164,16 @@ export default defineType({
         ],
       },
       initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.icon,
     },
     {
       name: 'iconColorShade',
       title: 'Icon Shade',
       type: 'number',
-      fieldset: 'imageColors',
+      fieldset: 'imageSection',
       initialValue: 0,
-      hidden: ({ parent }) => parent?.iconColorType === 'custom',
+      hidden: ({ parent }) =>
+        !parent?.icon || parent?.iconColorType === 'custom',
       components: {
         input: BackgroundShadeInput,
       },
@@ -221,14 +182,61 @@ export default defineType({
       name: 'iconCustomColor',
       title: 'Custom Icon Color',
       type: 'simplerColor',
-      fieldset: 'imageColors',
-      hidden: ({ parent }) => parent?.iconColorType !== 'custom',
+      fieldset: 'imageSection',
+      hidden: ({ parent }) =>
+        !parent?.icon || parent?.iconColorType !== 'custom',
+    },
+    {
+      name: 'iconBgColorType',
+      title: 'Icon Background Color',
+      type: 'string',
+      fieldset: 'imageSection',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'primary',
+      hidden: ({ parent }) => !parent?.icon,
+    },
+    {
+      name: 'iconBgColorShade',
+      title: 'Icon Background Shade',
+      type: 'number',
+      fieldset: 'imageSection',
+      initialValue: 100,
+      hidden: ({ parent }) =>
+        !parent?.icon || parent?.iconBgColorType === 'custom',
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'iconBgCustomColor',
+      title: 'Custom Icon Background Color',
+      type: 'simplerColor',
+      fieldset: 'imageSection',
+      hidden: ({ parent }) =>
+        !parent?.icon || parent?.iconBgColorType !== 'custom',
+    },
+
+    // Category
+    {
+      name: 'category',
+      title: 'Category',
+      type: 'string',
+      fieldset: 'imageSection',
+      description:
+        'Uppercase category tag (e.g., "OPERATIONS", "MEETING DESIGN")',
     },
     {
       name: 'categoryColor',
-      title: 'Category Text Color',
+      title: 'Category Color',
       type: 'string',
-      fieldset: 'imageColors',
+      fieldset: 'imageSection',
       options: {
         list: [
           { title: 'Base', value: 'base' },
@@ -239,28 +247,23 @@ export default defineType({
         direction: 'horizontal',
       },
       initialValue: 'contrast',
+      hidden: ({ parent }) => !parent?.category,
     },
+
+    // Role
     {
-      name: 'clientColor',
-      title: 'Client Name Color',
+      name: 'role',
+      title: 'Role / Subtitle',
       type: 'string',
-      fieldset: 'imageColors',
-      options: {
-        list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Muted', value: 'muted' },
-          { title: 'Contrast', value: 'contrast' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'contrast',
+      fieldset: 'imageSection',
+      description:
+        'Your role or service provided (e.g., "CFO Fractional Services")',
     },
     {
       name: 'roleColor',
-      title: 'Role Text Color',
+      title: 'Role Color',
       type: 'string',
-      fieldset: 'imageColors',
+      fieldset: 'imageSection',
       options: {
         list: [
           { title: 'Base', value: 'base' },
@@ -271,47 +274,16 @@ export default defineType({
         direction: 'horizontal',
       },
       initialValue: 'contrast',
+      hidden: ({ parent }) => !parent?.role,
     },
 
     // Details Section
-    {
-      name: 'date',
-      title: 'Date / Timeline',
-      type: 'string',
-      fieldset: 'detailsSection',
-      description: 'Project timeline (e.g., "MARCH 2024 - PRESENT")',
-    },
-    {
-      name: 'description',
-      title: 'Description',
-      type: 'text',
-      rows: 4,
-      fieldset: 'detailsSection',
-      description: 'Summary paragraph explaining the project scope',
-    },
-    {
-      name: 'contributionsTitle',
-      title: 'Contributions Section Title',
-      type: 'string',
-      fieldset: 'detailsSection',
-      description: 'Title for the right column (e.g., "KEY CONTRIBUTIONS")',
-      initialValue: 'KEY CONTRIBUTIONS',
-    },
-    {
-      name: 'contributions',
-      title: 'Key Contributions',
-      type: 'array',
-      fieldset: 'detailsSection',
-      of: [{ type: 'string' }],
-      description: 'List of specific achievements or deliverables',
-    },
-
-    // Details Section Colors
+    // Background Color
     {
       name: 'contentBgColorType',
       title: 'Background Color',
       type: 'string',
-      fieldset: 'detailsColors',
+      fieldset: 'detailsSection',
       options: {
         list: [
           { title: 'Default', value: 'default' },
@@ -327,7 +299,7 @@ export default defineType({
       name: 'contentBgColorShade',
       title: 'Background Shade',
       type: 'number',
-      fieldset: 'detailsColors',
+      fieldset: 'detailsSection',
       initialValue: 95,
       hidden: ({ parent }) =>
         parent?.contentBgColorType === 'custom' ||
@@ -341,14 +313,23 @@ export default defineType({
       name: 'contentBgCustomColor',
       title: 'Custom Background Color',
       type: 'simplerColor',
-      fieldset: 'detailsColors',
+      fieldset: 'detailsSection',
       hidden: ({ parent }) => parent?.contentBgColorType !== 'custom',
+    },
+
+    // Date
+    {
+      name: 'date',
+      title: 'Date / Timeline',
+      type: 'string',
+      fieldset: 'detailsSection',
+      description: 'Project timeline (e.g., "MARCH 2024 - PRESENT")',
     },
     {
       name: 'dateColor',
-      title: 'Date Text Color',
+      title: 'Date Color',
       type: 'string',
-      fieldset: 'detailsColors',
+      fieldset: 'detailsSection',
       options: {
         list: [
           { title: 'Base', value: 'base' },
@@ -359,12 +340,23 @@ export default defineType({
         direction: 'horizontal',
       },
       initialValue: 'muted',
+      hidden: ({ parent }) => !parent?.date,
+    },
+
+    // Description
+    {
+      name: 'description',
+      title: 'Description',
+      type: 'text',
+      rows: 4,
+      fieldset: 'detailsSection',
+      description: 'Summary paragraph explaining the project scope',
     },
     {
       name: 'descriptionColor',
-      title: 'Description Text Color',
+      title: 'Description Color',
       type: 'string',
-      fieldset: 'detailsColors',
+      fieldset: 'detailsSection',
       options: {
         list: [
           { title: 'Base', value: 'base' },
@@ -375,12 +367,23 @@ export default defineType({
         direction: 'horizontal',
       },
       initialValue: 'base',
+      hidden: ({ parent }) => !parent?.description,
+    },
+
+    // Contributions
+    {
+      name: 'contributionsTitle',
+      title: 'Contributions Section Title',
+      type: 'string',
+      fieldset: 'detailsSection',
+      description: 'Title for the right column (e.g., "KEY CONTRIBUTIONS")',
+      initialValue: 'KEY CONTRIBUTIONS',
     },
     {
       name: 'contributionsTitleColorType',
       title: 'Contributions Title Color',
       type: 'string',
-      fieldset: 'detailsColors',
+      fieldset: 'detailsSection',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -390,14 +393,17 @@ export default defineType({
         ],
       },
       initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.contributionsTitle,
     },
     {
       name: 'contributionsTitleColorShade',
       title: 'Contributions Title Shade',
       type: 'number',
-      fieldset: 'detailsColors',
+      fieldset: 'detailsSection',
       initialValue: 0,
-      hidden: ({ parent }) => parent?.contributionsTitleColorType === 'custom',
+      hidden: ({ parent }) =>
+        !parent?.contributionsTitle ||
+        parent?.contributionsTitleColorType === 'custom',
       components: {
         input: BackgroundShadeInput,
       },
@@ -406,14 +412,24 @@ export default defineType({
       name: 'contributionsTitleCustomColor',
       title: 'Custom Contributions Title Color',
       type: 'simplerColor',
-      fieldset: 'detailsColors',
-      hidden: ({ parent }) => parent?.contributionsTitleColorType !== 'custom',
+      fieldset: 'detailsSection',
+      hidden: ({ parent }) =>
+        !parent?.contributionsTitle ||
+        parent?.contributionsTitleColorType !== 'custom',
+    },
+    {
+      name: 'contributions',
+      title: 'Key Contributions',
+      type: 'array',
+      fieldset: 'detailsSection',
+      of: [{ type: 'string' }],
+      description: 'List of specific achievements or deliverables',
     },
     {
       name: 'contributionsTextColor',
       title: 'Contributions Text Color',
       type: 'string',
-      fieldset: 'detailsColors',
+      fieldset: 'detailsSection',
       options: {
         list: [
           { title: 'Base', value: 'base' },
@@ -424,12 +440,13 @@ export default defineType({
         direction: 'horizontal',
       },
       initialValue: 'base',
+      hidden: ({ parent }) => !parent?.contributions?.length,
     },
     {
       name: 'bulletColorType',
       title: 'Bullet Color',
       type: 'string',
-      fieldset: 'detailsColors',
+      fieldset: 'detailsSection',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -439,14 +456,16 @@ export default defineType({
         ],
       },
       initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.contributions?.length,
     },
     {
       name: 'bulletColorShade',
       title: 'Bullet Shade',
       type: 'number',
-      fieldset: 'detailsColors',
+      fieldset: 'detailsSection',
       initialValue: 0,
-      hidden: ({ parent }) => parent?.bulletColorType === 'custom',
+      hidden: ({ parent }) =>
+        !parent?.contributions?.length || parent?.bulletColorType === 'custom',
       components: {
         input: BackgroundShadeInput,
       },
@@ -455,8 +474,9 @@ export default defineType({
       name: 'bulletCustomColor',
       title: 'Custom Bullet Color',
       type: 'simplerColor',
-      fieldset: 'detailsColors',
-      hidden: ({ parent }) => parent?.bulletColorType !== 'custom',
+      fieldset: 'detailsSection',
+      hidden: ({ parent }) =>
+        !parent?.contributions?.length || parent?.bulletColorType !== 'custom',
     },
 
     // Related Service

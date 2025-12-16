@@ -74,6 +74,18 @@ interface Props {
   listIconCustomColor?: ColorData;
   // Case Studies Section
   caseStudiesSectionTitle?: string;
+  caseStudiesTitleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  caseStudiesTitleColorShade?: number;
+  caseStudiesTitleCustomColor?: ColorData;
+  caseStudiesPillBgColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  caseStudiesPillBgColorShade?: number;
+  caseStudiesPillBgCustomColor?: ColorData;
+  caseStudiesPillTextColor?: 'base' | 'muted' | 'contrast';
   featuredCaseStudies?: CaseStudyRef[];
 }
 
@@ -115,6 +127,13 @@ const {
   listIconCustomColor,
   // Case Studies Section
   caseStudiesSectionTitle,
+  caseStudiesTitleColorType = 'accent',
+  caseStudiesTitleColorShade = 0,
+  caseStudiesTitleCustomColor,
+  caseStudiesPillBgColorType = 'default',
+  caseStudiesPillBgColorShade = 0,
+  caseStudiesPillBgCustomColor,
+  caseStudiesPillTextColor = 'base',
   featuredCaseStudies = [],
 } = Astro.props;
 
@@ -202,6 +221,31 @@ const resolvedLeadTextColor = textColorMap[leadTextColor] || textColorMap.base;
 const resolvedDescriptionTextColor =
   textColorMap[descriptionTextColor] || textColorMap.muted;
 const resolvedListTextColor = textColorMap[listTextColor] || textColorMap.base;
+const resolvedCaseStudiesPillTextColor =
+  textColorMap[caseStudiesPillTextColor] || textColorMap.base;
+
+// Resolve case studies title color
+const caseStudiesTitleColor = resolveColorSelection(
+  {
+    colorType: caseStudiesTitleColorType,
+    shade: caseStudiesTitleColorShade,
+    customColor: caseStudiesTitleCustomColor,
+  },
+  siteColors
+);
+
+// Resolve case studies pill background color
+const caseStudiesPillBgColor =
+  caseStudiesPillBgColorType === 'default' || !caseStudiesPillBgColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: caseStudiesPillBgColorType,
+          shade: caseStudiesPillBgColorShade,
+          customColor: caseStudiesPillBgCustomColor,
+        },
+        siteColors
+      );
 
 // Build CSS variables (only include non-null values)
 const cssVarParts: string[] = [];
@@ -217,6 +261,12 @@ if (listContainerColor)
   cssVarParts.push(`--service-list-container: ${listContainerColor}`);
 cssVarParts.push(`--service-list-icon: ${listIconColor}`);
 cssVarParts.push(`--service-list-text: ${resolvedListTextColor}`);
+cssVarParts.push(`--service-case-studies-title: ${caseStudiesTitleColor}`);
+if (caseStudiesPillBgColor)
+  cssVarParts.push(`--service-case-studies-pill-bg: ${caseStudiesPillBgColor}`);
+cssVarParts.push(
+  `--service-case-studies-pill-text: ${resolvedCaseStudiesPillTextColor}`
+);
 const cssVars = cssVarParts.join('; ');
 
 // Icon SVG paths
@@ -288,9 +338,12 @@ const gridClasses = [
               )}
               <div class="service-section__case-studies-list">
                 {featuredCaseStudies.map((caseStudy) => (
-                  <span class="service-section__case-study-pill">
+                  <a
+                    href={`/case-studies#${caseStudy._id}`}
+                    class="service-section__case-study-pill"
+                  >
                     {caseStudy.client || 'Untitled'}
-                  </span>
+                  </a>
                 ))}
               </div>
             </div>
@@ -527,8 +580,9 @@ const gridClasses = [
   }
 
   .service-section__case-studies-title {
-    font-size: var(--font-size-sm);
-    color: var(--service-tag, var(--color-accent));
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--service-case-studies-title, var(--color-accent));
     margin: 0;
   }
 
@@ -542,15 +596,12 @@ const gridClasses = [
     display: inline-flex;
     align-items: center;
     padding: 0.5rem 1.25rem;
-    border: 1px solid var(--color-border, #e5e5e5);
     border-radius: 9999px;
     font-size: var(--font-size-sm);
-    color: var(--color-text);
-    background-color: transparent;
-    transition: border-color 0.2s ease;
-  }
-
-  .service-section__case-study-pill:hover {
-    border-color: var(--color-text-muted);
+    font-weight: 700;
+    color: var(--service-case-studies-pill-text, var(--color-text));
+    background-color: var(--service-case-studies-pill-bg, transparent);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
   }
 </style>
