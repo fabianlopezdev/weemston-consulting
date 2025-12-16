@@ -26,7 +26,7 @@ interface Props {
   title: string;
   leadText?: string;
   description?: string;
-  iconType?: 'svg' | 'image';
+  iconType?: 'svg' | 'image' | 'none';
   icon?: string;
   iconImage?: IconImageData;
   imagePosition?: 'left' | 'right';
@@ -304,38 +304,66 @@ const gridClasses = [
   style={cssVars}
   data-animate
   data-reversed={imagePosition === 'right'}
+  data-no-image={iconType === 'none'}
 >
   <div class="container">
-    <div class={gridClasses}>
-      <div class="service-section__media-column">
-        <div class="service-section__image-container">
-          {
-            iconType === 'image' && iconImage?.asset ? (
-              <Image
-                image={iconImage}
-                alt={iconImage.alt || title}
-                class="service-section__image"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            ) : (
-              <svg
-                class="service-section__icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-                set:html={iconPaths[icon] || iconPaths.settings}
-              />
-            )
-          }
-        </div>
-
-        {
-          featuredCaseStudies && featuredCaseStudies.length > 0 && (
-            <div class="service-section__case-studies">
+    {
+      iconType === 'none' ? (
+        <>
+          {/* No-image layout: content column | list column */}
+          <div class="service-section__grid service-section__grid--no-image">
+            <div class="service-section__content-column">
+              {tag && <span class="service-section__tag">{tag}</span>}
+              <h2 class="service-section__title">{title}</h2>
+              {leadText && <p class="service-section__lead">{leadText}</p>}
+              {description && (
+                <p class="service-section__description">{description}</p>
+              )}
+            </div>
+            <div class="service-section__list-column">
+              {listItems.length > 0 && (
+                <div
+                  class={`service-section__list-wrapper ${listTitle || listContainerColor ? 'service-section__list-wrapper--boxed' : ''}`}
+                >
+                  {listTitle && (
+                    <strong class="service-section__list-title">
+                      {listTitle}
+                    </strong>
+                  )}
+                  <ul
+                    class={`service-section__list service-section__list--${listStyle}`}
+                  >
+                    {listItems.map((item) => (
+                      <li>
+                        {listStyle === 'checkmark' && (
+                          <svg
+                            class="service-section__list-icon"
+                            viewBox="0 0 24 24"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
+                        {listStyle === 'arrow' && (
+                          <span class="service-section__list-arrow">
+                            &rarr;
+                          </span>
+                        )}
+                        {listStyle === 'bullet' && (
+                          <span class="service-section__list-bullet">
+                            &bull;
+                          </span>
+                        )}
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Case studies below for no-image layout */}
+          {featuredCaseStudies && featuredCaseStudies.length > 0 && (
+            <div class="service-section__case-studies service-section__case-studies--below">
               {caseStudiesSectionTitle && (
                 <p class="service-section__case-studies-title">
                   {caseStudiesSectionTitle}
@@ -352,55 +380,101 @@ const gridClasses = [
                 ))}
               </div>
             </div>
-          )
-        }
-      </div>
-      <div class="service-section__content">
-        {tag && <span class="service-section__tag">{tag}</span>}
-        <h2 class="service-section__title">{title}</h2>
-        {leadText && <p class="service-section__lead">{leadText}</p>}
-        {
-          description && (
-            <p class="service-section__description">{description}</p>
-          )
-        }
-
-        {
-          listItems.length > 0 && (
-            <div
-              class={`service-section__list-wrapper ${listTitle || listContainerColor ? 'service-section__list-wrapper--boxed' : ''}`}
-            >
-              {listTitle && (
-                <strong class="service-section__list-title">{listTitle}</strong>
+          )}
+        </>
+      ) : (
+        /* Standard layout with image/icon */
+        <div class={gridClasses}>
+          <div class="service-section__media-column">
+            <div class="service-section__image-container">
+              {iconType === 'image' && iconImage?.asset ? (
+                <Image
+                  image={iconImage}
+                  alt={iconImage.alt || title}
+                  class="service-section__image"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              ) : (
+                <svg
+                  class="service-section__icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  set:html={iconPaths[icon] || iconPaths.settings}
+                />
               )}
-              <ul
-                class={`service-section__list service-section__list--${listStyle}`}
-              >
-                {listItems.map((item) => (
-                  <li>
-                    {listStyle === 'checkmark' && (
-                      <svg
-                        class="service-section__list-icon"
-                        viewBox="0 0 24 24"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                    {listStyle === 'arrow' && (
-                      <span class="service-section__list-arrow">&rarr;</span>
-                    )}
-                    {listStyle === 'bullet' && (
-                      <span class="service-section__list-bullet">&bull;</span>
-                    )}
-                    {item}
-                  </li>
-                ))}
-              </ul>
             </div>
-          )
-        }
-      </div>
-    </div>
+
+            {featuredCaseStudies && featuredCaseStudies.length > 0 && (
+              <div class="service-section__case-studies">
+                {caseStudiesSectionTitle && (
+                  <p class="service-section__case-studies-title">
+                    {caseStudiesSectionTitle}
+                  </p>
+                )}
+                <div class="service-section__case-studies-list">
+                  {featuredCaseStudies.map((caseStudy) => (
+                    <a
+                      href={`/case-studies#${caseStudy._id}`}
+                      class="service-section__case-study-pill"
+                    >
+                      {caseStudy.client || 'Untitled'}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <div class="service-section__content">
+            {tag && <span class="service-section__tag">{tag}</span>}
+            <h2 class="service-section__title">{title}</h2>
+            {leadText && <p class="service-section__lead">{leadText}</p>}
+            {description && (
+              <p class="service-section__description">{description}</p>
+            )}
+
+            {listItems.length > 0 && (
+              <div
+                class={`service-section__list-wrapper ${listTitle || listContainerColor ? 'service-section__list-wrapper--boxed' : ''}`}
+              >
+                {listTitle && (
+                  <strong class="service-section__list-title">
+                    {listTitle}
+                  </strong>
+                )}
+                <ul
+                  class={`service-section__list service-section__list--${listStyle}`}
+                >
+                  {listItems.map((item) => (
+                    <li>
+                      {listStyle === 'checkmark' && (
+                        <svg
+                          class="service-section__list-icon"
+                          viewBox="0 0 24 24"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                      {listStyle === 'arrow' && (
+                        <span class="service-section__list-arrow">&rarr;</span>
+                      )}
+                      {listStyle === 'bullet' && (
+                        <span class="service-section__list-bullet">&bull;</span>
+                      )}
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      )
+    }
   </div>
 </article>
 
@@ -430,6 +504,36 @@ const gridClasses = [
     .service-section__grid--reversed > * {
       direction: ltr;
     }
+  }
+
+  /* No-image layout */
+  .service-section__grid--no-image {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+
+  @media (min-width: 768px) {
+    .service-section__grid--no-image {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2xl);
+    }
+  }
+
+  .service-section__content-column {
+    /* Inherits text styling from parent */
+  }
+
+  .service-section__list-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Case studies when below content (no-image mode) */
+  .service-section__case-studies--below {
+    margin-top: var(--space-xl);
   }
 
   .service-section__media-column {

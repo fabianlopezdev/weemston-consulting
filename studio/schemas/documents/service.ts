@@ -241,6 +241,7 @@ export default defineType({
       fieldset: 'servicesPage',
       options: {
         list: [
+          { title: 'None', value: 'none' },
           { title: 'Icon', value: 'svg' },
           { title: 'Image', value: 'image' },
         ],
@@ -269,7 +270,8 @@ export default defineType({
         ],
       },
       initialValue: 'settings',
-      hidden: ({ parent }) => parent?.iconType === 'image',
+      hidden: ({ parent }) =>
+        parent?.iconType === 'image' || parent?.iconType === 'none',
     },
     {
       name: 'iconColorType',
@@ -286,7 +288,8 @@ export default defineType({
         ],
       },
       initialValue: 'accent',
-      hidden: ({ parent }) => parent?.iconType === 'image',
+      hidden: ({ parent }) =>
+        parent?.iconType === 'image' || parent?.iconType === 'none',
     },
     {
       name: 'iconColorShade',
@@ -296,7 +299,9 @@ export default defineType({
       fieldset: 'servicesPage',
       initialValue: 0,
       hidden: ({ parent }) =>
-        parent?.iconType === 'image' || parent?.iconColorType === 'custom',
+        parent?.iconType === 'image' ||
+        parent?.iconType === 'none' ||
+        parent?.iconColorType === 'custom',
       components: {
         input: BackgroundShadeInput,
       },
@@ -308,7 +313,9 @@ export default defineType({
       group: 'servicePage',
       fieldset: 'servicesPage',
       hidden: ({ parent }) =>
-        parent?.iconType === 'image' || parent?.iconColorType !== 'custom',
+        parent?.iconType === 'image' ||
+        parent?.iconType === 'none' ||
+        parent?.iconColorType !== 'custom',
     },
     {
       name: 'iconImage',
@@ -345,6 +352,7 @@ export default defineType({
         ],
       },
       initialValue: 'default',
+      hidden: ({ parent }) => parent?.iconType === 'none',
     },
     {
       name: 'iconContainerColorShade',
@@ -354,6 +362,7 @@ export default defineType({
       fieldset: 'servicesPage',
       initialValue: 0,
       hidden: ({ parent }) =>
+        parent?.iconType === 'none' ||
         parent?.iconContainerColorType === 'custom' ||
         parent?.iconContainerColorType === 'default' ||
         !parent?.iconContainerColorType,
@@ -367,7 +376,9 @@ export default defineType({
       type: 'simplerColor',
       group: 'servicePage',
       fieldset: 'servicesPage',
-      hidden: ({ parent }) => parent?.iconContainerColorType !== 'custom',
+      hidden: ({ parent }) =>
+        parent?.iconType === 'none' ||
+        parent?.iconContainerColorType !== 'custom',
     },
     {
       name: 'imagePosition',
@@ -384,6 +395,7 @@ export default defineType({
         direction: 'horizontal',
       },
       initialValue: 'left',
+      hidden: ({ parent }) => parent?.iconType === 'none',
     },
 
     // List Section
