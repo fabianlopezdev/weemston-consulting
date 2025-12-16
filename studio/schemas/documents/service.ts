@@ -207,8 +207,7 @@ export default defineType({
     {
       name: 'description',
       title: 'Description',
-      type: 'text',
-      rows: 4,
+      type: 'portableText',
       group: 'servicePage',
       fieldset: 'servicesPage',
       description: 'Main body text for this service',

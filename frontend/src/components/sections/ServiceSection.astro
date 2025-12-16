@@ -3,6 +3,8 @@ import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import Image from '@components/media/Image.astro';
+import PortableText from '@components/sanity/PortableText.astro';
+import type { PortableTextBlock } from '@portabletext/types';
 
 interface ColorData {
   label?: string;
@@ -25,7 +27,7 @@ interface Props {
   tag?: string;
   title: string;
   leadText?: string;
-  description?: string;
+  description?: PortableTextBlock[];
   iconType?: 'svg' | 'image' | 'none';
   icon?: string;
   iconImage?: IconImageData;
@@ -316,8 +318,10 @@ const gridClasses = [
               {tag && <span class="service-section__tag">{tag}</span>}
               <h2 class="service-section__title">{title}</h2>
               {leadText && <p class="service-section__lead">{leadText}</p>}
-              {description && (
-                <p class="service-section__description">{description}</p>
+              {description && description.length > 0 && (
+                <div class="service-section__description">
+                  <PortableText content={description} />
+                </div>
               )}
             </div>
             <div class="service-section__list-column">
@@ -433,8 +437,10 @@ const gridClasses = [
             {tag && <span class="service-section__tag">{tag}</span>}
             <h2 class="service-section__title">{title}</h2>
             {leadText && <p class="service-section__lead">{leadText}</p>}
-            {description && (
-              <p class="service-section__description">{description}</p>
+            {description && description.length > 0 && (
+              <div class="service-section__description">
+                <PortableText content={description} />
+              </div>
             )}
 
             {listItems.length > 0 && (
@@ -615,6 +621,15 @@ const gridClasses = [
     color: var(--service-description, var(--color-text-muted));
     line-height: 1.7;
     margin: 0 0 var(--space-lg);
+  }
+
+  .service-section__description :global(.portable-text) {
+    color: inherit;
+    line-height: inherit;
+  }
+
+  .service-section__description :global(.portable-text p) {
+    color: inherit;
   }
 
   /* List wrapper */
