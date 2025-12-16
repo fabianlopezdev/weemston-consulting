@@ -32,6 +32,12 @@ export default defineType({
       description: 'Optional bulleted list to highlight key offerings',
       options: { collapsible: true, collapsed: true },
     },
+    {
+      name: 'caseStudiesSection',
+      title: '📁 Case Studies',
+      description: 'Display related case studies below the image',
+      options: { collapsible: true, collapsed: true },
+    },
   ],
   fields: [
     {
@@ -456,32 +462,27 @@ export default defineType({
       hidden: ({ parent }) => parent?.listIconColorType !== 'custom',
     },
 
-    // Case Studies Link
+    // Case Studies Section
     {
-      name: 'caseStudiesLinkText',
-      title: 'Case Studies Link Text',
+      name: 'caseStudiesSectionTitle',
+      title: 'Section Title',
       type: 'string',
+      fieldset: 'caseStudiesSection',
       description:
-        'Text for the link to related case studies (e.g., "View our work")',
+        'Text above the case study buttons (e.g., "Clients that hire this service:")',
     },
-    {
-      name: 'caseStudiesLink',
-      title: 'Case Studies Link',
-      type: 'link',
-      description: 'Where the case studies link goes',
-    },
-
     {
       name: 'featuredCaseStudies',
-      title: 'Featured Case Studies (optional)',
+      title: 'Featured Case Studies',
       type: 'array',
+      fieldset: 'caseStudiesSection',
       of: [
         {
           type: 'reference',
           to: [{ type: 'caseStudy' }],
         },
       ],
-      description: 'Select case studies to feature with this service',
+      description: 'Select case studies to display as buttons',
     },
   ],
   orderings: [

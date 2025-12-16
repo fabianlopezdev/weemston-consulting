@@ -705,10 +705,11 @@ export const servicesPageNewQuery = groq`
       listIconColorType,
       listIconColorShade,
       listIconCustomColor { label, value },
-      // Link
-      caseStudiesLinkText,
-      caseStudiesLink {
-        ${linkProjection}
+      // Case Studies Section
+      caseStudiesSectionTitle,
+      featuredCaseStudies[]-> {
+        _id,
+        client
       }
     }
   }

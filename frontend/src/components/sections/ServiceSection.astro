@@ -1,5 +1,4 @@
 ---
-import { resolveLinkUrl } from '@lib/sanity/linkResolver';
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
@@ -10,22 +9,16 @@ interface ColorData {
   value: string;
 }
 
-interface LinkData {
-  text?: string;
-  linkType: 'internal' | 'external';
-  internalPageType?: string;
-  serviceReference?: { slug: { current: string } };
-  caseStudyReference?: { slug: { current: string } };
-  legalReference?: { slug: { current: string } };
-  externalUrl?: string;
-  openInNewTab?: boolean;
-}
-
 interface IconImageData {
   asset?: { _id: string; url?: string };
   alt?: string;
   hotspot?: { x: number; y: number };
   crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface CaseStudyRef {
+  _id: string;
+  client?: string;
 }
 
 interface Props {
@@ -79,9 +72,9 @@ interface Props {
   listIconColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   listIconColorShade?: number;
   listIconCustomColor?: ColorData;
-  // Link
-  caseStudiesLinkText?: string;
-  caseStudiesLink?: LinkData;
+  // Case Studies Section
+  caseStudiesSectionTitle?: string;
+  featuredCaseStudies?: CaseStudyRef[];
 }
 
 const {
@@ -120,9 +113,9 @@ const {
   listIconColorType = 'accent',
   listIconColorShade = 0,
   listIconCustomColor,
-  // Link
-  caseStudiesLinkText,
-  caseStudiesLink,
+  // Case Studies Section
+  caseStudiesSectionTitle,
+  featuredCaseStudies = [],
 } = Astro.props;
 
 // Fetch site settings for colors
@@ -226,10 +219,6 @@ cssVarParts.push(`--service-list-icon: ${listIconColor}`);
 cssVarParts.push(`--service-list-text: ${resolvedListTextColor}`);
 const cssVars = cssVarParts.join('; ');
 
-// Resolve link URL
-const linkUrl = caseStudiesLink ? resolveLinkUrl(caseStudiesLink) : '#';
-const isExternal = caseStudiesLink?.linkType === 'external';
-
 // Icon SVG paths
 const iconPaths: Record<string, string> = {
   settings:
@@ -263,27 +252,48 @@ const gridClasses = [
 <article class="service-section" style={cssVars}>
   <div class="container">
     <div class={gridClasses}>
-      <div class="service-section__image-container">
+      <div class="service-section__media-column">
+        <div class="service-section__image-container">
+          {
+            iconType === 'image' && iconImage?.asset ? (
+              <Image
+                image={iconImage}
+                alt={iconImage.alt || title}
+                class="service-section__image"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            ) : (
+              <svg
+                class="service-section__icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                set:html={iconPaths[icon] || iconPaths.settings}
+              />
+            )
+          }
+        </div>
+
         {
-          iconType === 'image' && iconImage?.asset ? (
-            <Image
-              image={iconImage}
-              alt={iconImage.alt || title}
-              class="service-section__image"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          ) : (
-            <svg
-              class="service-section__icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-              set:html={iconPaths[icon] || iconPaths.settings}
-            />
+          featuredCaseStudies && featuredCaseStudies.length > 0 && (
+            <div class="service-section__case-studies">
+              {caseStudiesSectionTitle && (
+                <p class="service-section__case-studies-title">
+                  {caseStudiesSectionTitle}
+                </p>
+              )}
+              <div class="service-section__case-studies-list">
+                {featuredCaseStudies.map((caseStudy) => (
+                  <span class="service-section__case-study-pill">
+                    {caseStudy.client || 'Untitled'}
+                  </span>
+                ))}
+              </div>
+            </div>
           )
         }
       </div>
@@ -331,27 +341,6 @@ const gridClasses = [
             </div>
           )
         }
-
-        {
-          caseStudiesLinkText && (
-            <a
-              href={linkUrl}
-              class="service-section__link"
-              target={
-                isExternal || caseStudiesLink?.openInNewTab
-                  ? '_blank'
-                  : undefined
-              }
-              rel={
-                isExternal || caseStudiesLink?.openInNewTab
-                  ? 'noopener noreferrer'
-                  : undefined
-              }
-            >
-              {caseStudiesLinkText} &rarr;
-            </a>
-          )
-        }
       </div>
     </div>
   </div>
@@ -367,7 +356,7 @@ const gridClasses = [
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-xl);
-    align-items: center;
+    align-items: start;
   }
 
   @media (min-width: 768px) {
@@ -383,6 +372,18 @@ const gridClasses = [
     .service-section__grid--reversed > * {
       direction: ltr;
     }
+  }
+
+  .service-section__media-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    justify-content: center;
+    height: 100%;
+  }
+
+  .service-section__media-column:has(.service-section__case-studies) {
+    justify-content: space-between;
   }
 
   .service-section__image-container {
@@ -417,7 +418,6 @@ const gridClasses = [
   }
 
   .service-section__content {
-    padding: var(--space-md) 0;
   }
 
   .service-section__tag {
@@ -456,7 +456,6 @@ const gridClasses = [
 
   /* List wrapper */
   .service-section__list-wrapper {
-    margin-bottom: var(--space-lg);
   }
 
   .service-section__list-wrapper--boxed {
@@ -520,20 +519,38 @@ const gridClasses = [
     margin-top: -2px;
   }
 
-  /* Link */
-  .service-section__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: var(--font-size-base);
-    font-weight: 500;
-    color: var(--service-title, var(--color-accent));
-    text-decoration: none;
-    transition: gap 0.2s ease;
+  /* Case Studies Section */
+  .service-section__case-studies {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
   }
 
-  .service-section__link:hover {
-    gap: 0.5rem;
-    text-decoration: underline;
+  .service-section__case-studies-title {
+    font-size: var(--font-size-sm);
+    color: var(--service-tag, var(--color-accent));
+    margin: 0;
+  }
+
+  .service-section__case-studies-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .service-section__case-study-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1.25rem;
+    border: 1px solid var(--color-border, #e5e5e5);
+    border-radius: 9999px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    background-color: transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  .service-section__case-study-pill:hover {
+    border-color: var(--color-text-muted);
   }
 </style>
