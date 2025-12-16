@@ -13,6 +13,128 @@ import {
 } from './config';
 
 /**
+ * Magnetic Repulsion Effect
+ *
+ * Creates a hover effect where elements push away from the cursor,
+ * creating a magnetic repulsion feel. Great for buttons, badges, pills.
+ *
+ * @param selector - CSS selector for elements to apply the effect to
+ * @param options - Configuration options
+ *
+ * @example
+ * // Basic usage
+ * createMagneticRepulsion('.badge');
+ *
+ * // With custom strength
+ * createMagneticRepulsion('.pill', { strength: 10 });
+ */
+export function createMagneticRepulsion(
+  selector: string,
+  options: {
+    /** Push strength in pixels (default: 6) */
+    strength?: number;
+    /** Duration of the push animation in seconds (default: 0.2) */
+    duration?: number;
+    /** Duration of the return animation in seconds (default: 0.3) */
+    returnDuration?: number;
+    /** Easing for push animation (default: 'power2.out') */
+    ease?: string;
+    /** Easing for return animation (default: 'back.out(1.7)') */
+    returnEase?: string;
+    /** Callback fired on mouseenter */
+    onEnter?: (element: Element) => void;
+    /** Callback fired on mouseleave */
+    onLeave?: (element: Element) => void;
+  } = {}
+): void {
+  const {
+    strength = 6,
+    duration = 0.2,
+    returnDuration = 0.3,
+    ease = 'power2.out',
+    returnEase = 'back.out(1.7)',
+    onEnter,
+    onLeave,
+  } = options;
+
+  const elements = document.querySelectorAll(selector);
+
+  elements.forEach((element) => {
+    let baseX = 0;
+    let baseY = 0;
+    let rafId: number | null = null;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+
+    element.addEventListener('mouseenter', () => {
+      // Fire callback if provided
+      onEnter?.(element);
+
+      // Capture current GSAP position as base
+      const gsapX = gsap.getProperty(element, 'x');
+      const gsapY = gsap.getProperty(element, 'y');
+      baseX = typeof gsapX === 'number' ? gsapX : 0;
+      baseY = typeof gsapY === 'number' ? gsapY : 0;
+    });
+
+    element.addEventListener('mousemove', ((e: MouseEvent) => {
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+
+      // Throttle with RAF
+      if (rafId !== null) return;
+
+      rafId = requestAnimationFrame(() => {
+        const rect = element.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        // Calculate direction from cursor to element center
+        const deltaX = centerX - lastMouseX;
+        const deltaY = centerY - lastMouseY;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        if (distance > 0) {
+          // Normalize and apply repulsion (push away from cursor)
+          const pushX = (deltaX / distance) * strength;
+          const pushY = (deltaY / distance) * strength;
+
+          gsap.to(element, {
+            x: baseX + pushX,
+            y: baseY + pushY,
+            duration,
+            ease,
+            overwrite: true,
+          });
+        }
+
+        rafId = null;
+      });
+    }) as EventListener);
+
+    element.addEventListener('mouseleave', () => {
+      // Fire callback if provided
+      onLeave?.(element);
+
+      // Cancel any pending RAF
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+
+      // Return to base position with bouncy easing
+      gsap.to(element, {
+        x: baseX,
+        y: baseY,
+        duration: returnDuration,
+        ease: returnEase,
+        overwrite: true,
+      });
+    });
+  });
+}
+
+/**
  * Text Reveal Animation
  *
  * Creates a gradient-based text reveal effect where text appears

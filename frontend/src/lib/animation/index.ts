@@ -51,6 +51,7 @@ export { initLenis, getLenis, destroyLenis } from './lenis';
 
 // Presets
 export {
+  createMagneticRepulsion,
   createTextReveal,
   createHeroReveal,
   createFadeIn,

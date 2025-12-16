@@ -1433,7 +1433,12 @@ const cssVarsString = Object.entries(cssVars)
 </script>
 
 <script>
-  import { setupAnimationLifecycle, createFadeIn, gsap } from '@lib/animation';
+  import {
+    setupAnimationLifecycle,
+    createFadeIn,
+    createMagneticRepulsion,
+    gsap,
+  } from '@lib/animation';
 
   setupAnimationLifecycle(() => {
     // ========================================
@@ -1498,87 +1503,11 @@ const cssVarsString = Object.entries(cssVars)
         }
       }) as EventListener);
     });
-    // ========================================
-    // DESKTOP: Magnetic repulsion hover effect (GSAP-compatible)
-    // ========================================
-    badges.forEach((badge) => {
-      // Store the base position set by GSAP
-      let baseX = 0;
-      let baseY = 0;
-      let rafId: number | null = null;
-      let lastMouseX = 0;
-      let lastMouseY = 0;
-
-      badge.addEventListener('mouseenter', () => {
-        // Pause circle animations
-        orbitalSection?.classList.add('is-paused');
-
-        // Capture current GSAP position as base
-        const gsapTransform = gsap.getProperty(badge, 'x');
-        const gsapTransformY = gsap.getProperty(badge, 'y');
-        baseX = typeof gsapTransform === 'number' ? gsapTransform : 0;
-        baseY = typeof gsapTransformY === 'number' ? gsapTransformY : 0;
-      });
-
-      badge.addEventListener('mousemove', ((e: MouseEvent) => {
-        // Store latest mouse position
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
-
-        // Throttle with RAF - only schedule if not already scheduled
-        if (rafId !== null) return;
-
-        rafId = requestAnimationFrame(() => {
-          const rect = badge.getBoundingClientRect();
-          const badgeCenterX = rect.left + rect.width / 2;
-          const badgeCenterY = rect.top + rect.height / 2;
-
-          // Calculate direction from cursor to badge center
-          const deltaX = badgeCenterX - lastMouseX;
-          const deltaY = badgeCenterY - lastMouseY;
-          const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-          if (distance > 0) {
-            // Normalize and apply opposite repulsion
-            // The user asked for "repulsion", originally it was pushing AWAY.
-            // "badge moved to the opposite direction where it was being hovered" = repulsion.
-            const pushStrength = 8;
-            const pushX = (deltaX / distance) * pushStrength;
-            const pushY = (deltaY / distance) * pushStrength;
-
-            // Animate using GSAP with relative positioning
-            gsap.to(badge, {
-              x: baseX + pushX,
-              y: baseY + pushY,
-              duration: 0.2,
-              ease: 'power2.out',
-              overwrite: true,
-            });
-          }
-
-          rafId = null; // Reset for next frame
-        });
-      }) as EventListener);
-
-      // Reset to base position on mouse leave
-      badge.addEventListener('mouseleave', () => {
-        // Resume circle animations
-        orbitalSection?.classList.remove('is-paused');
-
-        // Cancel any pending RAF
-        if (rafId !== null) {
-          cancelAnimationFrame(rafId);
-          rafId = null;
-        }
-
-        gsap.to(badge, {
-          x: baseX,
-          y: baseY,
-          duration: 0.3,
-          ease: 'back.out(1.7)',
-          overwrite: true,
-        });
-      });
+    // DESKTOP: Magnetic repulsion hover effect
+    createMagneticRepulsion('.experience-orbital__badge', {
+      strength: 8,
+      onEnter: () => orbitalSection?.classList.add('is-paused'),
+      onLeave: () => orbitalSection?.classList.remove('is-paused'),
     });
 
     // ========================================
