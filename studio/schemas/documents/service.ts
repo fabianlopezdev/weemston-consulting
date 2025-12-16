@@ -6,17 +6,28 @@ export default defineType({
   name: 'service',
   title: 'Service',
   type: 'document',
-  fieldsets: [
+  groups: [
     {
       name: 'homepage',
       title: '🏠 Homepage Display',
+    },
+    {
+      name: 'servicePage',
+      title: '📋 Service Page Display',
+      default: true,
+    },
+  ],
+  fieldsets: [
+    {
+      name: 'homepageContent',
+      title: 'Homepage Content',
       description:
         'Content shown when this service is featured on the homepage',
       options: { collapsible: true, collapsed: true },
     },
     {
       name: 'servicesPage',
-      title: '📋 Services Page Display',
+      title: '⚙️ Main Settings',
       description: 'How this service appears on the dedicated services page',
       options: { collapsible: true, collapsed: false },
     },
@@ -47,7 +58,8 @@ export default defineType({
       name: 'homepageText',
       title: 'Homepage Text',
       type: 'portableText',
-      fieldset: 'homepage',
+      group: 'homepage',
+      fieldset: 'homepageContent',
       description:
         'Text to display when this service is featured on the homepage',
     },
@@ -58,6 +70,7 @@ export default defineType({
       name: 'backgroundColorType',
       title: 'Background Color',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       options: {
         list: [
@@ -74,6 +87,7 @@ export default defineType({
       name: 'backgroundColorShade',
       title: 'Background Shade',
       type: 'number',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -88,6 +102,7 @@ export default defineType({
       name: 'backgroundCustomColor',
       title: 'Custom Background Color',
       type: 'simplerColor',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       hidden: ({ parent }) => parent?.backgroundColorType !== 'custom',
     },
@@ -97,6 +112,7 @@ export default defineType({
       name: 'tag',
       title: 'Tag',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       description:
         'Small uppercase label above the title (e.g., "01", "Strategy")',
@@ -105,6 +121,7 @@ export default defineType({
       name: 'tagColor',
       title: 'Tag Color',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       options: {
         list: [
@@ -124,6 +141,7 @@ export default defineType({
       name: 'titleColorType',
       title: 'Title Color',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       options: {
         list: [
@@ -139,6 +157,7 @@ export default defineType({
       name: 'titleColorShade',
       title: 'Title Shade',
       type: 'number',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       initialValue: 0,
       hidden: ({ parent }) => parent?.titleColorType === 'custom',
@@ -150,6 +169,7 @@ export default defineType({
       name: 'titleCustomColor',
       title: 'Custom Title Color',
       type: 'simplerColor',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       hidden: ({ parent }) => parent?.titleColorType !== 'custom',
     },
@@ -160,6 +180,7 @@ export default defineType({
       title: 'Lead Text',
       type: 'text',
       rows: 2,
+      group: 'servicePage',
       fieldset: 'servicesPage',
       description: 'Bold introductory text below the title',
     },
@@ -167,6 +188,7 @@ export default defineType({
       name: 'leadTextColor',
       title: 'Lead Text Color',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       options: {
         list: [
@@ -187,6 +209,7 @@ export default defineType({
       title: 'Description',
       type: 'text',
       rows: 4,
+      group: 'servicePage',
       fieldset: 'servicesPage',
       description: 'Main body text for this service',
     },
@@ -194,6 +217,7 @@ export default defineType({
       name: 'descriptionTextColor',
       title: 'Description Color',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       options: {
         list: [
@@ -213,6 +237,7 @@ export default defineType({
       name: 'iconType',
       title: 'Image Type',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       options: {
         list: [
@@ -228,6 +253,7 @@ export default defineType({
       name: 'icon',
       title: 'Icon',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       options: {
         list: [
@@ -249,6 +275,7 @@ export default defineType({
       name: 'iconColorType',
       title: 'Icon Color',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       options: {
         list: [
@@ -265,6 +292,7 @@ export default defineType({
       name: 'iconColorShade',
       title: 'Icon Shade',
       type: 'number',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -277,6 +305,7 @@ export default defineType({
       name: 'iconCustomColor',
       title: 'Custom Icon Color',
       type: 'simplerColor',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       hidden: ({ parent }) =>
         parent?.iconType === 'image' || parent?.iconColorType !== 'custom',
@@ -285,6 +314,7 @@ export default defineType({
       name: 'iconImage',
       title: 'Image',
       type: 'image',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       options: {
         hotspot: true,
@@ -303,6 +333,7 @@ export default defineType({
       name: 'iconContainerColorType',
       title: 'Image/Icon Container Background',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       options: {
         list: [
@@ -319,6 +350,7 @@ export default defineType({
       name: 'iconContainerColorShade',
       title: 'Container Shade',
       type: 'number',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -333,6 +365,7 @@ export default defineType({
       name: 'iconContainerCustomColor',
       title: 'Custom Container Color',
       type: 'simplerColor',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       hidden: ({ parent }) => parent?.iconContainerColorType !== 'custom',
     },
@@ -340,6 +373,7 @@ export default defineType({
       name: 'imagePosition',
       title: 'Image/Icon Position',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'servicesPage',
       options: {
         list: [
@@ -357,6 +391,7 @@ export default defineType({
       name: 'listTitle',
       title: 'List Title',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'listSection',
       description: 'Optional heading above the list (e.g., "Key Offerings")',
     },
@@ -364,6 +399,7 @@ export default defineType({
       name: 'listItems',
       title: 'List Items',
       type: 'array',
+      group: 'servicePage',
       fieldset: 'listSection',
       of: [{ type: 'string' }],
       description: 'Individual items in the list',
@@ -372,6 +408,7 @@ export default defineType({
       name: 'listStyle',
       title: 'List Style',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'listSection',
       options: {
         list: [
@@ -389,6 +426,7 @@ export default defineType({
       name: 'listTextColor',
       title: 'List Text Color',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'listSection',
       options: {
         list: [
@@ -406,6 +444,7 @@ export default defineType({
       name: 'listIconColorType',
       title: 'List Icon/Bullet Color',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'listSection',
       options: {
         list: [
@@ -422,6 +461,7 @@ export default defineType({
       name: 'listIconColorShade',
       title: 'List Icon Shade',
       type: 'number',
+      group: 'servicePage',
       fieldset: 'listSection',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -434,6 +474,7 @@ export default defineType({
       name: 'listIconCustomColor',
       title: 'Custom List Icon Color',
       type: 'simplerColor',
+      group: 'servicePage',
       fieldset: 'listSection',
       hidden: ({ parent }) =>
         !parent?.listItems?.length || parent?.listIconColorType !== 'custom',
@@ -442,6 +483,7 @@ export default defineType({
       name: 'listContainerColorType',
       title: 'List Container Background',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'listSection',
       options: {
         list: [
@@ -459,6 +501,7 @@ export default defineType({
       name: 'listContainerColorShade',
       title: 'List Container Shade',
       type: 'number',
+      group: 'servicePage',
       fieldset: 'listSection',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -474,6 +517,7 @@ export default defineType({
       name: 'listContainerCustomColor',
       title: 'Custom List Container Color',
       type: 'simplerColor',
+      group: 'servicePage',
       fieldset: 'listSection',
       hidden: ({ parent }) =>
         !parent?.listItems?.length ||
@@ -485,6 +529,7 @@ export default defineType({
       name: 'caseStudiesSectionTitle',
       title: 'Section Title',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'caseStudiesSection',
       description:
         'Text above the case study buttons (e.g., "Clients that hire this service:")',
@@ -493,6 +538,7 @@ export default defineType({
       name: 'caseStudiesTitleColorType',
       title: 'Section Title Color',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'caseStudiesSection',
       options: {
         list: [
@@ -509,6 +555,7 @@ export default defineType({
       name: 'caseStudiesTitleColorShade',
       title: 'Section Title Shade',
       type: 'number',
+      group: 'servicePage',
       fieldset: 'caseStudiesSection',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -522,6 +569,7 @@ export default defineType({
       name: 'caseStudiesTitleCustomColor',
       title: 'Custom Section Title Color',
       type: 'simplerColor',
+      group: 'servicePage',
       fieldset: 'caseStudiesSection',
       hidden: ({ parent }) =>
         !parent?.caseStudiesSectionTitle ||
@@ -531,6 +579,7 @@ export default defineType({
       name: 'caseStudiesPillBgColorType',
       title: 'Pill Background Color',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'caseStudiesSection',
       options: {
         list: [
@@ -547,6 +596,7 @@ export default defineType({
       name: 'caseStudiesPillBgColorShade',
       title: 'Pill Background Shade',
       type: 'number',
+      group: 'servicePage',
       fieldset: 'caseStudiesSection',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -561,6 +611,7 @@ export default defineType({
       name: 'caseStudiesPillBgCustomColor',
       title: 'Custom Pill Background Color',
       type: 'simplerColor',
+      group: 'servicePage',
       fieldset: 'caseStudiesSection',
       hidden: ({ parent }) => parent?.caseStudiesPillBgColorType !== 'custom',
     },
@@ -568,6 +619,7 @@ export default defineType({
       name: 'caseStudiesPillTextColor',
       title: 'Pill Text Color',
       type: 'string',
+      group: 'servicePage',
       fieldset: 'caseStudiesSection',
       options: {
         list: [
@@ -584,6 +636,7 @@ export default defineType({
       name: 'featuredCaseStudies',
       title: 'Featured Case Studies',
       type: 'array',
+      group: 'servicePage',
       fieldset: 'caseStudiesSection',
       of: [
         {
