@@ -703,6 +703,47 @@ export default defineType({
         parent?.caseStudiesTitleColorType !== 'custom',
     },
     {
+      name: 'logoOverlayColorType',
+      title: 'Logo Overlay Color',
+      type: 'string',
+      group: 'servicePage',
+      fieldset: 'caseStudiesSection',
+      description: 'Tint color applied to grayscale logos',
+      options: {
+        list: [
+          { title: 'None', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+    },
+    {
+      name: 'logoOverlayColorShade',
+      title: 'Logo Overlay Shade',
+      type: 'number',
+      group: 'servicePage',
+      fieldset: 'caseStudiesSection',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        parent?.logoOverlayColorType === 'custom' ||
+        parent?.logoOverlayColorType === 'default' ||
+        !parent?.logoOverlayColorType,
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'logoOverlayCustomColor',
+      title: 'Custom Logo Overlay Color',
+      type: 'simplerColor',
+      group: 'servicePage',
+      fieldset: 'caseStudiesSection',
+      hidden: ({ parent }) => parent?.logoOverlayColorType !== 'custom',
+    },
+    {
       name: 'featuredCaseStudies',
       title: 'Featured Case Studies',
       type: 'array',

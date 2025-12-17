@@ -154,6 +154,8 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'bulletColorType';
   } else if (fieldName === 'caseStudiesTitleColorShade') {
     colorTypeFieldName = 'caseStudiesTitleColorType';
+  } else if (fieldName === 'logoOverlayColorShade') {
+    colorTypeFieldName = 'logoOverlayColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';
