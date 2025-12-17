@@ -247,15 +247,6 @@ export default defineType({
       description: 'Section title (e.g., "Our Work")',
     },
     {
-      name: 'introDescription',
-      title: 'Description',
-      type: 'text',
-      rows: 4,
-      group: 'intro',
-      fieldset: 'introFields',
-      description: 'Description paragraph',
-    },
-    {
       name: 'introTitleColorType',
       title: 'Title Color',
       type: 'string',
@@ -293,6 +284,15 @@ export default defineType({
         !parent?.introTitle || parent?.introTitleColorType !== 'custom',
     },
     {
+      name: 'introDescription',
+      title: 'Description',
+      type: 'text',
+      rows: 4,
+      group: 'intro',
+      fieldset: 'introFields',
+      description: 'Description paragraph',
+    },
+    {
       name: 'introDescriptionColor',
       title: 'Description Color',
       type: 'string',
@@ -313,7 +313,8 @@ export default defineType({
     {
       name: 'introFooter',
       title: 'Footer',
-      type: 'string',
+      type: 'text',
+      rows: 2,
       group: 'intro',
       fieldset: 'introFields',
       description: 'Italic footer text below description',

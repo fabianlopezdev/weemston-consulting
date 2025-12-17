@@ -120,7 +120,7 @@ const caseStudyProjection = `
   mainImage {
     ${imageProjection}
   },
-  icon,
+  icon { name },
   category,
   client,
   role,
@@ -587,7 +587,7 @@ export const caseStudiesPageQuery = groq`
     caseStudies[]-> {
       _id,
       mainImage,
-      icon,
+      icon { name },
       category,
       client,
       role,
