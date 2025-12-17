@@ -637,19 +637,6 @@ export const approachPageQuery = groq`
     highlightBackgroundColorType,
     highlightBackgroundColorShade,
     highlightBackgroundCustomColor { label, value },
-    // CTA Section
-    ctaTitle,
-    ctaTitleColorType,
-    ctaTitleColorShade,
-    ctaTitleCustomColor { label, value },
-    ctaDescription,
-    ctaTextColor,
-    ctaButton {
-      ${linkProjection}
-    },
-    ctaBackgroundColorType,
-    ctaBackgroundColorShade,
-    ctaBackgroundCustomColor { label, value },
     // Collage Section
     collageEnabled,
     collageTagline,

@@ -42,11 +42,6 @@ export default defineType({
       options: { collapsible: true, collapsed: false },
     },
     {
-      name: 'ctaFields',
-      title: '📣 Call to Action Section',
-      options: { collapsible: true, collapsed: false },
-    },
-    {
       name: 'collageFields',
       title: '🖼️ Collage Section',
       options: { collapsible: true, collapsed: false },
@@ -57,7 +52,6 @@ export default defineType({
     { name: 'coreValues', title: 'Core Values' },
     { name: 'founder', title: 'Founder Section' },
     { name: 'highlight', title: 'Highlight Section' },
-    { name: 'cta', title: 'Call to Action' },
     { name: 'collage', title: 'Collage Section' },
   ],
   fields: [
@@ -798,126 +792,6 @@ export default defineType({
       initialValue: 'base',
     },
 
-    // CTA Section
-    {
-      name: 'ctaBackgroundColorType',
-      title: 'Background Color',
-      type: 'string',
-      group: 'cta',
-      fieldset: 'ctaFields',
-      options: {
-        list: [
-          { title: 'Default (White)', value: 'default' },
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'primary',
-    },
-    {
-      name: 'ctaBackgroundColorShade',
-      title: 'Background Shade',
-      type: 'number',
-      group: 'cta',
-      fieldset: 'ctaFields',
-      initialValue: 90,
-      hidden: ({ parent }) =>
-        parent?.ctaBackgroundColorType === 'custom' ||
-        parent?.ctaBackgroundColorType === 'default',
-      validation: (Rule) => Rule.min(0).max(100).integer(),
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'ctaBackgroundCustomColor',
-      title: 'Custom Background Color',
-      type: 'simplerColor',
-      group: 'cta',
-      fieldset: 'ctaFields',
-      hidden: ({ parent }) => parent?.ctaBackgroundColorType !== 'custom',
-    },
-    {
-      name: 'ctaTitle',
-      title: 'Title',
-      type: 'string',
-      group: 'cta',
-      fieldset: 'ctaFields',
-      initialValue: 'We Stay in the Work',
-    },
-    {
-      name: 'ctaTitleColorType',
-      title: 'Title Color',
-      type: 'string',
-      group: 'cta',
-      fieldset: 'ctaFields',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'accent',
-    },
-    {
-      name: 'ctaTitleColorShade',
-      title: 'Title Shade',
-      type: 'number',
-      group: 'cta',
-      fieldset: 'ctaFields',
-      initialValue: 0,
-      hidden: ({ parent }) => parent?.ctaTitleColorType === 'custom',
-      validation: (Rule) => Rule.min(0).max(100).integer(),
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'ctaTitleCustomColor',
-      title: 'Custom Title Color',
-      type: 'simplerColor',
-      group: 'cta',
-      fieldset: 'ctaFields',
-      hidden: ({ parent }) => parent?.ctaTitleColorType !== 'custom',
-    },
-    {
-      name: 'ctaDescription',
-      title: 'Description',
-      type: 'text',
-      rows: 2,
-      group: 'cta',
-      fieldset: 'ctaFields',
-      initialValue:
-        'Unlike many consultants who give advice and move on, we partner with leaders and teams to implement change in real time.',
-    },
-    {
-      name: 'ctaTextColor',
-      title: 'Description Text Color',
-      type: 'string',
-      group: 'cta',
-      fieldset: 'ctaFields',
-      options: {
-        list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Muted', value: 'muted' },
-          { title: 'Contrast', value: 'contrast' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'muted',
-    },
-    {
-      name: 'ctaButton',
-      title: 'Button',
-      type: 'link',
-      group: 'cta',
-      fieldset: 'ctaFields',
-    },
     // Collage Section Fields
     {
       name: 'collageEnabled',

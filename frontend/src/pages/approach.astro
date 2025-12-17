@@ -6,7 +6,6 @@ import InternalPageHero from '@components/sections/InternalPageHero.astro';
 import ApproachCoreValues from '@components/sections/ApproachCoreValues.astro';
 import ApproachFounder from '@components/sections/ApproachFounder.astro';
 import ApproachHighlight from '@components/sections/ApproachHighlight.astro';
-import ApproachCta from '@components/sections/ApproachCta.astro';
 import CollageSection from '@components/sections/CollageSection.astro';
 
 const page = await client.fetch(approachPageQuery);
@@ -97,24 +96,6 @@ if (!page) {
         backgroundColorType={page.highlightBackgroundColorType}
         backgroundColorShade={page.highlightBackgroundColorShade}
         backgroundCustomColor={page.highlightBackgroundCustomColor}
-      />
-    )
-  }
-
-  {/* CTA Section */}
-  {
-    page.ctaTitle && (
-      <ApproachCta
-        title={page.ctaTitle}
-        titleColorType={page.ctaTitleColorType}
-        titleColorShade={page.ctaTitleColorShade}
-        titleCustomColor={page.ctaTitleCustomColor}
-        description={page.ctaDescription}
-        textColor={page.ctaTextColor}
-        button={page.ctaButton}
-        backgroundColorType={page.ctaBackgroundColorType}
-        backgroundColorShade={page.ctaBackgroundColorShade}
-        backgroundCustomColor={page.ctaBackgroundCustomColor}
       />
     )
   }
