@@ -31,6 +31,7 @@ export default defineType({
       name: 'client',
       title: 'Client Name',
       type: 'string',
+      group: 'content',
       description: 'The main heading (e.g., "Fyn")',
       validation: (Rule) => Rule.required().error('Client name is required'),
     },
@@ -38,6 +39,7 @@ export default defineType({
       name: 'clientColor',
       title: 'Client Name Color',
       type: 'string',
+      group: 'content',
       options: {
         list: [
           { title: 'Base', value: 'base' },
@@ -54,6 +56,7 @@ export default defineType({
       name: 'clientLogo',
       title: 'Client Logo',
       type: 'image',
+      group: 'content',
       description: 'Optional logo for the client company',
       options: {
         hotspot: true,
@@ -71,6 +74,7 @@ export default defineType({
       name: 'logoVariant',
       title: 'Logo Color',
       type: 'string',
+      group: 'content',
       options: {
         list: [
           { title: 'Dark logo', value: 'dark' },
@@ -81,13 +85,15 @@ export default defineType({
       description:
         'Look at the logo you uploaded: if it appears dark/black, choose "Dark". If it appears white/light, choose "Light". This helps display the logo correctly on different backgrounds.',
     },
-    defineLanguageField(),
+    { ...defineLanguageField(), group: 'content' },
 
     // Image Section
     {
       name: 'mainImage',
       title: 'Background Image',
       type: 'image',
+      group: 'image',
+      group: 'image',
       fieldset: 'imageSection',
       description:
         'Full-width background image. For best performance, use WebP format.',
@@ -115,6 +121,8 @@ export default defineType({
       name: 'overlayColorType',
       title: 'Overlay Color',
       type: 'string',
+      group: 'image',
+      group: 'image',
       fieldset: 'imageSection',
       description: 'Color for the gradient overlay on the image',
       options: {
@@ -132,6 +140,7 @@ export default defineType({
       name: 'overlayColorShade',
       title: 'Overlay Shade',
       type: 'number',
+      group: 'image',
       fieldset: 'imageSection',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -144,6 +153,7 @@ export default defineType({
       name: 'overlayCustomColor',
       title: 'Custom Overlay Color',
       type: 'simplerColor',
+      group: 'image',
       fieldset: 'imageSection',
       hidden: ({ parent }) =>
         !parent?.mainImage || parent?.overlayColorType !== 'custom',
@@ -152,6 +162,7 @@ export default defineType({
       name: 'overlayOpacity',
       title: 'Overlay Opacity',
       type: 'number',
+      group: 'image',
       fieldset: 'imageSection',
       description: 'How much of the overlay color shows (0-100)',
       initialValue: 70,
@@ -164,6 +175,7 @@ export default defineType({
       name: 'icon',
       title: 'Icon',
       type: 'string',
+      group: 'image',
       fieldset: 'imageSection',
       description: 'Icon displayed in the image overlay',
       options: {
@@ -191,6 +203,7 @@ export default defineType({
       name: 'iconColorType',
       title: 'Icon Color',
       type: 'string',
+      group: 'image',
       fieldset: 'imageSection',
       options: {
         list: [
@@ -207,6 +220,7 @@ export default defineType({
       name: 'iconColorShade',
       title: 'Icon Shade',
       type: 'number',
+      group: 'image',
       fieldset: 'imageSection',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -219,6 +233,7 @@ export default defineType({
       name: 'iconCustomColor',
       title: 'Custom Icon Color',
       type: 'simplerColor',
+      group: 'image',
       fieldset: 'imageSection',
       hidden: ({ parent }) =>
         !parent?.icon || parent?.iconColorType !== 'custom',
@@ -227,6 +242,7 @@ export default defineType({
       name: 'iconBgColorType',
       title: 'Icon Background Color',
       type: 'string',
+      group: 'image',
       fieldset: 'imageSection',
       options: {
         list: [
@@ -243,6 +259,7 @@ export default defineType({
       name: 'iconBgColorShade',
       title: 'Icon Background Shade',
       type: 'number',
+      group: 'image',
       fieldset: 'imageSection',
       initialValue: 100,
       hidden: ({ parent }) =>
@@ -255,6 +272,7 @@ export default defineType({
       name: 'iconBgCustomColor',
       title: 'Custom Icon Background Color',
       type: 'simplerColor',
+      group: 'image',
       fieldset: 'imageSection',
       hidden: ({ parent }) =>
         !parent?.icon || parent?.iconBgColorType !== 'custom',
@@ -265,6 +283,7 @@ export default defineType({
       name: 'category',
       title: 'Category',
       type: 'string',
+      group: 'image',
       fieldset: 'imageSection',
       description:
         'Uppercase category tag (e.g., "OPERATIONS", "MEETING DESIGN")',
@@ -273,6 +292,7 @@ export default defineType({
       name: 'categoryColor',
       title: 'Category Color',
       type: 'string',
+      group: 'image',
       fieldset: 'imageSection',
       options: {
         list: [
@@ -292,6 +312,7 @@ export default defineType({
       name: 'role',
       title: 'Role / Subtitle',
       type: 'string',
+      group: 'image',
       fieldset: 'imageSection',
       description:
         'Your role or service provided (e.g., "CFO Fractional Services")',
@@ -300,6 +321,7 @@ export default defineType({
       name: 'roleColor',
       title: 'Role Color',
       type: 'string',
+      group: 'image',
       fieldset: 'imageSection',
       options: {
         list: [
@@ -320,6 +342,7 @@ export default defineType({
       name: 'contentBgColorType',
       title: 'Background Color',
       type: 'string',
+      group: 'details',
       fieldset: 'detailsSection',
       options: {
         list: [
@@ -336,6 +359,7 @@ export default defineType({
       name: 'contentBgColorShade',
       title: 'Background Shade',
       type: 'number',
+      group: 'details',
       fieldset: 'detailsSection',
       initialValue: 95,
       hidden: ({ parent }) =>
@@ -350,6 +374,7 @@ export default defineType({
       name: 'contentBgCustomColor',
       title: 'Custom Background Color',
       type: 'simplerColor',
+      group: 'details',
       fieldset: 'detailsSection',
       hidden: ({ parent }) => parent?.contentBgColorType !== 'custom',
     },
@@ -359,6 +384,7 @@ export default defineType({
       name: 'date',
       title: 'Date / Timeline',
       type: 'string',
+      group: 'details',
       fieldset: 'detailsSection',
       description: 'Project timeline (e.g., "MARCH 2024 - PRESENT")',
     },
@@ -366,6 +392,7 @@ export default defineType({
       name: 'dateColorType',
       title: 'Date Color',
       type: 'string',
+      group: 'details',
       fieldset: 'detailsSection',
       options: {
         list: [
@@ -382,6 +409,7 @@ export default defineType({
       name: 'dateColorShade',
       title: 'Date Shade',
       type: 'number',
+      group: 'details',
       fieldset: 'detailsSection',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -394,6 +422,7 @@ export default defineType({
       name: 'dateCustomColor',
       title: 'Custom Date Color',
       type: 'simplerColor',
+      group: 'details',
       fieldset: 'detailsSection',
       hidden: ({ parent }) =>
         !parent?.date || parent?.dateColorType !== 'custom',
@@ -404,6 +433,7 @@ export default defineType({
       name: 'dividerColorType',
       title: 'Divider Color',
       type: 'string',
+      group: 'details',
       fieldset: 'detailsSection',
       description: 'Color of the line between description and contributions',
       options: {
@@ -420,6 +450,7 @@ export default defineType({
       name: 'dividerColorShade',
       title: 'Divider Shade',
       type: 'number',
+      group: 'details',
       fieldset: 'detailsSection',
       initialValue: 0,
       hidden: ({ parent }) => parent?.dividerColorType === 'custom',
@@ -431,6 +462,7 @@ export default defineType({
       name: 'dividerCustomColor',
       title: 'Custom Divider Color',
       type: 'simplerColor',
+      group: 'details',
       fieldset: 'detailsSection',
       hidden: ({ parent }) => parent?.dividerColorType !== 'custom',
     },
@@ -440,6 +472,7 @@ export default defineType({
       name: 'description',
       title: 'Description',
       type: 'portableText',
+      group: 'details',
       fieldset: 'detailsSection',
       description:
         'Summary explaining the project scope with rich text support',
@@ -448,6 +481,7 @@ export default defineType({
       name: 'descriptionColor',
       title: 'Description Color',
       type: 'string',
+      group: 'details',
       fieldset: 'detailsSection',
       options: {
         list: [
@@ -467,6 +501,7 @@ export default defineType({
       name: 'contributionsTitle',
       title: 'Contributions Section Title',
       type: 'string',
+      group: 'details',
       fieldset: 'detailsSection',
       description: 'Title for the right column (e.g., "KEY CONTRIBUTIONS")',
       initialValue: 'KEY CONTRIBUTIONS',
@@ -475,6 +510,7 @@ export default defineType({
       name: 'contributionsTitleColorType',
       title: 'Contributions Title Color',
       type: 'string',
+      group: 'details',
       fieldset: 'detailsSection',
       options: {
         list: [
@@ -491,6 +527,7 @@ export default defineType({
       name: 'contributionsTitleColorShade',
       title: 'Contributions Title Shade',
       type: 'number',
+      group: 'details',
       fieldset: 'detailsSection',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -504,6 +541,7 @@ export default defineType({
       name: 'contributionsTitleCustomColor',
       title: 'Custom Contributions Title Color',
       type: 'simplerColor',
+      group: 'details',
       fieldset: 'detailsSection',
       hidden: ({ parent }) =>
         !parent?.contributionsTitle ||
@@ -513,6 +551,7 @@ export default defineType({
       name: 'contributions',
       title: 'Key Contributions',
       type: 'array',
+      group: 'details',
       fieldset: 'detailsSection',
       of: [{ type: 'text', rows: 2 }],
       description: 'List of specific achievements or deliverables',
@@ -521,6 +560,7 @@ export default defineType({
       name: 'contributionsTextColor',
       title: 'Contributions Text Color',
       type: 'string',
+      group: 'details',
       fieldset: 'detailsSection',
       options: {
         list: [
@@ -538,6 +578,7 @@ export default defineType({
       name: 'bulletColorType',
       title: 'Bullet Color',
       type: 'string',
+      group: 'details',
       fieldset: 'detailsSection',
       options: {
         list: [
@@ -554,6 +595,7 @@ export default defineType({
       name: 'bulletColorShade',
       title: 'Bullet Shade',
       type: 'number',
+      group: 'details',
       fieldset: 'detailsSection',
       initialValue: 0,
       hidden: ({ parent }) =>
@@ -566,6 +608,7 @@ export default defineType({
       name: 'bulletCustomColor',
       title: 'Custom Bullet Color',
       type: 'simplerColor',
+      group: 'details',
       fieldset: 'detailsSection',
       hidden: ({ parent }) =>
         !parent?.contributions?.length || parent?.bulletColorType !== 'custom',
@@ -576,6 +619,7 @@ export default defineType({
       name: 'relatedService',
       title: 'Related Service',
       type: 'reference',
+      group: 'content',
       to: [{ type: 'service' }],
       description: 'Link this case study to a service',
     },
