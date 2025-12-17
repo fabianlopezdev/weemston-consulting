@@ -30,6 +30,37 @@ export default defineType({
   fields: [
     // Hero Section
     {
+      name: 'heroBackgroundColorType',
+      title: 'Background Color',
+      type: 'string',
+      fieldset: 'hero',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'primary',
+    },
+    {
+      name: 'heroBackgroundColorShade',
+      title: 'Background Shade',
+      type: 'number',
+      fieldset: 'hero',
+      initialValue: 90,
+      hidden: ({ parent }) => parent?.heroBackgroundColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'heroBackgroundCustomColor',
+      title: 'Custom Background Color',
+      type: 'simplerColor',
+      fieldset: 'hero',
+      hidden: ({ parent }) => parent?.heroBackgroundColorType !== 'custom',
+    },
+    {
       name: 'heroHeading',
       title: 'Heading',
       type: 'string',
@@ -66,7 +97,8 @@ export default defineType({
       fieldset: 'hero',
       initialValue: 0,
       hidden: ({ parent }) =>
-        !parent?.heroHeadingHighlight || parent?.heroHighlightColorType === 'custom',
+        !parent?.heroHeadingHighlight ||
+        parent?.heroHighlightColorType === 'custom',
       components: { input: BackgroundShadeInput },
     },
     {
@@ -75,7 +107,8 @@ export default defineType({
       type: 'simplerColor',
       fieldset: 'hero',
       hidden: ({ parent }) =>
-        !parent?.heroHeadingHighlight || parent?.heroHighlightColorType !== 'custom',
+        !parent?.heroHeadingHighlight ||
+        parent?.heroHighlightColorType !== 'custom',
     },
     {
       name: 'heroShowDivider',
@@ -141,37 +174,6 @@ export default defineType({
       },
       initialValue: 'muted',
       hidden: ({ parent }) => !parent?.heroTagline,
-    },
-    {
-      name: 'heroBackgroundColorType',
-      title: 'Background Color',
-      type: 'string',
-      fieldset: 'hero',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'primary',
-    },
-    {
-      name: 'heroBackgroundColorShade',
-      title: 'Background Shade',
-      type: 'number',
-      fieldset: 'hero',
-      initialValue: 90,
-      hidden: ({ parent }) => parent?.heroBackgroundColorType === 'custom',
-      components: { input: BackgroundShadeInput },
-    },
-    {
-      name: 'heroBackgroundCustomColor',
-      title: 'Custom Background Color',
-      type: 'simplerColor',
-      fieldset: 'hero',
-      hidden: ({ parent }) => parent?.heroBackgroundColorType !== 'custom',
     },
 
     // Intro Section
