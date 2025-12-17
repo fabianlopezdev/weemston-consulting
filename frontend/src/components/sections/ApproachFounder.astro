@@ -3,6 +3,7 @@ import { urlForImageWithSeoFilename } from '@lib/sanity/image';
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
+import SectionTitle from '@components/ui/SectionTitle.astro';
 
 interface ImageAsset {
   _id: string;
@@ -229,7 +230,12 @@ const contentParts = parseContent(content || '', quote);
       }
       <div class="founder-section__content">
         {tagline && <span class="founder-section__tagline">{tagline}</span>}
-        <h2 class="founder-section__title">{title}</h2>
+        <SectionTitle
+          title={title}
+          color={titleColor}
+          align="left"
+          class="founder-section__title"
+        />
         <div class="founder-section__text">
           {
             contentParts.map((part) =>
@@ -296,15 +302,6 @@ const contentParts = parseContent(content || '', quote);
     letter-spacing: 0.05em;
     color: var(--founder-tagline-color, var(--color-accent));
     margin-bottom: var(--space-sm);
-  }
-
-  .founder-section__title {
-    font-family: var(--font-heading);
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
-    font-weight: 500;
-    line-height: 1.2;
-    color: var(--founder-title-color, var(--color-accent));
-    margin: 0 0 var(--space-lg);
   }
 
   .founder-section__text {

@@ -16,7 +16,7 @@ const { title, faqs } = Astro.props;
 
 <section class="faq-section">
   <div class="container">
-    <SectionTitle>{title}</SectionTitle>
+    <SectionTitle title={title} />
 
     <div class="faq-list">
       {

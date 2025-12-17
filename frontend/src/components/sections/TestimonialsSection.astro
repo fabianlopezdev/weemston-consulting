@@ -297,9 +297,7 @@ const cards = testimonials.map(renderCard);
       )
     }
     <div class="container">
-      <SectionTitle class={!showTitle ? 'visually-hidden' : undefined}>
-        {title}
-      </SectionTitle>
+      <SectionTitle title={title} showTitle={showTitle} />
 
       <div
         class="testimonials-marquee"

@@ -3,6 +3,7 @@ import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import CoreValueCard from '@components/cards/CoreValueCard.astro';
+import SectionTitle from '@components/ui/SectionTitle.astro';
 
 interface ColorData {
   label?: string;
@@ -182,11 +183,12 @@ const sectionCssVars = [
   <div class="container">
     {
       title && (
-        <h2
-          class:list={['core-values__title', { 'visually-hidden': !showTitle }]}
-        >
-          {title}
-        </h2>
+        <SectionTitle
+          title={title}
+          color={sectionTitleColor}
+          showTitle={showTitle}
+          align="center"
+        />
       )
     }
     <div class="core-values__grid">
@@ -216,32 +218,10 @@ const sectionCssVars = [
     background-color: var(--section-bg, transparent);
   }
 
-  .core-values__title {
-    font-family: var(--font-heading);
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
-    font-weight: 500;
-    line-height: 1.2;
-    color: var(--section-title-color);
-    margin: 0 0 var(--space-lg);
-    text-align: center;
-  }
-
   .core-values__grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--space-xl);
-  }
-
-  .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
 </style>
 

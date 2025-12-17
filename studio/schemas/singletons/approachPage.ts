@@ -230,6 +230,33 @@ export default defineType({
       hidden: ({ parent }) =>
         !parent?.heroShowDivider || parent?.heroDividerColorType !== 'custom',
     },
+    {
+      name: 'heroTagline',
+      title: 'Tagline',
+      type: 'text',
+      rows: 3,
+      group: 'hero',
+      fieldset: 'heroFields',
+      description: 'Supporting text that appears below the divider line.',
+    },
+    {
+      name: 'heroTaglineColor',
+      title: 'Tagline Text Color',
+      type: 'string',
+      group: 'hero',
+      fieldset: 'heroFields',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'muted',
+      hidden: ({ parent }) => !parent?.heroTagline,
+    },
 
     // Core Values Section
     {

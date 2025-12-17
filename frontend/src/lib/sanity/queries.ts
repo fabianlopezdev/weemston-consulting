@@ -573,6 +573,8 @@ export const approachPageQuery = groq`
     heroBackgroundColorType,
     heroBackgroundColorShade,
     heroBackgroundCustomColor { label, value },
+    heroTagline,
+    heroTaglineColor,
     // Core Values
     coreValuesBackgroundColorType,
     coreValuesBackgroundColorShade,

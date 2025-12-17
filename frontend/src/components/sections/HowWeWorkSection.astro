@@ -108,7 +108,7 @@ const cssVarsString = Object.entries(cssVars)
 <section class="how-we-work-section" style={cssVarsString}>
   <div class="container">
     <div class="how-we-work-section__header">
-      <SectionTitle>{title}</SectionTitle>
+      <SectionTitle title={title} />
       {
         description && (
           <p class="how-we-work-section__description">{description}</p>

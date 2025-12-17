@@ -23,7 +23,7 @@ const { title, description, caseStudies, showAllLink } = Astro.props;
 <section class="case-studies-section">
   <div class="container">
     <div class="case-studies-section__header">
-      <SectionTitle>{title}</SectionTitle>
+      <SectionTitle title={title} />
       {
         description && (
           <p class="case-studies-section__description">{description}</p>
