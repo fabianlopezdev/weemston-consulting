@@ -1,3 +1,5 @@
+import { createElement } from 'react';
+import { Icon } from '@iconify/react';
 import { defineType } from 'sanity';
 import { BackgroundShadeInput } from '../../components/BackgroundShadeInput';
 
@@ -9,25 +11,8 @@ export default defineType({
     {
       name: 'icon',
       title: 'Icon',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Search (Magnifying Glass)', value: 'search' },
-          { title: 'Layers (Stack)', value: 'layers' },
-          { title: 'Lightbulb (Idea)', value: 'lightbulb' },
-          { title: 'Users (People)', value: 'users' },
-          { title: 'Heart', value: 'heart' },
-          { title: 'Chart (Growth)', value: 'chart' },
-          { title: 'Target (Goal)', value: 'target' },
-          { title: 'Compass (Direction)', value: 'compass' },
-          { title: 'Handshake (Partnership)', value: 'handshake' },
-          { title: 'Star (Excellence)', value: 'star' },
-          { title: 'Shield (Trust)', value: 'shield' },
-          { title: 'Puzzle (Problem Solving)', value: 'puzzle' },
-        ],
-        layout: 'dropdown',
-      },
-      initialValue: 'search',
+      type: 'icon',
+      description: 'Search for an icon from 150,000+ available icons',
     },
     {
       name: 'iconColorType',
@@ -106,27 +91,13 @@ export default defineType({
   preview: {
     select: {
       title: 'title',
-      icon: 'icon',
+      iconName: 'icon.name',
     },
-    prepare({ title, icon }) {
-      const iconEmojis: Record<string, string> = {
-        search: '🔍',
-        layers: '📚',
-        lightbulb: '💡',
-        users: '👥',
-        heart: '❤️',
-        chart: '📈',
-        target: '🎯',
-        compass: '🧭',
-        handshake: '🤝',
-        star: '⭐',
-        shield: '🛡️',
-        puzzle: '🧩',
-      };
+    prepare({ title, iconName }) {
       return {
         title: title || 'Untitled Card',
-        subtitle: `Icon: ${icon || 'none'}`,
-        media: () => iconEmojis[icon] || '📋',
+        subtitle: iconName ? `Icon: ${iconName}` : 'No icon selected',
+        media: iconName ? createElement(Icon, { icon: iconName }) : undefined,
       };
     },
   },

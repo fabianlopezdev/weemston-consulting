@@ -1,6 +1,8 @@
 ---
+import { Icon } from 'astro-icon/components';
+
 interface Props {
-  iconPath: string;
+  iconName?: string | undefined;
   iconColor: string;
   iconBgColor: string;
   title: string;
@@ -10,7 +12,7 @@ interface Props {
 }
 
 const {
-  iconPath,
+  iconName,
   iconColor,
   iconBgColor,
   title,
@@ -30,19 +32,13 @@ const cssVars = [
 ---
 
 <div class="core-values__card" style={cssVars}>
-  <div class="core-values__icon-wrapper">
-    <svg
-      class="core-values__icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-      set:html={iconPath}
-    />
-  </div>
+  {
+    iconName && (
+      <div class="core-values__icon-wrapper">
+        <Icon name={iconName} class="core-values__icon" aria-hidden="true" />
+      </div>
+    )
+  }
   <h3 class="core-values__title">{title}</h3>
   <p class="core-values__description">{description}</p>
 </div>

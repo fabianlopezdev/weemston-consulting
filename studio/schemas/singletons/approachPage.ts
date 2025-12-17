@@ -274,6 +274,65 @@ export default defineType({
         parent?.coreValuesBackgroundColorType !== 'custom',
     },
     {
+      name: 'coreValuesTitle',
+      title: 'Section Title',
+      type: 'string',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+    },
+    {
+      name: 'coreValuesShowTitle',
+      title: 'Show Title',
+      type: 'boolean',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      initialValue: true,
+      description:
+        'When disabled, the title remains in the HTML for SEO and screen readers but is hidden visually.',
+    },
+    {
+      name: 'coreValuesTitleColorType',
+      title: 'Title Color',
+      type: 'string',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'primary',
+      hidden: ({ parent }) => !parent?.coreValuesShowTitle,
+    },
+    {
+      name: 'coreValuesTitleColorShade',
+      title: 'Title Shade',
+      type: 'number',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.coreValuesShowTitle ||
+        parent?.coreValuesTitleColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'coreValuesTitleCustomColor',
+      title: 'Custom Title Color',
+      type: 'simplerColor',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      hidden: ({ parent }) =>
+        !parent?.coreValuesShowTitle ||
+        parent?.coreValuesTitleColorType !== 'custom',
+    },
+    {
       name: 'coreValuesCardBackgroundColorType',
       title: 'Card Background Color',
       type: 'string',
@@ -350,15 +409,6 @@ export default defineType({
       group: 'coreValues',
       fieldset: 'coreValuesFields',
       hidden: ({ parent }) => parent?.coreValuesCardTitleColorType !== 'custom',
-    },
-    {
-      name: 'coreValuesTitle',
-      title: 'Section Title (optional)',
-      type: 'string',
-      group: 'coreValues',
-      fieldset: 'coreValuesFields',
-      description:
-        'Hidden visually but available for SEO/accessibility. Leave empty to hide entirely.',
     },
     {
       name: 'coreValuesCards',

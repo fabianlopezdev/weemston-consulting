@@ -130,6 +130,8 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'coreValuesCardBackgroundColorType';
   } else if (fieldName === 'coreValuesCardTitleColorShade') {
     colorTypeFieldName = 'coreValuesCardTitleColorType';
+  } else if (fieldName === 'coreValuesTitleColorShade') {
+    colorTypeFieldName = 'coreValuesTitleColorType';
   } else if (fieldName === 'highlightTitleColorShade') {
     colorTypeFieldName = 'highlightTitleColorType';
   } else if (fieldName === 'ctaTitleColorShade') {
