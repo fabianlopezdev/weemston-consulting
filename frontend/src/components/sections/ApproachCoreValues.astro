@@ -123,6 +123,23 @@ function getCardIconColors(card: ValueCard) {
   return { iconColor, iconBgColor };
 }
 
+// Helper to resolve title color for each card (with fallback to section-level)
+function getCardTitleColor(card: ValueCard, sectionTitleColor: string): string {
+  if (card.titleColorType) {
+    return card.titleColorType === 'custom' && card.titleCustomColor?.value
+      ? card.titleCustomColor.value
+      : resolveColorSelection(
+          {
+            colorType: card.titleColorType,
+            shade: card.titleColorShade || 0,
+            customColor: card.titleCustomColor,
+          },
+          siteColors
+        );
+  }
+  return sectionTitleColor;
+}
+
 // Resolve section background color
 const sectionBackgroundColor =
   backgroundColorType === 'default'
@@ -195,13 +212,14 @@ const sectionCssVars = [
       {
         cards.map((card) => {
           const colors = getCardIconColors(card);
+          const titleColor = getCardTitleColor(card, cardTitleColor);
           return (
             <CoreValueCard
               iconName={card.icon?.name}
               iconColor={colors.iconColor}
               iconBgColor={colors.iconBgColor}
               title={card.title}
-              titleColor={cardTitleColor}
+              titleColor={titleColor}
               description={card.description}
               cardBgColor={cardBackgroundColor || undefined}
             />
