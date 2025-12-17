@@ -53,7 +53,12 @@ interface Props {
     | 'custom';
   contentBgColorShade?: number;
   contentBgCustomColor?: ColorData;
-  dateColor?: 'base' | 'muted' | 'contrast';
+  dateColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  dateColorShade?: number;
+  dateCustomColor?: ColorData;
+  dividerColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  dividerColorShade?: number;
+  dividerCustomColor?: ColorData;
   descriptionColor?: 'base' | 'muted' | 'contrast';
   contributionsTitleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   contributionsTitleColorShade?: number;
@@ -92,7 +97,12 @@ const {
   contentBgColorType = 'default',
   contentBgColorShade = 95,
   contentBgCustomColor,
-  dateColor = 'muted',
+  dateColorType = 'secondary',
+  dateColorShade = 0,
+  dateCustomColor,
+  dividerColorType = 'secondary',
+  dividerColorShade = 0,
+  dividerCustomColor,
   descriptionColor = 'base',
   contributionsTitleColorType = 'accent',
   contributionsTitleColorShade = 0,
@@ -166,6 +176,24 @@ const bulletColor = resolveColorSelection(
   siteColors
 );
 
+const dateColor = resolveColorSelection(
+  {
+    colorType: dateColorType,
+    shade: dateColorShade,
+    customColor: dateCustomColor,
+  },
+  siteColors
+);
+
+const dividerColor = resolveColorSelection(
+  {
+    colorType: dividerColorType,
+    shade: dividerColorShade,
+    customColor: dividerCustomColor,
+  },
+  siteColors
+);
+
 // Text color map
 const textColorMap: Record<string, string> = {
   base: 'var(--color-text)',
@@ -177,7 +205,6 @@ const resolvedCategoryColor =
   textColorMap[categoryColor] || textColorMap.contrast;
 const resolvedClientColor = textColorMap[clientColor] || textColorMap.contrast;
 const resolvedRoleColor = textColorMap[roleColor] || textColorMap.contrast;
-const resolvedDateColor = textColorMap[dateColor] || textColorMap.muted;
 const resolvedDescriptionColor =
   textColorMap[descriptionColor] || textColorMap.base;
 const resolvedContributionsTextColor =
@@ -192,11 +219,12 @@ const cssVarParts: string[] = [
   `--cs-category-color: ${resolvedCategoryColor}`,
   `--cs-client-color: ${resolvedClientColor}`,
   `--cs-role-color: ${resolvedRoleColor}`,
-  `--cs-date: ${resolvedDateColor}`,
+  `--cs-date: ${dateColor}`,
   `--cs-description: ${resolvedDescriptionColor}`,
   `--cs-title: ${contributionsTitleColor}`,
   `--cs-contributions-text: ${resolvedContributionsTextColor}`,
   `--cs-bullet: ${bulletColor}`,
+  `--cs-divider: ${dividerColor}`,
 ];
 if (contentBgColor) cssVarParts.push(`--cs-content-bg: ${contentBgColor}`);
 const cssVars = cssVarParts.join('; ');
@@ -496,14 +524,14 @@ const iconPaths: Record<string, string> = {
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
-    border-block-start: 1px solid rgba(180, 180, 180, 0.3);
+    border-block-start: 1px solid var(--cs-divider, rgba(180, 180, 180, 0.3));
     padding-block-start: var(--space-md);
   }
 
   @media (min-width: 768px) {
     .case-study-card__right {
       border-block-start: 0;
-      border-inline-start: 1px solid rgba(180, 180, 180, 0.3);
+      border-inline-start: 1px solid var(--cs-divider, rgba(180, 180, 180, 0.3));
       padding-block-start: 0;
       padding-inline-start: var(--space-lg);
     }

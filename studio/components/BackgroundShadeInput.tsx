@@ -160,6 +160,10 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'filterActiveColorType';
   } else if (fieldName === 'filterInactiveColorShade') {
     colorTypeFieldName = 'filterInactiveColorType';
+  } else if (fieldName === 'dateColorShade') {
+    colorTypeFieldName = 'dateColorType';
+  } else if (fieldName === 'dividerColorShade') {
+    colorTypeFieldName = 'dividerColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';

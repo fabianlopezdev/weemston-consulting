@@ -20,6 +20,11 @@ export default defineType({
       options: { collapsible: true, collapsed: false },
     },
   ],
+  groups: [
+    { name: 'content', title: 'Content', default: true },
+    { name: 'image', title: 'Image & Overlay' },
+    { name: 'details', title: 'Details' },
+  ],
   fields: [
     // Basic Info
     {
