@@ -233,7 +233,7 @@ const iconPaths: Record<string, string> = {
 };
 ---
 
-<article class="case-study-card" style={cssVars}>
+<article class="case-study-card" style={cssVars} data-animate="case-study">
   {/* Hero Section - Top Half */}
   <div class="case-study-card__hero">
     <div class="case-study-card__image-wrapper">
@@ -376,7 +376,11 @@ const iconPaths: Record<string, string> = {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: color-mix(in srgb, var(--cs-icon-bg, var(--color-primary-light)) 15%, transparent);
+    background-color: color-mix(
+      in srgb,
+      var(--cs-icon-bg, var(--color-primary-light)) 15%,
+      transparent
+    );
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     border-radius: 50%;
@@ -466,14 +470,16 @@ const iconPaths: Record<string, string> = {
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
-    border-block-start: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
+    border-block-start: 1px solid
+      color-mix(in srgb, var(--color-border) 30%, transparent);
     padding-block-start: var(--space-md);
   }
 
   @media (min-width: 768px) {
     .case-study-card__right {
       border-block-start: 0;
-      border-inline-start: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
+      border-inline-start: 1px solid
+        color-mix(in srgb, var(--color-border) 30%, transparent);
       padding-block-start: 0;
       padding-inline-start: var(--space-lg);
     }
@@ -530,3 +536,35 @@ const iconPaths: Record<string, string> = {
     }
   }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    // Respect reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    const cards = document.querySelectorAll('[data-animate="case-study"]');
+
+    if (!cards.length) return;
+
+    cards.forEach((card) => {
+      gsap.fromTo(
+        card,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+          },
+        }
+      );
+    });
+  });
+</script>
