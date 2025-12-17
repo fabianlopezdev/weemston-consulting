@@ -44,6 +44,23 @@ export default defineType({
       initialValue: 'contrast',
       hidden: ({ parent }) => !parent?.client,
     },
+    {
+      name: 'clientLogo',
+      title: 'Client Logo',
+      type: 'image',
+      description: 'Optional logo for the client company',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        {
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          description: 'Describes the logo for screen readers',
+        },
+      ],
+    },
     defineLanguageField(),
 
     // Image Section
