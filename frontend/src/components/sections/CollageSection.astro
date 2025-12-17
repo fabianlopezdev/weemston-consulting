@@ -83,9 +83,8 @@ const getOverlayStyles = () => {
   return `background: rgba(0, 0, 0, ${opacity});`;
 };
 
-// When used as section title, enforce consistent sizing across the site
-const effectiveSize = useAsSectionTitle ? 'large' : taglineSize;
-const taglineSizeClass = `collage__tagline--${effectiveSize}`;
+// Size class applies to both tagline and section-title
+const sizeClass = `collage__text--${taglineSize}`;
 
 // CTA button resolution (only if CTA enabled)
 let buttonUrl = '/';
@@ -157,9 +156,9 @@ if (showCta && ctaButton) {
     <div class="collage__content">
       {
         useAsSectionTitle ? (
-          <h2 class="section-title">{tagline}</h2>
+          <h2 class={`section-title ${sizeClass}`}>{tagline}</h2>
         ) : (
-          <p class={`collage__tagline ${taglineSizeClass}`}>
+          <p class={`collage__tagline ${sizeClass}`}>
             <span class="collage__tagline-text">{tagline}</span>
           </p>
         )
@@ -277,22 +276,22 @@ if (showCta && ctaButton) {
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
 
-  .collage__tagline--medium {
+  /* Size classes - apply to both tagline and section-title */
+  .collage__text--medium {
     font-size: clamp(1.5rem, 4vw, 2rem);
   }
 
-  .collage__tagline--large {
-    font-size: clamp(1.75rem, 5vw, 2.75rem);
+  .collage__text--large {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
   }
 
-  .collage__tagline--xlarge {
-    font-size: clamp(2rem, 6vw, 3.5rem);
+  .collage__text--xlarge {
+    font-size: clamp(2rem, 5vw, 3.5rem);
   }
 
   /* When used as section title, preserve standard section-title styling */
   .collage__content .section-title {
     font-family: var(--font-serif, Georgia, serif);
-    font-size: clamp(2rem, 5vw, 3.5rem);
     color: #ffffff;
     margin: 0;
     text-align: center;
