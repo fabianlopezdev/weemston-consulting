@@ -324,6 +324,7 @@ const iconPaths: Record<string, string> = {
     position: absolute;
     inset: 0;
     z-index: 0;
+    overflow: hidden;
   }
 
   .case-study-card__image-wrapper :global(.image-blur-wrapper),
@@ -331,6 +332,7 @@ const iconPaths: Record<string, string> = {
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
+    transition: transform 700ms ease-out;
   }
 
   .case-study-card__overlay {
@@ -510,5 +512,21 @@ const iconPaths: Record<string, string> = {
     font-size: 1.25rem;
     line-height: 1;
     margin-block-start: -0.1rem;
+  }
+
+  /* Hover Effects */
+  .case-study-card:hover .case-study-card__image-wrapper :global(img) {
+    transform: scale(1.05);
+  }
+
+  /* Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    .case-study-card__image-wrapper :global(img) {
+      transition: none;
+    }
+
+    .case-study-card:hover .case-study-card__image-wrapper :global(img) {
+      transform: none;
+    }
   }
 </style>
