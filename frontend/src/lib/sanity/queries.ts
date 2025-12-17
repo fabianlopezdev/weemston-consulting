@@ -728,7 +728,11 @@ export const servicesPageNewQuery = groq`
       caseStudiesPillTextColor,
       featuredCaseStudies[]-> {
         _id,
-        client
+        client,
+        clientLogo {
+          asset->{ _id, url, metadata { dimensions { width, height, aspectRatio } } },
+          alt, hotspot, crop
+        }
       }
     }
   }
