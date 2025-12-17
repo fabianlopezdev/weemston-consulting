@@ -936,12 +936,11 @@ export default defineType({
     {
       name: 'founderContent',
       title: 'Content',
-      type: 'text',
-      rows: 10,
+      type: 'portableText',
       group: 'founder',
       fieldset: 'founderFields',
       description:
-        'Full text content including the quote. Use blank lines to separate paragraphs.',
+        'Full text content with rich text support. Use the blockquote style for highlighted quotes.',
     },
     {
       name: 'founderTextColor',
@@ -1361,11 +1360,10 @@ export default defineType({
     {
       name: 'collageDescription',
       title: 'Description',
-      type: 'text',
-      rows: 3,
+      type: 'portableText',
       group: 'collage',
       fieldset: 'collageFields',
-      description: 'Supporting text that appears below the tagline',
+      description: 'Supporting text with rich text support',
       hidden: ({ parent }) =>
         !parent?.collageEnabled || !parent?.collageShowDescription,
     },

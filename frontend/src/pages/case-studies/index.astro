@@ -2,7 +2,6 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { sanityClient as client } from 'sanity:client';
 import {
-  allCaseStudiesQuery,
   caseStudiesPageQuery,
   servicesForFilterQuery,
   siteSettingsQuery,
@@ -18,12 +17,13 @@ const lang = Astro.locals.lang || 'en';
 const t = createTranslator(lang);
 
 // Fetch all data
-const [page, caseStudies, services, settings] = await Promise.all([
+const [page, services, settings] = await Promise.all([
   client.fetch(caseStudiesPageQuery),
-  client.fetch(allCaseStudiesQuery, { language: lang }),
   client.fetch(servicesForFilterQuery, { language: lang }),
   client.fetch(siteSettingsQuery),
 ]);
+
+const caseStudies = page?.caseStudies || [];
 
 const siteColors = settings?.colors;
 

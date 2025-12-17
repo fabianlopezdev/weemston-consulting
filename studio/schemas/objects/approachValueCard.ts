@@ -84,8 +84,7 @@ export default defineType({
     {
       name: 'description',
       title: 'Description',
-      type: 'text',
-      rows: 3,
+      type: 'portableText',
     },
   ],
   preview: {

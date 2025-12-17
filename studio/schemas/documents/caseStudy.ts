@@ -379,10 +379,10 @@ export default defineType({
     {
       name: 'description',
       title: 'Description',
-      type: 'text',
-      rows: 4,
+      type: 'portableText',
       fieldset: 'detailsSection',
-      description: 'Summary paragraph explaining the project scope',
+      description:
+        'Summary explaining the project scope with rich text support',
     },
     {
       name: 'descriptionColor',

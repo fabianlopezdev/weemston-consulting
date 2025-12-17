@@ -1,5 +1,7 @@
 ---
 import { Icon } from 'astro-icon/components';
+import PortableText from '@components/sanity/PortableText.astro';
+import type { PortableTextBlock } from '@portabletext/types';
 
 interface Props {
   iconName?: string | undefined;
@@ -7,7 +9,7 @@ interface Props {
   iconBgColor: string;
   title: string;
   titleColor?: string | undefined;
-  description: string;
+  description: PortableTextBlock[];
   cardBgColor?: string | undefined;
 }
 
@@ -40,7 +42,13 @@ const cssVars = [
     )
   }
   <h3 class="core-values__title">{title}</h3>
-  <p class="core-values__description">{description}</p>
+  {
+    description && description.length > 0 && (
+      <div class="core-values__description">
+        <PortableText content={description} />
+      </div>
+    )
+  }
 </div>
 
 <style>
@@ -96,6 +104,13 @@ const cssVars = [
   .core-values__description {
     color: rgb(71 85 105);
     line-height: 1.7;
+  }
+
+  .core-values__description :global(p) {
     margin: 0;
+  }
+
+  .core-values__description :global(p + p) {
+    margin-block-start: 0.5em;
   }
 </style>

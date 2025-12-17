@@ -4,6 +4,8 @@ import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import SectionTitle from '@components/ui/SectionTitle.astro';
+import PortableText from '@components/sanity/PortableText.astro';
+import type { PortableTextBlock } from '@portabletext/types';
 
 interface ImageAsset {
   _id: string;
@@ -52,9 +54,9 @@ interface Props {
   titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   titleColorShade?: number;
   titleCustomColor?: ColorData;
-  content?: string;
+  content?: PortableTextBlock[];
   textColor?: 'base' | 'muted' | 'contrast';
-  quote?: string;
+  quote?: string; // Kept for legacy quote color styling
   quoteColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   quoteColorShade?: number;
   quoteCustomColor?: ColorData;
@@ -174,55 +176,196 @@ const imageUrl = image?.asset
 
 const imageLqip = image?.asset?.metadata?.lqip;
 
-// Split content into parts: before quote, quote, after quote
-// Each part is further split into paragraphs by double newlines
-interface ContentPart {
-  type: 'paragraph' | 'quote';
-  text: string;
+// Normalize text for comparison (trim, collapse whitespace)
+function normalizeText(text: string): string {
+  return text.trim().replace(/\s+/g, ' ');
 }
 
-function parseContent(content: string, quote?: string): ContentPart[] {
-  if (!content) return [];
+// Span type for Portable Text children
+interface PTSpan {
+  _type: string;
+  _key?: string;
+  text?: string;
+  marks?: string[];
+}
 
-  if (!quote || !content.includes(quote)) {
-    // No quote or quote not found - just split into paragraphs
-    return content
-      .split(/\n\n+/)
-      .map((text) => text.trim())
-      .filter((text) => text.length > 0)
-      .map((text) => ({ type: 'paragraph' as const, text }));
+// Extract plain text from a block
+function extractTextFromBlock(block: PortableTextBlock): string {
+  if (block._type !== 'block' || !block.children) return '';
+  return (block.children as PTSpan[])
+    .filter((child) => child._type === 'span')
+    .map((span) => span.text || '')
+    .join('');
+}
+
+// Content part types for rendering
+type ContentPart =
+  | { type: 'paragraph'; block: PortableTextBlock }
+  | { type: 'quote'; text: string }
+  | { type: 'before'; block: PortableTextBlock }
+  | { type: 'after'; block: PortableTextBlock };
+
+// Split a block's spans around a quote, preserving formatting
+function splitBlockAroundQuote(
+  block: PortableTextBlock,
+  quoteText: string
+): {
+  before: PortableTextBlock | null;
+  quote: string;
+  after: PortableTextBlock | null;
+} | null {
+  if (block._type !== 'block' || !block.children) return null;
+
+  const spans = (block.children as PTSpan[]).filter((c) => c._type === 'span');
+  const fullText = spans.map((s) => s.text || '').join('');
+  const normalizedFull = normalizeText(fullText);
+  const normalizedQuote = normalizeText(quoteText);
+
+  const quoteStartNorm = normalizedFull.indexOf(normalizedQuote);
+  if (quoteStartNorm === -1) return null;
+
+  // Map normalized position back to original text position
+  // Build a mapping: for each char in normalized, track original position
+  let normIndex = 0;
+  let origIndex = 0;
+  const normToOrig: number[] = [];
+  const trimmedFull = fullText.trim();
+  const leadingSpaces = fullText.length - fullText.trimStart().length;
+
+  // Account for leading trim
+  origIndex = leadingSpaces;
+  for (let i = 0; i < trimmedFull.length; i++) {
+    const char = trimmedFull.charAt(i);
+    if (/\s/.test(char)) {
+      // Skip consecutive whitespace after first
+      if (i === 0 || !/\s/.test(trimmedFull.charAt(i - 1))) {
+        normToOrig.push(origIndex);
+        normIndex++;
+      }
+    } else {
+      normToOrig.push(origIndex);
+      normIndex++;
+    }
+    origIndex++;
+  }
+  normToOrig.push(origIndex); // End position
+
+  const quoteStartOrig = normToOrig[quoteStartNorm] ?? 0;
+  const quoteEndOrig =
+    normToOrig[quoteStartNorm + normalizedQuote.length] ?? fullText.length;
+
+  // Now split spans at quoteStartOrig and quoteEndOrig
+  const beforeSpans: PTSpan[] = [];
+  const afterSpans: PTSpan[] = [];
+  let currentPos = 0;
+
+  for (const span of spans) {
+    const spanText = span.text || '';
+    const spanStart = currentPos;
+    const spanEnd = currentPos + spanText.length;
+
+    if (spanEnd <= quoteStartOrig) {
+      // Entirely before quote
+      beforeSpans.push({ ...span });
+    } else if (spanStart >= quoteEndOrig) {
+      // Entirely after quote
+      afterSpans.push({ ...span });
+    } else {
+      // Span overlaps with quote - need to split
+      if (spanStart < quoteStartOrig) {
+        // Part before quote
+        const beforeText = spanText.slice(0, quoteStartOrig - spanStart);
+        if (beforeText) {
+          beforeSpans.push({
+            ...span,
+            _key: `${span._key || 'span'}-before`,
+            text: beforeText,
+          });
+        }
+      }
+      if (spanEnd > quoteEndOrig) {
+        // Part after quote
+        const afterText = spanText.slice(quoteEndOrig - spanStart);
+        if (afterText) {
+          afterSpans.push({
+            ...span,
+            _key: `${span._key || 'span'}-after`,
+            text: afterText,
+          });
+        }
+      }
+    }
+    currentPos = spanEnd;
   }
 
+  // Create before block if there's content
+  const beforeBlock: PortableTextBlock | null =
+    beforeSpans.length > 0
+      ? ({
+          ...block,
+          _key: `${block._key || 'block'}-before`,
+          children: beforeSpans,
+        } as PortableTextBlock)
+      : null;
+
+  // Create after block if there's content
+  const afterBlock: PortableTextBlock | null =
+    afterSpans.length > 0
+      ? ({
+          ...block,
+          _key: `${block._key || 'block'}-after`,
+          children: afterSpans,
+        } as PortableTextBlock)
+      : null;
+
+  // Extract the actual quote text from original
+  const extractedQuote = fullText.slice(quoteStartOrig, quoteEndOrig).trim();
+
+  return { before: beforeBlock, quote: extractedQuote, after: afterBlock };
+}
+
+// Parse all content blocks, splitting the one containing the quote
+function parsePortableTextContent(
+  blocks: PortableTextBlock[],
+  quoteText?: string
+): ContentPart[] {
+  if (!blocks?.length) return [];
+  if (!quoteText) {
+    return blocks.map((block) => ({ type: 'paragraph' as const, block }));
+  }
+
+  const normalizedQuote = normalizeText(quoteText);
   const parts: ContentPart[] = [];
-  const quoteIndex = content.indexOf(quote);
+  let quoteFound = false;
 
-  // Text before quote
-  const beforeQuote = content.slice(0, quoteIndex).trim();
-  if (beforeQuote) {
-    beforeQuote
-      .split(/\n\n+/)
-      .map((text) => text.trim())
-      .filter((text) => text.length > 0)
-      .forEach((text) => parts.push({ type: 'paragraph', text }));
-  }
+  for (const block of blocks) {
+    if (!quoteFound && block._type === 'block') {
+      const blockText = extractTextFromBlock(block);
+      const normalizedBlock = normalizeText(blockText);
 
-  // The quote itself
-  parts.push({ type: 'quote', text: quote });
-
-  // Text after quote
-  const afterQuote = content.slice(quoteIndex + quote.length).trim();
-  if (afterQuote) {
-    afterQuote
-      .split(/\n\n+/)
-      .map((text) => text.trim())
-      .filter((text) => text.length > 0)
-      .forEach((text) => parts.push({ type: 'paragraph', text }));
+      if (normalizedBlock.includes(normalizedQuote)) {
+        // This block contains the quote - split it
+        const split = splitBlockAroundQuote(block, quoteText);
+        if (split) {
+          if (split.before) {
+            parts.push({ type: 'before', block: split.before });
+          }
+          parts.push({ type: 'quote', text: split.quote });
+          if (split.after) {
+            parts.push({ type: 'after', block: split.after });
+          }
+          quoteFound = true;
+          continue;
+        }
+      }
+    }
+    parts.push({ type: 'paragraph', block });
   }
 
   return parts;
 }
 
-const contentParts = parseContent(content || '', quote);
+const contentParts = parsePortableTextContent(content || [], quote);
 ---
 
 <section class="founder-section" style={cssVars}>
@@ -254,19 +397,21 @@ const contentParts = parseContent(content || '', quote);
           align="left"
           class="founder-section__title"
         />
-        <div class="founder-section__text">
-          {
-            contentParts.map((part) =>
-              part.type === 'quote' ? (
-                <blockquote class="founder-section__quote">
-                  "{part.text}"
-                </blockquote>
-              ) : (
-                <p>{part.text}</p>
-              )
-            )
-          }
-        </div>
+        {
+          contentParts.length > 0 && (
+            <div class="founder-section__text">
+              {contentParts.map((part) =>
+                part.type === 'quote' ? (
+                  <blockquote class="founder-section__quote">
+                    "{part.text}"
+                  </blockquote>
+                ) : (
+                  <PortableText content={[part.block]} />
+                )
+              )}
+            </div>
+          )
+        }
       </div>
     </div>
   </div>
@@ -326,12 +471,12 @@ const contentParts = parseContent(content || '', quote);
     color: var(--founder-text-color, var(--color-text-muted));
   }
 
-  .founder-section__text p {
+  .founder-section__text :global(p) {
     margin: 0 0 var(--space-md);
     line-height: 1.7;
   }
 
-  .founder-section__text p:last-child {
+  .founder-section__text :global(p:last-child) {
     margin-bottom: 0;
   }
 
@@ -350,7 +495,7 @@ const contentParts = parseContent(content || '', quote);
     margin-bottom: 0;
   }
 
-  .founder-section__quote + p {
+  .founder-section__text .founder-section__quote + :global(p) {
     margin-top: var(--space-lg);
   }
 

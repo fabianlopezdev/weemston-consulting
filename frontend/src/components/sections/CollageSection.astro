@@ -8,6 +8,8 @@ import {
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import CTAButton from '@components/ui/CTAButton.astro';
+import PortableText from '@components/sanity/PortableText.astro';
+import type { PortableTextBlock } from '@portabletext/types';
 
 interface CollageImage {
   _key: string;
@@ -48,7 +50,7 @@ interface Props {
   useAsSectionTitle?: boolean;
   images: CollageImage[];
   showDescription?: boolean;
-  description?: string;
+  description?: PortableTextBlock[];
   showCta?: boolean;
   ctaButton?: LinkData;
 }
@@ -166,8 +168,10 @@ if (showCta && ctaButton) {
 
       {/* Description */}
       {
-        showDescription && description && (
-          <p class="collage__description">{description}</p>
+        showDescription && description && description.length > 0 && (
+          <div class="collage__description">
+            <PortableText content={description} />
+          </div>
         )
       }
 
@@ -323,6 +327,14 @@ if (showCta && ctaButton) {
     text-align: center;
     opacity: 0;
     transform: translateY(15px);
+  }
+
+  .collage__description :global(p) {
+    margin: 0;
+  }
+
+  .collage__description :global(p + p) {
+    margin-block-start: 0.5em;
   }
 
   /* CTA button - animation initial state */

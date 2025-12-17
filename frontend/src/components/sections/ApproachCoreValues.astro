@@ -4,6 +4,7 @@ import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import CoreValueCard from '@components/cards/CoreValueCard.astro';
 import SectionTitle from '@components/ui/SectionTitle.astro';
+import type { PortableTextBlock } from '@portabletext/types';
 
 interface ColorData {
   label?: string;
@@ -32,7 +33,7 @@ interface ValueCard {
   titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   titleColorShade?: number;
   titleCustomColor?: ColorData;
-  description: string;
+  description: PortableTextBlock[];
 }
 
 interface Props {

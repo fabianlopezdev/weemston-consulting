@@ -35,11 +35,17 @@ export default defineType({
       title: '🔍 Filter Section',
       options: { collapsible: true, collapsed: true },
     },
+    {
+      name: 'caseStudiesFields',
+      title: '📋 Case Studies',
+      options: { collapsible: true, collapsed: false },
+    },
   ],
   groups: [
     { name: 'hero', title: 'Hero Section' },
     { name: 'intro', title: 'Intro' },
     { name: 'filter', title: 'Filter' },
+    { name: 'caseStudies', title: 'Case Studies' },
   ],
   fields: [
     // Page Title (SEO)
@@ -453,6 +459,23 @@ export default defineType({
         direction: 'horizontal',
       },
       initialValue: 'muted',
+    },
+
+    // Case Studies
+    {
+      name: 'caseStudies',
+      title: 'Case Studies',
+      type: 'array',
+      group: 'caseStudies',
+      fieldset: 'caseStudiesFields',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'caseStudy' }],
+        },
+      ],
+      description:
+        'Select and arrange the case studies to display on this page. Case studies are managed in the Case Studies collection.',
     },
   ],
   preview: {
