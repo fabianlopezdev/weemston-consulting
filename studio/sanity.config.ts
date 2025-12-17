@@ -102,23 +102,9 @@ export default defineConfig({
               .icon(HiChartBar)
               .id('caseStudiesPage-singleton')
               .child(
-                isMultiLanguage
-                  ? S.list()
-                      .title('Case Studies Page by Language')
-                      .items(
-                        supportedLanguages.map((lang) =>
-                          S.listItem()
-                            .title(lang.title)
-                            .child(
-                              S.document()
-                                .schemaType('caseStudiesPage')
-                                .documentId(`caseStudiesPage-${lang.id}`)
-                            )
-                        )
-                      )
-                  : S.document()
-                      .schemaType('caseStudiesPage')
-                      .documentId(`caseStudiesPage-${baseLanguage?.id || 'en'}`)
+                S.document()
+                  .schemaType('caseStudiesPage')
+                  .documentId('caseStudiesPage')
               ),
             // Contact Page
             S.listItem()
@@ -248,9 +234,12 @@ export default defineConfig({
 
       // For singletons, block problematic actions instead of restricting to only specific ones
       const blockedActions = ['duplicate', 'delete', 'unpublish'];
-      return input.filter(
-        ({ action }) => action && !blockedActions.includes(action)
-      );
+      return input.filter((actionFn) => {
+        const actionName = actionFn.action;
+        // Keep actions without an action identifier (don't filter them out)
+        if (!actionName) return true;
+        return !blockedActions.includes(actionName);
+      });
     },
   },
 });
