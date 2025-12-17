@@ -528,7 +528,7 @@ export default defineType({
       type: 'array',
       group: 'servicePage',
       fieldset: 'listSection',
-      of: [{ type: 'string' }],
+      of: [{ type: 'text', rows: 2 }],
       description: 'Individual items in the list',
     },
     {

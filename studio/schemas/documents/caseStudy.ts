@@ -358,21 +358,76 @@ export default defineType({
       description: 'Project timeline (e.g., "MARCH 2024 - PRESENT")',
     },
     {
-      name: 'dateColor',
+      name: 'dateColorType',
       title: 'Date Color',
       type: 'string',
       fieldset: 'detailsSection',
       options: {
         list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Muted', value: 'muted' },
-          { title: 'Contrast', value: 'contrast' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
         ],
-        layout: 'radio',
-        direction: 'horizontal',
       },
-      initialValue: 'muted',
+      initialValue: 'secondary',
       hidden: ({ parent }) => !parent?.date,
+    },
+    {
+      name: 'dateColorShade',
+      title: 'Date Shade',
+      type: 'number',
+      fieldset: 'detailsSection',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.date || parent?.dateColorType === 'custom',
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'dateCustomColor',
+      title: 'Custom Date Color',
+      type: 'simplerColor',
+      fieldset: 'detailsSection',
+      hidden: ({ parent }) =>
+        !parent?.date || parent?.dateColorType !== 'custom',
+    },
+
+    // Divider
+    {
+      name: 'dividerColorType',
+      title: 'Divider Color',
+      type: 'string',
+      fieldset: 'detailsSection',
+      description: 'Color of the line between description and contributions',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'secondary',
+    },
+    {
+      name: 'dividerColorShade',
+      title: 'Divider Shade',
+      type: 'number',
+      fieldset: 'detailsSection',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.dividerColorType === 'custom',
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'dividerCustomColor',
+      title: 'Custom Divider Color',
+      type: 'simplerColor',
+      fieldset: 'detailsSection',
+      hidden: ({ parent }) => parent?.dividerColorType !== 'custom',
     },
 
     // Description
@@ -454,7 +509,7 @@ export default defineType({
       title: 'Key Contributions',
       type: 'array',
       fieldset: 'detailsSection',
-      of: [{ type: 'string' }],
+      of: [{ type: 'text', rows: 2 }],
       description: 'List of specific achievements or deliverables',
     },
     {
