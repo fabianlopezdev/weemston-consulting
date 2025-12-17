@@ -84,6 +84,25 @@ export default defineType({
       initialValue: 'default',
     },
     {
+      name: 'backgroundColorMode',
+      title: 'Background Mode',
+      type: 'string',
+      group: 'servicePage',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+      hidden: ({ parent }) =>
+        parent?.backgroundColorType === 'default' ||
+        !parent?.backgroundColorType,
+    },
+    {
       name: 'backgroundColorShade',
       title: 'Background Shade',
       type: 'number',
@@ -93,6 +112,7 @@ export default defineType({
       hidden: ({ parent }) =>
         parent?.backgroundColorType === 'custom' ||
         parent?.backgroundColorType === 'default' ||
+        parent?.backgroundColorMode === 'gradient' ||
         !parent?.backgroundColorType,
       components: {
         input: BackgroundShadeInput,
@@ -104,7 +124,108 @@ export default defineType({
       type: 'simplerColor',
       group: 'servicePage',
       fieldset: 'servicesPage',
-      hidden: ({ parent }) => parent?.backgroundColorType !== 'custom',
+      hidden: ({ parent }) =>
+        parent?.backgroundColorType !== 'custom' ||
+        parent?.backgroundColorMode === 'gradient',
+    },
+    {
+      name: 'backgroundGradient',
+      title: 'Gradient',
+      type: 'object',
+      group: 'servicePage',
+      fieldset: 'servicesPage',
+      hidden: ({ parent }) =>
+        parent?.backgroundColorType === 'default' ||
+        !parent?.backgroundColorType ||
+        parent?.backgroundColorMode !== 'gradient',
+      fields: [
+        {
+          name: 'direction',
+          title: 'Direction',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Top to Bottom', value: 'to bottom' },
+              { title: 'Bottom to Top', value: 'to top' },
+              { title: 'Left to Right', value: 'to right' },
+              { title: 'Right to Left', value: 'to left' },
+              { title: 'Diagonal ↘', value: '135deg' },
+              { title: 'Diagonal ↗', value: '45deg' },
+            ],
+          },
+          initialValue: '135deg',
+        },
+        {
+          name: 'startColor',
+          title: 'Start Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'primary',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              components: { input: BackgroundShadeInput },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+        {
+          name: 'endColor',
+          title: 'End Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'accent',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              components: { input: BackgroundShadeInput },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+      ],
     },
 
     // Tag

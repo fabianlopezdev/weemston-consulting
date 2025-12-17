@@ -42,6 +42,18 @@ interface CaseStudyRef {
   clientLogo?: ClientLogoImageData;
 }
 
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
 interface Props {
   tag?: string;
   title: string;
@@ -58,8 +70,10 @@ interface Props {
     | 'secondary'
     | 'accent'
     | 'custom';
+  backgroundColorMode?: 'solid' | 'gradient';
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
   titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   titleColorShade?: number;
   titleCustomColor?: ColorData;
@@ -121,8 +135,10 @@ const {
   imagePosition = 'left',
   // Color settings
   backgroundColorType = 'default',
+  backgroundColorMode = 'solid',
   backgroundColorShade = 0,
   backgroundCustomColor,
+  backgroundGradient,
   titleColorType = 'accent',
   titleColorShade = 0,
   titleCustomColor,
@@ -171,14 +187,16 @@ const siteColors = settings?.colors;
 const backgroundColor =
   backgroundColorType === 'default' || !backgroundColorType
     ? null
-    : resolveColorSelection(
-        {
-          colorType: backgroundColorType,
-          shade: backgroundColorShade,
-          customColor: backgroundCustomColor,
-        },
-        siteColors
-      );
+    : backgroundColorMode === 'gradient' && backgroundGradient
+      ? `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`
+      : resolveColorSelection(
+          {
+            colorType: backgroundColorType,
+            shade: backgroundColorShade,
+            customColor: backgroundCustomColor,
+          },
+          siteColors
+        );
 
 const titleColor = resolveColorSelection(
   {
@@ -543,7 +561,7 @@ const gridClasses = [
 <style>
   .service-section {
     padding-block: clamp(6rem, 10vw, 8rem);
-    background-color: var(--service-bg, var(--color-background));
+    background: var(--service-bg, var(--color-background));
   }
 
   .service-section__grid {

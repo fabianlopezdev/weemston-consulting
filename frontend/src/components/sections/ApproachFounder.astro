@@ -31,6 +31,18 @@ interface ColorData {
   value: string;
 }
 
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
 interface Props {
   tagline?: string;
   taglineColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
@@ -53,8 +65,10 @@ interface Props {
     | 'secondary'
     | 'accent'
     | 'custom';
+  backgroundColorMode?: 'solid' | 'gradient';
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
 }
 
 const {
@@ -74,8 +88,10 @@ const {
   quoteCustomColor,
   image,
   backgroundColorType = 'default',
+  backgroundColorMode = 'solid',
   backgroundColorShade = 90,
   backgroundCustomColor,
+  backgroundGradient,
 } = Astro.props;
 
 // Fetch site settings for colors
@@ -86,14 +102,16 @@ const siteColors = settings?.colors;
 const backgroundColor =
   backgroundColorType === 'default'
     ? null
-    : resolveColorSelection(
-        {
-          colorType: backgroundColorType,
-          shade: backgroundColorShade,
-          customColor: backgroundCustomColor,
-        },
-        siteColors
-      );
+    : backgroundColorMode === 'gradient' && backgroundGradient
+      ? `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`
+      : resolveColorSelection(
+          {
+            colorType: backgroundColorType,
+            shade: backgroundColorShade,
+            customColor: backgroundCustomColor,
+          },
+          siteColors
+        );
 
 // Resolve tagline color
 const taglineColor = resolveColorSelection(
@@ -257,7 +275,7 @@ const contentParts = parseContent(content || '', quote);
 <style>
   .founder-section {
     padding-bottom: var(--space-2xl);
-    background-color: var(--founder-bg, transparent);
+    background: var(--founder-bg, transparent);
   }
 
   .founder-section__grid {

@@ -10,6 +10,18 @@ interface ColorData {
   value: string;
 }
 
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
 interface ValueCard {
   _key: string;
   icon?: { name: string };
@@ -36,8 +48,10 @@ interface Props {
     | 'secondary'
     | 'accent'
     | 'custom';
+  backgroundColorMode?: 'solid' | 'gradient';
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
   cardBackgroundColorType?:
     | 'default'
     | 'primary'
@@ -59,8 +73,10 @@ const {
   titleCustomColor,
   cards,
   backgroundColorType = 'default',
+  backgroundColorMode = 'solid',
   backgroundColorShade = 90,
   backgroundCustomColor,
+  backgroundGradient,
   cardBackgroundColorType = 'default',
   cardBackgroundColorShade = 95,
   cardBackgroundCustomColor,
@@ -144,14 +160,16 @@ function getCardTitleColor(card: ValueCard, sectionTitleColor: string): string {
 const sectionBackgroundColor =
   backgroundColorType === 'default'
     ? null
-    : resolveColorSelection(
-        {
-          colorType: backgroundColorType,
-          shade: backgroundColorShade,
-          customColor: backgroundCustomColor,
-        },
-        siteColors
-      );
+    : backgroundColorMode === 'gradient' && backgroundGradient
+      ? `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`
+      : resolveColorSelection(
+          {
+            colorType: backgroundColorType,
+            shade: backgroundColorShade,
+            customColor: backgroundCustomColor,
+          },
+          siteColors
+        );
 
 // Resolve card background color
 const cardBackgroundColor =
@@ -233,7 +251,7 @@ const sectionCssVars = [
 <style>
   .core-values {
     padding: var(--space-2xl) 0;
-    background-color: var(--section-bg, transparent);
+    background: var(--section-bg, transparent);
   }
 
   .core-values__grid {

@@ -8,6 +8,18 @@ interface ColorData {
   value: string;
 }
 
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
 interface Props {
   heading: string;
   headingHighlight?: string;
@@ -21,8 +33,10 @@ interface Props {
   tagline?: string;
   taglineColor?: 'base' | 'muted' | 'contrast';
   backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  backgroundColorMode?: 'solid' | 'gradient';
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
 }
 
 const {
@@ -38,8 +52,10 @@ const {
   tagline,
   taglineColor = 'muted',
   backgroundColorType = 'primary',
+  backgroundColorMode = 'solid',
   backgroundColorShade = 90,
   backgroundCustomColor,
+  backgroundGradient,
 } = Astro.props;
 
 // Fetch site settings for colors
@@ -47,14 +63,17 @@ const settings = await client.fetch(siteSettingsQuery);
 const siteColors = settings?.colors;
 
 // Resolve background color
-const backgroundColor = resolveColorSelection(
-  {
-    colorType: backgroundColorType,
-    shade: backgroundColorShade,
-    customColor: backgroundCustomColor,
-  },
-  siteColors
-);
+const backgroundColor =
+  backgroundColorMode === 'gradient' && backgroundGradient
+    ? `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`
+    : resolveColorSelection(
+        {
+          colorType: backgroundColorType,
+          shade: backgroundColorShade,
+          customColor: backgroundCustomColor,
+        },
+        siteColors
+      );
 
 // Resolve highlight color
 let highlightColor: string;
@@ -135,7 +154,7 @@ const parts = renderHeadingParts();
 
 <style>
   .internal-page-hero {
-    background-color: var(--internal-page-hero-bg, var(--color-primary-light));
+    background: var(--internal-page-hero-bg, var(--color-primary-light));
     padding: clamp(6rem, 10vw, 8rem) var(--space-md) clamp(4rem, 8vw, 6rem);
     text-align: center;
   }

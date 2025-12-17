@@ -178,6 +178,17 @@ const colorSelectionProjection = `
   }
 `;
 
+// Helper for gradient projection (reusable for gradient backgrounds)
+const gradientProjection = `
+  direction,
+  startColor {
+    ${colorSelectionProjection}
+  },
+  endColor {
+    ${colorSelectionProjection}
+  }
+`;
+
 // Helper for background settings projection (flat structure)
 const backgroundSettingsProjection = `
   backgroundSettings {
@@ -575,14 +586,22 @@ export const approachPageQuery = groq`
     heroDividerColorShade,
     heroDividerCustomColor { label, value },
     heroBackgroundColorType,
+    heroBackgroundColorMode,
     heroBackgroundColorShade,
     heroBackgroundCustomColor { label, value },
+    heroBackgroundGradient {
+      ${gradientProjection}
+    },
     heroTagline,
     heroTaglineColor,
     // Core Values
     coreValuesBackgroundColorType,
+    coreValuesBackgroundColorMode,
     coreValuesBackgroundColorShade,
     coreValuesBackgroundCustomColor { label, value },
+    coreValuesBackgroundGradient {
+      ${gradientProjection}
+    },
     coreValuesCardBackgroundColorType,
     coreValuesCardBackgroundColorShade,
     coreValuesCardBackgroundCustomColor { label, value },
@@ -608,8 +627,12 @@ export const approachPageQuery = groq`
     },
     // Founder Section
     founderBackgroundColorType,
+    founderBackgroundColorMode,
     founderBackgroundColorShade,
     founderBackgroundCustomColor { label, value },
+    founderBackgroundGradient {
+      ${gradientProjection}
+    },
     founderTagline,
     founderTaglineColorType,
     founderTaglineColorShade,
@@ -635,8 +658,12 @@ export const approachPageQuery = groq`
     highlightContent,
     highlightTextColor,
     highlightBackgroundColorType,
+    highlightBackgroundColorMode,
     highlightBackgroundColorShade,
     highlightBackgroundCustomColor { label, value },
+    highlightBackgroundGradient {
+      ${gradientProjection}
+    },
     // Collage Section
     collageEnabled,
     collageTagline,
@@ -692,8 +719,12 @@ export const servicesPageNewQuery = groq`
       imagePosition,
       // Color settings
       backgroundColorType,
+      backgroundColorMode,
       backgroundColorShade,
       backgroundCustomColor { label, value },
+      backgroundGradient {
+        ${gradientProjection}
+      },
       titleColorType,
       titleColorShade,
       titleCustomColor { label, value },
