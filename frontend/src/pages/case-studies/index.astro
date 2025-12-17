@@ -190,13 +190,82 @@ const filterCssVars = [
 </BaseLayout>
 
 <style>
-  .case-studies-page {
-    padding-top: var(--space-2xl);
-    padding-bottom: var(--space-2xl);
+  /* Intro Section */
+  .case-studies-intro {
+    padding-block: var(--space-xl);
+    text-align: center;
   }
 
-  .case-studies-page h1 {
-    margin-bottom: var(--space-xl);
+  .intro-title {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3xl);
+    font-weight: 500;
+    margin: 0;
+    margin-block-end: var(--space-md);
+  }
+
+  .intro-description {
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+    max-inline-size: 65ch;
+    margin-inline: auto;
+    margin-block: 0;
+  }
+
+  /* Filter Bar */
+  .filter-bar {
+    padding-block: var(--space-md);
+    border-block-end: 1px solid var(--color-border);
+    position: sticky;
+    inset-block-start: var(--header-height);
+    background-color: var(--color-background);
+    z-index: var(--z-sticky);
+  }
+
+  .filter-buttons {
+    display: flex;
+    gap: var(--space-sm);
+    overflow-x: auto;
+    padding-block-end: var(--space-xs);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .filter-buttons::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-btn {
+    padding-inline: var(--space-md);
+    padding-block: var(--space-sm);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    transition: all var(--transition-base);
+    cursor: pointer;
+
+    /* Inactive state */
+    background: transparent;
+    border: 1px solid var(--filter-inactive-border);
+    color: var(--filter-inactive-text);
+  }
+
+  .filter-btn:hover {
+    opacity: 0.8;
+  }
+
+  .filter-btn.active {
+    background: var(--filter-active-bg);
+    border-color: var(--filter-active-bg);
+    color: var(--filter-active-text);
+  }
+
+  /* Content Section */
+  .case-studies-content {
+    padding-block: var(--space-2xl);
   }
 
   .case-studies-grid {
@@ -209,6 +278,20 @@ const filterCssVars = [
     .case-studies-grid {
       grid-template-columns: repeat(2, 1fr);
     }
+  }
+
+  .case-study-wrapper {
+    display: block;
+  }
+
+  .case-study-wrapper[style*='display: none'] {
+    display: none !important;
+  }
+
+  .no-results {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding-block: var(--space-2xl);
   }
 </style>
 
