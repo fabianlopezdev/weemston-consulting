@@ -703,63 +703,6 @@ export default defineType({
         parent?.caseStudiesTitleColorType !== 'custom',
     },
     {
-      name: 'caseStudiesPillBgColorType',
-      title: 'Pill Background Color',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'caseStudiesSection',
-      options: {
-        list: [
-          { title: 'Default', value: 'default' },
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'default',
-    },
-    {
-      name: 'caseStudiesPillBgColorShade',
-      title: 'Pill Background Shade',
-      type: 'number',
-      group: 'servicePage',
-      fieldset: 'caseStudiesSection',
-      initialValue: 0,
-      hidden: ({ parent }) =>
-        parent?.caseStudiesPillBgColorType === 'custom' ||
-        parent?.caseStudiesPillBgColorType === 'default' ||
-        !parent?.caseStudiesPillBgColorType,
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'caseStudiesPillBgCustomColor',
-      title: 'Custom Pill Background Color',
-      type: 'simplerColor',
-      group: 'servicePage',
-      fieldset: 'caseStudiesSection',
-      hidden: ({ parent }) => parent?.caseStudiesPillBgColorType !== 'custom',
-    },
-    {
-      name: 'caseStudiesPillTextColor',
-      title: 'Pill Text Color',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'caseStudiesSection',
-      options: {
-        list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Muted', value: 'muted' },
-          { title: 'Contrast', value: 'contrast' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'base',
-    },
-    {
       name: 'featuredCaseStudies',
       title: 'Featured Case Studies',
       type: 'array',

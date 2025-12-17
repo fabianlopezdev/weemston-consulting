@@ -757,10 +757,6 @@ export const servicesPageNewQuery = groq`
       caseStudiesTitleColorType,
       caseStudiesTitleColorShade,
       caseStudiesTitleCustomColor { label, value },
-      caseStudiesPillBgColorType,
-      caseStudiesPillBgColorShade,
-      caseStudiesPillBgCustomColor { label, value },
-      caseStudiesPillTextColor,
       featuredCaseStudies[]-> {
         _id,
         client,

@@ -112,15 +112,6 @@ interface Props {
   caseStudiesTitleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   caseStudiesTitleColorShade?: number;
   caseStudiesTitleCustomColor?: ColorData;
-  caseStudiesPillBgColorType?:
-    | 'default'
-    | 'primary'
-    | 'secondary'
-    | 'accent'
-    | 'custom';
-  caseStudiesPillBgColorShade?: number;
-  caseStudiesPillBgCustomColor?: ColorData;
-  caseStudiesPillTextColor?: 'base' | 'muted' | 'contrast';
   featuredCaseStudies?: CaseStudyRef[];
 }
 
@@ -167,10 +158,6 @@ const {
   caseStudiesTitleColorType = 'accent',
   caseStudiesTitleColorShade = 0,
   caseStudiesTitleCustomColor,
-  caseStudiesPillBgColorType = 'default',
-  caseStudiesPillBgColorShade = 0,
-  caseStudiesPillBgCustomColor,
-  caseStudiesPillTextColor = 'base',
   featuredCaseStudies = [],
 } = Astro.props;
 
@@ -265,8 +252,6 @@ const resolvedLeadTextColor = textColorMap[leadTextColor] || textColorMap.base;
 const resolvedDescriptionTextColor =
   textColorMap[descriptionTextColor] || textColorMap.muted;
 const resolvedListTextColor = textColorMap[listTextColor] || textColorMap.base;
-const resolvedCaseStudiesPillTextColor =
-  textColorMap[caseStudiesPillTextColor] || textColorMap.base;
 
 // Resolve case studies title color
 const caseStudiesTitleColor = resolveColorSelection(
@@ -277,19 +262,6 @@ const caseStudiesTitleColor = resolveColorSelection(
   },
   siteColors
 );
-
-// Resolve case studies pill background color
-const caseStudiesPillBgColor =
-  caseStudiesPillBgColorType === 'default' || !caseStudiesPillBgColorType
-    ? null
-    : resolveColorSelection(
-        {
-          colorType: caseStudiesPillBgColorType,
-          shade: caseStudiesPillBgColorShade,
-          customColor: caseStudiesPillBgCustomColor,
-        },
-        siteColors
-      );
 
 // Build CSS variables (only include non-null values)
 const cssVarParts: string[] = [];
@@ -306,11 +278,6 @@ if (listContainerColor)
 cssVarParts.push(`--service-list-icon: ${listIconColor}`);
 cssVarParts.push(`--service-list-text: ${resolvedListTextColor}`);
 cssVarParts.push(`--service-case-studies-title: ${caseStudiesTitleColor}`);
-if (caseStudiesPillBgColor)
-  cssVarParts.push(`--service-case-studies-pill-bg: ${caseStudiesPillBgColor}`);
-cssVarParts.push(
-  `--service-case-studies-pill-text: ${resolvedCaseStudiesPillTextColor}`
-);
 const cssVars = cssVarParts.join('; ');
 
 // Icon SVG paths
