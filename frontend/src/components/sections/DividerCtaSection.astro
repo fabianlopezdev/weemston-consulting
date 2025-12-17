@@ -7,6 +7,7 @@ import {
 import { resolveLinkUrl } from '@lib/sanity/linkResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
+import CTAButton from '@components/ui/CTAButton.astro';
 
 interface ColorData {
   label?: string;
@@ -87,19 +88,14 @@ const cssVars = `--divider-cta-line-color: ${lineColor}; --divider-cta-spacing: 
     <span class="divider-cta__line"></span>
     {
       ctaButton && ctaHref && (
-        <a
+        <CTAButton
           href={ctaHref}
+          text={ctaButton.text}
+          backgroundColor={ctaColor ?? undefined}
+          textColor={ctaTextColor ?? undefined}
+          openInNewTab={ctaOpenInNewTab}
           class="divider-cta__button"
-          style={
-            ctaColor || ctaTextColor
-              ? `${ctaColor ? `background: ${ctaColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
-              : undefined
-          }
-          target={ctaOpenInNewTab ? '_blank' : undefined}
-          rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
-        >
-          {ctaButton.text}
-        </a>
+        />
       )
     }
   </div>
@@ -133,25 +129,9 @@ const cssVars = `--divider-cta-line-color: ${lineColor}; --divider-cta-spacing: 
   .divider-cta__button {
     position: relative;
     z-index: 1;
-    display: inline-block;
-    padding: var(--button-padding-vertical, var(--space-md))
-      var(--button-padding-horizontal, var(--space-lg));
-    background: var(--color-accent, #0066cc);
-    color: white;
-    text-decoration: none;
-    border-radius: var(--button-border-radius, 4px);
-    font-weight: 600;
-    transition:
-      transform 0.2s,
-      background 0.2s,
-      color 0.2s;
     /* Create visual gap around button by adding side padding with background */
     box-shadow:
       calc(var(--space-md) * -1) 0 0 var(--color-background),
       var(--space-md) 0 0 var(--color-background);
-  }
-
-  .divider-cta__button:hover {
-    transform: translateY(-2px);
   }
 </style>

@@ -9,6 +9,7 @@ import {
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import type { PortableTextBlock } from '@portabletext/types';
+import CTAButton from '@components/ui/CTAButton.astro';
 
 interface LinkData {
   linkType: 'internal' | 'external';
@@ -163,19 +164,13 @@ const ctaTextColor = ctaButton
     }
     {
       ctaButton && ctaHref && (
-        <a
+        <CTAButton
           href={ctaHref}
-          class="hero__cta"
-          style={
-            ctaColor || ctaTextColor
-              ? `${ctaColor ? `background: ${ctaColor};` : ''} ${ctaTextColor ? `color: ${ctaTextColor};` : ''}`.trim()
-              : undefined
-          }
-          target={ctaOpenInNewTab ? '_blank' : undefined}
-          rel={ctaOpenInNewTab ? 'noopener noreferrer' : undefined}
-        >
-          {ctaButton.text}
-        </a>
+          text={ctaButton.text}
+          backgroundColor={ctaColor ?? undefined}
+          textColor={ctaTextColor ?? undefined}
+          openInNewTab={ctaOpenInNewTab}
+        />
       )
     }
   </div>
@@ -293,26 +288,6 @@ const ctaTextColor = ctaButton
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     max-width: 60ch;
     margin-inline: auto;
-  }
-
-  .hero__cta {
-    display: inline-block;
-    padding: var(--button-padding-vertical, var(--space-md))
-      var(--button-padding-horizontal, var(--space-lg));
-    background: var(--color-primary, #0066cc);
-    color: white; /* Default, overridden by inline style when buttonColor is set */
-    text-decoration: none;
-    border-radius: var(--button-border-radius, 4px);
-    font-weight: 600;
-    transition:
-      transform 0.2s,
-      background 0.2s,
-      color 0.2s;
-  }
-
-  .hero__cta:hover {
-    transform: translateY(-2px);
-    background: var(--color-primary-dark, #0052a3);
   }
 
   @media (max-width: 768px) {
