@@ -81,13 +81,31 @@ export default defineType({
       initialValue: 'primary',
     },
     {
+      name: 'heroBackgroundColorMode',
+      title: 'Background Mode',
+      type: 'string',
+      group: 'hero',
+      fieldset: 'heroFields',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+    },
+    {
       name: 'heroBackgroundColorShade',
       title: 'Background Shade',
       type: 'number',
       group: 'hero',
       fieldset: 'heroFields',
       initialValue: 90,
-      hidden: ({ parent }) => parent?.heroBackgroundColorType === 'custom',
+      hidden: ({ parent }) =>
+        parent?.heroBackgroundColorType === 'custom' ||
+        parent?.heroBackgroundColorMode === 'gradient',
       validation: (Rule) => Rule.min(0).max(100).integer(),
       components: {
         input: BackgroundShadeInput,
@@ -99,7 +117,105 @@ export default defineType({
       type: 'simplerColor',
       group: 'hero',
       fieldset: 'heroFields',
-      hidden: ({ parent }) => parent?.heroBackgroundColorType !== 'custom',
+      hidden: ({ parent }) =>
+        parent?.heroBackgroundColorType !== 'custom' ||
+        parent?.heroBackgroundColorMode === 'gradient',
+    },
+    {
+      name: 'heroBackgroundGradient',
+      title: 'Gradient',
+      type: 'object',
+      group: 'hero',
+      fieldset: 'heroFields',
+      hidden: ({ parent }) => parent?.heroBackgroundColorMode !== 'gradient',
+      fields: [
+        {
+          name: 'direction',
+          title: 'Direction',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Top to Bottom', value: 'to bottom' },
+              { title: 'Bottom to Top', value: 'to top' },
+              { title: 'Left to Right', value: 'to right' },
+              { title: 'Right to Left', value: 'to left' },
+              { title: 'Diagonal ↘', value: '135deg' },
+              { title: 'Diagonal ↗', value: '45deg' },
+            ],
+          },
+          initialValue: '135deg',
+        },
+        {
+          name: 'startColor',
+          title: 'Start Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'primary',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              components: { input: BackgroundShadeInput },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+        {
+          name: 'endColor',
+          title: 'End Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'accent',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              components: { input: BackgroundShadeInput },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+      ],
     },
     {
       name: 'heroHeading',

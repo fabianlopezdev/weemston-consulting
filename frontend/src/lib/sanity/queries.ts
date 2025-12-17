@@ -691,8 +691,12 @@ export const servicesPageNewQuery = groq`
     ogImage,
     // Hero
     heroBackgroundColorType,
+    heroBackgroundColorMode,
     heroBackgroundColorShade,
     heroBackgroundCustomColor { label, value },
+    heroBackgroundGradient {
+      ${gradientProjection}
+    },
     heroHeading,
     heroHeadingHighlight,
     heroHighlightColorType,
