@@ -154,6 +154,12 @@ export function BackgroundShadeInput(props: NumberInputProps) {
     colorTypeFieldName = 'bulletColorType';
   } else if (fieldName === 'caseStudiesTitleColorShade') {
     colorTypeFieldName = 'caseStudiesTitleColorType';
+  } else if (fieldName === 'introTitleColorShade') {
+    colorTypeFieldName = 'introTitleColorType';
+  } else if (fieldName === 'filterActiveColorShade') {
+    colorTypeFieldName = 'filterActiveColorType';
+  } else if (fieldName === 'filterInactiveColorShade') {
+    colorTypeFieldName = 'filterInactiveColorType';
   }
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';
