@@ -91,7 +91,7 @@ const filterCssVars = [
 ].join('; ');
 ---
 
-<BaseLayout title={page?.metaDescription || t('seo.case_studies_title')}>
+<BaseLayout title={page?.title || t('seo.case_studies_title')}>
   {/* Hero Section */}
   {
     page?.heroHeading && (

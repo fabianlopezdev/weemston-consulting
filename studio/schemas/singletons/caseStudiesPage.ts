@@ -7,33 +7,75 @@ export default defineType({
   type: 'document',
   fieldsets: [
     {
-      name: 'hero',
-      title: '🦸 Hero Section',
+      name: 'seo',
+      title: 'Search Results Description (optional)',
+      description:
+        'If left empty, search engines will extract the description from page content.',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: 'ogImage',
+      title: 'Social Media Preview Image (optional)',
+      description:
+        'Also called OG Image. The image shown when this page is shared on social media. If left empty, social media platforms may show no preview image or extract one from the page.',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: 'heroFields',
+      title: '🎯 Hero Section',
       options: { collapsible: true, collapsed: false },
     },
     {
-      name: 'intro',
+      name: 'introFields',
       title: '📝 Intro Section',
       options: { collapsible: true, collapsed: true },
     },
     {
-      name: 'filter',
+      name: 'filterFields',
       title: '🔍 Filter Section',
       options: { collapsible: true, collapsed: true },
     },
-    {
-      name: 'seo',
-      title: '🔎 SEO',
-      options: { collapsible: true, collapsed: true },
-    },
+  ],
+  groups: [
+    { name: 'hero', title: 'Hero Section' },
+    { name: 'intro', title: 'Intro' },
+    { name: 'filter', title: 'Filter' },
   ],
   fields: [
+    // Page Title (SEO)
+    {
+      name: 'title',
+      title: 'Page Title',
+      type: 'string',
+      description: 'This will be used as the SEO title in search results.',
+      initialValue: 'Case Studies',
+    },
+    {
+      name: 'metaDescription',
+      title: 'Description',
+      type: 'text',
+      rows: 3,
+      fieldset: 'seo',
+      description:
+        'The short preview text that appears under your title in Google search results. Keep it under 160 characters.',
+      validation: (Rule) => Rule.max(160).warning('Keep under 160 characters'),
+    },
+    {
+      name: 'ogImage',
+      title: 'Image',
+      type: 'image',
+      fieldset: 'ogImage',
+      description: 'Recommended size: 1200×630 pixels.',
+      options: { hotspot: true },
+    },
+
     // Hero Section
     {
       name: 'heroBackgroundColorType',
       title: 'Background Color',
       type: 'string',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -48,7 +90,8 @@ export default defineType({
       name: 'heroBackgroundColorShade',
       title: 'Background Shade',
       type: 'number',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       initialValue: 90,
       hidden: ({ parent }) => parent?.heroBackgroundColorType === 'custom',
       components: { input: BackgroundShadeInput },
@@ -57,28 +100,32 @@ export default defineType({
       name: 'heroBackgroundCustomColor',
       title: 'Custom Background Color',
       type: 'simplerColor',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       hidden: ({ parent }) => parent?.heroBackgroundColorType !== 'custom',
     },
     {
       name: 'heroHeading',
       title: 'Heading',
       type: 'string',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       description: 'Main heading text',
     },
     {
       name: 'heroHeadingHighlight',
       title: 'Heading Highlight',
       type: 'string',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       description: 'Text within heading to italicize (optional)',
     },
     {
       name: 'heroHighlightColorType',
       title: 'Highlight Color',
       type: 'string',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -94,7 +141,8 @@ export default defineType({
       name: 'heroHighlightColorShade',
       title: 'Highlight Shade',
       type: 'number',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       initialValue: 0,
       hidden: ({ parent }) =>
         !parent?.heroHeadingHighlight ||
@@ -105,7 +153,8 @@ export default defineType({
       name: 'heroHighlightCustomColor',
       title: 'Custom Highlight Color',
       type: 'simplerColor',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       hidden: ({ parent }) =>
         !parent?.heroHeadingHighlight ||
         parent?.heroHighlightColorType !== 'custom',
@@ -114,14 +163,16 @@ export default defineType({
       name: 'heroShowDivider',
       title: 'Show Divider',
       type: 'boolean',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       initialValue: true,
     },
     {
       name: 'heroDividerColorType',
       title: 'Divider Color',
       type: 'string',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -137,7 +188,8 @@ export default defineType({
       name: 'heroDividerColorShade',
       title: 'Divider Shade',
       type: 'number',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       initialValue: 0,
       hidden: ({ parent }) =>
         !parent?.heroShowDivider || parent?.heroDividerColorType === 'custom',
@@ -147,7 +199,8 @@ export default defineType({
       name: 'heroDividerCustomColor',
       title: 'Custom Divider Color',
       type: 'simplerColor',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       hidden: ({ parent }) =>
         !parent?.heroShowDivider || parent?.heroDividerColorType !== 'custom',
     },
@@ -155,14 +208,16 @@ export default defineType({
       name: 'heroTagline',
       title: 'Tagline',
       type: 'string',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       description: 'Subtitle text below heading',
     },
     {
       name: 'heroTaglineColor',
       title: 'Tagline Color',
       type: 'string',
-      fieldset: 'hero',
+      group: 'hero',
+      fieldset: 'heroFields',
       options: {
         list: [
           { title: 'Base', value: 'base' },
@@ -181,7 +236,8 @@ export default defineType({
       name: 'introTitle',
       title: 'Title',
       type: 'string',
-      fieldset: 'intro',
+      group: 'intro',
+      fieldset: 'introFields',
       description: 'Section title (e.g., "Our Work")',
     },
     {
@@ -189,14 +245,16 @@ export default defineType({
       title: 'Description',
       type: 'text',
       rows: 4,
-      fieldset: 'intro',
+      group: 'intro',
+      fieldset: 'introFields',
       description: 'Description paragraph',
     },
     {
       name: 'introTitleColorType',
       title: 'Title Color',
       type: 'string',
-      fieldset: 'intro',
+      group: 'intro',
+      fieldset: 'introFields',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -212,7 +270,8 @@ export default defineType({
       name: 'introTitleColorShade',
       title: 'Title Shade',
       type: 'number',
-      fieldset: 'intro',
+      group: 'intro',
+      fieldset: 'introFields',
       initialValue: 0,
       hidden: ({ parent }) =>
         !parent?.introTitle || parent?.introTitleColorType === 'custom',
@@ -222,7 +281,8 @@ export default defineType({
       name: 'introTitleCustomColor',
       title: 'Custom Title Color',
       type: 'simplerColor',
-      fieldset: 'intro',
+      group: 'intro',
+      fieldset: 'introFields',
       hidden: ({ parent }) =>
         !parent?.introTitle || parent?.introTitleColorType !== 'custom',
     },
@@ -230,7 +290,8 @@ export default defineType({
       name: 'introDescriptionColor',
       title: 'Description Color',
       type: 'string',
-      fieldset: 'intro',
+      group: 'intro',
+      fieldset: 'introFields',
       options: {
         list: [
           { title: 'Base', value: 'base' },
@@ -247,14 +308,16 @@ export default defineType({
       name: 'introFooter',
       title: 'Footer',
       type: 'string',
-      fieldset: 'intro',
+      group: 'intro',
+      fieldset: 'introFields',
       description: 'Italic footer text below description',
     },
     {
       name: 'introFooterColorType',
       title: 'Footer Color',
       type: 'string',
-      fieldset: 'intro',
+      group: 'intro',
+      fieldset: 'introFields',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -270,7 +333,8 @@ export default defineType({
       name: 'introFooterColorShade',
       title: 'Footer Shade',
       type: 'number',
-      fieldset: 'intro',
+      group: 'intro',
+      fieldset: 'introFields',
       initialValue: 0,
       hidden: ({ parent }) =>
         !parent?.introFooter || parent?.introFooterColorType === 'custom',
@@ -280,7 +344,8 @@ export default defineType({
       name: 'introFooterCustomColor',
       title: 'Custom Footer Color',
       type: 'simplerColor',
-      fieldset: 'intro',
+      group: 'intro',
+      fieldset: 'introFields',
       hidden: ({ parent }) =>
         !parent?.introFooter || parent?.introFooterColorType !== 'custom',
     },
@@ -290,7 +355,8 @@ export default defineType({
       name: 'filterActiveColorType',
       title: 'Active Button Color',
       type: 'string',
-      fieldset: 'filter',
+      group: 'filter',
+      fieldset: 'filterFields',
       description: 'Background color for active filter button',
       options: {
         list: [
@@ -306,7 +372,8 @@ export default defineType({
       name: 'filterActiveColorShade',
       title: 'Active Button Shade',
       type: 'number',
-      fieldset: 'filter',
+      group: 'filter',
+      fieldset: 'filterFields',
       initialValue: 0,
       hidden: ({ parent }) => parent?.filterActiveColorType === 'custom',
       components: { input: BackgroundShadeInput },
@@ -315,14 +382,16 @@ export default defineType({
       name: 'filterActiveCustomColor',
       title: 'Custom Active Button Color',
       type: 'simplerColor',
-      fieldset: 'filter',
+      group: 'filter',
+      fieldset: 'filterFields',
       hidden: ({ parent }) => parent?.filterActiveColorType !== 'custom',
     },
     {
       name: 'filterActiveTextColor',
       title: 'Active Button Text',
       type: 'string',
-      fieldset: 'filter',
+      group: 'filter',
+      fieldset: 'filterFields',
       options: {
         list: [
           { title: 'Base', value: 'base' },
@@ -338,7 +407,8 @@ export default defineType({
       name: 'filterInactiveColorType',
       title: 'Inactive Button Border Color',
       type: 'string',
-      fieldset: 'filter',
+      group: 'filter',
+      fieldset: 'filterFields',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -353,7 +423,8 @@ export default defineType({
       name: 'filterInactiveColorShade',
       title: 'Inactive Button Border Shade',
       type: 'number',
-      fieldset: 'filter',
+      group: 'filter',
+      fieldset: 'filterFields',
       initialValue: 0,
       hidden: ({ parent }) => parent?.filterInactiveColorType === 'custom',
       components: { input: BackgroundShadeInput },
@@ -362,14 +433,16 @@ export default defineType({
       name: 'filterInactiveCustomColor',
       title: 'Custom Inactive Button Border',
       type: 'simplerColor',
-      fieldset: 'filter',
+      group: 'filter',
+      fieldset: 'filterFields',
       hidden: ({ parent }) => parent?.filterInactiveColorType !== 'custom',
     },
     {
       name: 'filterInactiveTextColor',
       title: 'Inactive Button Text',
       type: 'string',
-      fieldset: 'filter',
+      group: 'filter',
+      fieldset: 'filterFields',
       options: {
         list: [
           { title: 'Base', value: 'base' },
@@ -381,27 +454,14 @@ export default defineType({
       },
       initialValue: 'muted',
     },
-
-    // SEO
-    {
-      name: 'metaDescription',
-      title: 'Meta Description',
-      type: 'text',
-      rows: 3,
-      fieldset: 'seo',
-    },
-    {
-      name: 'ogImage',
-      title: 'Open Graph Image',
-      type: 'image',
-      fieldset: 'seo',
-    },
   ],
   preview: {
-    prepare() {
+    select: {
+      title: 'title',
+    },
+    prepare({ title }) {
       return {
-        title: 'Case Studies Page',
-        subtitle: 'Page configuration',
+        title: title || 'Case Studies Page',
       };
     },
   },

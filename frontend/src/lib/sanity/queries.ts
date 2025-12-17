@@ -541,6 +541,8 @@ export const caseStudiesPageOldQuery = groq`
 // Case Studies Page (singleton - NEW)
 export const caseStudiesPageQuery = groq`
   *[_type == "caseStudiesPage"][0] {
+    // SEO
+    title,
     // Hero
     heroHeading,
     heroHeadingHighlight,
