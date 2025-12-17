@@ -285,11 +285,16 @@ const filterCssVars = [
   /* Filter Bar */
   .filter-bar {
     padding-block: var(--space-md);
-    border-block-end: 1px solid var(--color-border);
     position: sticky;
     inset-block-start: var(--header-height);
     background-color: var(--color-background);
     z-index: var(--z-sticky);
+  }
+
+  .filter-bar .container {
+    border-block-start: 1px solid var(--color-border);
+    border-block-end: 1px solid var(--color-border);
+    padding-block: var(--space-md);
   }
 
   .filter-buttons {
