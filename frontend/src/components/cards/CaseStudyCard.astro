@@ -369,12 +369,14 @@ const iconPaths: Record<string, string> = {
   }
 
   .case-study-card__icon-wrapper {
-    inline-size: 3rem;
-    block-size: 3rem;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--cs-icon-bg, var(--color-primary-light));
+    background-color: color-mix(in srgb, var(--cs-icon-bg, var(--color-primary-light)) 15%, transparent);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border-radius: 50%;
     margin-block-end: var(--space-xs);
   }
@@ -382,7 +384,7 @@ const iconPaths: Record<string, string> = {
   .case-study-card__icon {
     inline-size: 1.25rem;
     block-size: 1.25rem;
-    color: var(--cs-icon-color, var(--color-accent));
+    color: var(--cs-icon-color, var(--color-text-contrast));
   }
 
   .case-study-card__category {
