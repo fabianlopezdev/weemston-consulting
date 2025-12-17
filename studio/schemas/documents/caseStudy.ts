@@ -62,6 +62,20 @@ export default defineType({
         },
       ],
     },
+    {
+      name: 'logoVariant',
+      title: 'Logo Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Dark logo', value: 'dark' },
+          { title: 'Light logo', value: 'light' },
+        ],
+      },
+      initialValue: 'dark',
+      description:
+        'Look at the logo you uploaded: if it appears dark/black, choose "Dark". If it appears white/light, choose "Light". This helps display the logo correctly on different backgrounds.',
+    },
     defineLanguageField(),
 
     // Image Section

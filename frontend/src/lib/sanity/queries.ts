@@ -757,12 +757,11 @@ export const servicesPageNewQuery = groq`
       caseStudiesTitleColorType,
       caseStudiesTitleColorShade,
       caseStudiesTitleCustomColor { label, value },
-      logoOverlayColorType,
-      logoOverlayColorShade,
-      logoOverlayCustomColor { label, value },
+      logoDisplayMode,
       featuredCaseStudies[]-> {
         _id,
         client,
+        logoVariant,
         clientLogo {
           asset->{ _id, url, metadata { dimensions { width, height, aspectRatio } } },
           alt, hotspot, crop

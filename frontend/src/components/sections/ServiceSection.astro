@@ -39,6 +39,7 @@ interface ClientLogoImageData {
 interface CaseStudyRef {
   _id: string;
   client?: string;
+  logoVariant?: 'dark' | 'light';
   clientLogo?: ClientLogoImageData;
 }
 
@@ -112,14 +113,7 @@ interface Props {
   caseStudiesTitleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   caseStudiesTitleColorShade?: number;
   caseStudiesTitleCustomColor?: ColorData;
-  logoOverlayColorType?:
-    | 'default'
-    | 'primary'
-    | 'secondary'
-    | 'accent'
-    | 'custom';
-  logoOverlayColorShade?: number;
-  logoOverlayCustomColor?: ColorData;
+  logoDisplayMode?: 'base' | 'contrast';
   featuredCaseStudies?: CaseStudyRef[];
 }
 
@@ -166,9 +160,7 @@ const {
   caseStudiesTitleColorType = 'accent',
   caseStudiesTitleColorShade = 0,
   caseStudiesTitleCustomColor,
-  logoOverlayColorType = 'default',
-  logoOverlayColorShade = 0,
-  logoOverlayCustomColor,
+  logoDisplayMode = 'base',
   featuredCaseStudies = [],
 } = Astro.props;
 
@@ -274,53 +266,33 @@ const caseStudiesTitleColor = resolveColorSelection(
   siteColors
 );
 
-// Resolve logo tint color
-const logoTintColor =
-  logoOverlayColorType === 'default' || !logoOverlayColorType
-    ? null
-    : resolveColorSelection(
-        {
-          colorType: logoOverlayColorType,
-          shade: logoOverlayColorShade,
-          customColor: logoOverlayCustomColor,
-        },
-        siteColors
-      );
+// Helper to calculate CSS filters for a logo based on display mode and variant
+// Returns both default and hover filters
+function getLogoFilters(variant: 'dark' | 'light' | undefined): {
+  filter: string;
+  hoverFilter: string;
+} {
+  const isLight = variant === 'light';
+  const isContrastMode = logoDisplayMode === 'contrast';
 
-// Helper to convert hex/rgb color to RGB values (0-1 range)
-function parseColorToRgb(
-  color: string
-): { r: number; g: number; b: number } | null {
-  if (!color) return null;
+  // Logic table:
+  // Dark logo + Base mode = grayscale (stays dark) → hover shows original
+  // Dark logo + Contrast mode = invert (becomes light) → hover keeps invert (dark on dark = invisible)
+  // Light logo + Base mode = invert (becomes dark) → hover keeps invert (light on light = invisible)
+  // Light logo + Contrast mode = grayscale (stays light) → hover shows original
+  const needsInvert = isContrastMode ? !isLight : isLight;
 
-  // Handle hex colors
-  const hexMatch = color.match(/^#([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
-  if (hexMatch && hexMatch[1] && hexMatch[2] && hexMatch[3]) {
-    return {
-      r: parseInt(hexMatch[1], 16) / 255,
-      g: parseInt(hexMatch[2], 16) / 255,
-      b: parseInt(hexMatch[3], 16) / 255,
-    };
-  }
+  // On hover, keep invert if removing it would make logo invisible
+  // (i.e., light logos on light backgrounds or dark logos on dark backgrounds)
+  const keepInvertOnHover = needsInvert;
 
-  // Handle rgb/rgba colors
-  const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-  if (rgbMatch && rgbMatch[1] && rgbMatch[2] && rgbMatch[3]) {
-    return {
-      r: parseInt(rgbMatch[1]) / 255,
-      g: parseInt(rgbMatch[2]) / 255,
-      b: parseInt(rgbMatch[3]) / 255,
-    };
-  }
-
-  return null;
+  return {
+    filter: needsInvert
+      ? 'invert(1) grayscale(1) opacity(0.8)'
+      : 'grayscale(1) opacity(0.7)',
+    hoverFilter: keepInvertOnHover ? 'invert(1)' : 'none',
+  };
 }
-
-// Generate SVG filter for logo tinting
-const logoTintRgb = logoTintColor ? parseColorToRgb(logoTintColor) : null;
-const logoFilterId = logoTintRgb
-  ? `logo-tint-${title?.replace(/\s+/g, '-').toLowerCase() || 'default'}`
-  : null;
 
 // Build CSS variables (only include non-null values)
 const cssVarParts: string[] = [];
@@ -337,8 +309,6 @@ if (listContainerColor)
 cssVarParts.push(`--service-list-icon: ${listIconColor}`);
 cssVarParts.push(`--service-list-text: ${resolvedListTextColor}`);
 cssVarParts.push(`--service-case-studies-title: ${caseStudiesTitleColor}`);
-if (logoFilterId)
-  cssVarParts.push(`--service-logo-filter: url(#${logoFilterId}) opacity(0.7)`);
 const cssVars = cssVarParts.join('; ');
 
 // Icon SVG paths
@@ -382,26 +352,6 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
   data-no-image={iconType === 'none'}
   data-expanded={isContentHeavy}
 >
-  {/* SVG filter for logo tinting */}
-  {
-    logoTintRgb && logoFilterId && (
-      <svg style="position: absolute; width: 0; height: 0; overflow: hidden;">
-        <defs>
-          <filter id={logoFilterId} color-interpolation-filters="sRGB">
-            <feColorMatrix
-              type="matrix"
-              values={`
-              0 0 0 0 ${logoTintRgb.r}
-              0 0 0 0 ${logoTintRgb.g}
-              0 0 0 0 ${logoTintRgb.b}
-              0 0 0 1 0
-            `}
-            />
-          </filter>
-        </defs>
-      </svg>
-    )
-  }
   <div class="container">
     {
       iconType === 'none' ? (
@@ -473,6 +423,9 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
                     .height(96)
                     .auto('format')
                     .url();
+                  const { filter, hoverFilter } = getLogoFilters(
+                    caseStudy.logoVariant
+                  );
                   return (
                     <a
                       href={`/case-studies#${caseStudy._id}`}
@@ -486,6 +439,7 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
                           `${caseStudy.client} logo`
                         }
                         class="service-section__logo-image"
+                        style={`--logo-filter: ${filter}; --logo-filter-hover: ${hoverFilter}`}
                         loading="lazy"
                         decoding="async"
                       />
@@ -593,6 +547,9 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
                     .height(96)
                     .auto('format')
                     .url();
+                  const { filter, hoverFilter } = getLogoFilters(
+                    caseStudy.logoVariant
+                  );
                   return (
                     <a
                       href={`/case-studies#${caseStudy._id}`}
@@ -606,6 +563,7 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
                           `${caseStudy.client} logo`
                         }
                         class="service-section__logo-image"
+                        style={`--logo-filter: ${filter}; --logo-filter-hover: ${hoverFilter}`}
                         loading="lazy"
                         decoding="async"
                       />
@@ -656,6 +614,9 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
                       .height(96)
                       .auto('format')
                       .url();
+                    const { filter, hoverFilter } = getLogoFilters(
+                      caseStudy.logoVariant
+                    );
                     return (
                       <a
                         href={`/case-studies#${caseStudy._id}`}
@@ -669,6 +630,7 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
                             `${caseStudy.client} logo`
                           }
                           class="service-section__logo-image"
+                          style={`--logo-filter: ${filter}; --logo-filter-hover: ${hoverFilter}`}
                           loading="lazy"
                           decoding="async"
                         />
@@ -1037,12 +999,12 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
     width: auto;
     max-width: 140px;
     object-fit: contain;
-    filter: var(--service-logo-filter, grayscale(1) opacity(0.7));
+    filter: var(--logo-filter, grayscale(1) opacity(0.7));
     transition: filter 0.4s ease;
   }
 
   .service-section__case-study-logo:hover .service-section__logo-image {
-    filter: none;
+    filter: var(--logo-filter-hover, none);
   }
 
   /* Animation-ready states - simplified to main blocks */
