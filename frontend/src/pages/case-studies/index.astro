@@ -13,7 +13,7 @@ const caseStudies = await client.fetch(allCaseStudiesQuery, { language: lang });
 <BaseLayout title={t('seo.case_studies_title')}>
   <div class="container case-studies-page">
     <h1>{t('nav.case_studies')}</h1>
-    <div class="case-studies-grid">
+    <div class="case-studies-grid" data-animate="case-study-grid">
       {
         caseStudies.map((caseStudy: any) => (
           <CaseStudyCard
@@ -84,3 +84,41 @@ const caseStudies = await client.fetch(allCaseStudiesQuery, { language: lang });
     }
   }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    const grid = document.querySelector('[data-animate="case-study-grid"]');
+    if (!grid) return;
+
+    const cards = grid.querySelectorAll('[data-animate="case-study"]');
+    if (!cards.length) return;
+
+    // Clear any animations set by individual cards
+    gsap.set(cards, { clearProps: 'all' });
+
+    // Set initial state
+    gsap.set(cards, {
+      opacity: 0,
+      y: 60,
+    });
+
+    // Create staggered entrance with ScrollTrigger
+    gsap.to(cards, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      ease: 'power2.out',
+      stagger: 0.15,
+      scrollTrigger: {
+        trigger: grid,
+        start: 'top 80%',
+        toggleActions: 'play none none none',
+      },
+    });
+  });
+</script>
