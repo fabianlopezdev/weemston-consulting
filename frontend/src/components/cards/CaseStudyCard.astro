@@ -315,7 +315,7 @@ const iconPaths: Record<string, string> = {
   /* Hero Section */
   .case-study-card__hero {
     position: relative;
-    min-block-size: 280px;
+    min-block-size: clamp(20rem, 30vw + 10rem, 31.25rem); /* 320px to 500px */
     display: flex;
     align-items: flex-end;
   }
@@ -362,6 +362,12 @@ const iconPaths: Record<string, string> = {
     gap: var(--space-xs);
   }
 
+  @media (min-width: 768px) {
+    .case-study-card__hero-content {
+      padding: var(--space-xl);
+    }
+  }
+
   .case-study-card__icon-wrapper {
     inline-size: 3rem;
     block-size: 3rem;
@@ -389,7 +395,7 @@ const iconPaths: Record<string, string> = {
 
   .case-study-card__client {
     font-family: var(--font-heading);
-    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-size: clamp(2rem, 3vw + 1rem, 3rem);
     font-weight: 500;
     line-height: 1.1;
     color: var(--cs-client-color, var(--color-text-contrast));
@@ -397,7 +403,8 @@ const iconPaths: Record<string, string> = {
   }
 
   .case-study-card__role {
-    font-size: var(--font-size-sm);
+    font-size: clamp(1.125rem, 1vw + 0.75rem, 1.5rem);
+    font-weight: 300;
     color: var(--cs-role-color, var(--color-text-contrast));
     margin: 0;
     opacity: 0.9;
@@ -408,6 +415,12 @@ const iconPaths: Record<string, string> = {
     background-color: var(--cs-content-bg, var(--color-surface));
     padding: var(--space-lg);
     flex: 1;
+  }
+
+  @media (min-width: 768px) {
+    .case-study-card__content {
+      padding: var(--space-xl);
+    }
   }
 
   .case-study-card__content-grid {
