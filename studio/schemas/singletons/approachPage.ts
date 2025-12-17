@@ -46,6 +46,11 @@ export default defineType({
       title: '📣 Call to Action Section',
       options: { collapsible: true, collapsed: false },
     },
+    {
+      name: 'collageFields',
+      title: '🖼️ Collage Section',
+      options: { collapsible: true, collapsed: false },
+    },
   ],
   groups: [
     { name: 'hero', title: 'Hero Section' },
@@ -53,6 +58,7 @@ export default defineType({
     { name: 'founder', title: 'Founder Section' },
     { name: 'highlight', title: 'Highlight Section' },
     { name: 'cta', title: 'Call to Action' },
+    { name: 'collage', title: 'Collage Section' },
   ],
   fields: [
     // SEO Fields
@@ -911,6 +917,159 @@ export default defineType({
       type: 'link',
       group: 'cta',
       fieldset: 'ctaFields',
+    },
+    // Collage Section Fields
+    {
+      name: 'collageEnabled',
+      title: 'Enable Collage Section',
+      type: 'boolean',
+      group: 'collage',
+      fieldset: 'collageFields',
+      description: 'Show a collage section at the end of the page',
+      initialValue: false,
+    },
+    {
+      name: 'collageTagline',
+      title: 'Tagline',
+      type: 'string',
+      group: 'collage',
+      fieldset: 'collageFields',
+      description:
+        'The statement that will appear overlaid on the image collage',
+      hidden: ({ parent }) => !parent?.collageEnabled,
+    },
+    {
+      name: 'collageTaglineSize',
+      title: 'Tagline Size',
+      type: 'string',
+      group: 'collage',
+      fieldset: 'collageFields',
+      options: {
+        list: [
+          { title: 'Medium', value: 'medium' },
+          { title: 'Large', value: 'large' },
+          { title: 'Extra Large', value: 'xlarge' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'large',
+      hidden: ({ parent }) => !parent?.collageEnabled,
+    },
+    {
+      name: 'collageUseAsSectionTitle',
+      title: 'Use as Section Title',
+      type: 'boolean',
+      group: 'collage',
+      fieldset: 'collageFields',
+      description: 'Use this when the text serves as a title for the section',
+      initialValue: false,
+      hidden: ({ parent }) => !parent?.collageEnabled,
+    },
+    {
+      name: 'collageImages',
+      title: 'Images',
+      type: 'array',
+      group: 'collage',
+      fieldset: 'collageFields',
+      description: 'Add 3-8 images for the collage strip (16:9 aspect ratio)',
+      of: [
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            {
+              name: 'alt',
+              title: 'Alt Text',
+              type: 'string',
+              description: 'Describes the image for screen readers and SEO',
+              validation: (Rule) => Rule.required(),
+            },
+          ],
+        },
+      ],
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const parent = context.parent as { collageEnabled?: boolean };
+          if (parent?.collageEnabled) {
+            if (!value || (value as unknown[]).length < 3) {
+              return 'At least 3 images are required when section is enabled';
+            }
+            if ((value as unknown[]).length > 8) {
+              return 'Maximum 8 images allowed';
+            }
+          }
+          return true;
+        }),
+      hidden: ({ parent }) => !parent?.collageEnabled,
+    },
+    {
+      name: 'collageOverlayStyle',
+      title: 'Overlay Style',
+      type: 'string',
+      group: 'collage',
+      fieldset: 'collageFields',
+      options: {
+        list: [
+          { title: 'Frosted Glass', value: 'frosted' },
+          { title: 'Dark Gradient', value: 'gradient' },
+          { title: 'Solid Dark', value: 'solid' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'frosted',
+      hidden: ({ parent }) => !parent?.collageEnabled,
+    },
+    {
+      name: 'collageOverlayOpacity',
+      title: 'Overlay Opacity',
+      type: 'number',
+      group: 'collage',
+      fieldset: 'collageFields',
+      description: 'Adjust the darkness of the overlay (0-100)',
+      initialValue: 60,
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      hidden: ({ parent }) => !parent?.collageEnabled,
+    },
+    {
+      name: 'collageShowDescription',
+      title: 'Show Description',
+      type: 'boolean',
+      group: 'collage',
+      fieldset: 'collageFields',
+      description: 'Add a description below the tagline',
+      initialValue: false,
+      hidden: ({ parent }) => !parent?.collageEnabled,
+    },
+    {
+      name: 'collageDescription',
+      title: 'Description',
+      type: 'text',
+      rows: 3,
+      group: 'collage',
+      fieldset: 'collageFields',
+      description: 'Supporting text that appears below the tagline',
+      hidden: ({ parent }) =>
+        !parent?.collageEnabled || !parent?.collageShowDescription,
+    },
+    {
+      name: 'collageShowCta',
+      title: 'Show Call to Action',
+      type: 'boolean',
+      group: 'collage',
+      fieldset: 'collageFields',
+      description: 'Add a CTA button below the content',
+      initialValue: false,
+      hidden: ({ parent }) => !parent?.collageEnabled,
+    },
+    {
+      name: 'collageCtaButton',
+      title: 'CTA Button',
+      type: 'link',
+      group: 'collage',
+      fieldset: 'collageFields',
+      hidden: ({ parent }) =>
+        !parent?.collageEnabled || !parent?.collageShowCta,
     },
   ],
   preview: {

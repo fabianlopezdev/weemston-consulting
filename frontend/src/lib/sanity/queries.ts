@@ -418,7 +418,13 @@ const pageSectionsQuery = `
         ${imageProjection}
       },
       overlayStyle,
-      overlayOpacity
+      overlayOpacity,
+      showDescription,
+      description,
+      showCta,
+      ctaButton {
+        ${linkProjection}
+      }
     },
     _type == "dividerCtaSection" => {
       spacing,
@@ -645,7 +651,24 @@ export const approachPageQuery = groq`
     },
     ctaBackgroundColorType,
     ctaBackgroundColorShade,
-    ctaBackgroundCustomColor { label, value }
+    ctaBackgroundCustomColor { label, value },
+    // Collage Section
+    collageEnabled,
+    collageTagline,
+    collageTaglineSize,
+    collageUseAsSectionTitle,
+    collageImages[] {
+      _key,
+      ${imageProjection}
+    },
+    collageOverlayStyle,
+    collageOverlayOpacity,
+    collageShowDescription,
+    collageDescription,
+    collageShowCta,
+    collageCtaButton {
+      ${linkProjection}
+    }
   }
 `;
 

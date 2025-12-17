@@ -20,6 +20,11 @@ export default defineType({
       title: 'Text Overlay Style',
       options: { collapsible: true, collapsed: true },
     },
+    {
+      name: 'extras',
+      title: 'Description & CTA',
+      options: { collapsible: true, collapsed: true },
+    },
   ],
   fields: [
     {
@@ -137,6 +142,42 @@ export default defineType({
       validation: (Rule) => Rule.min(0).max(100).integer(),
       hidden: ({ parent }) => !parent?.enabled,
     },
+    // Description fields
+    {
+      name: 'showDescription',
+      title: 'Show Description',
+      type: 'boolean',
+      fieldset: 'extras',
+      description: 'Add a description below the tagline',
+      initialValue: false,
+      hidden: ({ parent }) => !parent?.enabled,
+    },
+    {
+      name: 'description',
+      title: 'Description',
+      type: 'text',
+      rows: 3,
+      fieldset: 'extras',
+      description: 'Supporting text that appears below the tagline',
+      hidden: ({ parent }) => !parent?.enabled || !parent?.showDescription,
+    },
+    // CTA fields
+    {
+      name: 'showCta',
+      title: 'Show Call to Action',
+      type: 'boolean',
+      fieldset: 'extras',
+      description: 'Add a CTA button below the content',
+      initialValue: false,
+      hidden: ({ parent }) => !parent?.enabled,
+    },
+    {
+      name: 'ctaButton',
+      title: 'CTA Button',
+      type: 'link',
+      fieldset: 'extras',
+      hidden: ({ parent }) => !parent?.enabled || !parent?.showCta,
+    },
   ],
   preview: {
     select: {
@@ -145,10 +186,12 @@ export default defineType({
       images: 'images',
     },
     prepare({ tagline, enabled, images }) {
+      const status = enabled ? '✓' : '✗';
       const imageCount = images?.length || 0;
+      const taglinePreview = tagline ? ` · "${tagline}"` : '';
       return {
-        title: tagline || 'Collage Section',
-        subtitle: `${enabled ? 'Enabled' : 'Disabled'} · ${imageCount} image${imageCount !== 1 ? 's' : ''}`,
+        title: `${status} Collage Section`,
+        subtitle: `${imageCount} image${imageCount !== 1 ? 's' : ''}${taglinePreview}`,
         media: images?.[0],
       };
     },

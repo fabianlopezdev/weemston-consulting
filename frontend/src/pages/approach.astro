@@ -7,6 +7,7 @@ import ApproachCoreValues from '@components/sections/ApproachCoreValues.astro';
 import ApproachFounder from '@components/sections/ApproachFounder.astro';
 import ApproachHighlight from '@components/sections/ApproachHighlight.astro';
 import ApproachCta from '@components/sections/ApproachCta.astro';
+import CollageSection from '@components/sections/CollageSection.astro';
 
 const page = await client.fetch(approachPageQuery);
 
@@ -116,5 +117,26 @@ if (!page) {
         backgroundCustomColor={page.ctaBackgroundCustomColor}
       />
     )
+  }
+
+  {/* Collage Section */}
+  {
+    page.collageEnabled &&
+      page.collageTagline &&
+      page.collageImages?.length >= 3 && (
+        <CollageSection
+          enabled={page.collageEnabled}
+          tagline={page.collageTagline}
+          taglineSize={page.collageTaglineSize}
+          useAsSectionTitle={page.collageUseAsSectionTitle}
+          images={page.collageImages}
+          overlayStyle={page.collageOverlayStyle}
+          overlayOpacity={page.collageOverlayOpacity}
+          showDescription={page.collageShowDescription}
+          description={page.collageDescription}
+          showCta={page.collageShowCta}
+          ctaButton={page.collageCtaButton}
+        />
+      )
   }
 </BaseLayout>

@@ -1,11 +1,43 @@
 ---
 import { urlForImage } from '@lib/sanity/image';
+import { resolveLinkUrl } from '@lib/sanity/linkResolver';
+import {
+  resolveButtonColor,
+  resolveButtonTextColor,
+} from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
 
 interface CollageImage {
   _key: string;
   asset: any;
   alt: string;
   hotspot?: { x: number; y: number };
+}
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface ButtonColor {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  useBaseTextColor?: boolean;
+  customColor?: ColorData;
+}
+
+interface LinkData {
+  text?: string;
+  buttonColor?: ButtonColor;
+  linkType: 'internal' | 'external';
+  internalPageType?: string;
+  serviceReference?: { slug: { current: string } };
+  caseStudyReference?: { slug: { current: string } };
+  legalReference?: { slug: { current: string } };
+  externalUrl?: string;
+  openInNewTab?: boolean;
+  icon?: string;
 }
 
 interface Props {
@@ -16,6 +48,10 @@ interface Props {
   images: CollageImage[];
   overlayStyle?: 'frosted' | 'gradient' | 'solid';
   overlayOpacity?: number;
+  showDescription?: boolean;
+  description?: string;
+  showCta?: boolean;
+  ctaButton?: LinkData;
 }
 
 const {
@@ -25,6 +61,10 @@ const {
   images = [],
   overlayStyle = 'frosted',
   overlayOpacity = 30,
+  showDescription = false,
+  description,
+  showCta = false,
+  ctaButton,
 } = Astro.props;
 
 // Generate optimized image URLs
@@ -46,6 +86,70 @@ const getOverlayStyles = () => {
 // When used as section title, enforce consistent sizing across the site
 const effectiveSize = useAsSectionTitle ? 'large' : taglineSize;
 const taglineSizeClass = `collage__tagline--${effectiveSize}`;
+
+// CTA button resolution (only if CTA enabled)
+let buttonUrl = '/';
+let buttonBgColor = 'var(--color-accent)';
+let buttonTextColor = 'var(--color-text-contrast)';
+let buttonIcon: string | null = null;
+let isExternal = false;
+
+if (showCta && ctaButton) {
+  const settings = await client.fetch(siteSettingsQuery);
+  const siteColors = settings?.colors;
+
+  buttonUrl = resolveLinkUrl(ctaButton);
+  isExternal = ctaButton.linkType === 'external';
+
+  if (ctaButton.buttonColor?.colorType) {
+    buttonBgColor = resolveButtonColor(
+      ctaButton.buttonColor as {
+        colorType: string;
+        shade?: number;
+        useBaseTextColor?: boolean;
+      },
+      siteColors
+    );
+    buttonTextColor = resolveButtonTextColor(
+      ctaButton.buttonColor as {
+        colorType: string;
+        shade?: number;
+        useBaseTextColor?: boolean;
+      }
+    );
+  }
+
+  if (ctaButton.icon && ctaButton.icon !== 'none') {
+    buttonIcon = ctaButton.icon;
+  }
+}
+
+// Icon paths (same as ApproachCta)
+const iconPaths: Record<string, string> = {
+  arrowRight:
+    '<line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline>',
+  arrowUpRight:
+    '<line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>',
+  chevronRight: '<polyline points="9 18 15 12 9 6"></polyline>',
+  search:
+    '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>',
+  compass:
+    '<circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>',
+  heart:
+    '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>',
+  star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>',
+  target:
+    '<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>',
+  users:
+    '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
+  lightbulb:
+    '<line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8a6 6 0 1 0-12 0c0 1.54.64 2.89 1.68 3.86.63.61 1 1.25 1 2.14V14a2 2 0 0 0 2 2h2.82a2 2 0 0 0 2-2z"></path>',
+  chart:
+    '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>',
+  handshake:
+    '<path d="M11 17a4 4 0 0 1-4-4V5a2 2 0 0 1 2-2h2"></path><path d="M13 3h2a2 2 0 0 1 2 2v8a4 4 0 0 1-4 4"></path><path d="m3 15 4-4"></path><path d="m17 11 4 4"></path><path d="M12 17v4"></path><path d="M8 21h8"></path>',
+};
 ---
 
 <section class="collage" data-overlay-style={overlayStyle}>
@@ -85,6 +189,45 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
           <p class={`collage__tagline ${taglineSizeClass}`}>
             <span class="collage__tagline-text">{tagline}</span>
           </p>
+        )
+      }
+
+      {/* Description */}
+      {
+        showDescription && description && (
+          <p class="collage__description">{description}</p>
+        )
+      }
+
+      {/* CTA Button */}
+      {
+        showCta && ctaButton?.text && (
+          <a
+            href={buttonUrl}
+            class="collage__cta-button"
+            style={`--btn-bg: ${buttonBgColor}; --btn-text: ${buttonTextColor}`}
+            target={isExternal || ctaButton.openInNewTab ? '_blank' : undefined}
+            rel={
+              isExternal || ctaButton.openInNewTab
+                ? 'noopener noreferrer'
+                : undefined
+            }
+          >
+            {ctaButton.text}
+            {buttonIcon && iconPaths[buttonIcon] && (
+              <svg
+                class="collage__cta-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                set:html={iconPaths[buttonIcon]}
+              />
+            )}
+          </a>
         )
       }
     </div>
@@ -214,6 +357,56 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     transform: translateZ(0);
   }
 
+  /* Description text */
+  .collage__description {
+    margin: var(--space-sm) 0 0;
+    font-family: var(--font-sans);
+    font-size: clamp(1rem, 2.5vw, 1.125rem);
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 600px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  /* CTA button */
+  .collage__cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-lg);
+    background-color: var(--btn-bg, var(--color-accent));
+    color: var(--btn-text, var(--color-text-contrast));
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    font-family: var(--font-sans);
+    transition:
+      transform 0.2s,
+      filter 0.2s;
+    opacity: 0;
+    transform: translateY(15px) scale(0.95);
+  }
+
+  .collage__cta-button:hover {
+    transform: translateY(-2px);
+    filter: brightness(0.9);
+  }
+
+  .collage__cta-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+
+  .collage__cta-button:hover .collage__cta-icon {
+    transform: translateX(3px);
+  }
+
   /* Decorative accent lines */
   .collage__accent {
     position: absolute;
@@ -268,6 +461,16 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
     }
 
     .collage__tagline-text {
+      opacity: 1;
+      transform: none;
+    }
+
+    .collage__description {
+      opacity: 1;
+      transform: none;
+    }
+
+    .collage__cta-button {
       opacity: 1;
       transform: none;
     }
@@ -342,6 +545,37 @@ const taglineSizeClass = `collage__tagline--${effectiveSize}`;
             force3D: true,
           },
           0.1
+        );
+      }
+
+      // Animate description
+      const description = section.querySelector('.collage__description');
+      if (description) {
+        entranceTl.to(
+          description,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'power2.out',
+          },
+          0.2
+        );
+      }
+
+      // Animate CTA button
+      const ctaButton = section.querySelector('.collage__cta-button');
+      if (ctaButton) {
+        entranceTl.to(
+          ctaButton,
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.5,
+            ease: 'back.out(1.4)',
+          },
+          0.3
         );
       }
 
