@@ -67,6 +67,22 @@ export default defineType({
     // Services Page Fields
     // Background Color
     {
+      name: 'backgroundColorMode',
+      title: 'Background Color Mode',
+      type: 'string',
+      group: 'servicePage',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+    },
+    {
       name: 'backgroundColorType',
       title: 'Background Color',
       type: 'string',
@@ -82,25 +98,7 @@ export default defineType({
         ],
       },
       initialValue: 'default',
-    },
-    {
-      name: 'backgroundColorMode',
-      title: 'Background Mode',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      options: {
-        list: [
-          { title: 'Solid', value: 'solid' },
-          { title: 'Gradient', value: 'gradient' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'solid',
-      hidden: ({ parent }) =>
-        parent?.backgroundColorType === 'default' ||
-        !parent?.backgroundColorType,
+      hidden: ({ parent }) => parent?.backgroundColorMode === 'gradient',
     },
     {
       name: 'backgroundColorShade',
@@ -134,10 +132,7 @@ export default defineType({
       type: 'object',
       group: 'servicePage',
       fieldset: 'servicesPage',
-      hidden: ({ parent }) =>
-        parent?.backgroundColorType === 'default' ||
-        !parent?.backgroundColorType ||
-        parent?.backgroundColorMode !== 'gradient',
+      hidden: ({ parent }) => parent?.backgroundColorMode !== 'gradient',
       fields: [
         {
           name: 'direction',

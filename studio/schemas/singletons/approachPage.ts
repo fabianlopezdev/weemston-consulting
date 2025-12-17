@@ -84,6 +84,22 @@ export default defineType({
 
     // Hero Section
     {
+      name: 'heroBackgroundColorMode',
+      title: 'Background Color Mode',
+      type: 'string',
+      group: 'hero',
+      fieldset: 'heroFields',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+    },
+    {
       name: 'heroBackgroundColorType',
       title: 'Background Color',
       type: 'string',
@@ -98,22 +114,7 @@ export default defineType({
         ],
       },
       initialValue: 'primary',
-    },
-    {
-      name: 'heroBackgroundColorMode',
-      title: 'Background Mode',
-      type: 'string',
-      group: 'hero',
-      fieldset: 'heroFields',
-      options: {
-        list: [
-          { title: 'Solid', value: 'solid' },
-          { title: 'Gradient', value: 'gradient' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'solid',
+      hidden: ({ parent }) => parent?.heroBackgroundColorMode === 'gradient',
     },
     {
       name: 'heroBackgroundColorShade',
@@ -376,8 +377,24 @@ export default defineType({
 
     // Core Values Section
     {
+      name: 'coreValuesBackgroundColorMode',
+      title: 'Background Color Mode',
+      type: 'string',
+      group: 'coreValues',
+      fieldset: 'coreValuesFields',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+    },
+    {
       name: 'coreValuesBackgroundColorType',
-      title: 'Section Background Color',
+      title: 'Background Color',
       type: 'string',
       group: 'coreValues',
       fieldset: 'coreValuesFields',
@@ -391,25 +408,8 @@ export default defineType({
         ],
       },
       initialValue: 'default',
-    },
-    {
-      name: 'coreValuesBackgroundColorMode',
-      title: 'Background Mode',
-      type: 'string',
-      group: 'coreValues',
-      fieldset: 'coreValuesFields',
-      options: {
-        list: [
-          { title: 'Solid', value: 'solid' },
-          { title: 'Gradient', value: 'gradient' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'solid',
       hidden: ({ parent }) =>
-        parent?.coreValuesBackgroundColorType === 'default' ||
-        !parent?.coreValuesBackgroundColorType,
+        parent?.coreValuesBackgroundColorMode === 'gradient',
     },
     {
       name: 'coreValuesBackgroundColorShade',
@@ -445,8 +445,6 @@ export default defineType({
       group: 'coreValues',
       fieldset: 'coreValuesFields',
       hidden: ({ parent }) =>
-        parent?.coreValuesBackgroundColorType === 'default' ||
-        !parent?.coreValuesBackgroundColorType ||
         parent?.coreValuesBackgroundColorMode !== 'gradient',
       fields: [
         {
@@ -685,6 +683,22 @@ export default defineType({
 
     // Founder Section
     {
+      name: 'founderBackgroundColorMode',
+      title: 'Background Color Mode',
+      type: 'string',
+      group: 'founder',
+      fieldset: 'founderFields',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+    },
+    {
       name: 'founderBackgroundColorType',
       title: 'Background Color',
       type: 'string',
@@ -700,25 +714,7 @@ export default defineType({
         ],
       },
       initialValue: 'default',
-    },
-    {
-      name: 'founderBackgroundColorMode',
-      title: 'Background Mode',
-      type: 'string',
-      group: 'founder',
-      fieldset: 'founderFields',
-      options: {
-        list: [
-          { title: 'Solid', value: 'solid' },
-          { title: 'Gradient', value: 'gradient' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'solid',
-      hidden: ({ parent }) =>
-        parent?.founderBackgroundColorType === 'default' ||
-        !parent?.founderBackgroundColorType,
+      hidden: ({ parent }) => parent?.founderBackgroundColorMode === 'gradient',
     },
     {
       name: 'founderBackgroundColorShade',
@@ -753,10 +749,7 @@ export default defineType({
       type: 'object',
       group: 'founder',
       fieldset: 'founderFields',
-      hidden: ({ parent }) =>
-        parent?.founderBackgroundColorType === 'default' ||
-        !parent?.founderBackgroundColorType ||
-        parent?.founderBackgroundColorMode !== 'gradient',
+      hidden: ({ parent }) => parent?.founderBackgroundColorMode !== 'gradient',
       fields: [
         {
           name: 'direction',
@@ -1044,6 +1037,22 @@ export default defineType({
 
     // Highlight Section
     {
+      name: 'highlightBackgroundColorMode',
+      title: 'Background Color Mode',
+      type: 'string',
+      group: 'highlight',
+      fieldset: 'highlightFields',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+    },
+    {
       name: 'highlightBackgroundColorType',
       title: 'Background Color',
       type: 'string',
@@ -1058,22 +1067,8 @@ export default defineType({
         ],
       },
       initialValue: 'accent',
-    },
-    {
-      name: 'highlightBackgroundColorMode',
-      title: 'Background Mode',
-      type: 'string',
-      group: 'highlight',
-      fieldset: 'highlightFields',
-      options: {
-        list: [
-          { title: 'Solid', value: 'solid' },
-          { title: 'Gradient', value: 'gradient' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'solid',
+      hidden: ({ parent }) =>
+        parent?.highlightBackgroundColorMode === 'gradient',
     },
     {
       name: 'highlightBackgroundColorShade',

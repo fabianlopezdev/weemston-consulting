@@ -65,6 +65,22 @@ export default defineType({
 
     // Hero Section
     {
+      name: 'heroBackgroundColorMode',
+      title: 'Background Color Mode',
+      type: 'string',
+      group: 'hero',
+      fieldset: 'heroFields',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+    },
+    {
       name: 'heroBackgroundColorType',
       title: 'Background Color',
       type: 'string',
@@ -79,22 +95,7 @@ export default defineType({
         ],
       },
       initialValue: 'primary',
-    },
-    {
-      name: 'heroBackgroundColorMode',
-      title: 'Background Mode',
-      type: 'string',
-      group: 'hero',
-      fieldset: 'heroFields',
-      options: {
-        list: [
-          { title: 'Solid', value: 'solid' },
-          { title: 'Gradient', value: 'gradient' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'solid',
+      hidden: ({ parent }) => parent?.heroBackgroundColorMode === 'gradient',
     },
     {
       name: 'heroBackgroundColorShade',
