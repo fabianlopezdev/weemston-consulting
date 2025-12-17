@@ -1,5 +1,5 @@
 import { defineType } from 'sanity';
-import { defineLanguageField } from '../../lib/i18n';
+import { BackgroundShadeInput } from '../../components/BackgroundShadeInput';
 
 export default defineType({
   name: 'caseStudiesPage',
@@ -7,83 +7,358 @@ export default defineType({
   type: 'document',
   fieldsets: [
     {
-      name: 'seo',
-      title: 'Search Results Description (optional)',
-      description:
-        'If left empty, search engines will extract the description from page content.',
+      name: 'hero',
+      title: '🦸 Hero Section',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'intro',
+      title: '📝 Intro Section',
       options: { collapsible: true, collapsed: true },
     },
     {
-      name: 'ogImage',
-      title: 'Social Media Preview Image (optional)',
-      description:
-        'Also called OG Image. The image shown when this page is shared on social media. If left empty, social media platforms may show no preview image or extract one from the page.',
+      name: 'filter',
+      title: '🔍 Filter Section',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: 'seo',
+      title: '🔎 SEO',
       options: { collapsible: true, collapsed: true },
     },
   ],
   fields: [
+    // Hero Section
     {
-      name: 'title',
-      title: 'Page Title',
+      name: 'heroHeading',
+      title: 'Heading',
       type: 'string',
-      description: 'This will be used as the SEO title in search results.',
-      validation: (Rule) => Rule.required(),
-      initialValue: 'Case Studies',
+      fieldset: 'hero',
+      description: 'Main heading text',
     },
     {
-      name: 'metaDescription',
+      name: 'heroHeadingHighlight',
+      title: 'Heading Highlight',
+      type: 'string',
+      fieldset: 'hero',
+      description: 'Text within heading to italicize (optional)',
+    },
+    {
+      name: 'heroHighlightColorType',
+      title: 'Highlight Color',
+      type: 'string',
+      fieldset: 'hero',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.heroHeadingHighlight,
+    },
+    {
+      name: 'heroHighlightColorShade',
+      title: 'Highlight Shade',
+      type: 'number',
+      fieldset: 'hero',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.heroHeadingHighlight || parent?.heroHighlightColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'heroHighlightCustomColor',
+      title: 'Custom Highlight Color',
+      type: 'simplerColor',
+      fieldset: 'hero',
+      hidden: ({ parent }) =>
+        !parent?.heroHeadingHighlight || parent?.heroHighlightColorType !== 'custom',
+    },
+    {
+      name: 'heroShowDivider',
+      title: 'Show Divider',
+      type: 'boolean',
+      fieldset: 'hero',
+      initialValue: true,
+    },
+    {
+      name: 'heroDividerColorType',
+      title: 'Divider Color',
+      type: 'string',
+      fieldset: 'hero',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'secondary',
+      hidden: ({ parent }) => !parent?.heroShowDivider,
+    },
+    {
+      name: 'heroDividerColorShade',
+      title: 'Divider Shade',
+      type: 'number',
+      fieldset: 'hero',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.heroShowDivider || parent?.heroDividerColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'heroDividerCustomColor',
+      title: 'Custom Divider Color',
+      type: 'simplerColor',
+      fieldset: 'hero',
+      hidden: ({ parent }) =>
+        !parent?.heroShowDivider || parent?.heroDividerColorType !== 'custom',
+    },
+    {
+      name: 'heroTagline',
+      title: 'Tagline',
+      type: 'string',
+      fieldset: 'hero',
+      description: 'Subtitle text below heading',
+    },
+    {
+      name: 'heroTaglineColor',
+      title: 'Tagline Color',
+      type: 'string',
+      fieldset: 'hero',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'muted',
+      hidden: ({ parent }) => !parent?.heroTagline,
+    },
+    {
+      name: 'heroBackgroundColorType',
+      title: 'Background Color',
+      type: 'string',
+      fieldset: 'hero',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'primary',
+    },
+    {
+      name: 'heroBackgroundColorShade',
+      title: 'Background Shade',
+      type: 'number',
+      fieldset: 'hero',
+      initialValue: 90,
+      hidden: ({ parent }) => parent?.heroBackgroundColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'heroBackgroundCustomColor',
+      title: 'Custom Background Color',
+      type: 'simplerColor',
+      fieldset: 'hero',
+      hidden: ({ parent }) => parent?.heroBackgroundColorType !== 'custom',
+    },
+
+    // Intro Section
+    {
+      name: 'introTitle',
+      title: 'Title',
+      type: 'string',
+      fieldset: 'intro',
+      description: 'Section title (e.g., "Our Work")',
+    },
+    {
+      name: 'introDescription',
       title: 'Description',
+      type: 'text',
+      rows: 4,
+      fieldset: 'intro',
+      description: 'Description paragraph',
+    },
+    {
+      name: 'introTitleColorType',
+      title: 'Title Color',
+      type: 'string',
+      fieldset: 'intro',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.introTitle,
+    },
+    {
+      name: 'introTitleColorShade',
+      title: 'Title Shade',
+      type: 'number',
+      fieldset: 'intro',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.introTitle || parent?.introTitleColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'introTitleCustomColor',
+      title: 'Custom Title Color',
+      type: 'simplerColor',
+      fieldset: 'intro',
+      hidden: ({ parent }) =>
+        !parent?.introTitle || parent?.introTitleColorType !== 'custom',
+    },
+    {
+      name: 'introDescriptionColor',
+      title: 'Description Color',
+      type: 'string',
+      fieldset: 'intro',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
+      hidden: ({ parent }) => !parent?.introDescription,
+    },
+
+    // Filter Section
+    {
+      name: 'filterActiveColorType',
+      title: 'Active Button Color',
+      type: 'string',
+      fieldset: 'filter',
+      description: 'Background color for active filter button',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+    },
+    {
+      name: 'filterActiveColorShade',
+      title: 'Active Button Shade',
+      type: 'number',
+      fieldset: 'filter',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.filterActiveColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'filterActiveCustomColor',
+      title: 'Custom Active Button Color',
+      type: 'simplerColor',
+      fieldset: 'filter',
+      hidden: ({ parent }) => parent?.filterActiveColorType !== 'custom',
+    },
+    {
+      name: 'filterActiveTextColor',
+      title: 'Active Button Text',
+      type: 'string',
+      fieldset: 'filter',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'contrast',
+    },
+    {
+      name: 'filterInactiveColorType',
+      title: 'Inactive Button Border Color',
+      type: 'string',
+      fieldset: 'filter',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'secondary',
+    },
+    {
+      name: 'filterInactiveColorShade',
+      title: 'Inactive Button Border Shade',
+      type: 'number',
+      fieldset: 'filter',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.filterInactiveColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'filterInactiveCustomColor',
+      title: 'Custom Inactive Button Border',
+      type: 'simplerColor',
+      fieldset: 'filter',
+      hidden: ({ parent }) => parent?.filterInactiveColorType !== 'custom',
+    },
+    {
+      name: 'filterInactiveTextColor',
+      title: 'Inactive Button Text',
+      type: 'string',
+      fieldset: 'filter',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'muted',
+    },
+
+    // SEO
+    {
+      name: 'metaDescription',
+      title: 'Meta Description',
       type: 'text',
       rows: 3,
       fieldset: 'seo',
-      description:
-        'The short preview text that appears under your title in Google search results. Keep it under 160 characters.',
-      validation: (Rule) => Rule.max(160).warning('Keep under 160 characters'),
     },
     {
       name: 'ogImage',
-      title: 'Image',
+      title: 'Open Graph Image',
       type: 'image',
-      fieldset: 'ogImage',
-      description: 'Recommended size: 1200×630 pixels.',
-      options: { hotspot: true },
-    },
-    defineLanguageField(),
-    {
-      name: 'hero',
-      title: 'Hero Section (optional)',
-      type: 'heroSection',
-      description: 'Main hero section at the top of the case studies page',
-    },
-    {
-      name: 'intro',
-      title: 'Intro Text',
-      type: 'text',
-      description: 'Introduction text displayed before the case studies list',
-      rows: 4,
-    },
-    {
-      name: 'caseStudies',
-      title: 'Case Studies',
-      type: 'array',
-      description: 'Select and order the case studies to display on this page',
-      of: [
-        {
-          type: 'reference',
-          to: [{ type: 'caseStudy' }],
-        },
-      ],
+      fieldset: 'seo',
     },
   ],
   preview: {
-    select: {
-      title: 'title',
-      language: 'language',
-    },
-    prepare({ title, language }) {
+    prepare() {
       return {
-        title: title || 'Case Studies Page',
-        subtitle: language?.toUpperCase() || 'EN',
+        title: 'Case Studies Page',
+        subtitle: 'Page configuration',
       };
     },
   },

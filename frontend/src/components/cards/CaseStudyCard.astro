@@ -233,7 +233,7 @@ const iconPaths: Record<string, string> = {
 };
 ---
 
-<article class="case-study-card" style={cssVars}>
+<article class="case-study-card" style={cssVars} data-animate="case-study">
   {/* Hero Section - Top Half */}
   <div class="case-study-card__hero">
     <div class="case-study-card__image-wrapper">
@@ -315,7 +315,7 @@ const iconPaths: Record<string, string> = {
   /* Hero Section */
   .case-study-card__hero {
     position: relative;
-    min-height: 280px;
+    min-block-size: clamp(20rem, 30vw + 10rem, 31.25rem); /* 320px to 500px */
     display: flex;
     align-items: flex-end;
   }
@@ -324,13 +324,16 @@ const iconPaths: Record<string, string> = {
     position: absolute;
     inset: 0;
     z-index: 0;
+    overflow: hidden;
   }
 
   .case-study-card__image-wrapper :global(.image-blur-wrapper),
   .case-study-card__image-wrapper :global(img) {
-    width: 100%;
-    height: 100%;
+    inline-size: 100%;
+    block-size: 100%;
     object-fit: cover;
+    object-position: top;
+    transition: transform 700ms ease-out;
   }
 
   .case-study-card__overlay {
@@ -354,7 +357,7 @@ const iconPaths: Record<string, string> = {
   .case-study-card__hero-content {
     position: relative;
     z-index: 1;
-    width: 100%;
+    inline-size: 100%;
     padding: var(--space-lg);
     display: flex;
     flex-direction: column;
@@ -362,21 +365,33 @@ const iconPaths: Record<string, string> = {
     gap: var(--space-xs);
   }
 
+  @media (min-width: 768px) {
+    .case-study-card__hero-content {
+      padding: var(--space-xl);
+    }
+  }
+
   .case-study-card__icon-wrapper {
-    width: 3rem;
-    height: 3rem;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--cs-icon-bg, var(--color-primary-light));
+    background-color: color-mix(
+      in srgb,
+      var(--cs-icon-bg, var(--color-primary-light)) 15%,
+      transparent
+    );
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border-radius: 50%;
-    margin-bottom: var(--space-xs);
+    margin-block-end: var(--space-xs);
   }
 
   .case-study-card__icon {
-    width: 1.25rem;
-    height: 1.25rem;
-    color: var(--cs-icon-color, var(--color-accent));
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    color: var(--cs-icon-color, var(--color-text-contrast));
   }
 
   .case-study-card__category {
@@ -389,7 +404,7 @@ const iconPaths: Record<string, string> = {
 
   .case-study-card__client {
     font-family: var(--font-heading);
-    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-size: clamp(2rem, 3vw + 1rem, 3rem);
     font-weight: 500;
     line-height: 1.1;
     color: var(--cs-client-color, var(--color-text-contrast));
@@ -397,7 +412,8 @@ const iconPaths: Record<string, string> = {
   }
 
   .case-study-card__role {
-    font-size: var(--font-size-sm);
+    font-size: clamp(1.125rem, 1vw + 0.75rem, 1.5rem);
+    font-weight: 300;
     color: var(--cs-role-color, var(--color-text-contrast));
     margin: 0;
     opacity: 0.9;
@@ -410,13 +426,19 @@ const iconPaths: Record<string, string> = {
     flex: 1;
   }
 
+  @media (min-width: 768px) {
+    .case-study-card__content {
+      padding: var(--space-xl);
+    }
+  }
+
   .case-study-card__content-grid {
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 768px) {
     .case-study-card__content-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -449,6 +471,19 @@ const iconPaths: Record<string, string> = {
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
+    border-block-start: 1px solid
+      color-mix(in srgb, var(--color-border) 30%, transparent);
+    padding-block-start: var(--space-md);
+  }
+
+  @media (min-width: 768px) {
+    .case-study-card__right {
+      border-block-start: 0;
+      border-inline-start: 1px solid
+        color-mix(in srgb, var(--color-border) 30%, transparent);
+      padding-block-start: 0;
+      padding-inline-start: var(--space-lg);
+    }
   }
 
   .case-study-card__contributions-title {
@@ -483,6 +518,54 @@ const iconPaths: Record<string, string> = {
     color: var(--cs-bullet, var(--color-accent));
     font-size: 1.25rem;
     line-height: 1;
-    margin-top: -0.1rem;
+    margin-block-start: -0.1rem;
+  }
+
+  /* Hover Effects */
+  .case-study-card:hover .case-study-card__image-wrapper :global(img) {
+    transform: scale(1.05);
+  }
+
+  /* Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    .case-study-card__image-wrapper :global(img) {
+      transition: none;
+    }
+
+    .case-study-card:hover .case-study-card__image-wrapper :global(img) {
+      transform: none;
+    }
   }
 </style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    // Respect reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    const cards = document.querySelectorAll('[data-animate="case-study"]');
+
+    if (!cards.length) return;
+
+    cards.forEach((card) => {
+      gsap.fromTo(
+        card,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+          },
+        }
+      );
+    });
+  });
+</script>

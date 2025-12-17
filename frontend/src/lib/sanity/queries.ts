@@ -103,6 +103,14 @@ export const allServicesQuery = groq`
   }
 `;
 
+// Services for filter (minimal data for filter buttons)
+export const servicesForFilterQuery = groq`
+  *[_type == "service" && language == $language] | order(title asc) {
+    _id,
+    title
+  }
+`;
+
 // Case Study projection (for use in service documents)
 const caseStudyProjection = `
   _id,
@@ -147,11 +155,16 @@ const caseStudyProjection = `
   contributionsTextColor,
   bulletColorType,
   bulletColorShade,
-  bulletCustomColor { label, value }
+  bulletCustomColor { label, value },
+  // Related Service (for filtering)
+  relatedService-> {
+    _id,
+    title
+  }
 `;
 
 export const allCaseStudiesQuery = groq`
-  *[_type == "caseStudy" && language == $language] | order(_createdAt desc) {
+  *[_type == "caseStudy" && language == $language && defined(relatedService)] | order(_createdAt desc) {
     ${caseStudyProjection}
   }
 `;
@@ -501,8 +514,8 @@ export const servicesPageQuery = groq`
   }
 `;
 
-// Case Studies Page (singleton per language)
-export const caseStudiesPageQuery = groq`
+// Case Studies Page (singleton per language - OLD)
+export const caseStudiesPageOldQuery = groq`
   *[_id == $documentId][0] {
     _id,
     title,
@@ -520,6 +533,46 @@ export const caseStudiesPageQuery = groq`
       ${backgroundSettingsProjection}
     },
     ${pageSectionsQuery},
+    metaDescription,
+    ogImage
+  }
+`;
+
+// Case Studies Page (singleton - NEW)
+export const caseStudiesPageQuery = groq`
+  *[_type == "caseStudiesPage"][0] {
+    // Hero
+    heroHeading,
+    heroHeadingHighlight,
+    heroHighlightColorType,
+    heroHighlightColorShade,
+    heroHighlightCustomColor { label, value },
+    heroShowDivider,
+    heroDividerColorType,
+    heroDividerColorShade,
+    heroDividerCustomColor { label, value },
+    heroTagline,
+    heroTaglineColor,
+    heroBackgroundColorType,
+    heroBackgroundColorShade,
+    heroBackgroundCustomColor { label, value },
+    // Intro
+    introTitle,
+    introDescription,
+    introTitleColorType,
+    introTitleColorShade,
+    introTitleCustomColor { label, value },
+    introDescriptionColor,
+    // Filter
+    filterActiveColorType,
+    filterActiveColorShade,
+    filterActiveCustomColor { label, value },
+    filterActiveTextColor,
+    filterInactiveColorType,
+    filterInactiveColorShade,
+    filterInactiveCustomColor { label, value },
+    filterInactiveTextColor,
+    // SEO
     metaDescription,
     ogImage
   }
