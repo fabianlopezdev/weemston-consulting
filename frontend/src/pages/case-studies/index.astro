@@ -299,6 +299,7 @@ const filterCssVars = [
 
   .filter-buttons {
     display: flex;
+    justify-content: center;
     gap: var(--space-sm);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -328,7 +329,13 @@ const filterCssVars = [
   }
 
   .filter-btn:hover {
-    opacity: 0.8;
+    background: var(--filter-active-bg);
+    border-color: var(--filter-active-bg);
+    color: var(--filter-active-text);
+  }
+
+  .filter-btn:active {
+    transform: scale(0.95);
   }
 
   .filter-btn.active {
