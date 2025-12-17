@@ -341,6 +341,9 @@ const gridClasses = [
 ]
   .filter(Boolean)
   .join(' ');
+
+// Detect content-heavy services that need expanded layout
+const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
 ---
 
 <article
@@ -349,6 +352,7 @@ const gridClasses = [
   data-animate
   data-reversed={imagePosition === 'right'}
   data-no-image={iconType === 'none'}
+  data-expanded={isContentHeavy}
 >
   <div class="container">
     {
@@ -410,6 +414,126 @@ const gridClasses = [
           {/* Case studies below for no-image layout */}
           {caseStudiesWithLogos.length > 0 && (
             <div class="service-section__case-studies service-section__case-studies--below">
+              {caseStudiesSectionTitle && (
+                <p class="service-section__case-studies-title">
+                  {caseStudiesSectionTitle}
+                </p>
+              )}
+              <div class="service-section__case-studies-logos">
+                {caseStudiesWithLogos.map((caseStudy) => {
+                  const logoUrl = urlForImage(caseStudy.clientLogo!)
+                    .height(96)
+                    .auto('format')
+                    .url();
+                  return (
+                    <a
+                      href={`/case-studies#${caseStudy._id}`}
+                      class="service-section__case-study-logo"
+                      title={caseStudy.client || 'View case study'}
+                    >
+                      <img
+                        src={logoUrl}
+                        alt={
+                          caseStudy.clientLogo?.alt ||
+                          `${caseStudy.client} logo`
+                        }
+                        class="service-section__logo-image"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
+      ) : isContentHeavy ? (
+        /* Expanded layout for content-heavy services */
+        <>
+          {/* Row 1: Full-width intro */}
+          <div class="service-section__expanded-intro">
+            {tag && <span class="service-section__tag">{tag}</span>}
+            <h2 class="service-section__title">{title}</h2>
+            {leadText && <p class="service-section__lead">{leadText}</p>}
+            {description && description.length > 0 && (
+              <div class="service-section__description">
+                <PortableText content={description} />
+              </div>
+            )}
+          </div>
+
+          {/* Row 2: Image (centered) | List */}
+          <div class="service-section__expanded-grid">
+            <div class="service-section__expanded-image">
+              <div class="service-section__image-container">
+                {iconType === 'image' && iconImage?.asset ? (
+                  <Image
+                    image={iconImage}
+                    alt={iconImage.alt || title}
+                    class="service-section__image"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                ) : (
+                  <svg
+                    class="service-section__icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                    set:html={iconPaths[icon] || iconPaths.settings}
+                  />
+                )}
+              </div>
+            </div>
+            <div class="service-section__expanded-list">
+              {listItems.length > 0 && (
+                <div
+                  class={`service-section__list-wrapper ${listTitle || listContainerColor ? 'service-section__list-wrapper--boxed' : ''}`}
+                >
+                  {listTitle && (
+                    <strong class="service-section__list-title">
+                      {listTitle}
+                    </strong>
+                  )}
+                  <ul
+                    class={`service-section__list service-section__list--${listStyle}`}
+                  >
+                    {listItems.map((item) => (
+                      <li>
+                        {listStyle === 'checkmark' && (
+                          <svg
+                            class="service-section__list-icon"
+                            viewBox="0 0 24 24"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
+                        {listStyle === 'arrow' && (
+                          <span class="service-section__list-arrow">
+                            &rarr;
+                          </span>
+                        )}
+                        {listStyle === 'bullet' && (
+                          <span class="service-section__list-bullet">
+                            &bull;
+                          </span>
+                        )}
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Row 3: Full-width clients */}
+          {caseStudiesWithLogos.length > 0 && (
+            <div class="service-section__expanded-clients">
               {caseStudiesSectionTitle && (
                 <p class="service-section__case-studies-title">
                   {caseStudiesSectionTitle}
@@ -614,6 +738,52 @@ const gridClasses = [
   /* Case studies when below content (no-image mode) */
   .service-section__case-studies--below {
     /* No margin-top to keep it connected to the grid above */
+  }
+
+  /* Expanded layout for content-heavy services */
+  .service-section__expanded-intro {
+    width: 100%;
+    max-width: none;
+    margin-bottom: var(--space-xl);
+  }
+
+  .service-section__expanded-intro p,
+  .service-section__expanded-intro .service-section__lead,
+  .service-section__expanded-intro :global(.portable-text p) {
+    max-inline-size: none;
+  }
+
+  .service-section__expanded-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .service-section__expanded-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2xl);
+    }
+  }
+
+  .service-section__expanded-image {
+    display: flex;
+    justify-content: center;
+  }
+
+  .service-section__expanded-list {
+    /* List takes full height naturally */
+  }
+
+  .service-section__expanded-clients {
+    margin-top: var(--space-xl);
+  }
+
+  @media (min-width: 768px) {
+    .service-section__expanded-clients {
+      margin-top: var(--space-2xl);
+    }
   }
 
   .service-section__media-column {
@@ -834,7 +1004,10 @@ const gridClasses = [
   .service-section[data-animate] .service-section__content,
   .service-section[data-animate] .service-section__content-column,
   .service-section[data-animate] .service-section__list-column,
-  .service-section[data-animate] .service-section__case-studies--below {
+  .service-section[data-animate] .service-section__case-studies--below,
+  .service-section[data-animate] .service-section__expanded-intro,
+  .service-section[data-animate] .service-section__expanded-grid,
+  .service-section[data-animate] .service-section__expanded-clients {
     opacity: 0;
   }
 
@@ -857,7 +1030,10 @@ const gridClasses = [
     .service-section[data-animate] .service-section__content,
     .service-section[data-animate] .service-section__content-column,
     .service-section[data-animate] .service-section__list-column,
-    .service-section[data-animate] .service-section__case-studies--below {
+    .service-section[data-animate] .service-section__case-studies--below,
+    .service-section[data-animate] .service-section__expanded-intro,
+    .service-section[data-animate] .service-section__expanded-grid,
+    .service-section[data-animate] .service-section__expanded-clients {
       opacity: 1 !important;
       transform: none !important;
     }
@@ -892,8 +1068,9 @@ const gridClasses = [
         return;
       }
 
-      // Check if this is a no-image layout
+      // Check layout type
       const isNoImage = section.getAttribute('data-no-image') === 'true';
+      const isExpanded = section.getAttribute('data-expanded') === 'true';
 
       // Get main elements based on layout type
       let columnsToAnimate: Element[] = [];
@@ -911,6 +1088,13 @@ const gridClasses = [
         columnsToAnimate = [contentColumn, listColumn, caseStudiesBelow].filter(
           Boolean
         ) as Element[];
+      } else if (isExpanded) {
+        const intro = section.querySelector('.service-section__expanded-intro');
+        const grid = section.querySelector('.service-section__expanded-grid');
+        const clients = section.querySelector(
+          '.service-section__expanded-clients'
+        );
+        columnsToAnimate = [intro, grid, clients].filter(Boolean) as Element[];
       } else {
         const mediaColumn = section.querySelector(
           '.service-section__media-column'
