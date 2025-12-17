@@ -14,6 +14,7 @@ Enhance the case studies page with a hero section, intro section, and service-ba
 ## Sanity Schema: `caseStudiesPage` Singleton
 
 ### Hero Section Fields
+
 - `heroHeading` (string) - Main heading text
 - `heroHeadingHighlight` (string, optional) - Text within heading to italicize
 - `heroHighlightColorType` ('primary' | 'secondary' | 'accent' | 'custom')
@@ -30,6 +31,7 @@ Enhance the case studies page with a hero section, intro section, and service-ba
 - `heroBackgroundCustomColor` (simplerColor)
 
 ### Intro Section Fields
+
 - `introTitle` (string) - Section title
 - `introDescription` (text) - Description paragraph
 - `introTitleColorType` ('primary' | 'secondary' | 'accent' | 'custom')
@@ -38,6 +40,7 @@ Enhance the case studies page with a hero section, intro section, and service-ba
 - `introDescriptionColor` ('base' | 'muted' | 'contrast')
 
 ### Filter Section Fields
+
 - `filterActiveColorType` ('primary' | 'secondary' | 'accent' | 'custom')
 - `filterActiveColorShade` (number)
 - `filterActiveCustomColor` (simplerColor)
@@ -48,12 +51,14 @@ Enhance the case studies page with a hero section, intro section, and service-ba
 - `filterInactiveTextColor` ('base' | 'muted' | 'contrast')
 
 ### SEO Fields
+
 - `metaDescription` (text)
 - `ogImage` (image)
 
 ## Query Updates
 
 ### Update `allCaseStudiesQuery`
+
 Add `relatedService` reference and filter to only include case studies with a service:
 
 ```groq
@@ -67,6 +72,7 @@ Add `relatedService` reference and filter to only include case studies with a se
 ```
 
 ### New `caseStudiesPageQuery`
+
 ```groq
 *[_type == "caseStudiesPage"][0] {
   // Hero
@@ -107,6 +113,7 @@ Add `relatedService` reference and filter to only include case studies with a se
 ```
 
 ### Services Query (for filter options)
+
 ```groq
 *[_type == "service" && language == $language] | order(title asc) {
   _id,
@@ -122,7 +129,12 @@ Add `relatedService` reference and filter to only include case studies with a se
   <InternalPageHero
     heading={page.heroHeading}
     headingHighlight={page.heroHeadingHighlight}
-    ... all hero color props ...
+    ...
+    all
+    hero
+    color
+    props
+    ...
   />
 
   <!-- Intro Section -->
@@ -138,11 +150,13 @@ Add `relatedService` reference and filter to only include case studies with a se
     <div class="container">
       <div class="filter-buttons">
         <button data-filter="all" class="filter-btn active">All</button>
-        {services.map(service => (
-          <button data-filter={service._id} class="filter-btn">
-            {service.title}
-          </button>
-        ))}
+        {
+          services.map((service) => (
+            <button data-filter={service._id} class="filter-btn">
+              {service.title}
+            </button>
+          ))
+        }
       </div>
     </div>
   </div>
@@ -151,11 +165,13 @@ Add `relatedService` reference and filter to only include case studies with a se
   <section class="case-studies-content">
     <div class="container">
       <div class="case-studies-grid" data-animate="case-study-grid">
-        {caseStudies.map(cs => (
-          <div data-service-id={cs.relatedService._id}>
-            <CaseStudyCard ... />
-          </div>
-        ))}
+        {
+          caseStudies.map((cs) => (
+            <div data-service-id={cs.relatedService._id}>
+              <CaseStudyCard ... />
+            </div>
+          ))
+        }
       </div>
     </div>
   </section>
@@ -165,12 +181,14 @@ Add `relatedService` reference and filter to only include case studies with a se
 ## Filter Button Styling
 
 **CSS Variables from CMS:**
+
 - `--filter-active-bg` - Active button background
 - `--filter-active-text` - Active button text color
 - `--filter-inactive-border` - Inactive button border
 - `--filter-inactive-text` - Inactive button text color
 
 **Button Styles:**
+
 ```css
 .filter-btn {
   padding-inline: var(--space-md);
@@ -216,25 +234,28 @@ setupAnimationLifecycle(() => {
 
   if (!filterButtons.length || !cardWrappers.length) return;
 
-  filterButtons.forEach(btn => {
+  filterButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter;
 
       // Update active state
-      filterButtons.forEach(b => b.classList.remove('active'));
+      filterButtons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
 
       // Filter cards with animation
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches;
 
-      cardWrappers.forEach(wrapper => {
+      cardWrappers.forEach((wrapper) => {
         const serviceId = wrapper.dataset.serviceId;
         const shouldShow = filter === 'all' || serviceId === filter;
 
         if (shouldShow) {
           wrapper.style.display = '';
           if (!prefersReducedMotion) {
-            gsap.fromTo(wrapper,
+            gsap.fromTo(
+              wrapper,
               { opacity: 0, y: 30 },
               { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
             );
