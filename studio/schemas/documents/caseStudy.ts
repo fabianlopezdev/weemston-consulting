@@ -27,6 +27,7 @@ export default defineType({
       title: 'Client Name',
       type: 'string',
       description: 'The main heading (e.g., "Fyn")',
+      validation: (Rule) => Rule.required().error('Client name is required'),
     },
     {
       name: 'clientColor',
@@ -521,7 +522,7 @@ export default defineType({
     },
     prepare({ title, subtitle, language, media }) {
       return {
-        title,
+        title: title || 'New Case Study',
         subtitle: [subtitle, language?.toUpperCase()]
           .filter(Boolean)
           .join(' • '),

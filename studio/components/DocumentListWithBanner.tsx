@@ -14,6 +14,7 @@ interface SanityDocument {
   _type: string;
   title?: string;
   name?: string;
+  client?: string;
 }
 
 export function DocumentListWithBanner(props: {
@@ -33,7 +34,7 @@ export function DocumentListWithBanner(props: {
     setLoading(true);
     setDocuments([]);
 
-    const query = `*[_type == $type] | order(_createdAt desc) { _id, _type, title, name }`;
+    const query = `*[_type == $type] | order(_createdAt desc) { _id, _type, title, name, client }`;
     client
       .fetch<SanityDocument[]>(query, { type: schemaType })
       .then((docs) => {
@@ -108,7 +109,7 @@ export function DocumentListWithBanner(props: {
                 radius={2}
                 style={{ textDecoration: 'none' }}
               >
-                <Text size={1}>{doc.title || doc.name || 'Untitled'}</Text>
+                <Text size={1}>{doc.title || doc.name || doc.client || 'Untitled'}</Text>
               </Card>
             ))}
           </Stack>
