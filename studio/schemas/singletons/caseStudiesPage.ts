@@ -286,11 +286,10 @@ export default defineType({
     {
       name: 'introDescription',
       title: 'Description',
-      type: 'text',
-      rows: 4,
+      type: 'portableText',
       group: 'intro',
       fieldset: 'introFields',
-      description: 'Description paragraph',
+      description: 'Description paragraph with rich text support',
     },
     {
       name: 'introDescriptionColor',
