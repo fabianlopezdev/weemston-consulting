@@ -299,36 +299,75 @@ const filterCssVars = [
   import { setupAnimationLifecycle, gsap } from '@lib/animation';
 
   setupAnimationLifecycle(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
 
     const grid = document.querySelector('[data-animate="case-study-grid"]');
+    const filterButtons = document.querySelectorAll('[data-filter]');
+    const cardWrappers = document.querySelectorAll('[data-service-id]');
+
     if (!grid) return;
 
-    const cards = grid.querySelectorAll('[data-animate="case-study"]');
-    if (!cards.length) return;
+    // Initial animation for all cards
+    const allCards = grid.querySelectorAll('[data-animate="case-study"]');
+    if (allCards.length && !prefersReducedMotion) {
+      gsap.set(cardWrappers, { clearProps: 'all' });
+      gsap.set(cardWrappers, { opacity: 0, y: 60 });
 
-    // Clear any animations set by individual cards
-    gsap.set(cards, { clearProps: 'all' });
+      gsap.to(cardWrappers, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+        stagger: 0.15,
+        scrollTrigger: {
+          trigger: grid,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      });
+    }
 
-    // Set initial state
-    gsap.set(cards, {
-      opacity: 0,
-      y: 60,
-    });
+    // Filter functionality
+    if (filterButtons.length && cardWrappers.length) {
+      filterButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const filter = (btn as HTMLElement).dataset.filter;
 
-    // Create staggered entrance with ScrollTrigger
-    gsap.to(cards, {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: 'power2.out',
-      stagger: 0.15,
-      scrollTrigger: {
-        trigger: grid,
-        start: 'top 80%',
-        toggleActions: 'play none none none',
-      },
-    });
+          // Update active state
+          filterButtons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          // Filter cards with animation
+          let visibleIndex = 0;
+          cardWrappers.forEach((wrapper) => {
+            const serviceId = (wrapper as HTMLElement).dataset.serviceId;
+            const shouldShow = filter === 'all' || serviceId === filter;
+
+            if (shouldShow) {
+              (wrapper as HTMLElement).style.display = '';
+
+              if (!prefersReducedMotion) {
+                gsap.fromTo(
+                  wrapper,
+                  { opacity: 0, y: 30 },
+                  {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.4,
+                    ease: 'power2.out',
+                    delay: visibleIndex * 0.1,
+                  }
+                );
+              }
+              visibleIndex++;
+            } else {
+              (wrapper as HTMLElement).style.display = 'none';
+            }
+          });
+        });
+      });
+    }
   });
 </script>
