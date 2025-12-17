@@ -249,20 +249,22 @@ const iconPaths: Record<string, string> = {
     </div>
 
     <div class="case-study-card__hero-content">
-      <div class="case-study-card__icon-wrapper">
-        <svg
-          class="case-study-card__icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-          set:html={iconPaths[icon] || iconPaths.globe}
-        />
+      <div class="case-study-card__badge-row">
+        <div class="case-study-card__icon-wrapper">
+          <svg
+            class="case-study-card__icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            set:html={iconPaths[icon] || iconPaths.globe}
+          />
+        </div>
+        <span class="case-study-card__category">{category}</span>
       </div>
-      <span class="case-study-card__category">{category}</span>
       <h3 class="case-study-card__client">{clientName}</h3>
       {role && <p class="case-study-card__role">{role}</p>}
     </div>
@@ -311,17 +313,20 @@ const iconPaths: Record<string, string> = {
     flex-direction: column;
     border-radius: 0.75rem;
     overflow: hidden;
-    box-shadow:
-      0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -2px rgb(0 0 0 / 0.1);
   }
 
   /* Hero Section */
   .case-study-card__hero {
     position: relative;
-    min-block-size: clamp(20rem, 30vw + 10rem, 31.25rem); /* 320px to 500px */
+    min-block-size: 20rem; /* 320px mobile */
     display: flex;
     align-items: flex-end;
+  }
+
+  @media (min-width: 768px) {
+    .case-study-card__hero {
+      min-block-size: 31.25rem; /* 500px desktop */
+    }
   }
 
   .case-study-card__image-wrapper {
@@ -354,7 +359,8 @@ const iconPaths: Record<string, string> = {
         in srgb,
         var(--cs-overlay) calc(var(--cs-overlay-opacity) * 40%),
         transparent
-      )
+      ),
+      transparent
     );
   }
 
@@ -375,6 +381,13 @@ const iconPaths: Record<string, string> = {
     }
   }
 
+  .case-study-card__badge-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-block-end: var(--space-xs);
+  }
+
   .case-study-card__icon-wrapper {
     inline-size: 2.5rem;
     block-size: 2.5rem;
@@ -389,7 +402,6 @@ const iconPaths: Record<string, string> = {
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     border-radius: 50%;
-    margin-block-end: var(--space-xs);
   }
 
   .case-study-card__icon {
@@ -399,8 +411,8 @@ const iconPaths: Record<string, string> = {
   }
 
   .case-study-card__category {
-    font-size: 0.625rem;
-    font-weight: 600;
+    font-size: var(--font-size-base);
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.15em;
     color: var(--cs-category-color, var(--color-text-contrast));
@@ -416,7 +428,7 @@ const iconPaths: Record<string, string> = {
   }
 
   .case-study-card__role {
-    font-size: clamp(1.125rem, 1vw + 0.75rem, 1.5rem);
+    font-size: clamp(1.25rem, 1vw + 1rem, 1.5rem); /* 20px to 24px */
     font-weight: 300;
     color: var(--cs-role-color, var(--color-text-contrast));
     margin: 0;
@@ -457,15 +469,17 @@ const iconPaths: Record<string, string> = {
   }
 
   .case-study-card__date {
-    font-size: 0.625rem;
-    font-weight: 600;
+    font-size: var(--font-size-base);
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--cs-date, var(--color-text-muted));
+    margin-block-end: 1.5rem; /* 24px spacing to description */
   }
 
   .case-study-card__description {
     font-size: var(--font-size-base);
+    font-weight: 500;
     line-height: 1.6;
     color: var(--cs-description, var(--color-text));
   }
@@ -482,28 +496,27 @@ const iconPaths: Record<string, string> = {
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
-    border-block-start: 1px solid
-      color-mix(in srgb, var(--color-border) 30%, transparent);
+    border-block-start: 1px solid rgba(180, 180, 180, 0.3);
     padding-block-start: var(--space-md);
   }
 
   @media (min-width: 768px) {
     .case-study-card__right {
       border-block-start: 0;
-      border-inline-start: 1px solid
-        color-mix(in srgb, var(--color-border) 30%, transparent);
+      border-inline-start: 1px solid rgba(180, 180, 180, 0.3);
       padding-block-start: 0;
       padding-inline-start: var(--space-lg);
     }
   }
 
   .case-study-card__contributions-title {
-    font-size: 0.625rem;
-    font-weight: 600;
+    font-size: var(--font-size-base);
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--cs-title, var(--color-accent));
     margin: 0;
+    margin-block-end: 1.5rem; /* 24px spacing to list */
   }
 
   .case-study-card__list {
@@ -512,13 +525,13 @@ const iconPaths: Record<string, string> = {
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--space-xs);
+    gap: 1rem; /* 16px between list items */
   }
 
   .case-study-card__list li {
     display: flex;
     align-items: flex-start;
-    gap: var(--space-xs);
+    gap: 1rem; /* 16px gap between bullet and text */
     color: var(--cs-contributions-text, var(--color-text));
     font-size: var(--font-size-base);
     line-height: 1.5;
@@ -529,7 +542,7 @@ const iconPaths: Record<string, string> = {
     color: var(--cs-bullet, var(--color-accent));
     font-size: 1.25rem;
     line-height: 1;
-    margin-block-start: -0.1rem;
+    margin-block-start: 0.35rem; /* center with first line of text */
   }
 
   /* Hover Effects */
