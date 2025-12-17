@@ -243,6 +243,47 @@ export default defineType({
       initialValue: 'base',
       hidden: ({ parent }) => !parent?.introDescription,
     },
+    {
+      name: 'introFooter',
+      title: 'Footer',
+      type: 'string',
+      fieldset: 'intro',
+      description: 'Italic footer text below description',
+    },
+    {
+      name: 'introFooterColorType',
+      title: 'Footer Color',
+      type: 'string',
+      fieldset: 'intro',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.introFooter,
+    },
+    {
+      name: 'introFooterColorShade',
+      title: 'Footer Shade',
+      type: 'number',
+      fieldset: 'intro',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        !parent?.introFooter || parent?.introFooterColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'introFooterCustomColor',
+      title: 'Custom Footer Color',
+      type: 'simplerColor',
+      fieldset: 'intro',
+      hidden: ({ parent }) =>
+        !parent?.introFooter || parent?.introFooterColorType !== 'custom',
+    },
 
     // Filter Section
     {

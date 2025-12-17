@@ -563,6 +563,10 @@ export const caseStudiesPageQuery = groq`
     introTitleColorShade,
     introTitleCustomColor { label, value },
     introDescriptionColor,
+    introFooter,
+    introFooterColorType,
+    introFooterColorShade,
+    introFooterCustomColor { label, value },
     // Filter
     filterActiveColorType,
     filterActiveColorShade,

@@ -11,6 +11,7 @@ import { createTranslator } from '@lib/i18n/translations';
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import CaseStudyCard from '@components/cards/CaseStudyCard.astro';
 import InternalPageHero from '@components/sections/InternalPageHero.astro';
+import SectionTitle from '@components/ui/SectionTitle.astro';
 
 const lang = Astro.locals.lang || 'en';
 const t = createTranslator(lang);
@@ -45,6 +46,16 @@ const textColorMap: Record<string, string> = {
 const introDescriptionColorResolved =
   textColorMap[page?.introDescriptionColor || 'base'] || textColorMap.base;
 
+// Resolve intro footer color
+const introFooterColor = resolveColorSelection(
+  {
+    colorType: page?.introFooterColorType || 'accent',
+    shade: page?.introFooterColorShade || 0,
+    customColor: page?.introFooterCustomColor,
+  },
+  siteColors
+);
+
 // Resolve filter colors
 const filterActiveColor = resolveColorSelection(
   {
@@ -65,7 +76,8 @@ const filterInactiveColor = resolveColorSelection(
 );
 
 const filterActiveTextResolved =
-  textColorMap[page?.filterActiveTextColor || 'contrast'] || textColorMap.contrast;
+  textColorMap[page?.filterActiveTextColor || 'contrast'] ||
+  textColorMap.contrast;
 const filterInactiveTextResolved =
   textColorMap[page?.filterInactiveTextColor || 'muted'] || textColorMap.muted;
 
@@ -80,111 +92,146 @@ const filterCssVars = [
 
 <BaseLayout title={page?.metaDescription || t('seo.case_studies_title')}>
   {/* Hero Section */}
-  {page?.heroHeading && (
-    <InternalPageHero
-      heading={page.heroHeading}
-      headingHighlight={page.heroHeadingHighlight}
-      highlightColorType={page.heroHighlightColorType}
-      highlightColorShade={page.heroHighlightColorShade}
-      highlightCustomColor={page.heroHighlightCustomColor}
-      showDivider={page.heroShowDivider}
-      dividerColorType={page.heroDividerColorType}
-      dividerColorShade={page.heroDividerColorShade}
-      dividerCustomColor={page.heroDividerCustomColor}
-      tagline={page.heroTagline}
-      taglineColor={page.heroTaglineColor}
-      backgroundColorType={page.heroBackgroundColorType}
-      backgroundColorShade={page.heroBackgroundColorShade}
-      backgroundCustomColor={page.heroBackgroundCustomColor}
-    />
-  )}
+  {
+    page?.heroHeading && (
+      <InternalPageHero
+        heading={page.heroHeading}
+        headingHighlight={page.heroHeadingHighlight}
+        highlightColorType={page.heroHighlightColorType}
+        highlightColorShade={page.heroHighlightColorShade}
+        highlightCustomColor={page.heroHighlightCustomColor}
+        showDivider={page.heroShowDivider}
+        dividerColorType={page.heroDividerColorType}
+        dividerColorShade={page.heroDividerColorShade}
+        dividerCustomColor={page.heroDividerCustomColor}
+        tagline={page.heroTagline}
+        taglineColor={page.heroTaglineColor}
+        backgroundColorType={page.heroBackgroundColorType}
+        backgroundColorShade={page.heroBackgroundColorShade}
+        backgroundCustomColor={page.heroBackgroundCustomColor}
+      />
+    )
+  }
 
   {/* Intro Section */}
-  {(page?.introTitle || page?.introDescription) && (
-    <section class="case-studies-intro">
-      <div class="container">
-        {page.introTitle && (
-          <h2 class="intro-title" style={`color: ${introTitleColor}`}>
-            {page.introTitle}
-          </h2>
-        )}
-        {page.introDescription && (
-          <p class="intro-description" style={`color: ${introDescriptionColorResolved}`}>
-            {page.introDescription}
-          </p>
-        )}
-      </div>
-    </section>
-  )}
+  {
+    (page?.introTitle || page?.introDescription) && (
+      <section class="case-studies-intro">
+        <div class="container">
+          <div class="intro-grid">
+            {page.introTitle && (
+              <div class="intro-left">
+                <SectionTitle
+                  title={page.introTitle}
+                  align="left"
+                  color={introTitleColor}
+                  class="intro-title"
+                />
+              </div>
+            )}
+            <div class="intro-right">
+              {page.introDescription && (
+                <p
+                  class="intro-description"
+                  style={`color: ${introDescriptionColorResolved}`}
+                >
+                  {page.introDescription}
+                </p>
+              )}
+              {page.introFooter && (
+                <p class="intro-footer" style={`color: ${introFooterColor}`}>
+                  {page.introFooter}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   {/* Filter Bar */}
-  {services && services.length > 0 && (
-    <div class="filter-bar" style={filterCssVars}>
-      <div class="container">
-        <div class="filter-buttons">
-          <button data-filter="all" class="filter-btn active">All</button>
-          {services.map((service: { _id: string; title: string }) => (
-            <button data-filter={service._id} class="filter-btn">
-              {service.title}
+  {
+    services && services.length > 0 && (
+      <div class="filter-bar" style={filterCssVars}>
+        <div class="container">
+          <div class="filter-buttons">
+            <button data-filter="all" class="filter-btn active">
+              All
             </button>
-          ))}
+            {services.map((service: { _id: string; title: string }) => (
+              <button data-filter={service._id} class="filter-btn">
+                {service.title}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  )}
+    )
+  }
 
   {/* Case Studies Grid */}
   <section class="case-studies-content">
     <div class="container">
       <div class="case-studies-grid" data-animate="case-study-grid">
-        {caseStudies.map((caseStudy: any) => (
-          <div
-            class="case-study-wrapper"
-            data-service-id={caseStudy.relatedService?._id}
-          >
-            <CaseStudyCard
-              mainImage={caseStudy.mainImage}
-              icon={caseStudy.icon}
-              category={caseStudy.category}
-              client={caseStudy.client}
-              role={caseStudy.role}
-              overlayColorType={caseStudy.overlayColorType}
-              overlayColorShade={caseStudy.overlayColorShade}
-              overlayCustomColor={caseStudy.overlayCustomColor}
-              overlayOpacity={caseStudy.overlayOpacity}
-              iconBgColorType={caseStudy.iconBgColorType}
-              iconBgColorShade={caseStudy.iconBgColorShade}
-              iconBgCustomColor={caseStudy.iconBgCustomColor}
-              iconColorType={caseStudy.iconColorType}
-              iconColorShade={caseStudy.iconColorShade}
-              iconCustomColor={caseStudy.iconCustomColor}
-              categoryColor={caseStudy.categoryColor}
-              clientColor={caseStudy.clientColor}
-              roleColor={caseStudy.roleColor}
-              date={caseStudy.date}
-              description={caseStudy.description}
-              contributionsTitle={caseStudy.contributionsTitle}
-              contributions={caseStudy.contributions}
-              contentBgColorType={caseStudy.contentBgColorType}
-              contentBgColorShade={caseStudy.contentBgColorShade}
-              contentBgCustomColor={caseStudy.contentBgCustomColor}
-              dateColor={caseStudy.dateColor}
-              descriptionColor={caseStudy.descriptionColor}
-              contributionsTitleColorType={caseStudy.contributionsTitleColorType}
-              contributionsTitleColorShade={caseStudy.contributionsTitleColorShade}
-              contributionsTitleCustomColor={caseStudy.contributionsTitleCustomColor}
-              contributionsTextColor={caseStudy.contributionsTextColor}
-              bulletColorType={caseStudy.bulletColorType}
-              bulletColorShade={caseStudy.bulletColorShade}
-              bulletCustomColor={caseStudy.bulletCustomColor}
-            />
-          </div>
-        ))}
+        {
+          caseStudies.map((caseStudy: any) => (
+            <div
+              class="case-study-wrapper"
+              data-service-id={caseStudy.relatedService?._id}
+            >
+              <CaseStudyCard
+                mainImage={caseStudy.mainImage}
+                icon={caseStudy.icon}
+                category={caseStudy.category}
+                client={caseStudy.client}
+                role={caseStudy.role}
+                overlayColorType={caseStudy.overlayColorType}
+                overlayColorShade={caseStudy.overlayColorShade}
+                overlayCustomColor={caseStudy.overlayCustomColor}
+                overlayOpacity={caseStudy.overlayOpacity}
+                iconBgColorType={caseStudy.iconBgColorType}
+                iconBgColorShade={caseStudy.iconBgColorShade}
+                iconBgCustomColor={caseStudy.iconBgCustomColor}
+                iconColorType={caseStudy.iconColorType}
+                iconColorShade={caseStudy.iconColorShade}
+                iconCustomColor={caseStudy.iconCustomColor}
+                categoryColor={caseStudy.categoryColor}
+                clientColor={caseStudy.clientColor}
+                roleColor={caseStudy.roleColor}
+                date={caseStudy.date}
+                description={caseStudy.description}
+                contributionsTitle={caseStudy.contributionsTitle}
+                contributions={caseStudy.contributions}
+                contentBgColorType={caseStudy.contentBgColorType}
+                contentBgColorShade={caseStudy.contentBgColorShade}
+                contentBgCustomColor={caseStudy.contentBgCustomColor}
+                dateColor={caseStudy.dateColor}
+                descriptionColor={caseStudy.descriptionColor}
+                contributionsTitleColorType={
+                  caseStudy.contributionsTitleColorType
+                }
+                contributionsTitleColorShade={
+                  caseStudy.contributionsTitleColorShade
+                }
+                contributionsTitleCustomColor={
+                  caseStudy.contributionsTitleCustomColor
+                }
+                contributionsTextColor={caseStudy.contributionsTextColor}
+                bulletColorType={caseStudy.bulletColorType}
+                bulletColorShade={caseStudy.bulletColorShade}
+                bulletCustomColor={caseStudy.bulletCustomColor}
+              />
+            </div>
+          ))
+        }
       </div>
 
-      {caseStudies.length === 0 && (
-        <p class="no-results">No case studies available yet.</p>
-      )}
+      {
+        caseStudies.length === 0 && (
+          <p class="no-results">No case studies available yet.</p>
+        )
+      }
     </div>
   </section>
 </BaseLayout>
@@ -193,23 +240,46 @@ const filterCssVars = [
   /* Intro Section */
   .case-studies-intro {
     padding-block: var(--space-xl);
-    text-align: center;
   }
 
-  .intro-title {
-    font-family: var(--font-heading);
-    font-size: var(--font-size-3xl);
-    font-weight: 500;
+  .intro-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  @media (min-width: 768px) {
+    .intro-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-xl);
+    }
+  }
+
+  .intro-left {
+    /* Left column container */
+  }
+
+  .intro-left :global(.intro-title) {
+    margin-block-end: 0;
+  }
+
+  .intro-right {
+    /* Right column container */
+  }
+
+  .intro-description {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-relaxed);
     margin: 0;
     margin-block-end: var(--space-md);
   }
 
-  .intro-description {
-    font-size: var(--font-size-lg);
-    line-height: var(--line-height-relaxed);
-    max-inline-size: 65ch;
-    margin-inline: auto;
-    margin-block: 0;
+  .intro-footer {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-sm);
+    font-style: italic;
+    font-weight: 500;
+    margin: 0;
   }
 
   /* Filter Bar */
