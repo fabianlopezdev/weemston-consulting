@@ -18,9 +18,16 @@ export default defineType({
           { title: 'Primary', value: 'primary' },
           { title: 'Secondary', value: 'secondary' },
           { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
         ],
       },
       initialValue: 'accent',
+    },
+    {
+      name: 'customColor',
+      title: 'Custom Color',
+      type: 'simplerColor',
+      hidden: ({ parent }) => parent?.colorType !== 'custom',
     },
     {
       name: 'shade',
@@ -40,21 +47,30 @@ export default defineType({
     select: {
       colorType: 'colorType',
       shade: 'shade',
+      customColor: 'customColor',
     },
-    prepare({ colorType, shade }) {
+    prepare({ colorType, shade, customColor }) {
       const colorLabels: Record<string, string> = {
         primary: 'Primary',
         secondary: 'Secondary',
         accent: 'Accent',
+        custom: 'Custom',
       };
 
       const label = colorLabels[colorType] || 'Accent';
       const shadeValue = shade ?? 0;
-      const shadeLabel = shadeValue > 0 ? ` (${shadeValue}% lighter)` : '';
+      const shadeLabel =
+        colorType !== 'custom' && shadeValue > 0
+          ? ` (${shadeValue}% lighter)`
+          : '';
+      const customLabel =
+        colorType === 'custom' && customColor?.value
+          ? ` (${customColor.value})`
+          : '';
 
       return {
         title: 'Button Color',
-        subtitle: `${label}${shadeLabel}`,
+        subtitle: `${label}${shadeLabel}${customLabel}`,
       };
     },
   },

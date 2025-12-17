@@ -417,8 +417,6 @@ const pageSectionsQuery = `
         _key,
         ${imageProjection}
       },
-      overlayStyle,
-      overlayOpacity,
       showDescription,
       description,
       showCta,
@@ -661,8 +659,6 @@ export const approachPageQuery = groq`
       _key,
       ${imageProjection}
     },
-    collageOverlayStyle,
-    collageOverlayOpacity,
     collageShowDescription,
     collageDescription,
     collageShowCta,

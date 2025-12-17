@@ -16,11 +16,6 @@ export default defineType({
         'Add images that will display in a seamless horizontal strip behind the tagline.',
     },
     {
-      name: 'overlay',
-      title: 'Text Overlay Style',
-      options: { collapsible: true, collapsed: true },
-    },
-    {
       name: 'extras',
       title: 'Description & CTA',
       options: { collapsible: true, collapsed: true },
@@ -114,32 +109,6 @@ export default defineType({
           }
           return true;
         }),
-      hidden: ({ parent }) => !parent?.enabled,
-    },
-    {
-      name: 'overlayStyle',
-      title: 'Overlay Style',
-      type: 'string',
-      fieldset: 'overlay',
-      options: {
-        list: [
-          { title: 'Frosted Glass', value: 'frosted' },
-          { title: 'Dark Gradient', value: 'gradient' },
-          { title: 'Solid Dark', value: 'solid' },
-        ],
-        layout: 'radio',
-      },
-      initialValue: 'frosted',
-      hidden: ({ parent }) => !parent?.enabled,
-    },
-    {
-      name: 'overlayOpacity',
-      title: 'Overlay Opacity',
-      type: 'number',
-      fieldset: 'overlay',
-      description: 'Adjust the darkness of the overlay (0-100)',
-      initialValue: 60,
-      validation: (Rule) => Rule.min(0).max(100).integer(),
       hidden: ({ parent }) => !parent?.enabled,
     },
     // Description fields

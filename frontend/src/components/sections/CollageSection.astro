@@ -46,8 +46,6 @@ interface Props {
   taglineSize?: 'medium' | 'large' | 'xlarge';
   useAsSectionTitle?: boolean;
   images: CollageImage[];
-  overlayStyle?: 'frosted' | 'gradient' | 'solid';
-  overlayOpacity?: number;
   showDescription?: boolean;
   description?: string;
   showCta?: boolean;
@@ -59,13 +57,14 @@ const {
   taglineSize = 'large',
   useAsSectionTitle = false,
   images = [],
-  overlayStyle = 'frosted',
-  overlayOpacity = 30,
   showDescription = false,
   description,
   showCta = false,
   ctaButton,
 } = Astro.props;
+
+// Hardcoded overlay settings (matching deployed defaults)
+const overlayOpacity = 60;
 
 // Generate optimized image URLs
 const imageUrls = images.map((img) => ({
@@ -152,7 +151,7 @@ const iconPaths: Record<string, string> = {
 };
 ---
 
-<section class="collage" data-overlay-style={overlayStyle}>
+<section class="collage">
   <div class="collage__track">
     {
       duplicatedImages.map((img, index) => (
@@ -376,10 +375,11 @@ const iconPaths: Record<string, string> = {
     align-items: center;
     gap: 0.5rem;
     margin-top: var(--space-md);
-    padding: var(--space-sm) var(--space-lg);
+    padding: var(--button-padding-vertical, var(--space-md))
+      var(--button-padding-horizontal, var(--space-lg));
     background-color: var(--btn-bg, var(--color-accent));
     color: var(--btn-text, var(--color-text-contrast));
-    border-radius: 4px;
+    border-radius: var(--button-border-radius, 4px);
     text-decoration: none;
     font-weight: 600;
     font-size: 1rem;

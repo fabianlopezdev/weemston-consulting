@@ -6,6 +6,7 @@ interface ButtonColorValue {
   colorType?: string;
   shade?: number;
   useBaseTextColor?: boolean;
+  customColor?: { label?: string; value?: string };
 }
 
 interface SiteColors {
@@ -64,8 +65,18 @@ function getBaseColor(colorType: string, siteColors: SiteColors | null): string 
   return (DEFAULT_COLORS as Record<string, string>)[colorType] ?? DEFAULT_COLORS.accent;
 }
 
-// Calculate the preview color based on colorType, shade, and site colors
-function getPreviewColor(colorType: string, shade: number, siteColors: SiteColors | null): string {
+// Calculate the preview color based on colorType, shade, site colors, and custom color
+function getPreviewColor(
+  colorType: string,
+  shade: number,
+  siteColors: SiteColors | null,
+  customColor?: { label?: string; value?: string }
+): string {
+  // Handle custom color
+  if (colorType === 'custom' && customColor?.value) {
+    return customColor.value;
+  }
+
   const baseColor = getBaseColor(colorType, siteColors);
 
   if (shade > 0) {
@@ -123,6 +134,7 @@ export function ButtonColorInput(props: ObjectInputProps) {
   const colorType = buttonColor.colorType || 'accent';
   const shade = buttonColor.shade ?? 0;
   const useBaseTextColor = buttonColor.useBaseTextColor ?? false;
+  const customColor = buttonColor.customColor;
 
   const handleColorTypeChange = useCallback(
     (newColorType: string) => {
@@ -161,7 +173,20 @@ export function ButtonColorInput(props: ObjectInputProps) {
     [onChange, buttonColor]
   );
 
-  const previewColor = getPreviewColor(colorType, shade, siteColors);
+  const handleCustomColorChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newColor = event.target.value;
+      onChange(
+        set({
+          ...buttonColor,
+          customColor: { value: newColor },
+        })
+      );
+    },
+    [onChange, buttonColor]
+  );
+
+  const previewColor = getPreviewColor(colorType, shade, siteColors, customColor);
   const textColor = useBaseTextColor ? '#1a1a1a' : '#ffffff';
 
   // Use real button styles or defaults
@@ -177,7 +202,7 @@ export function ButtonColorInput(props: ObjectInputProps) {
           Color
         </Text>
         <Inline space={4}>
-          {(['primary', 'secondary', 'accent'] as const).map((type) => (
+          {(['primary', 'secondary', 'accent', 'custom'] as const).map((type) => (
             <Flex key={type} align="center" gap={2}>
               <Radio
                 checked={colorType === type}
@@ -196,37 +221,66 @@ export function ButtonColorInput(props: ObjectInputProps) {
         </Inline>
       </Stack>
 
-      {/* Shade Slider */}
-      <Stack space={2}>
-        <Text size={1} weight="semibold">
-          Shade
-        </Text>
-        <Flex align="center" gap={3}>
-          <Text size={1} muted>
-            Base
+      {/* Custom Color Picker */}
+      {colorType === 'custom' && (
+        <Stack space={2}>
+          <Text size={1} weight="semibold">
+            Custom Color
           </Text>
-          <Box style={{ flex: 1 }}>
+          <Flex align="center" gap={3}>
             <input
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              value={shade}
-              onChange={handleShadeChange}
+              type="color"
+              value={customColor?.value || '#4ecdc4'}
+              onChange={handleCustomColorChange}
               style={{
-                width: '100%',
+                width: '48px',
+                height: '32px',
+                padding: '2px',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
                 cursor: 'pointer',
               }}
             />
-          </Box>
-          <Text size={1} muted>
-            Light
+            <Text size={1} muted>
+              {customColor?.value || '#4ecdc4'}
+            </Text>
+          </Flex>
+        </Stack>
+      )}
+
+      {/* Shade Slider (only for theme colors, not custom) */}
+      {colorType !== 'custom' && (
+        <Stack space={2}>
+          <Text size={1} weight="semibold">
+            Shade
           </Text>
-        </Flex>
-        <Text size={1} muted>
-          {shade}%
-        </Text>
-      </Stack>
+          <Flex align="center" gap={3}>
+            <Text size={1} muted>
+              Base
+            </Text>
+            <Box style={{ flex: 1 }}>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={shade}
+                onChange={handleShadeChange}
+                style={{
+                  width: '100%',
+                  cursor: 'pointer',
+                }}
+              />
+            </Box>
+            <Text size={1} muted>
+              Light
+            </Text>
+          </Flex>
+          <Text size={1} muted>
+            {shade}%
+          </Text>
+        </Stack>
+      )}
 
       {/* Text Color Selection */}
       <Stack space={2}>
