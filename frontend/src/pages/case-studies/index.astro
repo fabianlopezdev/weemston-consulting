@@ -26,6 +26,58 @@ const [page, services, settings] = await Promise.all([
 ]);
 
 const caseStudies = page?.caseStudies || [];
+const testimonials = page?.testimonials || [];
+
+// Helper to normalize company names for fuzzy matching
+function normalizeCompanyName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(
+      /\b(ltd|limited|inc|incorporated|corp|corporation|llc|global|group|co|company)\b/gi,
+      ''
+    )
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
+}
+
+// Helper to extract first sentence from quote
+function getFirstSentence(quote: string): string {
+  const match = quote.match(/^[^.!?]+[.!?]/);
+  return match ? match[0].trim() : (quote.split('.')[0] || quote).trim();
+}
+
+// Build a map of case study ID to matching testimonial quote (first sentence)
+interface Testimonial {
+  _id: string;
+  company?: string;
+  quote: string;
+}
+
+const caseStudyQuotes = new Map<string, string>();
+
+caseStudies.forEach((cs: { _id: string; client: string }) => {
+  const normalizedClient = normalizeCompanyName(cs.client);
+
+  // Find matching testimonial - check if either name contains the other
+  const matchingTestimonial = (testimonials as Testimonial[]).find((t) => {
+    if (!t.company) return false;
+    const normalizedCompany = normalizeCompanyName(t.company);
+    return (
+      normalizedClient.includes(normalizedCompany) ||
+      normalizedCompany.includes(normalizedClient)
+    );
+  });
+
+  if (matchingTestimonial) {
+    caseStudyQuotes.set(cs._id, getFirstSentence(matchingTestimonial.quote));
+  }
+});
+
+// Add quote to each case study for the modal
+const caseStudiesWithQuotes = caseStudies.map((cs: any) => ({
+  ...cs,
+  testimonialQuote: caseStudyQuotes.get(cs._id),
+}));
 
 const siteColors = settings?.colors;
 
@@ -239,7 +291,7 @@ const filterCssVars = [
 
   {/* Case Study Modal */}
   <CaseStudyModal
-    caseStudies={caseStudies}
+    caseStudies={caseStudiesWithQuotes}
     leftPanelBgColorType={page?.modalLeftBgColorType}
     leftPanelBgColorShade={page?.modalLeftBgColorShade}
     leftPanelBgCustomColor={page?.modalLeftBgCustomColor}

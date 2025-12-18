@@ -599,6 +599,12 @@ export const caseStudiesPageQuery = groq`
       contributions,
       relatedService-> { _id, title }
     },
+    // All testimonials for matching with case studies
+    "testimonials": *[_type == "testimonial"] {
+      _id,
+      company,
+      quote
+    },
     // SEO
     metaDescription,
     ogImage
