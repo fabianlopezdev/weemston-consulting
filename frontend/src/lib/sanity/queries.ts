@@ -549,22 +549,112 @@ export const contactPageQuery = groq`
   }
 `;
 
-// About Page (singleton per language)
+// About Page (singleton)
 export const aboutPageQuery = groq`
-  *[_id == $documentId][0] {
+  *[_type == "aboutPage"][0] {
     _id,
     title,
-    language,
-    hero {
-      tagline,
-      taglineColor,
-      heading,
-      headingColor,
-      ${backgroundSettingsProjection}
-    },
-    content,
     metaDescription,
-    ogImage
+    ogImage,
+    // Hero Section
+    heroBackgroundColorType,
+    heroBackgroundColorMode,
+    heroBackgroundColorShade,
+    heroBackgroundCustomColor { label, value },
+    heroBackgroundGradient {
+      ${gradientProjection}
+    },
+    heroHeading,
+    heroHeadingHighlight,
+    heroHighlightColorType,
+    heroHighlightColorShade,
+    heroHighlightCustomColor { label, value },
+    heroShowDivider,
+    heroDividerColorType,
+    heroDividerColorShade,
+    heroDividerCustomColor { label, value },
+    heroTagline,
+    heroTaglineColor,
+    // Bio Section
+    bioBackgroundColorType,
+    bioBackgroundColorMode,
+    bioBackgroundColorShade,
+    bioBackgroundCustomColor { label, value },
+    bioBackgroundGradient {
+      ${gradientProjection}
+    },
+    bioImage {
+      ${imageProjection}
+    },
+    bioLabel,
+    bioLabelColorType,
+    bioLabelColorShade,
+    bioLabelCustomColor { label, value },
+    bioName,
+    bioNameColorType,
+    bioNameColorShade,
+    bioNameCustomColor { label, value },
+    bioDescription,
+    bioDescriptionColor,
+    // Info Grid Section
+    infoGridBackgroundColorType,
+    infoGridBackgroundColorMode,
+    infoGridBackgroundColorShade,
+    infoGridBackgroundCustomColor { label, value },
+    infoGridBackgroundGradient {
+      ${gradientProjection}
+    },
+    infoCards[] {
+      _key,
+      icon { name },
+      iconColorType,
+      iconColorShade,
+      iconCustomColor { label, value },
+      title,
+      titleColorType,
+      titleColorShade,
+      titleCustomColor { label, value },
+      content
+    },
+    // Global Perspective Section
+    globalBackgroundColorType,
+    globalBackgroundColorMode,
+    globalBackgroundColorShade,
+    globalBackgroundCustomColor { label, value },
+    globalBackgroundGradient {
+      ${gradientProjection}
+    },
+    globalIcon { name },
+    globalIconColorType,
+    globalIconColorShade,
+    globalIconCustomColor { label, value },
+    globalTitle,
+    globalTitleColorType,
+    globalTitleColorShade,
+    globalTitleCustomColor { label, value },
+    globalDescription,
+    globalDescriptionColor,
+    // Trusted By Section
+    trustedByBackgroundColorType,
+    trustedByBackgroundColorMode,
+    trustedByBackgroundColorShade,
+    trustedByBackgroundCustomColor { label, value },
+    trustedByBackgroundGradient {
+      ${gradientProjection}
+    },
+    trustedByTitle,
+    trustedByShowTitle,
+    trustedByTitleColorType,
+    trustedByTitleColorShade,
+    trustedByTitleCustomColor { label, value },
+    trustedByCaseStudies[]-> {
+      _id,
+      client,
+      clientLogo {
+        asset->{ _id, url, metadata { dimensions { width, height, aspectRatio } } },
+        alt, hotspot, crop
+      }
+    }
   }
 `;
 
