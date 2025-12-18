@@ -3,11 +3,18 @@ import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import PortableText from '@components/sanity/PortableText.astro';
+import Quote from '@components/ui/Quote.astro';
 import type { PortableTextBlock } from '@portabletext/types';
 
 interface ColorData {
   label?: string;
   value: string;
+}
+
+interface TestimonialData {
+  quote: string;
+  authorName: string;
+  authorPosition?: string | undefined;
 }
 
 interface CaseStudyData {
@@ -18,7 +25,7 @@ interface CaseStudyData {
   description?: PortableTextBlock[];
   contributionsTitle?: string;
   contributions?: string[];
-  testimonialQuote?: string;
+  testimonial?: TestimonialData;
 }
 
 interface Props {
@@ -230,10 +237,16 @@ const modalCssVars = [
                 )}
               </div>
 
-              {cs.testimonialQuote && (
-                <blockquote class="case-study-modal__quote">
-                  "{cs.testimonialQuote}"
-                </blockquote>
+              {cs.testimonial && (
+                <div class="case-study-modal__quote-wrapper">
+                  <Quote
+                    text={cs.testimonial.quote}
+                    authorName={cs.testimonial.authorName}
+                    authorPosition={cs.testimonial.authorPosition}
+                    textColor="var(--color-text-muted)"
+                    borderColor="var(--modal-divider)"
+                  />
+                </div>
               )}
             </div>
 
@@ -413,13 +426,7 @@ const modalCssVars = [
     margin-block-end: var(--space-md);
   }
 
-  .case-study-modal__quote {
-    font-family: var(--font-heading);
-    font-size: var(--font-size-base);
-    font-style: italic;
-    line-height: var(--line-height-relaxed);
-    color: var(--color-text-muted);
-    margin: 0;
+  .case-study-modal__quote-wrapper {
     margin-block-start: auto;
     padding-block-start: var(--space-lg);
   }

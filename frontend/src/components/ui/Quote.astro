@@ -3,13 +3,24 @@ interface Props {
   text: string;
   textColor?: string;
   borderColor?: string;
+  authorName?: string;
+  authorPosition?: string | undefined;
+  authorColor?: string;
 }
 
-const { text, textColor = 'rgb(203 213 225)', borderColor } = Astro.props;
+const {
+  text,
+  textColor = 'rgb(203 213 225)',
+  borderColor,
+  authorName,
+  authorPosition,
+  authorColor,
+} = Astro.props;
 
 const cssVars = [
   textColor ? `--quote-text-color: ${textColor}` : null,
   borderColor ? `--quote-border-color: ${borderColor}` : null,
+  authorColor ? `--quote-author-color: ${authorColor}` : null,
 ]
   .filter(Boolean)
   .join('; ');
@@ -17,6 +28,16 @@ const cssVars = [
 
 <blockquote class="quote" style={cssVars}>
   <p>"{text}"</p>
+  {
+    authorName && (
+      <footer class="quote__author">
+        <span class="quote__author-name">{authorName}</span>
+        {authorPosition && (
+          <span class="quote__author-position">{authorPosition}</span>
+        )}
+      </footer>
+    )
+  }
 </blockquote>
 
 <style>
@@ -32,5 +53,24 @@ const cssVars = [
 
   .quote p {
     margin: 0;
+  }
+
+  .quote__author {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs, 0.125rem);
+    margin-block-start: var(--space-sm);
+    font-style: normal;
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--quote-author-color, var(--quote-text-color));
+  }
+
+  .quote__author-name {
+    font-weight: 600;
+  }
+
+  .quote__author-position {
+    opacity: 0.7;
   }
 </style>

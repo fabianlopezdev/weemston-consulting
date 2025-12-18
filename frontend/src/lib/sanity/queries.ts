@@ -602,6 +602,8 @@ export const caseStudiesPageQuery = groq`
     // All testimonials for matching with case studies
     "testimonials": *[_type == "testimonial"] {
       _id,
+      name,
+      position,
       company,
       quote
     },

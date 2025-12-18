@@ -46,14 +46,22 @@ function getFirstSentence(quote: string): string {
   return match ? match[0].trim() : (quote.split('.')[0] || quote).trim();
 }
 
-// Build a map of case study ID to matching testimonial quote (first sentence)
+// Build a map of case study ID to matching testimonial data
 interface Testimonial {
   _id: string;
+  name: string;
+  position?: string;
   company?: string;
   quote: string;
 }
 
-const caseStudyQuotes = new Map<string, string>();
+interface TestimonialMatch {
+  quote: string;
+  authorName: string;
+  authorPosition?: string | undefined;
+}
+
+const caseStudyTestimonials = new Map<string, TestimonialMatch>();
 
 caseStudies.forEach((cs: { _id: string; client: string }) => {
   const normalizedClient = normalizeCompanyName(cs.client);
@@ -69,14 +77,18 @@ caseStudies.forEach((cs: { _id: string; client: string }) => {
   });
 
   if (matchingTestimonial) {
-    caseStudyQuotes.set(cs._id, getFirstSentence(matchingTestimonial.quote));
+    caseStudyTestimonials.set(cs._id, {
+      quote: getFirstSentence(matchingTestimonial.quote),
+      authorName: matchingTestimonial.name,
+      authorPosition: matchingTestimonial.position,
+    });
   }
 });
 
-// Add quote to each case study for the modal
+// Add testimonial data to each case study for the modal
 const caseStudiesWithQuotes = caseStudies.map((cs: any) => ({
   ...cs,
-  testimonialQuote: caseStudyQuotes.get(cs._id),
+  testimonial: caseStudyTestimonials.get(cs._id),
 }));
 
 const siteColors = settings?.colors;
