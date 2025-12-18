@@ -93,7 +93,6 @@ export default defineType({
       title: 'Background Image',
       type: 'image',
       group: 'image',
-      group: 'image',
       fieldset: 'imageSection',
       description:
         'Full-width background image. For best performance, use WebP format.',
@@ -121,7 +120,6 @@ export default defineType({
       name: 'overlayColorType',
       title: 'Overlay Color',
       type: 'string',
-      group: 'image',
       group: 'image',
       fieldset: 'imageSection',
       description: 'Color for the gradient overlay on the image',
