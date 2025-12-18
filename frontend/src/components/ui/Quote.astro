@@ -6,6 +6,7 @@ interface Props {
   authorName?: string;
   authorPosition?: string | undefined;
   authorColor?: string;
+  size?: 'default' | 'sm';
 }
 
 const {
@@ -15,6 +16,7 @@ const {
   authorName,
   authorPosition,
   authorColor,
+  size = 'default',
 } = Astro.props;
 
 const cssVars = [
@@ -26,7 +28,10 @@ const cssVars = [
   .join('; ');
 ---
 
-<blockquote class="quote" style={cssVars}>
+<blockquote
+  class:list={['quote', { 'quote--sm': size === 'sm' }]}
+  style={cssVars}
+>
   <p>"{text}"</p>
   {
     authorName && (
@@ -72,5 +77,14 @@ const cssVars = [
 
   .quote__author-position {
     opacity: 0.7;
+  }
+
+  /* Small variant */
+  .quote--sm {
+    font-size: var(--font-size-base);
+  }
+
+  .quote--sm .quote__author {
+    font-size: var(--font-size-xs);
   }
 </style>
