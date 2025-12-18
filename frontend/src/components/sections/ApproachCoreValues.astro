@@ -267,48 +267,58 @@ const sectionCssVars = [
   import { ANIMATION_CONFIG } from '@lib/animation/config';
 
   setupAnimationLifecycle(() => {
+    const grid = document.querySelector('.core-values__grid');
     const cards = document.querySelectorAll('.core-values__card');
-    const icons = document.querySelectorAll('.core-values__icon-wrapper');
 
-    if (cards.length === 0) return;
+    if (!grid || cards.length === 0) return;
 
     // Initial states
     gsap.set(cards, { opacity: 0, y: 50 });
-    gsap.set(icons, { scale: 0.8, rotation: -10 });
+    cards.forEach((card) => {
+      const icon = card.querySelector('.core-values__icon-wrapper');
+      if (icon) {
+        gsap.set(icon, { scale: 0.8, rotation: -10 });
+      }
+    });
 
-    // Staggered card entrance
+    // Create timeline for sequential card entrance
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: grid,
+        start: 'top 80%',
+        once: true,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      },
+    });
+
+    // Animate cards one at a time with stagger
     cards.forEach((card, index) => {
       const icon = card.querySelector('.core-values__icon-wrapper');
+      const startTime = index * 0.6; // Each card starts 0.6s after the previous
 
-      gsap.to(card, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: card,
-          start: 'top 85%',
-          once: true,
-          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      tl.to(
+        card,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out',
         },
-        delay: index * 0.1,
-      });
+        startTime
+      );
 
-      // Icon pops in slightly after card
+      // Icon pops in slightly after card starts
       if (icon) {
-        gsap.to(icon, {
-          scale: 1,
-          rotation: 0,
-          duration: 0.5,
-          ease: 'back.out(1.7)',
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 85%',
-            once: true,
-            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+        tl.to(
+          icon,
+          {
+            scale: 1,
+            rotation: 0,
+            duration: 0.6,
+            ease: 'back.out(1.7)',
           },
-          delay: index * 0.1 + 0.2,
-        });
+          startTime + 0.25
+        );
       }
     });
   });
