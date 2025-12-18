@@ -7,6 +7,8 @@ import {
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import { Icon } from 'astro-icon/components';
+import PortableText from '@components/sanity/PortableText.astro';
+import type { PortableTextBlock } from '@portabletext/types';
 
 interface ColorData {
   label?: string;
@@ -34,7 +36,7 @@ interface Props {
     | 'custom';
   leftHeadingColorShade?: number;
   leftHeadingCustomColor?: ColorData;
-  leftDescription?: string;
+  leftDescription?: PortableTextBlock[];
   leftDescriptionColorType?:
     | 'white'
     | 'muted'
@@ -98,7 +100,7 @@ const {
   leftHeadingColorType = 'white',
   leftHeadingColorShade = 0,
   leftHeadingCustomColor,
-  leftDescription = "Whether you're exploring operational support, strategic project leadership, or help designing an impactful convening, we'd love to hear from you.",
+  leftDescription,
   leftDescriptionColorType = 'muted',
   leftDescriptionColorShade = 0,
   leftDescriptionCustomColor,
@@ -271,7 +273,13 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
   <div class="contact-section__left">
     <div class="contact-section__left-content">
       <h1 class="contact-section__heading">{leftHeading}</h1>
-      <p class="contact-section__description">{leftDescription}</p>
+      {
+        leftDescription && leftDescription.length > 0 && (
+          <div class="contact-section__description">
+            <PortableText content={leftDescription} />
+          </div>
+        )
+      }
 
       {
         leftQuote && (
@@ -283,7 +291,7 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
 
       <div class="contact-section__contact-info">
         <a href={`mailto:${email}`} class="contact-section__email-link">
-          <Icon name="mail" size={20} />
+          <Icon name="lucide:mail" size={20} />
           <span>{email}</span>
         </a>
       </div>
@@ -417,6 +425,19 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
     color: var(--description-color);
     line-height: 1.75;
     margin-bottom: var(--space-xl);
+  }
+
+  .contact-section__description :global(p) {
+    color: inherit;
+    margin-bottom: var(--space-md);
+  }
+
+  .contact-section__description :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .contact-section__description :global(strong) {
+    font-weight: 600;
   }
 
   .contact-section__quote {

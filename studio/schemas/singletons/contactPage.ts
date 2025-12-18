@@ -160,12 +160,10 @@ export default defineType({
     {
       name: 'leftDescription',
       title: 'Description',
-      type: 'text',
-      rows: 4,
+      type: 'array',
+      of: [{ type: 'block' }],
       group: 'leftPanel',
       fieldset: 'leftPanelFields',
-      initialValue:
-        "Whether you're exploring operational support, strategic project leadership, or help designing an impactful convening, we'd love to hear from you.",
     },
     {
       name: 'leftDescriptionColorType',
