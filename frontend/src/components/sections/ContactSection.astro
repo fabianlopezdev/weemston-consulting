@@ -331,7 +331,6 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
             class="contact-section__input"
             placeholder={formNamePlaceholder}
             required
-            style={`--btn-radius: ${buttonRadius}px`}
           />
         </div>
 
@@ -346,7 +345,6 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
             class="contact-section__input"
             placeholder={formEmailPlaceholder}
             required
-            style={`--btn-radius: ${buttonRadius}px`}
           />
         </div>
 
@@ -360,8 +358,7 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
             rows="4"
             class="contact-section__textarea"
             placeholder={formMessagePlaceholder}
-            required
-            style={`--btn-radius: ${buttonRadius}px`}></textarea>
+            required></textarea>
         </div>
 
         <button
@@ -411,14 +408,8 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
     margin: 0 auto;
   }
 
-  @media (min-width: 768px) {
-    .contact-section__left-content {
-      margin: 0;
-    }
-  }
-
   .contact-section__heading {
-    font-family: var(--font-serif);
+    font-family: var(--font-heading);
     font-size: clamp(2rem, 5vw, 3rem);
     color: var(--heading-color);
     margin-bottom: var(--space-lg);
@@ -515,7 +506,7 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
     width: 100%;
     padding: 0.75rem 1rem;
     border: 1px solid rgb(209 213 219);
-    border-radius: var(--btn-radius, 6px);
+    border-radius: var(--border-radius-card);
     font-size: 1rem;
     font-family: inherit;
     background-color: white;
