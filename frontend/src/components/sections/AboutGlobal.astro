@@ -1,0 +1,241 @@
+---
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import { Icon } from 'astro-icon/components';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
+interface Props {
+  icon?: { name: string };
+  iconColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  iconColorShade?: number;
+  iconCustomColor?: ColorData;
+  title?: string;
+  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  titleColorShade?: number;
+  titleCustomColor?: ColorData;
+  description?: string;
+  descriptionColor?: 'base' | 'muted' | 'contrast';
+  backgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  backgroundColorMode?: 'solid' | 'gradient';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
+}
+
+const {
+  icon,
+  iconColorType = 'accent',
+  iconColorShade = 0,
+  iconCustomColor,
+  title,
+  titleColorType = 'accent',
+  titleColorShade = 100,
+  titleCustomColor,
+  description,
+  descriptionColor = 'contrast',
+  backgroundColorType = 'primary',
+  backgroundColorMode = 'solid',
+  backgroundColorShade = 0,
+  backgroundCustomColor,
+  backgroundGradient,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color
+const backgroundColor =
+  backgroundColorMode === 'gradient' && backgroundGradient
+    ? `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`
+    : resolveColorSelection(
+        {
+          colorType: backgroundColorType,
+          shade: backgroundColorShade,
+          customColor: backgroundCustomColor,
+        },
+        siteColors
+      );
+
+// Resolve icon color
+const iconColor = resolveColorSelection(
+  {
+    colorType: iconColorType,
+    shade: iconColorShade,
+    customColor: iconCustomColor,
+  },
+  siteColors
+);
+
+// Resolve title color
+const titleColor = resolveColorSelection(
+  {
+    colorType: titleColorType,
+    shade: titleColorShade,
+    customColor: titleCustomColor,
+  },
+  siteColors
+);
+
+// Description color mapping
+const descriptionColorMap = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'rgba(255, 255, 255, 0.85)',
+};
+
+const cssVars = [
+  `--global-bg: ${backgroundColor}`,
+  `--global-icon-color: ${iconColor}`,
+  `--global-title-color: ${titleColor}`,
+  `--global-description-color: ${descriptionColorMap[descriptionColor]}`,
+]
+  .filter(Boolean)
+  .join('; ');
+---
+
+{
+  (title || description) && (
+    <section class="about-global" style={cssVars}>
+      <div class="container">
+        <div class="about-global__content">
+          {icon?.name && (
+            <div class="about-global__icon-wrapper">
+              <Icon
+                name={icon.name}
+                class="about-global__icon"
+                aria-hidden="true"
+              />
+            </div>
+          )}
+          {title && <h2 class="about-global__title">{title}</h2>}
+          {description && (
+            <p class="about-global__description">{description}</p>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .about-global {
+    background: var(--global-bg, var(--color-primary));
+    padding: clamp(3rem, 6vw, 5rem) 0;
+    text-align: center;
+  }
+
+  .about-global__content {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .about-global__icon-wrapper {
+    margin-bottom: 1.5rem;
+  }
+
+  .about-global__icon {
+    width: 48px;
+    height: 48px;
+    color: var(--global-icon-color, var(--color-accent));
+  }
+
+  .about-global__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3vw, 1.875rem);
+    font-weight: 500;
+    color: var(--global-title-color, white);
+    margin: 0 0 1.5rem;
+  }
+
+  .about-global__description {
+    font-size: 1.125rem;
+    color: var(--global-description-color, rgba(255, 255, 255, 0.85));
+    line-height: 1.7;
+    margin: 0;
+  }
+</style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const section = document.querySelector('.about-global');
+    const icon = document.querySelector('.about-global__icon-wrapper');
+    const title = document.querySelector('.about-global__title');
+    const description = document.querySelector('.about-global__description');
+
+    if (!section) return;
+
+    // Initial states
+    if (icon) gsap.set(icon, { opacity: 0, scale: 0.8 });
+    if (title) gsap.set(title, { opacity: 0, y: 20 });
+    if (description) gsap.set(description, { opacity: 0, y: 20 });
+
+    // Create timeline
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top 80%',
+        once: true,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      },
+    });
+
+    // Icon pops in
+    if (icon) {
+      tl.to(icon, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.5,
+        ease: 'back.out(1.7)',
+      });
+    }
+
+    // Title fades in
+    if (title) {
+      tl.to(
+        title,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+        },
+        '-=0.2'
+      );
+    }
+
+    // Description
+    if (description) {
+      tl.to(
+        description,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'power2.out',
+        },
+        '-=0.3'
+      );
+    }
+  });
+</script>

@@ -1,0 +1,434 @@
+---
+import { urlForImageWithSeoFilename } from '@lib/sanity/image';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ImageAsset {
+  _id: string;
+  url: string;
+  metadata?: {
+    lqip?: string;
+    dimensions?: {
+      width: number;
+      height: number;
+      aspectRatio: number;
+    };
+  };
+}
+
+interface SanityImage {
+  asset?: ImageAsset;
+  alt?: string;
+  seoFilename?: string;
+  hotspot?: { x: number; y: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
+interface Props {
+  image?: SanityImage;
+  label?: string;
+  labelColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  labelColorShade?: number;
+  labelCustomColor?: ColorData;
+  name?: string;
+  nameColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  nameColorShade?: number;
+  nameCustomColor?: ColorData;
+  description?: string;
+  descriptionColor?: 'base' | 'muted' | 'contrast';
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorMode?: 'solid' | 'gradient';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
+}
+
+const {
+  image,
+  label,
+  labelColorType = 'accent',
+  labelColorShade = 0,
+  labelCustomColor,
+  name,
+  nameColorType = 'primary',
+  nameColorShade = 0,
+  nameCustomColor,
+  description,
+  descriptionColor = 'muted',
+  backgroundColorType = 'default',
+  backgroundColorMode = 'solid',
+  backgroundColorShade = 95,
+  backgroundCustomColor,
+  backgroundGradient,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color
+const backgroundColor =
+  backgroundColorType === 'default'
+    ? null
+    : backgroundColorMode === 'gradient' && backgroundGradient
+      ? `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`
+      : resolveColorSelection(
+          {
+            colorType: backgroundColorType,
+            shade: backgroundColorShade,
+            customColor: backgroundCustomColor,
+          },
+          siteColors
+        );
+
+// Resolve label color
+const labelColor = resolveColorSelection(
+  {
+    colorType: labelColorType,
+    shade: labelColorShade,
+    customColor: labelCustomColor,
+  },
+  siteColors
+);
+
+// Resolve name color
+const nameColor = resolveColorSelection(
+  {
+    colorType: nameColorType,
+    shade: nameColorShade,
+    customColor: nameCustomColor,
+  },
+  siteColors
+);
+
+// Text color mapping
+const textColorMap = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'rgba(255, 255, 255, 0.9)',
+};
+
+// Get decorative circle colors from site colors
+const decoTealColor = resolveColorSelection(
+  { colorType: 'accent', shade: 95, customColor: undefined },
+  siteColors
+);
+const decoSlateColor = resolveColorSelection(
+  { colorType: 'primary', shade: 95, customColor: undefined },
+  siteColors
+);
+
+const cssVars = [
+  backgroundColor ? `--bio-bg: ${backgroundColor}` : null,
+  `--bio-label-color: ${labelColor}`,
+  `--bio-name-color: ${nameColor}`,
+  `--bio-text-color: ${textColorMap[descriptionColor]}`,
+  `--bio-deco-teal: ${decoTealColor}`,
+  `--bio-deco-slate: ${decoSlateColor}`,
+]
+  .filter(Boolean)
+  .join('; ');
+
+// Generate image URL
+const imageUrl = image?.asset
+  ? urlForImageWithSeoFilename(
+      image as {
+        asset?: { _ref?: string };
+        alt?: string;
+        seoFilename?: string;
+      },
+      { width: 800, quality: 85 }
+    )
+  : null;
+
+const imageLqip = image?.asset?.metadata?.lqip;
+---
+
+<section class="about-bio" style={cssVars}>
+  <div class="container">
+    <div class="about-bio__layout">
+      {
+        imageUrl && (
+          <div class="about-bio__image-wrapper">
+            <div class="about-bio__deco-circle-teal" />
+            <div class="about-bio__deco-circle-slate" />
+            <div class="about-bio__image-container">
+              <img
+                src={imageUrl}
+                alt={image?.alt || name || ''}
+                class="about-bio__image"
+                loading="lazy"
+                decoding="async"
+                style={
+                  imageLqip
+                    ? `background-image: url(${imageLqip}); background-size: cover;`
+                    : ''
+                }
+              />
+            </div>
+          </div>
+        )
+      }
+      <div class="about-bio__content">
+        {label && <span class="about-bio__label">{label}</span>}
+        {name && <h1 class="about-bio__name">{name}</h1>}
+        {description && <p class="about-bio__description">{description}</p>}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-bio {
+    padding: clamp(4rem, 8vw, 6rem) 0 clamp(5rem, 10vw, 8rem);
+    background: var(--bio-bg, transparent);
+  }
+
+  .about-bio__layout {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .about-bio__layout {
+      flex-direction: row;
+      gap: 4rem;
+    }
+  }
+
+  .about-bio__image-wrapper {
+    flex: 5;
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  @media (min-width: 768px) {
+    .about-bio__image-wrapper {
+      max-width: none;
+    }
+  }
+
+  .about-bio__image-container {
+    position: relative;
+    background-color: var(--color-border, #e5e5e5);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+  }
+
+  .about-bio__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Decorative circles */
+  .about-bio__deco-circle-teal {
+    position: absolute;
+    bottom: -1.5rem;
+    right: -1.5rem;
+    width: 8rem;
+    height: 8rem;
+    background-color: var(--bio-deco-teal, #f0fdfa);
+    border-radius: 9999px;
+    z-index: 1;
+  }
+
+  .about-bio__deco-circle-slate {
+    position: absolute;
+    top: -1.5rem;
+    left: -1.5rem;
+    width: 8rem;
+    height: 8rem;
+    background-color: var(--bio-deco-slate, #f8fafc);
+    border-radius: 9999px;
+    z-index: 1;
+  }
+
+  .about-bio__content {
+    flex: 7;
+  }
+
+  .about-bio__label {
+    display: block;
+    color: var(--bio-label-color, var(--color-accent));
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .about-bio__name {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.1;
+    color: var(--bio-name-color, var(--color-primary));
+    margin: 0 0 1.5rem;
+    font-weight: 500;
+  }
+
+  .about-bio__description {
+    font-size: 1.25rem;
+    color: var(--bio-text-color, var(--color-text-muted));
+    line-height: 1.7;
+    margin: 0;
+  }
+</style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const section = document.querySelector('.about-bio');
+    const imageContainer = document.querySelector('.about-bio__image-container');
+    const image = document.querySelector('.about-bio__image');
+    const decoTeal = document.querySelector('.about-bio__deco-circle-teal');
+    const decoSlate = document.querySelector('.about-bio__deco-circle-slate');
+    const label = document.querySelector('.about-bio__label');
+    const name = document.querySelector('.about-bio__name');
+    const description = document.querySelector('.about-bio__description');
+
+    if (!section) return;
+
+    // Initial states
+    if (imageContainer) gsap.set(imageContainer, { opacity: 0, y: 30 });
+    if (image) gsap.set(image, { scale: 1.1 });
+    if (decoTeal) gsap.set(decoTeal, { opacity: 0, scale: 0.5 });
+    if (decoSlate) gsap.set(decoSlate, { opacity: 0, scale: 0.5 });
+    if (label) gsap.set(label, { opacity: 0, y: 20 });
+    if (name) gsap.set(name, { opacity: 0, y: 30 });
+    if (description) gsap.set(description, { opacity: 0, y: 25 });
+
+    // Create timeline
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top 75%',
+        once: true,
+        markers: ANIMATION_CONFIG.scrollTrigger.markers,
+      },
+    });
+
+    // Image container reveals
+    if (imageContainer) {
+      tl.to(imageContainer, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+      });
+    }
+
+    // Image scale
+    if (image) {
+      tl.to(
+        image,
+        {
+          scale: 1,
+          duration: 1,
+          ease: 'power2.out',
+        },
+        '-=0.6'
+      );
+    }
+
+    // Decorative circles
+    if (decoTeal) {
+      tl.to(
+        decoTeal,
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.5,
+          ease: 'back.out(1.7)',
+        },
+        '-=0.7'
+      );
+    }
+
+    if (decoSlate) {
+      tl.to(
+        decoSlate,
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.5,
+          ease: 'back.out(1.7)',
+        },
+        '-=0.4'
+      );
+    }
+
+    // Label fades in
+    if (label) {
+      tl.to(
+        label,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'power2.out',
+        },
+        '-=0.5'
+      );
+    }
+
+    // Name follows
+    if (name) {
+      tl.to(
+        name,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+        },
+        '-=0.3'
+      );
+    }
+
+    // Description
+    if (description) {
+      tl.to(
+        description,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'power2.out',
+        },
+        '-=0.3'
+      );
+    }
+  });
+</script>

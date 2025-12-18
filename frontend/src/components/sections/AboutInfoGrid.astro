@@ -1,0 +1,314 @@
+---
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import { Icon } from 'astro-icon/components';
+import { PortableText } from 'astro-portabletext';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
+interface InfoCard {
+  _key: string;
+  icon?: { name: string };
+  iconColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  iconColorShade?: number;
+  iconCustomColor?: ColorData;
+  title: string;
+  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  titleColorShade?: number;
+  titleCustomColor?: ColorData;
+  content?: any[];
+}
+
+interface Props {
+  cards?: InfoCard[];
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorMode?: 'solid' | 'gradient';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
+}
+
+const {
+  cards = [],
+  backgroundColorType = 'default',
+  backgroundColorMode = 'solid',
+  backgroundColorShade = 95,
+  backgroundCustomColor,
+  backgroundGradient,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Lighten a hex color by mixing with white
+function lightenColor(hex: string, amount: number): string {
+  const cleanHex = hex.replace('#', '');
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+
+  const newR = Math.round(r + (255 - r) * amount);
+  const newG = Math.round(g + (255 - g) * amount);
+  const newB = Math.round(b + (255 - b) * amount);
+
+  const toHex = (n: number) =>
+    Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0');
+  return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
+}
+
+// Resolve section background color
+const sectionBackgroundColor =
+  backgroundColorType === 'default'
+    ? null
+    : backgroundColorMode === 'gradient' && backgroundGradient
+      ? `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`
+      : resolveColorSelection(
+          {
+            colorType: backgroundColorType,
+            shade: backgroundColorShade,
+            customColor: backgroundCustomColor,
+          },
+          siteColors
+        );
+
+// Helper to resolve icon colors for each card
+function getCardIconColors(card: InfoCard) {
+  const iconColor =
+    card.iconColorType === 'custom' && card.iconCustomColor?.value
+      ? card.iconCustomColor.value
+      : resolveColorSelection(
+          {
+            colorType: card.iconColorType || 'accent',
+            shade: card.iconColorShade || 0,
+            customColor: card.iconCustomColor,
+          },
+          siteColors
+        );
+
+  // Create a light background version of the icon color
+  let iconBgColor: string;
+  if (card.iconColorType === 'custom' && card.iconCustomColor?.value) {
+    iconBgColor = lightenColor(card.iconCustomColor.value, 0.85);
+  } else {
+    iconBgColor = resolveColorSelection(
+      {
+        colorType: card.iconColorType || 'accent',
+        shade: 90,
+        customColor: card.iconCustomColor,
+      },
+      siteColors
+    );
+  }
+
+  return { iconColor, iconBgColor };
+}
+
+// Helper to resolve title color for each card
+function getCardTitleColor(card: InfoCard): string {
+  return card.titleColorType === 'custom' && card.titleCustomColor?.value
+    ? card.titleCustomColor.value
+    : resolveColorSelection(
+        {
+          colorType: card.titleColorType || 'accent',
+          shade: card.titleColorShade || 0,
+          customColor: card.titleCustomColor,
+        },
+        siteColors
+      );
+}
+
+const sectionCssVars = [
+  sectionBackgroundColor ? `--info-grid-bg: ${sectionBackgroundColor}` : null,
+]
+  .filter(Boolean)
+  .join('; ');
+---
+
+{
+  cards && cards.length > 0 && (
+    <section class="about-info-grid" style={sectionCssVars}>
+      <div class="container">
+        <div class="about-info-grid__grid">
+          {cards.map((card) => {
+            const { iconColor, iconBgColor } = getCardIconColors(card);
+            const titleColor = getCardTitleColor(card);
+            const cardCssVars = [
+              `--card-icon-color: ${iconColor}`,
+              `--card-icon-bg: ${iconBgColor}`,
+              `--card-title-color: ${titleColor}`,
+            ].join('; ');
+
+            return (
+              <div class="about-info-card" style={cardCssVars}>
+                <h3 class="about-info-card__title">
+                  {card.icon?.name && (
+                    <span class="about-info-card__icon-wrapper">
+                      <Icon
+                        name={card.icon.name}
+                        class="about-info-card__icon"
+                        aria-hidden="true"
+                      />
+                    </span>
+                  )}
+                  {card.title}
+                </h3>
+                {card.content && (
+                  <div class="about-info-card__content">
+                    <PortableText value={card.content} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .about-info-grid {
+    padding: var(--space-2xl) 0;
+    background: var(--info-grid-bg, transparent);
+  }
+
+  .about-info-grid__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+  }
+
+  @media (min-width: 768px) {
+    .about-info-grid__grid {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+  }
+
+  .about-info-card {
+    padding: 0;
+  }
+
+  .about-info-card__title {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--card-title-color, var(--color-accent));
+    margin: 0 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .about-info-card__icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: var(--card-icon-bg, var(--color-accent-light));
+    border-radius: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .about-info-card__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--card-icon-color, var(--color-accent));
+  }
+
+  .about-info-card__content {
+    color: var(--color-text-muted);
+    line-height: 1.7;
+  }
+
+  .about-info-card__content :global(p) {
+    margin: 0 0 1.5rem;
+  }
+
+  .about-info-card__content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .about-info-card__content :global(strong) {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .about-info-card__content :global(em) {
+    font-style: italic;
+  }
+</style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const cards = document.querySelectorAll('.about-info-card');
+    const icons = document.querySelectorAll('.about-info-card__icon-wrapper');
+
+    if (cards.length === 0) return;
+
+    // Initial states
+    gsap.set(cards, { opacity: 0, y: 40 });
+    gsap.set(icons, { scale: 0.8, rotation: -10 });
+
+    // Staggered card entrance
+    cards.forEach((card, index) => {
+      const icon = card.querySelector('.about-info-card__icon-wrapper');
+
+      gsap.to(card, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: card,
+          start: 'top 85%',
+          once: true,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+        },
+        delay: index * 0.1,
+      });
+
+      // Icon pops in slightly after card
+      if (icon) {
+        gsap.to(icon, {
+          scale: 1,
+          rotation: 0,
+          duration: 0.5,
+          ease: 'back.out(1.7)',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 85%',
+            once: true,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+          delay: index * 0.1 + 0.2,
+        });
+      }
+    });
+  });
+</script>

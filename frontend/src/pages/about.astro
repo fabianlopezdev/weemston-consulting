@@ -2,65 +2,117 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { sanityClient as client } from 'sanity:client';
 import { aboutPageQuery } from '@lib/sanity/queries';
-import HeroSection from '@components/sections/HeroSection.astro';
+import InternalPageHero from '@components/sections/InternalPageHero.astro';
+import AboutBio from '@components/sections/AboutBio.astro';
+import AboutInfoGrid from '@components/sections/AboutInfoGrid.astro';
+import AboutGlobal from '@components/sections/AboutGlobal.astro';
+import AboutTrustedBy from '@components/sections/AboutTrustedBy.astro';
 
-const lang = Astro.locals.lang || 'en';
-const aboutPage = await client.fetch(aboutPageQuery, {
-  documentId: `aboutPage-${lang}`,
-});
+const page = await client.fetch(aboutPageQuery);
 
-if (!aboutPage) {
+if (!page) {
   return Astro.redirect('/404');
 }
-
-// Extract plain text from portable text
-const getPlainText = (blocks: any[]) => {
-  if (!blocks || !Array.isArray(blocks)) return '';
-  return blocks
-    .filter((block) => block._type === 'block')
-    .map((block) => {
-      return block.children?.map((child: any) => child.text).join('');
-    })
-    .join('\n\n');
-};
-
-const content = aboutPage.content ? getPlainText(aboutPage.content) : '';
 ---
 
-<BaseLayout title={aboutPage.title} description={aboutPage.metaDescription}>
-  {aboutPage.hero && <HeroSection {...aboutPage.hero} />}
+<BaseLayout title={page.title} description={page.metaDescription}>
+  {/* Hero Section */}
+  <InternalPageHero
+    heading={page.heroHeading}
+    headingHighlight={page.heroHeadingHighlight}
+    highlightColorType={page.heroHighlightColorType}
+    highlightColorShade={page.heroHighlightColorShade}
+    highlightCustomColor={page.heroHighlightCustomColor}
+    showDivider={page.heroShowDivider}
+    dividerColorType={page.heroDividerColorType}
+    dividerColorShade={page.heroDividerColorShade}
+    dividerCustomColor={page.heroDividerCustomColor}
+    tagline={page.heroTagline}
+    taglineColor={page.heroTaglineColor}
+    backgroundColorType={page.heroBackgroundColorType}
+    backgroundColorMode={page.heroBackgroundColorMode}
+    backgroundColorShade={page.heroBackgroundColorShade}
+    backgroundCustomColor={page.heroBackgroundCustomColor}
+    backgroundGradient={page.heroBackgroundGradient}
+  />
 
+  {/* Bio Section */}
   {
-    content && (
-      <section class="about-content">
-        <div class="container">
-          {content.split('\n\n').map((paragraph) => (
-            <p class="about-paragraph">{paragraph}</p>
-          ))}
-        </div>
-      </section>
+    (page.bioName || page.bioImage) && (
+      <AboutBio
+        image={page.bioImage}
+        label={page.bioLabel}
+        labelColorType={page.bioLabelColorType}
+        labelColorShade={page.bioLabelColorShade}
+        labelCustomColor={page.bioLabelCustomColor}
+        name={page.bioName}
+        nameColorType={page.bioNameColorType}
+        nameColorShade={page.bioNameColorShade}
+        nameCustomColor={page.bioNameCustomColor}
+        description={page.bioDescription}
+        descriptionColor={page.bioDescriptionColor}
+        backgroundColorType={page.bioBackgroundColorType}
+        backgroundColorMode={page.bioBackgroundColorMode}
+        backgroundColorShade={page.bioBackgroundColorShade}
+        backgroundCustomColor={page.bioBackgroundCustomColor}
+        backgroundGradient={page.bioBackgroundGradient}
+      />
+    )
+  }
+
+  {/* Info Grid Section */}
+  {
+    page.infoCards && page.infoCards.length > 0 && (
+      <AboutInfoGrid
+        cards={page.infoCards}
+        backgroundColorType={page.infoGridBackgroundColorType}
+        backgroundColorMode={page.infoGridBackgroundColorMode}
+        backgroundColorShade={page.infoGridBackgroundColorShade}
+        backgroundCustomColor={page.infoGridBackgroundCustomColor}
+        backgroundGradient={page.infoGridBackgroundGradient}
+      />
+    )
+  }
+
+  {/* Global Perspective Section */}
+  {
+    (page.globalTitle || page.globalDescription) && (
+      <AboutGlobal
+        icon={page.globalIcon}
+        iconColorType={page.globalIconColorType}
+        iconColorShade={page.globalIconColorShade}
+        iconCustomColor={page.globalIconCustomColor}
+        title={page.globalTitle}
+        titleColorType={page.globalTitleColorType}
+        titleColorShade={page.globalTitleColorShade}
+        titleCustomColor={page.globalTitleCustomColor}
+        description={page.globalDescription}
+        descriptionColor={page.globalDescriptionColor}
+        backgroundColorType={page.globalBackgroundColorType}
+        backgroundColorMode={page.globalBackgroundColorMode}
+        backgroundColorShade={page.globalBackgroundColorShade}
+        backgroundCustomColor={page.globalBackgroundCustomColor}
+        backgroundGradient={page.globalBackgroundGradient}
+      />
+    )
+  }
+
+  {/* Trusted By Section */}
+  {
+    page.trustedByCaseStudies && page.trustedByCaseStudies.length > 0 && (
+      <AboutTrustedBy
+        title={page.trustedByTitle}
+        showTitle={page.trustedByShowTitle}
+        titleColorType={page.trustedByTitleColorType}
+        titleColorShade={page.trustedByTitleColorShade}
+        titleCustomColor={page.trustedByTitleCustomColor}
+        caseStudies={page.trustedByCaseStudies}
+        backgroundColorType={page.trustedByBackgroundColorType}
+        backgroundColorMode={page.trustedByBackgroundColorMode}
+        backgroundColorShade={page.trustedByBackgroundColorShade}
+        backgroundCustomColor={page.trustedByBackgroundCustomColor}
+        backgroundGradient={page.trustedByBackgroundGradient}
+      />
     )
   }
 </BaseLayout>
-
-<style>
-  .about-content {
-    padding: var(--space-2xl) 0;
-  }
-
-  .container {
-    max-width: 900px;
-    margin-inline: auto;
-    padding-inline: var(--space-md);
-  }
-
-  .about-paragraph {
-    font-size: var(--font-size-base);
-    line-height: 1.8;
-    margin-block-end: var(--space-md);
-  }
-
-  .about-paragraph:last-child {
-    margin-block-end: 0;
-  }
-</style>
