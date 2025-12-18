@@ -69,102 +69,13 @@ export function BackgroundShadeInput(props: NumberInputProps) {
   const { value, onChange, path } = props;
   const client = useClient({ apiVersion: '2024-01-01' });
 
-  // Get the colorType - handle various field naming patterns
-  // Examples:
-  // - ['hero', 'backgroundSettings', 'solidColorShade'] -> solidColorType
-  // - ['hero', 'backgroundSettings', 'gradient', 'startColor', 'shade'] -> colorType
-  // - ['sections', 0, 'backgroundColorShade'] -> backgroundColorType
-  // - ['sections', 0, 'selectedItemColorShade'] -> selectedItemColorType
+  // Get the corresponding colorType field for this shade field
   const fieldName = path[path.length - 1] as string;
   const parentPath = path.slice(0, -1);
 
-  // Determine the colorType field name based on the shade field name
-  let colorTypeFieldName = 'colorType';
-  if (fieldName === 'solidColorShade') {
-    colorTypeFieldName = 'solidColorType';
-  } else if (fieldName === 'backgroundColorShade') {
-    colorTypeFieldName = 'backgroundColorType';
-  } else if (fieldName === 'selectedItemColorShade') {
-    colorTypeFieldName = 'selectedItemColorType';
-  } else if (fieldName === 'accentColorShade') {
-    colorTypeFieldName = 'accentColorType';
-  } else if (fieldName === 'cardBackgroundColorShade') {
-    colorTypeFieldName = 'cardBackgroundColorType';
-  } else if (fieldName === 'cardBorderColorShade') {
-    colorTypeFieldName = 'cardBorderColorType';
-  } else if (fieldName === 'iconBackgroundColorShade') {
-    colorTypeFieldName = 'iconBackgroundColorType';
-  } else if (fieldName === 'badgeColorShade') {
-    colorTypeFieldName = 'badgeColorType';
-  } else if (fieldName === 'badgeBackgroundColorShade') {
-    colorTypeFieldName = 'badgeBackgroundColorType';
-  } else if (fieldName === 'circleBackgroundColorShade') {
-    colorTypeFieldName = 'circleBackgroundColorType';
-  } else if (fieldName === 'taglineColorShade') {
-    colorTypeFieldName = 'taglineColorType';
-  } else if (fieldName === 'titleColorShade') {
-    colorTypeFieldName = 'titleColorType';
-  } else if (fieldName === 'heroBackgroundColorShade') {
-    colorTypeFieldName = 'heroBackgroundColorType';
-  } else if (fieldName === 'heroHighlightColorShade') {
-    colorTypeFieldName = 'heroHighlightColorType';
-  } else if (fieldName === 'heroDividerColorShade') {
-    colorTypeFieldName = 'heroDividerColorType';
-  } else if (fieldName === 'highlightBackgroundColorShade') {
-    colorTypeFieldName = 'highlightBackgroundColorType';
-  } else if (fieldName === 'ctaBackgroundColorShade') {
-    colorTypeFieldName = 'ctaBackgroundColorType';
-  } else if (fieldName === 'iconColorShade') {
-    colorTypeFieldName = 'iconColorType';
-  } else if (fieldName === 'founderTaglineColorShade') {
-    colorTypeFieldName = 'founderTaglineColorType';
-  } else if (fieldName === 'founderTitleColorShade') {
-    colorTypeFieldName = 'founderTitleColorType';
-  } else if (fieldName === 'founderQuoteColorShade') {
-    colorTypeFieldName = 'founderQuoteColorType';
-  } else if (fieldName === 'founderBackgroundColorShade') {
-    colorTypeFieldName = 'founderBackgroundColorType';
-  } else if (fieldName === 'coreValuesBackgroundColorShade') {
-    colorTypeFieldName = 'coreValuesBackgroundColorType';
-  } else if (fieldName === 'coreValuesCardBackgroundColorShade') {
-    colorTypeFieldName = 'coreValuesCardBackgroundColorType';
-  } else if (fieldName === 'coreValuesCardTitleColorShade') {
-    colorTypeFieldName = 'coreValuesCardTitleColorType';
-  } else if (fieldName === 'coreValuesTitleColorShade') {
-    colorTypeFieldName = 'coreValuesTitleColorType';
-  } else if (fieldName === 'highlightTitleColorShade') {
-    colorTypeFieldName = 'highlightTitleColorType';
-  } else if (fieldName === 'ctaTitleColorShade') {
-    colorTypeFieldName = 'ctaTitleColorType';
-  } else if (fieldName === 'iconContainerColorShade') {
-    colorTypeFieldName = 'iconContainerColorType';
-  } else if (fieldName === 'listContainerColorShade') {
-    colorTypeFieldName = 'listContainerColorType';
-  } else if (fieldName === 'listIconColorShade') {
-    colorTypeFieldName = 'listIconColorType';
-  } else if (fieldName === 'overlayColorShade') {
-    colorTypeFieldName = 'overlayColorType';
-  } else if (fieldName === 'iconBgColorShade') {
-    colorTypeFieldName = 'iconBgColorType';
-  } else if (fieldName === 'contentBgColorShade') {
-    colorTypeFieldName = 'contentBgColorType';
-  } else if (fieldName === 'contributionsTitleColorShade') {
-    colorTypeFieldName = 'contributionsTitleColorType';
-  } else if (fieldName === 'bulletColorShade') {
-    colorTypeFieldName = 'bulletColorType';
-  } else if (fieldName === 'caseStudiesTitleColorShade') {
-    colorTypeFieldName = 'caseStudiesTitleColorType';
-  } else if (fieldName === 'introTitleColorShade') {
-    colorTypeFieldName = 'introTitleColorType';
-  } else if (fieldName === 'filterActiveColorShade') {
-    colorTypeFieldName = 'filterActiveColorType';
-  } else if (fieldName === 'filterInactiveColorShade') {
-    colorTypeFieldName = 'filterInactiveColorType';
-  } else if (fieldName === 'dateColorShade') {
-    colorTypeFieldName = 'dateColorType';
-  } else if (fieldName === 'dividerColorShade') {
-    colorTypeFieldName = 'dividerColorType';
-  }
+  // Derive the colorType field name by replacing 'Shade' with 'Type'
+  // All shade/type field pairs follow this pattern (e.g., backgroundColorShade -> backgroundColorType)
+  const colorTypeFieldName = fieldName.replace('Shade', 'Type');
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';
 

@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "sanity dev --port 3334",
+    "dev": "sanity dev --port 3333",
     "build": "sanity build",
     "deploy": "sanity deploy",
     "migrate": "sanity exec migrations/v1-initial.ts --with-user-token",
