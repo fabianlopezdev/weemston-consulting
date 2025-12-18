@@ -1084,28 +1084,28 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
       }
 
       if (image) {
-        // Set initial scale
-        gsap.set(image, { scale: 1.1 });
+        // Set initial scale - more dramatic
+        gsap.set(image, { scale: 1.15 });
 
-        // Clip-path reveal trigger
+        // Clip-path reveal trigger - later trigger point
         gsap.to(container, {
           scrollTrigger: {
             trigger: container,
-            start: 'top 75%',
+            start: 'top 55%',
             once: true,
             markers: ANIMATION_CONFIG.scrollTrigger.markers,
             onEnter: () => container.classList.add('is-revealed'),
           },
         });
 
-        // Ken Burns scale animation
+        // Ken Burns scale animation - slower for cinematic feel
         gsap.to(image, {
           scale: 1,
-          duration: 1.2,
+          duration: 1.5,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: container,
-            start: 'top 75%',
+            start: 'top 55%',
             once: true,
             markers: ANIMATION_CONFIG.scrollTrigger.markers,
           },
@@ -1130,6 +1130,7 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
       // Check layout type
       const isNoImage = section.getAttribute('data-no-image') === 'true';
       const isExpanded = section.getAttribute('data-expanded') === 'true';
+      const isReversed = section.getAttribute('data-reversed') === 'true';
 
       // Get main elements based on layout type
       let columnsToAnimate: Element[] = [];
@@ -1164,9 +1165,18 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
 
       const title = section.querySelector('.service-section__title');
 
-      // Set initial states for columns
-      columnsToAnimate.forEach((col) => {
-        gsap.set(col, { opacity: 0, y: 20 });
+      // Set initial states - dramatic offsets with alternating directions
+      columnsToAnimate.forEach((col, index) => {
+        // Alternate slide direction for visual interest
+        let xOffset = index === 0 ? -40 : 40;
+        if (isReversed) xOffset *= -1;
+
+        gsap.set(col, {
+          opacity: 0,
+          y: 50,
+          x: xOffset,
+          scale: 0.97,
+        });
       });
 
       // Split title into words for subtle editorial reveal
@@ -1187,41 +1197,44 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
           word.parentNode?.insertBefore(wrapper, word);
           wrapper.appendChild(word);
 
-          // Set initial state - subtle movement
-          gsap.set(word, { y: '50%', opacity: 0 });
+          // Set initial state - dramatic full clip reveal
+          gsap.set(word, { y: '100%', opacity: 0 });
         });
       }
 
-      // Create simple timeline
+      // Create timeline with later trigger for dramatic reveal
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: ANIMATION_CONFIG.triggers.editorialStyle.start,
+          start: 'top 55%',
           once: true,
           markers: ANIMATION_CONFIG.scrollTrigger.markers,
         },
       });
 
-      // All columns fade in together - clean and simple
+      // Columns animate with stagger and dramatic movement
       tl.to(columnsToAnimate, {
         opacity: 1,
         y: 0,
-        duration: 0.7,
-        ease: 'power2.out',
+        x: 0,
+        scale: 1,
+        duration: 0.9,
+        ease: 'power3.out',
+        stagger: 0.12,
       });
 
-      // Title words reveal - quick, subtle stagger that runs alongside
+      // Title words reveal - pronounced word-by-word effect
       if (titleWords.length > 0) {
         tl.to(
           titleWords,
           {
             y: 0,
             opacity: 1,
-            duration: 0.5,
-            stagger: 0.02,
-            ease: 'power2.out',
+            duration: 0.6,
+            stagger: 0.035,
+            ease: 'power3.out',
           },
-          0.1 // Start shortly after the fade begins
+          0.15
         );
       }
     });
