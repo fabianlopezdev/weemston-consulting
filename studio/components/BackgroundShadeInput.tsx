@@ -73,9 +73,10 @@ export function BackgroundShadeInput(props: NumberInputProps) {
   const fieldName = path[path.length - 1] as string;
   const parentPath = path.slice(0, -1);
 
-  // Derive the colorType field name by replacing 'Shade' with 'Type'
-  // All shade/type field pairs follow this pattern (e.g., backgroundColorShade -> backgroundColorType)
-  const colorTypeFieldName = fieldName.replace('Shade', 'Type');
+  // Derive the colorType field name from the shade field name
+  // Handles both nested objects (shade -> colorType) and flat patterns (backgroundColorShade -> backgroundColorType)
+  const colorTypeFieldName =
+    fieldName === 'shade' ? 'colorType' : fieldName.replace('Shade', 'Type');
 
   const colorType = (useFormValue([...parentPath, colorTypeFieldName]) as string) || 'primary';
 
