@@ -9,7 +9,8 @@ import {
 import { createTranslator } from '@lib/i18n/translations';
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { slugify } from '@lib/utils/url';
-import CaseStudyCard from '@components/cards/CaseStudyCard.astro';
+import CaseStudyBox from '@components/cards/CaseStudyBox.astro';
+import CaseStudyModal from '@components/ui/CaseStudyModal.astro';
 import InternalPageHero from '@components/sections/InternalPageHero.astro';
 import SectionTitle from '@components/ui/SectionTitle.astro';
 import PortableText from '@components/sanity/PortableText.astro';
@@ -27,6 +28,30 @@ const [page, services, settings] = await Promise.all([
 const caseStudies = page?.caseStudies || [];
 
 const siteColors = settings?.colors;
+
+// Build service mapping: CaseStudy ID -> Array of Services that feature it
+// This uses the inverse relationship (services have featuredCaseStudies array)
+interface ServiceWithCaseStudies {
+  _id: string;
+  title: string;
+  featuredCaseStudies?: Array<{ _id: string }>;
+}
+
+const caseStudyToServices = new Map<
+  string,
+  Array<{ _id: string; title: string }>
+>();
+
+(services as ServiceWithCaseStudies[])?.forEach((service) => {
+  service.featuredCaseStudies?.forEach((cs) => {
+    if (!caseStudyToServices.has(cs._id)) {
+      caseStudyToServices.set(cs._id, []);
+    }
+    caseStudyToServices
+      .get(cs._id)!
+      .push({ _id: service._id, title: service.title });
+  });
+});
 
 // Resolve intro title color
 const introTitleColor = resolveColorSelection(
@@ -157,7 +182,7 @@ const filterCssVars = [
             <button data-filter="all" class="filter-btn active">
               All
             </button>
-            {services.map((service: { _id: string; title: string }) => (
+            {(services as ServiceWithCaseStudies[]).map((service) => (
               <button data-filter={service._id} class="filter-btn">
                 {service.title}
               </button>
@@ -173,61 +198,34 @@ const filterCssVars = [
     <div class="container">
       <div class="case-studies-grid" data-animate="case-study-grid">
         {
-          caseStudies.map((caseStudy: any) => (
-            <div
-              id={slugify(caseStudy.client)}
-              class="case-study-wrapper"
-              data-service-id={caseStudy.relatedService?._id}
-            >
-              <CaseStudyCard
-                mainImage={caseStudy.mainImage}
-                icon={caseStudy.icon}
-                category={caseStudy.category}
-                client={caseStudy.client}
-                role={caseStudy.role}
-                overlayColorType={caseStudy.overlayColorType}
-                overlayColorShade={caseStudy.overlayColorShade}
-                overlayCustomColor={caseStudy.overlayCustomColor}
-                overlayOpacity={caseStudy.overlayOpacity}
-                iconBgColorType={caseStudy.iconBgColorType}
-                iconBgColorShade={caseStudy.iconBgColorShade}
-                iconBgCustomColor={caseStudy.iconBgCustomColor}
-                iconColorType={caseStudy.iconColorType}
-                iconColorShade={caseStudy.iconColorShade}
-                iconCustomColor={caseStudy.iconCustomColor}
-                categoryColor={caseStudy.categoryColor}
-                clientColor={caseStudy.clientColor}
-                roleColor={caseStudy.roleColor}
-                date={caseStudy.date}
-                description={caseStudy.description}
-                contributionsTitle={caseStudy.contributionsTitle}
-                contributions={caseStudy.contributions}
-                contentBgColorType={caseStudy.contentBgColorType}
-                contentBgColorShade={caseStudy.contentBgColorShade}
-                contentBgCustomColor={caseStudy.contentBgCustomColor}
-                dateColorType={caseStudy.dateColorType}
-                dateColorShade={caseStudy.dateColorShade}
-                dateCustomColor={caseStudy.dateCustomColor}
-                dividerColorType={caseStudy.dividerColorType}
-                dividerColorShade={caseStudy.dividerColorShade}
-                dividerCustomColor={caseStudy.dividerCustomColor}
-                descriptionColor={caseStudy.descriptionColor}
-                contributionsTitleColorType={
-                  caseStudy.contributionsTitleColorType
-                }
-                contributionsTitleColorShade={
-                  caseStudy.contributionsTitleColorShade
-                }
-                contributionsTitleCustomColor={
-                  caseStudy.contributionsTitleCustomColor
-                }
-                contributionsTextColor={caseStudy.contributionsTextColor}
-                bulletColorType={caseStudy.bulletColorType}
-                bulletColorShade={caseStudy.bulletColorShade}
-                bulletCustomColor={caseStudy.bulletCustomColor}
-              />
-            </div>
-          ))
+          caseStudies.map((caseStudy: any) => {
+            const serviceTags = caseStudyToServices.get(caseStudy._id) || [];
+            return (
+              <div
+                id={slugify(caseStudy.client)}
+                class="case-study-wrapper"
+                data-service-ids={serviceTags.map((s) => s._id).join(',')}
+              >
+                <CaseStudyBox
+                  id={caseStudy._id}
+                  client={caseStudy.client}
+                  clientLogo={caseStudy.clientLogo}
+                  logoVariant={caseStudy.logoVariant}
+                  serviceTags={serviceTags}
+                  boxBgColorType={page?.boxBgColorType}
+                  boxBgColorShade={page?.boxBgColorShade}
+                  boxBgCustomColor={page?.boxBgCustomColor}
+                  boxHoverBgColorType={page?.boxHoverBgColorType}
+                  boxHoverBgColorShade={page?.boxHoverBgColorShade}
+                  boxHoverBgCustomColor={page?.boxHoverBgCustomColor}
+                  tagColorType={page?.tagColorType}
+                  tagColorShade={page?.tagColorShade}
+                  tagCustomColor={page?.tagCustomColor}
+                  ctaTextColor={page?.ctaTextColor}
+                />
+              </div>
+            );
+          })
         }
       </div>
 
@@ -238,6 +236,32 @@ const filterCssVars = [
       }
     </div>
   </section>
+
+  {/* Case Study Modal */}
+  <CaseStudyModal
+    caseStudies={caseStudies}
+    leftPanelBgColorType={page?.modalLeftBgColorType}
+    leftPanelBgColorShade={page?.modalLeftBgColorShade}
+    leftPanelBgCustomColor={page?.modalLeftBgCustomColor}
+    backdropColorType={page?.modalBackdropColorType}
+    backdropColorShade={page?.modalBackdropColorShade}
+    backdropCustomColor={page?.modalBackdropCustomColor}
+    clientNameColor={page?.modalClientNameColor}
+    dateColorType={page?.modalDateColorType}
+    dateColorShade={page?.modalDateColorShade}
+    dateCustomColor={page?.modalDateCustomColor}
+    dividerColorType={page?.modalDividerColorType}
+    dividerColorShade={page?.modalDividerColorShade}
+    dividerCustomColor={page?.modalDividerCustomColor}
+    descriptionColor={page?.modalDescriptionColor}
+    contributionsTitleColorType={page?.modalContributionsTitleColorType}
+    contributionsTitleColorShade={page?.modalContributionsTitleColorShade}
+    contributionsTitleCustomColor={page?.modalContributionsTitleCustomColor}
+    contributionsTextColor={page?.modalContributionsTextColor}
+    bulletColorType={page?.modalBulletColorType}
+    bulletColorShade={page?.modalBulletColorShade}
+    bulletCustomColor={page?.modalBulletCustomColor}
+  />
 </BaseLayout>
 
 <style>
@@ -348,10 +372,23 @@ const filterCssVars = [
     padding-block: var(--space-2xl);
   }
 
+  /* Grid Layout - Multi-column */
   .case-studies-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-xl);
+    gap: var(--space-lg);
+  }
+
+  @media (min-width: 640px) {
+    .case-studies-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .case-studies-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 
   .case-study-wrapper {
@@ -379,22 +416,22 @@ const filterCssVars = [
 
     const grid = document.querySelector('[data-animate="case-study-grid"]');
     const filterButtons = document.querySelectorAll('[data-filter]');
-    const cardWrappers = document.querySelectorAll('[data-service-id]');
+    const boxWrappers = document.querySelectorAll('[data-service-ids]');
 
     if (!grid) return;
 
-    // Initial animation for all cards
-    const allCards = grid.querySelectorAll('[data-animate="case-study"]');
-    if (allCards.length && !prefersReducedMotion) {
-      gsap.set(cardWrappers, { clearProps: 'all' });
-      gsap.set(cardWrappers, { opacity: 0, y: 60 });
+    // Initial animation for all boxes
+    const allBoxes = grid.querySelectorAll('.case-study-wrapper');
+    if (allBoxes.length && !prefersReducedMotion) {
+      gsap.set(allBoxes, { clearProps: 'all' });
+      gsap.set(allBoxes, { opacity: 0, y: 40 });
 
-      gsap.to(cardWrappers, {
+      gsap.to(allBoxes, {
         opacity: 1,
         y: 0,
-        duration: 0.6,
+        duration: 0.5,
         ease: 'power2.out',
-        stagger: 0.15,
+        stagger: 0.08,
         scrollTrigger: {
           trigger: grid,
           start: 'top 80%',
@@ -403,8 +440,8 @@ const filterCssVars = [
       });
     }
 
-    // Filter functionality
-    if (filterButtons.length && cardWrappers.length) {
+    // Filter functionality - updated for multiple services
+    if (filterButtons.length && boxWrappers.length) {
       filterButtons.forEach((btn) => {
         btn.addEventListener('click', () => {
           const filter = (btn as HTMLElement).dataset.filter;
@@ -413,11 +450,16 @@ const filterCssVars = [
           filterButtons.forEach((b) => b.classList.remove('active'));
           btn.classList.add('active');
 
-          // Filter cards with animation
+          // Filter boxes with animation
+          // A box shows if ANY of its services match the filter
           let visibleIndex = 0;
-          cardWrappers.forEach((wrapper) => {
-            const serviceId = (wrapper as HTMLElement).dataset.serviceId;
-            const shouldShow = filter === 'all' || serviceId === filter;
+          boxWrappers.forEach((wrapper) => {
+            const serviceIds =
+              (wrapper as HTMLElement).dataset.serviceIds
+                ?.split(',')
+                .filter(Boolean) || [];
+            const shouldShow =
+              filter === 'all' || (filter && serviceIds.includes(filter));
 
             if (shouldShow) {
               (wrapper as HTMLElement).style.display = '';
@@ -425,13 +467,13 @@ const filterCssVars = [
               if (!prefersReducedMotion) {
                 gsap.fromTo(
                   wrapper,
-                  { opacity: 0, y: 30 },
+                  { opacity: 0, y: 20 },
                   {
                     opacity: 1,
                     y: 0,
-                    duration: 0.4,
+                    duration: 0.35,
                     ease: 'power2.out',
-                    delay: visibleIndex * 0.1,
+                    delay: visibleIndex * 0.06,
                   }
                 );
               }

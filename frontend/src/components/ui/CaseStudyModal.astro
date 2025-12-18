@@ -1,0 +1,635 @@
+---
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import PortableText from '@components/sanity/PortableText.astro';
+import type { PortableTextBlock } from '@portabletext/types';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface CaseStudyData {
+  _id: string;
+  client: string;
+  tagline?: string;
+  date?: string;
+  description?: PortableTextBlock[];
+  contributionsTitle?: string;
+  contributions?: string[];
+}
+
+interface Props {
+  caseStudies: CaseStudyData[];
+  // Modal styling - all at page level
+  leftPanelBgColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  leftPanelBgColorShade?: number;
+  leftPanelBgCustomColor?: ColorData;
+  backdropColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  backdropColorShade?: number;
+  backdropCustomColor?: ColorData;
+  // Content colors - all at page level
+  clientNameColor?: 'base' | 'muted' | 'contrast';
+  dateColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  dateColorShade?: number;
+  dateCustomColor?: ColorData;
+  dividerColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  dividerColorShade?: number;
+  dividerCustomColor?: ColorData;
+  descriptionColor?: 'base' | 'muted' | 'contrast';
+  contributionsTitleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  contributionsTitleColorShade?: number;
+  contributionsTitleCustomColor?: ColorData;
+  contributionsTextColor?: 'base' | 'muted' | 'contrast';
+  bulletColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  bulletColorShade?: number;
+  bulletCustomColor?: ColorData;
+}
+
+const {
+  caseStudies,
+  // Modal container styling
+  leftPanelBgColorType = 'secondary',
+  leftPanelBgColorShade = 95,
+  leftPanelBgCustomColor,
+  backdropColorType = 'accent',
+  backdropColorShade = 0,
+  backdropCustomColor,
+  // Content styling
+  clientNameColor = 'base',
+  dateColorType = 'secondary',
+  dateColorShade = 0,
+  dateCustomColor,
+  dividerColorType = 'secondary',
+  dividerColorShade = 80,
+  dividerCustomColor,
+  descriptionColor = 'base',
+  contributionsTitleColorType = 'accent',
+  contributionsTitleColorShade = 0,
+  contributionsTitleCustomColor,
+  contributionsTextColor = 'base',
+  bulletColorType = 'accent',
+  bulletColorShade = 0,
+  bulletCustomColor,
+} = Astro.props;
+
+// Fetch site colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Text color map
+const textColorMap: Record<string, string> = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'var(--color-text-contrast)',
+};
+
+// Resolve all colors at page level
+const leftPanelBgColor = resolveColorSelection(
+  {
+    colorType: leftPanelBgColorType,
+    shade: leftPanelBgColorShade,
+    customColor: leftPanelBgCustomColor,
+  },
+  siteColors
+);
+
+const backdropColor = resolveColorSelection(
+  {
+    colorType: backdropColorType,
+    shade: backdropColorShade,
+    customColor: backdropCustomColor,
+  },
+  siteColors
+);
+
+const clientNameColorResolved =
+  textColorMap[clientNameColor] || textColorMap.base;
+
+const dateColor = resolveColorSelection(
+  {
+    colorType: dateColorType,
+    shade: dateColorShade,
+    customColor: dateCustomColor,
+  },
+  siteColors
+);
+
+const dividerColor = resolveColorSelection(
+  {
+    colorType: dividerColorType,
+    shade: dividerColorShade,
+    customColor: dividerCustomColor,
+  },
+  siteColors
+);
+
+const descriptionColorResolved =
+  textColorMap[descriptionColor] || textColorMap.base;
+
+const contributionsTitleColor = resolveColorSelection(
+  {
+    colorType: contributionsTitleColorType,
+    shade: contributionsTitleColorShade,
+    customColor: contributionsTitleCustomColor,
+  },
+  siteColors
+);
+
+const contributionsTextColorResolved =
+  textColorMap[contributionsTextColor] || textColorMap.base;
+
+const bulletColor = resolveColorSelection(
+  {
+    colorType: bulletColorType,
+    shade: bulletColorShade,
+    customColor: bulletCustomColor,
+  },
+  siteColors
+);
+
+// Build modal CSS variables
+const modalCssVars = [
+  `--modal-left-bg: ${leftPanelBgColor}`,
+  `--modal-backdrop: ${backdropColor}`,
+  `--modal-client-name: ${clientNameColorResolved}`,
+  `--modal-date: ${dateColor}`,
+  `--modal-divider: ${dividerColor}`,
+  `--modal-description: ${descriptionColorResolved}`,
+  `--modal-contributions-title: ${contributionsTitleColor}`,
+  `--modal-contributions-text: ${contributionsTextColorResolved}`,
+  `--modal-bullet: ${bulletColor}`,
+].join('; ');
+---
+
+<div
+  class="case-study-modal-backdrop"
+  aria-hidden="true"
+  style={modalCssVars}
+  data-modal-backdrop
+>
+  <div
+    class="case-study-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    data-modal-container
+  >
+    <button
+      type="button"
+      class="case-study-modal__close"
+      aria-label="Close modal"
+      data-modal-close
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    {
+      caseStudies.map((cs) => (
+        <article
+          class="case-study-modal__content"
+          data-modal-id={cs._id}
+          hidden
+        >
+          <div class="case-study-modal__grid">
+            {/* Left Panel - Brand/Header */}
+            <div class="case-study-modal__left">
+              <div class="case-study-modal__header">
+                <h2 id="modal-title" class="case-study-modal__client">
+                  {cs.client}
+                </h2>
+                <div class="case-study-modal__divider" />
+                {cs.tagline && (
+                  <p class="case-study-modal__tagline">{cs.tagline}</p>
+                )}
+              </div>
+
+              {cs.date && (
+                <div class="case-study-modal__timeline">
+                  <span class="case-study-modal__timeline-label">Timeline</span>
+                  <p class="case-study-modal__date">{cs.date}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Right Panel - Content */}
+            <div class="case-study-modal__right">
+              {cs.description && cs.description.length > 0 && (
+                <div class="case-study-modal__section">
+                  <h3 class="case-study-modal__section-title">Overview</h3>
+                  <div class="case-study-modal__description">
+                    <PortableText content={cs.description} />
+                  </div>
+                </div>
+              )}
+
+              {cs.contributions && cs.contributions.length > 0 && (
+                <div class="case-study-modal__section">
+                  <h3 class="case-study-modal__section-title">
+                    {cs.contributionsTitle || 'Key Contributions'}
+                  </h3>
+                  <ul class="case-study-modal__list">
+                    {cs.contributions.map((item) => (
+                      <li>
+                        <span
+                          class="case-study-modal__bullet"
+                          aria-hidden="true"
+                        />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .case-study-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal-backdrop, 1040);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--transition-base),
+      visibility var(--transition-base);
+  }
+
+  .case-study-modal-backdrop[aria-hidden='false'] {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .case-study-modal {
+    position: relative;
+    width: 100%;
+    max-width: 60rem;
+    max-height: calc(100vh - var(--space-xl));
+    overflow-y: auto;
+    background: var(--color-background);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transform: scale(0.95);
+    opacity: 0;
+    transition:
+      transform var(--transition-base),
+      opacity var(--transition-base);
+  }
+
+  .case-study-modal-backdrop[aria-hidden='false'] .case-study-modal {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .case-study-modal__close {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    background: color-mix(in srgb, var(--color-background) 80%, transparent);
+    border: none;
+    border-radius: 50%;
+    color: var(--color-text);
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast);
+  }
+
+  .case-study-modal__close:hover {
+    background: var(--color-accent);
+    color: var(--color-text-contrast);
+  }
+
+  .case-study-modal__content {
+    display: none;
+  }
+
+  .case-study-modal__content:not([hidden]) {
+    display: block;
+  }
+
+  .case-study-modal__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: 60vh;
+  }
+
+  @media (min-width: 768px) {
+    .case-study-modal__grid {
+      grid-template-columns: 5fr 7fr;
+    }
+  }
+
+  /* Left Panel */
+  .case-study-modal__left {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--space-xl);
+    background: var(--modal-left-bg);
+  }
+
+  .case-study-modal__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .case-study-modal__client {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 500;
+    line-height: 1.1;
+    color: var(--modal-client-name);
+    margin: 0;
+  }
+
+  .case-study-modal__divider {
+    width: 4rem;
+    height: 3px;
+    background: var(--modal-divider);
+    margin-block: var(--space-sm);
+  }
+
+  .case-study-modal__tagline {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
+    margin: 0;
+    margin-block-start: var(--space-xs);
+  }
+
+  .case-study-modal__timeline {
+    margin-block-start: var(--space-xl);
+  }
+
+  .case-study-modal__timeline-label {
+    display: block;
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    opacity: 0.7;
+    margin-block-end: var(--space-2xs);
+  }
+
+  .case-study-modal__date {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--modal-date);
+    margin: 0;
+  }
+
+  /* Right Panel */
+  .case-study-modal__right {
+    padding: var(--space-xl);
+    background: var(--color-background);
+  }
+
+  .case-study-modal__section {
+    margin-block-end: var(--space-xl);
+  }
+
+  .case-study-modal__section:last-child {
+    margin-block-end: 0;
+  }
+
+  .case-study-modal__section-title {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--modal-contributions-title);
+    margin: 0;
+    margin-block-end: var(--space-md);
+  }
+
+  .case-study-modal__description {
+    font-family: var(--font-body);
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+    color: var(--modal-description);
+  }
+
+  .case-study-modal__description :global(p) {
+    margin: 0;
+  }
+
+  .case-study-modal__description :global(p + p) {
+    margin-block-start: 1em;
+  }
+
+  .case-study-modal__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .case-study-modal__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-relaxed);
+    color: var(--modal-contributions-text);
+  }
+
+  .case-study-modal__bullet {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    margin-block-start: 0.6em;
+    border-radius: 50%;
+    background: var(--modal-bullet);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .case-study-modal-backdrop,
+    .case-study-modal {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation';
+
+  setupAnimationLifecycle(() => {
+    const backdrop = document.querySelector(
+      '[data-modal-backdrop]'
+    ) as HTMLElement | null;
+    const container = document.querySelector(
+      '[data-modal-container]'
+    ) as HTMLElement | null;
+    const closeBtn = document.querySelector(
+      '[data-modal-close]'
+    ) as HTMLElement | null;
+    const boxes = document.querySelectorAll('[data-case-study-id]');
+    const contents = document.querySelectorAll('[data-modal-id]');
+
+    if (!backdrop || !container) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    let lastFocusedElement: HTMLElement | null = null;
+
+    function openModal(id: string) {
+      // Store focus
+      lastFocusedElement = document.activeElement as HTMLElement;
+
+      // Hide all content panels, show the target
+      contents.forEach((content) => {
+        content.setAttribute('hidden', '');
+      });
+      const target = document.querySelector(`[data-modal-id="${id}"]`);
+      target?.removeAttribute('hidden');
+
+      // Show backdrop
+      backdrop?.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+
+      // Animate if motion is OK
+      if (!prefersReducedMotion) {
+        gsap.fromTo(
+          backdrop,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3, ease: 'power2.out' }
+        );
+        gsap.fromTo(
+          container,
+          { scale: 0.95, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.3, ease: 'power2.out' }
+        );
+      }
+
+      // Focus close button
+      closeBtn?.focus();
+    }
+
+    function closeModal() {
+      if (!prefersReducedMotion) {
+        gsap.to(container, {
+          scale: 0.95,
+          opacity: 0,
+          duration: 0.2,
+          ease: 'power2.in',
+        });
+        gsap.to(backdrop, {
+          opacity: 0,
+          duration: 0.2,
+          ease: 'power2.in',
+          onComplete: () => {
+            backdrop?.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            lastFocusedElement?.focus();
+          },
+        });
+      } else {
+        backdrop?.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        lastFocusedElement?.focus();
+      }
+    }
+
+    // Box click handlers
+    boxes.forEach((box) => {
+      box.addEventListener('click', () => {
+        const id = (box as HTMLElement).dataset.caseStudyId;
+        if (id) openModal(id);
+      });
+
+      // Keyboard support for boxes
+      box.addEventListener('keydown', (e) => {
+        if (
+          (e as KeyboardEvent).key === 'Enter' ||
+          (e as KeyboardEvent).key === ' '
+        ) {
+          e.preventDefault();
+          const id = (box as HTMLElement).dataset.caseStudyId;
+          if (id) openModal(id);
+        }
+      });
+    });
+
+    // Close button handler
+    closeBtn?.addEventListener('click', closeModal);
+
+    // Backdrop click handler
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) closeModal();
+    });
+
+    // Escape key handler
+    document.addEventListener('keydown', (e) => {
+      if (
+        e.key === 'Escape' &&
+        backdrop.getAttribute('aria-hidden') === 'false'
+      ) {
+        closeModal();
+      }
+    });
+
+    // Focus trap
+    container?.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+
+      const focusableElements = container.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstFocusable = focusableElements[0] as HTMLElement;
+      const lastFocusable = focusableElements[
+        focusableElements.length - 1
+      ] as HTMLElement;
+
+      if (e.shiftKey && document.activeElement === firstFocusable) {
+        e.preventDefault();
+        lastFocusable.focus();
+      } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+        e.preventDefault();
+        firstFocusable.focus();
+      }
+    });
+  });
+</script>

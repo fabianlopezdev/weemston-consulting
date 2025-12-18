@@ -1,0 +1,381 @@
+---
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import { urlForImage } from '@lib/sanity/image';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface ClientLogoData {
+  asset?: {
+    _id: string;
+    url?: string;
+    metadata?: {
+      dimensions?: {
+        width: number;
+        height: number;
+        aspectRatio: number;
+      };
+    };
+  };
+  alt?: string;
+  hotspot?: { x: number; y: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface ServiceTag {
+  _id: string;
+  title: string;
+}
+
+interface Props {
+  id: string;
+  client: string;
+  clientLogo?: ClientLogoData;
+  logoVariant?: 'dark' | 'light';
+  serviceTags: ServiceTag[];
+  // Box styling
+  boxBgColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  boxBgColorShade?: number;
+  boxBgCustomColor?: ColorData;
+  boxHoverBgColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  boxHoverBgColorShade?: number;
+  boxHoverBgCustomColor?: ColorData;
+  tagColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  tagColorShade?: number;
+  tagCustomColor?: ColorData;
+  ctaTextColor?: 'base' | 'muted' | 'contrast';
+}
+
+const {
+  id,
+  client: clientName,
+  clientLogo,
+  logoVariant = 'dark',
+  serviceTags = [],
+  boxBgColorType = 'secondary',
+  boxBgColorShade = 95,
+  boxBgCustomColor,
+  boxHoverBgColorType = 'accent',
+  boxHoverBgColorShade = 0,
+  boxHoverBgCustomColor,
+  tagColorType = 'secondary',
+  tagColorShade = 30,
+  tagCustomColor,
+  ctaTextColor = 'contrast',
+} = Astro.props;
+
+// Fetch site colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve colors
+const boxBgColor = resolveColorSelection(
+  {
+    colorType: boxBgColorType,
+    shade: boxBgColorShade,
+    customColor: boxBgCustomColor,
+  },
+  siteColors
+);
+
+const boxHoverBgColor = resolveColorSelection(
+  {
+    colorType: boxHoverBgColorType,
+    shade: boxHoverBgColorShade,
+    customColor: boxHoverBgCustomColor,
+  },
+  siteColors
+);
+
+const tagColor = resolveColorSelection(
+  {
+    colorType: tagColorType,
+    shade: tagColorShade,
+    customColor: tagCustomColor,
+  },
+  siteColors
+);
+
+// CTA text color mapping
+const textColorMap: Record<string, string> = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'var(--color-text-contrast)',
+};
+const ctaColor = textColorMap[ctaTextColor] || textColorMap.contrast;
+
+// Generate logo URL if logo exists
+const logoUrl = clientLogo?.asset
+  ? urlForImage(clientLogo).height(120).auto('format').url()
+  : null;
+
+// Logo filter logic: dark logos stay dark on light bg, invert on hover (dark bg)
+// Light logos get inverted on light bg, stay inverted on dark bg (hover)
+function getLogoFilters(variant: 'dark' | 'light'): {
+  filter: string;
+  hoverFilter: string;
+} {
+  const isLight = variant === 'light';
+
+  // Default state (light background): dark logos stay dark, light logos get inverted
+  // Hover state (dark background): dark logos get inverted, light logos stay light
+  return {
+    filter: isLight
+      ? 'invert(1) grayscale(1) opacity(0.8)'
+      : 'grayscale(1) opacity(0.7)',
+    hoverFilter: isLight
+      ? 'grayscale(1) opacity(0.9)'
+      : 'invert(1) brightness(2)',
+  };
+}
+
+const { filter: logoFilter, hoverFilter: logoHoverFilter } =
+  getLogoFilters(logoVariant);
+
+// Build comma-separated service IDs for filtering
+const serviceIds = serviceTags.map((s) => s._id).join(',');
+
+// Build CSS variables
+const cssVars = [
+  `--box-bg: ${boxBgColor}`,
+  `--box-hover-bg: ${boxHoverBgColor}`,
+  `--box-tag-color: ${tagColor}`,
+  `--box-cta-color: ${ctaColor}`,
+  `--logo-filter: ${logoFilter}`,
+  `--logo-hover-filter: ${logoHoverFilter}`,
+].join('; ');
+---
+
+<button
+  type="button"
+  class="case-study-box"
+  data-case-study-id={id}
+  data-service-ids={serviceIds}
+  style={cssVars}
+  aria-label={`View case study: ${clientName}`}
+>
+  {/* Service Tags */}
+  <div class="case-study-box__tags">
+    {
+      serviceTags.length > 0 ? (
+        serviceTags.map((tag, index) => (
+          <span class="case-study-box__tag">
+            {tag.title}
+            {index < serviceTags.length - 1 && (
+              <span class="case-study-box__tag-separator">/</span>
+            )}
+          </span>
+        ))
+      ) : (
+        <span class="case-study-box__tag">Case Study</span>
+      )
+    }
+  </div>
+
+  {/* Logo or Client Name */}
+  <div class="case-study-box__logo-container">
+    {
+      logoUrl ? (
+        <img
+          src={logoUrl}
+          alt={clientLogo?.alt || `${clientName} logo`}
+          class="case-study-box__logo"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <span class="case-study-box__client-name">{clientName}</span>
+      )
+    }
+  </div>
+
+  {/* Divider */}
+  <div class="case-study-box__divider"></div>
+
+  {/* CTA */}
+  <div class="case-study-box__cta">
+    <span class="case-study-box__cta-text">View Case</span>
+    <svg
+      class="case-study-box__cta-arrow"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+      <polyline points="12 5 19 12 12 19"></polyline>
+    </svg>
+  </div>
+</button>
+
+<style>
+  .case-study-box {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--space-lg);
+    background: var(--box-bg);
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    text-align: left;
+    transition:
+      background-color var(--transition-base),
+      transform var(--transition-fast);
+  }
+
+  .case-study-box:hover {
+    background: var(--box-hover-bg);
+  }
+
+  .case-study-box:active {
+    transform: scale(0.98);
+  }
+
+  /* Service Tags */
+  .case-study-box__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .case-study-box__tag {
+    font-family: var(--font-body);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--box-tag-color);
+    transition: color var(--transition-base);
+  }
+
+  @media (min-width: 768px) {
+    .case-study-box__tag {
+      font-size: var(--font-size-xs);
+    }
+  }
+
+  .case-study-box:hover .case-study-box__tag {
+    color: color-mix(in srgb, var(--color-text-contrast) 60%, transparent);
+  }
+
+  .case-study-box__tag-separator {
+    margin-inline: var(--space-2xs);
+    opacity: 0.5;
+  }
+
+  /* Logo Container */
+  .case-study-box__logo-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-block: var(--space-md);
+  }
+
+  .case-study-box__logo {
+    max-width: 80%;
+    max-height: 80px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: var(--logo-filter);
+    transition: filter var(--transition-base);
+  }
+
+  .case-study-box:hover .case-study-box__logo {
+    filter: var(--logo-hover-filter);
+  }
+
+  .case-study-box__client-name {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    font-weight: 500;
+    line-height: 0.95;
+    color: var(--box-hover-bg);
+    transition: color var(--transition-base);
+  }
+
+  .case-study-box:hover .case-study-box__client-name {
+    color: var(--color-text-contrast);
+  }
+
+  /* Divider */
+  .case-study-box__divider {
+    width: 2rem;
+    height: 1px;
+    background: color-mix(in srgb, var(--box-hover-bg) 30%, transparent);
+    transition:
+      width var(--transition-base),
+      background-color var(--transition-base);
+    margin-block-end: var(--space-sm);
+  }
+
+  .case-study-box:hover .case-study-box__divider {
+    width: 100%;
+    background: color-mix(in srgb, var(--color-text-contrast) 40%, transparent);
+  }
+
+  /* CTA */
+  .case-study-box__cta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    opacity: 0;
+    transform: translateY(0.5rem);
+    transition:
+      opacity var(--transition-base),
+      transform var(--transition-base);
+  }
+
+  .case-study-box:hover .case-study-box__cta {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .case-study-box__cta-text {
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--box-cta-color);
+  }
+
+  .case-study-box__cta-arrow {
+    color: var(--box-cta-color);
+    transition: transform var(--transition-fast);
+  }
+
+  .case-study-box:hover .case-study-box__cta-arrow {
+    transform: translateX(4px);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .case-study-box,
+    .case-study-box__logo,
+    .case-study-box__tag,
+    .case-study-box__divider,
+    .case-study-box__cta,
+    .case-study-box__cta-arrow {
+      transition: none;
+    }
+
+    .case-study-box__cta {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

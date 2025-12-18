@@ -103,69 +103,32 @@ export const allServicesQuery = groq`
   }
 `;
 
-// Services for filter (minimal data for filter buttons)
+// Services for filter (includes featuredCaseStudies for inverse relationship mapping)
 export const servicesForFilterQuery = groq`
   *[_type == "service" && language == $language] | order(title asc) {
     _id,
-    title
+    title,
+    featuredCaseStudies[]-> { _id }
   }
 `;
 
-// Case Study projection (for use in service documents)
+// Case Study projection (simplified - colors now at page level)
 const caseStudyProjection = `
   _id,
-  title,
-  language,
-  // Hero Section
-  mainImage {
-    ${imageProjection}
-  },
-  icon { name },
-  category,
   client,
-  role,
-  // Hero Colors
-  overlayColorType,
-  overlayColorShade,
-  overlayCustomColor { label, value },
-  overlayOpacity,
-  iconBgColorType,
-  iconBgColorShade,
-  iconBgCustomColor { label, value },
-  iconColorType,
-  iconColorShade,
-  iconCustomColor { label, value },
-  categoryColor,
-  clientColor,
-  roleColor,
-  // Content Section
+  tagline,
+  clientLogo {
+    asset->{ _id, url, metadata { dimensions { width, height, aspectRatio } } },
+    alt,
+    hotspot,
+    crop
+  },
+  logoVariant,
   date,
   description,
   contributionsTitle,
   contributions,
-  // Content Colors
-  contentBgColorType,
-  contentBgColorShade,
-  contentBgCustomColor { label, value },
-  dateColorType,
-  dateColorShade,
-  dateCustomColor { label, value },
-  dividerColorType,
-  dividerColorShade,
-  dividerCustomColor { label, value },
-  descriptionColor,
-  contributionsTitleColorType,
-  contributionsTitleColorShade,
-  contributionsTitleCustomColor { label, value },
-  contributionsTextColor,
-  bulletColorType,
-  bulletColorShade,
-  bulletCustomColor { label, value },
-  // Related Service (for filtering)
-  relatedService-> {
-    _id,
-    title
-  }
+  relatedService-> { _id, title }
 `;
 
 export const allCaseStudiesQuery = groq`
@@ -583,48 +546,55 @@ export const caseStudiesPageQuery = groq`
     filterInactiveColorShade,
     filterInactiveCustomColor { label, value },
     filterInactiveTextColor,
-    // Case Studies
+    // Box Styling
+    boxBgColorType,
+    boxBgColorShade,
+    boxBgCustomColor { label, value },
+    boxHoverBgColorType,
+    boxHoverBgColorShade,
+    boxHoverBgCustomColor { label, value },
+    tagColorType,
+    tagColorShade,
+    tagCustomColor { label, value },
+    ctaTextColor,
+    // Modal Styling
+    modalLeftBgColorType,
+    modalLeftBgColorShade,
+    modalLeftBgCustomColor { label, value },
+    modalBackdropColorType,
+    modalBackdropColorShade,
+    modalBackdropCustomColor { label, value },
+    modalClientNameColor,
+    modalDateColorType,
+    modalDateColorShade,
+    modalDateCustomColor { label, value },
+    modalDividerColorType,
+    modalDividerColorShade,
+    modalDividerCustomColor { label, value },
+    modalDescriptionColor,
+    modalContributionsTitleColorType,
+    modalContributionsTitleColorShade,
+    modalContributionsTitleCustomColor { label, value },
+    modalContributionsTextColor,
+    modalBulletColorType,
+    modalBulletColorShade,
+    modalBulletCustomColor { label, value },
+    // Case Studies (simplified - colors at page level)
     caseStudies[]-> {
       _id,
-      mainImage,
-      icon { name },
-      category,
       client,
-      role,
-      overlayColorType,
-      overlayColorShade,
-      overlayCustomColor { label, value },
-      overlayOpacity,
-      iconBgColorType,
-      iconBgColorShade,
-      iconBgCustomColor { label, value },
-      iconColorType,
-      iconColorShade,
-      iconCustomColor { label, value },
-      categoryColor,
-      clientColor,
-      roleColor,
+      tagline,
+      clientLogo {
+        asset->{ _id, url, metadata { dimensions { width, height, aspectRatio } } },
+        alt,
+        hotspot,
+        crop
+      },
+      logoVariant,
       date,
       description,
       contributionsTitle,
       contributions,
-      contentBgColorType,
-      contentBgColorShade,
-      contentBgCustomColor { label, value },
-      dateColorType,
-      dateColorShade,
-      dateCustomColor { label, value },
-      dividerColorType,
-      dividerColorShade,
-      dividerCustomColor { label, value },
-      descriptionColor,
-      contributionsTitleColorType,
-      contributionsTitleColorShade,
-      contributionsTitleCustomColor { label, value },
-      contributionsTextColor,
-      bulletColorType,
-      bulletColorShade,
-      bulletCustomColor { label, value },
       relatedService-> { _id, title }
     },
     // SEO
