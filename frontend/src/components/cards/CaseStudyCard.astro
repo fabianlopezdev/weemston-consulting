@@ -255,8 +255,8 @@ const cssVars = cssVarParts.join('; ');
         }
         <span class="case-study-card__category">{category}</span>
       </div>
-      <h3 class="case-study-card__client">{clientName}</h3>
       {role && <p class="case-study-card__role">{role}</p>}
+      <h3 class="case-study-card__client">{clientName}</h3>
     </div>
   </div>
 
@@ -408,19 +408,19 @@ const cssVars = cssVarParts.join('; ');
     color: var(--cs-category-color, var(--color-text-contrast));
   }
 
-  .case-study-card__client {
+  .case-study-card__role {
     font-family: var(--font-heading);
     font-size: clamp(2rem, 3vw + 1rem, 3rem);
     font-weight: 500;
     line-height: 1.1;
-    color: var(--cs-client-color, var(--color-text-contrast));
+    color: var(--cs-role-color, var(--color-text-contrast));
     margin: 0;
   }
 
-  .case-study-card__role {
+  .case-study-card__client {
     font-size: clamp(1.25rem, 1vw + 1rem, 1.5rem); /* 20px to 24px */
     font-weight: 300;
-    color: var(--cs-role-color, var(--color-text-contrast));
+    color: var(--cs-client-color, var(--color-text-contrast));
     margin: 0;
     opacity: 0.9;
   }
