@@ -61,14 +61,6 @@ export default defineType({
       validation: (Rule) => Rule.required().error('Client name is required'),
     },
     {
-      name: 'tagline',
-      title: 'Tagline',
-      type: 'text',
-      rows: 2,
-      group: 'details',
-      description: 'A short tagline or subtitle for this case study',
-    },
-    {
       name: 'date',
       title: 'Date / Timeline',
       type: 'string',

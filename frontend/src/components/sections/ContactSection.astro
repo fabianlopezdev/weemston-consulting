@@ -23,11 +23,25 @@ interface ButtonColorData {
   customColor?: ColorData;
 }
 
+interface ColorSelectionData {
+  colorType?: string;
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: ColorSelectionData;
+  endColor?: ColorSelectionData;
+}
+
 interface Props {
   // Left Panel
+  leftColorMode?: 'solid' | 'gradient';
   leftBackgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   leftBackgroundColorShade?: number;
   leftBackgroundCustomColor?: ColorData;
+  leftGradient?: GradientData;
   leftHeading?: string;
   leftHeadingColorType?:
     | 'white'
@@ -68,6 +82,7 @@ interface Props {
   emailHoverColorShade?: number;
   emailHoverCustomColor?: ColorData;
   // Right Panel
+  rightColorMode?: 'solid' | 'gradient';
   rightBackgroundColorType?:
     | 'white'
     | 'primary'
@@ -76,6 +91,7 @@ interface Props {
     | 'custom';
   rightBackgroundColorShade?: number;
   rightBackgroundCustomColor?: ColorData;
+  rightGradient?: GradientData;
   formNameLabel?: string;
   formNamePlaceholder?: string;
   formEmailLabel?: string;
@@ -94,9 +110,11 @@ interface Props {
 
 const {
   // Left Panel defaults
+  leftColorMode = 'solid',
   leftBackgroundColorType = 'secondary',
   leftBackgroundColorShade = 0,
   leftBackgroundCustomColor,
+  leftGradient,
   leftHeading = "Let's start a conversation.",
   leftHeadingColorType = 'white',
   leftHeadingColorShade = 0,
@@ -120,9 +138,11 @@ const {
   emailHoverColorShade = 0,
   emailHoverCustomColor,
   // Right Panel defaults
+  rightColorMode = 'solid',
   rightBackgroundColorType = 'white',
   rightBackgroundColorShade = 0,
   rightBackgroundCustomColor,
+  rightGradient,
   formNameLabel = 'Name',
   formNamePlaceholder = 'Jane Doe',
   formEmailLabel = 'Email',
@@ -164,14 +184,25 @@ function resolveTextColor(
 }
 
 // Resolve Left Panel colors
-const leftBgColor = resolveColorSelection(
-  {
-    colorType: leftBackgroundColorType,
-    shade: leftBackgroundColorShade,
-    customColor: leftBackgroundCustomColor,
-  },
-  siteColors
-);
+const leftBgColor = (() => {
+  if (leftColorMode === 'gradient' && leftGradient) {
+    const direction = leftGradient.direction || '135deg';
+    const startColor = resolveColorSelection(
+      leftGradient.startColor,
+      siteColors
+    );
+    const endColor = resolveColorSelection(leftGradient.endColor, siteColors);
+    return `linear-gradient(${direction}, ${startColor}, ${endColor})`;
+  }
+  return resolveColorSelection(
+    {
+      colorType: leftBackgroundColorType,
+      shade: leftBackgroundColorShade,
+      customColor: leftBackgroundCustomColor,
+    },
+    siteColors
+  );
+})();
 
 const headingColor = resolveTextColor(
   leftHeadingColorType,
@@ -216,17 +247,28 @@ const emailHoverColor = resolveColorSelection(
 );
 
 // Resolve Right Panel colors
-const rightBgColor =
-  rightBackgroundColorType === 'white'
-    ? '#ffffff'
-    : resolveColorSelection(
-        {
-          colorType: rightBackgroundColorType,
-          shade: rightBackgroundColorShade,
-          customColor: rightBackgroundCustomColor,
-        },
-        siteColors
-      );
+const rightBgColor = (() => {
+  if (rightColorMode === 'gradient' && rightGradient) {
+    const direction = rightGradient.direction || '135deg';
+    const startColor = resolveColorSelection(
+      rightGradient.startColor,
+      siteColors
+    );
+    const endColor = resolveColorSelection(rightGradient.endColor, siteColors);
+    return `linear-gradient(${direction}, ${startColor}, ${endColor})`;
+  }
+  if (rightBackgroundColorType === 'white') {
+    return '#ffffff';
+  }
+  return resolveColorSelection(
+    {
+      colorType: rightBackgroundColorType,
+      shade: rightBackgroundColorShade,
+      customColor: rightBackgroundCustomColor,
+    },
+    siteColors
+  );
+})();
 
 const labelColor = resolveTextColor(
   formLabelColorType,
@@ -389,7 +431,7 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
   /* Left Panel */
   .contact-section__left {
     width: 100%;
-    background-color: var(--left-bg);
+    background: var(--left-bg);
     padding: var(--space-xl);
     display: flex;
     flex-direction: column;
@@ -463,7 +505,7 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
   /* Right Panel */
   .contact-section__right {
     width: 100%;
-    background-color: var(--right-bg);
+    background: var(--right-bg);
     padding: var(--space-xl);
     display: flex;
     flex-direction: column;

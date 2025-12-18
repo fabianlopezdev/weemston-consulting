@@ -20,7 +20,6 @@ interface TestimonialData {
 interface CaseStudyData {
   _id: string;
   client: string;
-  tagline?: string;
   date?: string;
   description?: PortableTextBlock[];
   contributionsTitle?: string;
@@ -263,9 +262,6 @@ const modalCssVars = [
                   {cs.client}
                 </h2>
                 <div class="case-study-modal__divider" />
-                {cs.tagline && (
-                  <p class="case-study-modal__tagline">{cs.tagline}</p>
-                )}
               </div>
 
               {cs.testimonial && (
@@ -438,14 +434,6 @@ const modalCssVars = [
     height: 3px;
     background: var(--modal-divider);
     margin-block: var(--space-sm);
-  }
-
-  .case-study-modal__tagline {
-    font-family: var(--font-body);
-    font-size: var(--font-size-base);
-    color: var(--color-text-muted);
-    margin: 0;
-    margin-block-start: var(--space-xs);
   }
 
   .case-study-modal__date {

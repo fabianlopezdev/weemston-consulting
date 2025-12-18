@@ -67,13 +67,31 @@ export default defineType({
     defineLanguageField(),
 
     // === LEFT PANEL (Info Side) ===
-    // Background Color
+    // Background Color Mode
+    {
+      name: 'leftColorMode',
+      title: 'Background Color Mode',
+      type: 'string',
+      group: 'leftPanel',
+      fieldset: 'leftPanelFields',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+    },
+    // Solid Color
     {
       name: 'leftBackgroundColorType',
       title: 'Background Color',
       type: 'string',
       group: 'leftPanel',
       fieldset: 'leftPanelFields',
+      hidden: ({ parent }) => parent?.leftColorMode === 'gradient',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -91,7 +109,9 @@ export default defineType({
       group: 'leftPanel',
       fieldset: 'leftPanelFields',
       initialValue: 0,
-      hidden: ({ parent }) => parent?.leftBackgroundColorType === 'custom',
+      hidden: ({ parent }) =>
+        parent?.leftColorMode === 'gradient' ||
+        parent?.leftBackgroundColorType === 'custom',
       validation: (Rule) => Rule.min(0).max(100).integer(),
       components: {
         input: BackgroundShadeInput,
@@ -103,7 +123,112 @@ export default defineType({
       type: 'simplerColor',
       group: 'leftPanel',
       fieldset: 'leftPanelFields',
-      hidden: ({ parent }) => parent?.leftBackgroundColorType !== 'custom',
+      hidden: ({ parent }) =>
+        parent?.leftColorMode === 'gradient' ||
+        parent?.leftBackgroundColorType !== 'custom',
+    },
+    // Gradient
+    {
+      name: 'leftGradient',
+      title: 'Gradient',
+      type: 'object',
+      group: 'leftPanel',
+      fieldset: 'leftPanelFields',
+      hidden: ({ parent }) => parent?.leftColorMode !== 'gradient',
+      fields: [
+        {
+          name: 'direction',
+          title: 'Direction',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Top to Bottom', value: 'to bottom' },
+              { title: 'Bottom to Top', value: 'to top' },
+              { title: 'Left to Right', value: 'to right' },
+              { title: 'Right to Left', value: 'to left' },
+              { title: 'Diagonal ↘', value: '135deg' },
+              { title: 'Diagonal ↗', value: '45deg' },
+            ],
+          },
+          initialValue: '135deg',
+        },
+        {
+          name: 'startColor',
+          title: 'Start Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'primary',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: {
+                input: BackgroundShadeInput,
+              },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+        {
+          name: 'endColor',
+          title: 'End Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'accent',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: {
+                input: BackgroundShadeInput,
+              },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+      ],
     },
 
     // Heading
@@ -388,13 +513,31 @@ export default defineType({
     },
 
     // === RIGHT PANEL (Form Side) ===
-    // Background Color
+    // Background Color Mode
+    {
+      name: 'rightColorMode',
+      title: 'Background Color Mode',
+      type: 'string',
+      group: 'rightPanel',
+      fieldset: 'rightPanelFields',
+      options: {
+        list: [
+          { title: 'Solid', value: 'solid' },
+          { title: 'Gradient', value: 'gradient' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'solid',
+    },
+    // Solid Color
     {
       name: 'rightBackgroundColorType',
       title: 'Background Color',
       type: 'string',
       group: 'rightPanel',
       fieldset: 'rightPanelFields',
+      hidden: ({ parent }) => parent?.rightColorMode === 'gradient',
       options: {
         list: [
           { title: 'White', value: 'white' },
@@ -414,6 +557,7 @@ export default defineType({
       fieldset: 'rightPanelFields',
       initialValue: 0,
       hidden: ({ parent }) =>
+        parent?.rightColorMode === 'gradient' ||
         parent?.rightBackgroundColorType === 'custom' ||
         parent?.rightBackgroundColorType === 'white',
       validation: (Rule) => Rule.min(0).max(100).integer(),
@@ -427,7 +571,112 @@ export default defineType({
       type: 'simplerColor',
       group: 'rightPanel',
       fieldset: 'rightPanelFields',
-      hidden: ({ parent }) => parent?.rightBackgroundColorType !== 'custom',
+      hidden: ({ parent }) =>
+        parent?.rightColorMode === 'gradient' ||
+        parent?.rightBackgroundColorType !== 'custom',
+    },
+    // Gradient
+    {
+      name: 'rightGradient',
+      title: 'Gradient',
+      type: 'object',
+      group: 'rightPanel',
+      fieldset: 'rightPanelFields',
+      hidden: ({ parent }) => parent?.rightColorMode !== 'gradient',
+      fields: [
+        {
+          name: 'direction',
+          title: 'Direction',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Top to Bottom', value: 'to bottom' },
+              { title: 'Bottom to Top', value: 'to top' },
+              { title: 'Left to Right', value: 'to right' },
+              { title: 'Right to Left', value: 'to left' },
+              { title: 'Diagonal ↘', value: '135deg' },
+              { title: 'Diagonal ↗', value: '45deg' },
+            ],
+          },
+          initialValue: '135deg',
+        },
+        {
+          name: 'startColor',
+          title: 'Start Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'primary',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: {
+                input: BackgroundShadeInput,
+              },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+        {
+          name: 'endColor',
+          title: 'End Color',
+          type: 'object',
+          fields: [
+            {
+              name: 'colorType',
+              title: 'Color',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'accent',
+            },
+            {
+              name: 'shade',
+              title: 'Shade',
+              type: 'number',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.colorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: {
+                input: BackgroundShadeInput,
+              },
+            },
+            {
+              name: 'customColor',
+              title: ' ',
+              type: 'simplerColor',
+              hidden: ({ parent }) => parent?.colorType !== 'custom',
+            },
+          ],
+        },
+      ],
     },
 
     // Form Field: Name

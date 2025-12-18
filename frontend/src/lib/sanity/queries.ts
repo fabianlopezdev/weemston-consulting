@@ -116,7 +116,6 @@ export const servicesForFilterQuery = groq`
 const caseStudyProjection = `
   _id,
   client,
-  tagline,
   clientLogo {
     asset->{ _id, url, metadata { dimensions { width, height, aspectRatio } } },
     alt,
@@ -591,7 +590,6 @@ export const caseStudiesPageQuery = groq`
     caseStudies[]-> {
       _id,
       client,
-      tagline,
       clientLogo {
         asset->{ _id, url, metadata { dimensions { width, height, aspectRatio } } },
         alt,
@@ -628,9 +626,13 @@ export const contactPageQuery = groq`
     metaDescription,
     ogImage,
     // Left Panel
+    leftColorMode,
     leftBackgroundColorType,
     leftBackgroundColorShade,
     leftBackgroundCustomColor { label, value },
+    leftGradient {
+      ${gradientProjection}
+    },
     leftHeading,
     leftHeadingColorType,
     leftHeadingColorShade,
@@ -654,9 +656,13 @@ export const contactPageQuery = groq`
     emailHoverColorShade,
     emailHoverCustomColor { label, value },
     // Right Panel
+    rightColorMode,
     rightBackgroundColorType,
     rightBackgroundColorShade,
     rightBackgroundCustomColor { label, value },
+    rightGradient {
+      ${gradientProjection}
+    },
     formNameLabel,
     formNamePlaceholder,
     formEmailLabel,
