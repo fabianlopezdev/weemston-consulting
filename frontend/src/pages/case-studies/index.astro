@@ -8,6 +8,7 @@ import {
 } from '@lib/sanity/queries';
 import { createTranslator } from '@lib/i18n/translations';
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { slugify } from '@lib/utils/url';
 import CaseStudyCard from '@components/cards/CaseStudyCard.astro';
 import InternalPageHero from '@components/sections/InternalPageHero.astro';
 import SectionTitle from '@components/ui/SectionTitle.astro';
@@ -178,6 +179,7 @@ const filterCssVars = [
         {
           caseStudies.map((caseStudy: any) => (
             <div
+              id={slugify(caseStudy.client)}
               class="case-study-wrapper"
               data-service-id={caseStudy.relatedService?._id}
             >

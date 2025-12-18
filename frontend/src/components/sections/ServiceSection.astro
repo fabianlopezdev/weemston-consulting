@@ -3,6 +3,7 @@ import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import { urlForImage } from '@lib/sanity/image';
+import { slugify } from '@lib/utils/url';
 import Image from '@components/media/Image.astro';
 import PortableText from '@components/sanity/PortableText.astro';
 import type { PortableTextBlock } from '@portabletext/types';
@@ -428,7 +429,7 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
                   );
                   return (
                     <a
-                      href={`/case-studies#${caseStudy._id}`}
+                      href={`/case-studies#${slugify(caseStudy.client || '')}`}
                       class="service-section__case-study-logo"
                       title={caseStudy.client || 'View case study'}
                     >
@@ -552,7 +553,7 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
                   );
                   return (
                     <a
-                      href={`/case-studies#${caseStudy._id}`}
+                      href={`/case-studies#${slugify(caseStudy.client || '')}`}
                       class="service-section__case-study-logo"
                       title={caseStudy.client || 'View case study'}
                     >
@@ -619,7 +620,7 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
                     );
                     return (
                       <a
-                        href={`/case-studies#${caseStudy._id}`}
+                        href={`/case-studies#${slugify(caseStudy.client || '')}`}
                         class="service-section__case-study-logo"
                         title={caseStudy.client || 'View case study'}
                       >
