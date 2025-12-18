@@ -55,6 +55,12 @@ interface Props {
   bulletColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   bulletColorShade?: number;
   bulletCustomColor?: ColorData;
+  // Quote colors
+  quoteTextColor?: 'base' | 'muted' | 'contrast';
+  quoteBorderColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  quoteBorderColorShade?: number;
+  quoteBorderCustomColor?: ColorData;
+  quoteAuthorColor?: 'base' | 'muted' | 'contrast';
 }
 
 const {
@@ -84,6 +90,12 @@ const {
   bulletColorType = 'accent',
   bulletColorShade = 0,
   bulletCustomColor,
+  // Quote styling
+  quoteTextColor = 'muted',
+  quoteBorderColorType = 'secondary',
+  quoteBorderColorShade = 80,
+  quoteBorderCustomColor,
+  quoteAuthorColor = 'muted',
 } = Astro.props;
 
 // Fetch site colors
@@ -167,6 +179,22 @@ const bulletColor = resolveColorSelection(
   siteColors
 );
 
+// Quote colors
+const quoteTextColorResolved =
+  textColorMap[quoteTextColor] || textColorMap.muted;
+
+const quoteBorderColor = resolveColorSelection(
+  {
+    colorType: quoteBorderColorType,
+    shade: quoteBorderColorShade,
+    customColor: quoteBorderCustomColor,
+  },
+  siteColors
+);
+
+const quoteAuthorColorResolved =
+  textColorMap[quoteAuthorColor] || textColorMap.muted;
+
 // Build modal CSS variables
 const modalCssVars = [
   `--modal-left-bg: ${leftPanelBgColor}`,
@@ -178,6 +206,9 @@ const modalCssVars = [
   `--modal-contributions-title: ${contributionsTitleColor}`,
   `--modal-contributions-text: ${contributionsTextColorResolved}`,
   `--modal-bullet: ${bulletColor}`,
+  `--modal-quote-text: ${quoteTextColorResolved}`,
+  `--modal-quote-border: ${quoteBorderColor}`,
+  `--modal-quote-author: ${quoteAuthorColorResolved}`,
 ].join('; ');
 ---
 
@@ -243,8 +274,9 @@ const modalCssVars = [
                     text={cs.testimonial.quote}
                     authorName={cs.testimonial.authorName}
                     authorPosition={cs.testimonial.authorPosition}
-                    textColor="var(--color-text-muted)"
-                    borderColor="var(--modal-divider)"
+                    textColor="var(--modal-quote-text)"
+                    borderColor="var(--modal-quote-border)"
+                    authorColor="var(--modal-quote-author)"
                     size="sm"
                   />
                 </div>

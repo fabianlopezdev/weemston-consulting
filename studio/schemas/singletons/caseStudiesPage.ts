@@ -881,6 +881,79 @@ export default defineType({
       hidden: ({ parent }) => parent?.modalBulletColorType !== 'custom',
     },
 
+    // Quote Colors (for testimonial quotes in the modal)
+    {
+      name: 'modalQuoteTextColor',
+      title: 'Quote Text Color',
+      type: 'string',
+      group: 'modalStyling',
+      fieldset: 'modalFields',
+      description: 'Color for the testimonial quote text',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'muted',
+    },
+    {
+      name: 'modalQuoteBorderColorType',
+      title: 'Quote Border Color',
+      type: 'string',
+      group: 'modalStyling',
+      fieldset: 'modalFields',
+      description: 'Color for the left border of the quote',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'secondary',
+    },
+    {
+      name: 'modalQuoteBorderColorShade',
+      title: 'Quote Border Shade',
+      type: 'number',
+      group: 'modalStyling',
+      fieldset: 'modalFields',
+      initialValue: 80,
+      hidden: ({ parent }) => parent?.modalQuoteBorderColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'modalQuoteBorderCustomColor',
+      title: 'Custom Quote Border Color',
+      type: 'simplerColor',
+      group: 'modalStyling',
+      fieldset: 'modalFields',
+      hidden: ({ parent }) => parent?.modalQuoteBorderColorType !== 'custom',
+    },
+    {
+      name: 'modalQuoteAuthorColor',
+      title: 'Quote Author Color',
+      type: 'string',
+      group: 'modalStyling',
+      fieldset: 'modalFields',
+      description: 'Color for the author name and position',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'muted',
+    },
+
     // Case Studies
     {
       name: 'caseStudies',

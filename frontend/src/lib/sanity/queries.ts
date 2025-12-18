@@ -581,6 +581,12 @@ export const caseStudiesPageQuery = groq`
     modalBulletColorType,
     modalBulletColorShade,
     modalBulletCustomColor { label, value },
+    // Quote colors
+    modalQuoteTextColor,
+    modalQuoteBorderColorType,
+    modalQuoteBorderColorShade,
+    modalQuoteBorderCustomColor { label, value },
+    modalQuoteAuthorColor,
     // Case Studies (simplified - colors at page level)
     caseStudies[]-> {
       _id,
