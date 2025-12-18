@@ -8,6 +8,7 @@ import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import { Icon } from 'astro-icon/components';
 import PortableText from '@components/sanity/PortableText.astro';
+import Quote from '@components/ui/Quote.astro';
 import type { PortableTextBlock } from '@portabletext/types';
 
 interface ColorData {
@@ -283,9 +284,13 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
 
       {
         leftQuote && (
-          <blockquote class="contact-section__quote">
-            <p>"{leftQuote}"</p>
-          </blockquote>
+          <div class="contact-section__quote-wrapper">
+            <Quote
+              text={leftQuote}
+              textColor={quoteColor}
+              borderColor={quoteBorderColor}
+            />
+          </div>
         )
       }
 
@@ -440,20 +445,8 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
     font-weight: 600;
   }
 
-  .contact-section__quote {
-    border-left: 2px solid var(--quote-border-color);
-    padding-left: var(--space-lg);
-    padding-top: var(--space-sm);
-    padding-bottom: var(--space-sm);
+  .contact-section__quote-wrapper {
     margin-bottom: var(--space-2xl);
-  }
-
-  .contact-section__quote p {
-    font-style: italic;
-    font-size: 1.125rem;
-    color: var(--quote-color);
-    line-height: 1.75;
-    margin: 0;
   }
 
   .contact-section__contact-info {

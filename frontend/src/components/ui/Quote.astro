@@ -1,0 +1,36 @@
+---
+interface Props {
+  text: string;
+  textColor?: string;
+  borderColor?: string;
+}
+
+const { text, textColor = 'rgb(203 213 225)', borderColor } = Astro.props;
+
+const cssVars = [
+  textColor ? `--quote-text-color: ${textColor}` : null,
+  borderColor ? `--quote-border-color: ${borderColor}` : null,
+]
+  .filter(Boolean)
+  .join('; ');
+---
+
+<blockquote class="quote" style={cssVars}>
+  <p>"{text}"</p>
+</blockquote>
+
+<style>
+  .quote {
+    border-left: 3px solid var(--quote-border-color);
+    padding-left: var(--space-md);
+    font-family: var(--font-heading);
+    font-size: clamp(1.125rem, 2.5vw, 1.35rem);
+    font-style: italic;
+    color: var(--quote-text-color);
+    line-height: 1.5;
+  }
+
+  .quote p {
+    margin: 0;
+  }
+</style>
