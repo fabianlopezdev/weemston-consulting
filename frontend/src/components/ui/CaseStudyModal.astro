@@ -217,6 +217,8 @@ const modalCssVars = [
           <div class="case-study-modal__grid">
             {/* Left Panel - Brand/Header */}
             <div class="case-study-modal__left">
+              {cs.date && <p class="case-study-modal__date">{cs.date}</p>}
+
               <div class="case-study-modal__header">
                 <h2 id="modal-title" class="case-study-modal__client">
                   {cs.client}
@@ -226,13 +228,6 @@ const modalCssVars = [
                   <p class="case-study-modal__tagline">{cs.tagline}</p>
                 )}
               </div>
-
-              {cs.date && (
-                <div class="case-study-modal__timeline">
-                  <span class="case-study-modal__timeline-label">Timeline</span>
-                  <p class="case-study-modal__date">{cs.date}</p>
-                </div>
-              )}
             </div>
 
             {/* Right Panel - Content */}
@@ -366,7 +361,6 @@ const modalCssVars = [
   .case-study-modal__left {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     padding: var(--space-xl);
     background: var(--modal-left-bg);
   }
@@ -401,28 +395,15 @@ const modalCssVars = [
     margin-block-start: var(--space-xs);
   }
 
-  .case-study-modal__timeline {
-    margin-block-start: var(--space-xl);
-  }
-
-  .case-study-modal__timeline-label {
-    display: block;
+  .case-study-modal__date {
     font-family: var(--font-body);
     font-size: var(--font-size-xs);
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--color-text-muted);
-    opacity: 0.7;
-    margin-block-end: var(--space-2xs);
-  }
-
-  .case-study-modal__date {
-    font-family: var(--font-body);
-    font-size: var(--font-size-sm);
-    font-weight: 500;
     color: var(--modal-date);
     margin: 0;
+    margin-block-end: var(--space-md);
   }
 
   /* Right Panel */
