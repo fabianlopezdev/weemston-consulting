@@ -120,32 +120,28 @@ const filterCssVars = [
     (page?.introTitle || page?.introDescription) && (
       <section class="case-studies-intro">
         <div class="container">
-          <div class="intro-grid">
+          <div class="intro-content">
             {page.introTitle && (
-              <div class="intro-left">
-                <SectionTitle
-                  title={page.introTitle}
-                  align="left"
-                  color={introTitleColor}
-                  class="intro-title"
-                />
+              <SectionTitle
+                title={page.introTitle}
+                align="center"
+                color={introTitleColor}
+                class="intro-title"
+              />
+            )}
+            {page.introDescription && page.introDescription.length > 0 && (
+              <div
+                class="intro-description"
+                style={`color: ${introDescriptionColorResolved}`}
+              >
+                <PortableText content={page.introDescription} />
               </div>
             )}
-            <div class="intro-right">
-              {page.introDescription && page.introDescription.length > 0 && (
-                <div
-                  class="intro-description"
-                  style={`color: ${introDescriptionColorResolved}`}
-                >
-                  <PortableText content={page.introDescription} />
-                </div>
-              )}
-              {page.introFooter && (
-                <p class="intro-footer" style={`color: ${introFooterColor}`}>
-                  {page.introFooter}
-                </p>
-              )}
-            </div>
+            {page.introFooter && (
+              <p class="intro-footer" style={`color: ${introFooterColor}`}>
+                {page.introFooter}
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -250,29 +246,14 @@ const filterCssVars = [
     padding-block: var(--space-xl);
   }
 
-  .intro-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-lg);
+  .intro-content {
+    text-align: center;
+    max-width: 800px;
+    margin-inline: auto;
   }
 
-  @media (min-width: 768px) {
-    .intro-grid {
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-xl);
-    }
-  }
-
-  .intro-left {
-    /* Left column container */
-  }
-
-  .intro-left :global(.intro-title) {
-    margin-block-end: 0;
-  }
-
-  .intro-right {
-    /* Right column container */
+  .intro-content :global(.intro-title) {
+    margin-block-end: var(--space-md);
   }
 
   .intro-description {
@@ -296,6 +277,8 @@ const filterCssVars = [
     font-style: italic;
     font-weight: 500;
     margin: 0;
+    width: 100%;
+    max-inline-size: none;
   }
 
   /* Filter Bar */
