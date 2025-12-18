@@ -674,21 +674,38 @@ export default defineType({
 
     // Modal Content Colors
     {
-      name: 'modalClientNameColor',
+      name: 'modalClientNameColorType',
       title: 'Client Name Color',
       type: 'string',
       group: 'modalStyling',
       fieldset: 'modalFields',
       options: {
         list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Muted', value: 'muted' },
-          { title: 'Contrast', value: 'contrast' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
         ],
-        layout: 'radio',
-        direction: 'horizontal',
       },
-      initialValue: 'base',
+      initialValue: 'secondary',
+    },
+    {
+      name: 'modalClientNameColorShade',
+      title: 'Client Name Shade',
+      type: 'number',
+      group: 'modalStyling',
+      fieldset: 'modalFields',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.modalClientNameColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'modalClientNameCustomColor',
+      title: 'Custom Client Name Color',
+      type: 'simplerColor',
+      group: 'modalStyling',
+      fieldset: 'modalFields',
+      hidden: ({ parent }) => parent?.modalClientNameColorType !== 'custom',
     },
     {
       name: 'modalDateColorType',

@@ -30,7 +30,9 @@ interface Props {
   backdropColorShade?: number;
   backdropCustomColor?: ColorData;
   // Content colors - all at page level
-  clientNameColor?: 'base' | 'muted' | 'contrast';
+  clientNameColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  clientNameColorShade?: number;
+  clientNameCustomColor?: ColorData;
   dateColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   dateColorShade?: number;
   dateCustomColor?: ColorData;
@@ -57,7 +59,9 @@ const {
   backdropColorShade = 0,
   backdropCustomColor,
   // Content styling
-  clientNameColor = 'base',
+  clientNameColorType = 'secondary',
+  clientNameColorShade = 0,
+  clientNameCustomColor,
   dateColorType = 'secondary',
   dateColorShade = 0,
   dateCustomColor,
@@ -104,8 +108,14 @@ const backdropColor = resolveColorSelection(
   siteColors
 );
 
-const clientNameColorResolved =
-  textColorMap[clientNameColor] || textColorMap.base;
+const clientNameColorResolved = resolveColorSelection(
+  {
+    colorType: clientNameColorType,
+    shade: clientNameColorShade,
+    customColor: clientNameCustomColor,
+  },
+  siteColors
+);
 
 const dateColor = resolveColorSelection(
   {

@@ -246,7 +246,9 @@ const filterCssVars = [
     backdropColorType={page?.modalBackdropColorType}
     backdropColorShade={page?.modalBackdropColorShade}
     backdropCustomColor={page?.modalBackdropCustomColor}
-    clientNameColor={page?.modalClientNameColor}
+    clientNameColorType={page?.modalClientNameColorType}
+    clientNameColorShade={page?.modalClientNameColorShade}
+    clientNameCustomColor={page?.modalClientNameCustomColor}
     dateColorType={page?.modalDateColorType}
     dateColorShade={page?.modalDateColorShade}
     dateCustomColor={page?.modalDateCustomColor}
@@ -410,24 +412,27 @@ const filterCssVars = [
   import { setupAnimationLifecycle, gsap } from '@lib/animation';
 
   setupAnimationLifecycle(() => {
+    const grid = document.querySelector(
+      '[data-animate="case-study-grid"]'
+    ) as HTMLElement | null;
+
+    if (!grid || grid.dataset.initialized === 'true') return;
+    grid.dataset.initialized = 'true';
+
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
     ).matches;
 
-    const grid = document.querySelector('[data-animate="case-study-grid"]');
     const filterButtons = document.querySelectorAll('[data-filter]');
     const boxWrappers = document.querySelectorAll('[data-service-ids]');
 
-    if (!grid) return;
-
-    // Initial animation for all boxes
+    // Initial page load animation only
     const allBoxes = grid.querySelectorAll('.case-study-wrapper');
     if (allBoxes.length && !prefersReducedMotion) {
       gsap.set(allBoxes, { clearProps: 'all' });
-      gsap.set(allBoxes, { opacity: 0, y: 40 });
+      gsap.set(allBoxes, { y: 40 });
 
       gsap.to(allBoxes, {
-        opacity: 1,
         y: 0,
         duration: 0.5,
         ease: 'power2.out',
@@ -440,19 +445,15 @@ const filterCssVars = [
       });
     }
 
-    // Filter functionality - updated for multiple services
+    // Filter functionality - no animation, just show/hide
     if (filterButtons.length && boxWrappers.length) {
       filterButtons.forEach((btn) => {
         btn.addEventListener('click', () => {
           const filter = (btn as HTMLElement).dataset.filter;
 
-          // Update active state
           filterButtons.forEach((b) => b.classList.remove('active'));
           btn.classList.add('active');
 
-          // Filter boxes with animation
-          // A box shows if ANY of its services match the filter
-          let visibleIndex = 0;
           boxWrappers.forEach((wrapper) => {
             const serviceIds =
               (wrapper as HTMLElement).dataset.serviceIds
@@ -461,26 +462,7 @@ const filterCssVars = [
             const shouldShow =
               filter === 'all' || (filter && serviceIds.includes(filter));
 
-            if (shouldShow) {
-              (wrapper as HTMLElement).style.display = '';
-
-              if (!prefersReducedMotion) {
-                gsap.fromTo(
-                  wrapper,
-                  { opacity: 0, y: 20 },
-                  {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.35,
-                    ease: 'power2.out',
-                    delay: visibleIndex * 0.06,
-                  }
-                );
-              }
-              visibleIndex++;
-            } else {
-              (wrapper as HTMLElement).style.display = 'none';
-            }
+            (wrapper as HTMLElement).style.display = shouldShow ? '' : 'none';
           });
         });
       });
