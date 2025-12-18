@@ -231,8 +231,8 @@ const cssVars = [
     cursor: pointer;
     text-align: left;
     transition:
-      background-color var(--transition-base),
-      transform var(--transition-fast);
+      background-color 300ms ease,
+      transform 300ms ease;
   }
 
   .case-study-box:hover {
@@ -317,8 +317,8 @@ const cssVars = [
     height: 1px;
     background: color-mix(in srgb, var(--box-hover-bg) 30%, transparent);
     transition:
-      width var(--transition-base),
-      background-color var(--transition-base);
+      width 500ms ease,
+      background-color 300ms ease;
     margin-block-end: var(--space-sm);
   }
 
@@ -335,8 +335,8 @@ const cssVars = [
     opacity: 0;
     transform: translateY(0.5rem);
     transition:
-      opacity var(--transition-base),
-      transform var(--transition-base);
+      opacity 300ms ease 75ms,
+      transform 300ms ease 75ms;
   }
 
   .case-study-box:hover .case-study-box__cta {
