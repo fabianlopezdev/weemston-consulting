@@ -114,18 +114,15 @@ const cssVars = [
   .join('; ');
 
 // Filter case studies that have logos
-const caseStudiesWithLogos = caseStudies?.filter(
-  (cs) => cs.clientLogo?.asset
-) || [];
+const caseStudiesWithLogos =
+  caseStudies?.filter((cs) => cs.clientLogo?.asset) || [];
 ---
 
 {
   caseStudiesWithLogos.length > 0 && (
     <section class="about-trusted-by" style={cssVars}>
       <div class="container">
-        {showTitle && title && (
-          <p class="about-trusted-by__title">{title}</p>
-        )}
+        {showTitle && title && <p class="about-trusted-by__title">{title}</p>}
         <div class="about-trusted-by__logos">
           {caseStudiesWithLogos.map((caseStudy) => {
             const logoUrl = caseStudy.clientLogo?.asset
@@ -144,7 +141,9 @@ const caseStudiesWithLogos = caseStudies?.filter(
                 <div class="about-trusted-by__logo-wrapper">
                   <img
                     src={logoUrl}
-                    alt={caseStudy.clientLogo?.alt || `${caseStudy.client} logo`}
+                    alt={
+                      caseStudy.clientLogo?.alt || `${caseStudy.client} logo`
+                    }
                     class="about-trusted-by__logo"
                     loading="lazy"
                     decoding="async"

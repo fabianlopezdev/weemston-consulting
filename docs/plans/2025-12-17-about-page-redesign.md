@@ -19,6 +19,7 @@ Redesign the About page with 5 distinct sections, each with background mode sele
 ### 1. Hero Section
 
 Reuse existing `InternalPageHero` component with inline fields (same pattern as `servicesPage.ts`):
+
 - Background mode (solid/gradient)
 - Heading + highlight
 - Divider + tagline
@@ -27,12 +28,14 @@ Reuse existing `InternalPageHero` component with inline fields (same pattern as 
 ### 2. Bio Section
 
 **Content:**
+
 - `bioImage` - Image with hotspot
 - `bioLabel` - String (e.g., "Founder & Lead Consultant")
 - `bioName` - String (e.g., "Jessica Weeman")
 - `bioDescription` - Text (paragraph about the person)
 
 **Colors:**
+
 - Background mode (solid/gradient)
 - Label color (colorType + shade + custom)
 - Name color (colorType + shade + custom)
@@ -43,12 +46,14 @@ Reuse existing `InternalPageHero` component with inline fields (same pattern as 
 ### 3. Info Grid Section
 
 **Section-Level:**
+
 - `infoGridTitle` - Optional section title
 - `infoGridShowTitle` - Boolean toggle
 - Background mode (solid/gradient)
 - `infoCards` - Array of `aboutInfoCard` objects
 
 **Card Object (`aboutInfoCard`):**
+
 - `icon` - Type 'icon' (iconify picker)
 - `iconColorType` + `iconColorShade` + `iconCustomColor`
 - `title` - String
@@ -60,11 +65,13 @@ Reuse existing `InternalPageHero` component with inline fields (same pattern as 
 ### 4. Global Perspective Section
 
 **Content:**
+
 - `globalIcon` - Type 'icon' (iconify picker)
 - `globalTitle` - String
 - `globalDescription` - Text
 
 **Colors:**
+
 - Background mode (solid/gradient)
 - Icon color (colorType + shade + custom)
 - Title color (colorType + shade + custom)
@@ -75,11 +82,13 @@ Reuse existing `InternalPageHero` component with inline fields (same pattern as 
 ### 5. Trusted By Section
 
 **Content:**
+
 - `trustedByTitle` - String
 - `trustedByShowTitle` - Boolean
 - `trustedByCaseStudies` - Array of references to caseStudy documents
 
 **Colors:**
+
 - Background mode (solid/gradient)
 - Title color (colorType + shade + custom)
 
@@ -109,6 +118,7 @@ Reuse existing `InternalPageHero` component with inline fields (same pattern as 
 ## Schema Organization
 
 **Fieldsets:**
+
 - `seo` - SEO fields (collapsed)
 - `ogImage` - Social preview (collapsed)
 - `heroFields` - 🎯 Hero Section

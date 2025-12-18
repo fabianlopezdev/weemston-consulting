@@ -1318,7 +1318,8 @@ export default defineType({
         ],
       },
       initialValue: 'primary',
-      hidden: ({ parent }) => !parent?.trustedByTitle || !parent?.trustedByShowTitle,
+      hidden: ({ parent }) =>
+        !parent?.trustedByTitle || !parent?.trustedByShowTitle,
     },
     {
       name: 'trustedByTitleColorShade',
