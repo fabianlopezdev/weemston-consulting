@@ -609,21 +609,57 @@ export const contactPageQuery = groq`
     _id,
     title,
     language,
-    hero {
-      tagline,
-      taglineColor,
-      heading,
-      headingColor,
-      subheading,
-      subheadingColor,
-      ctaButton {
-        ${linkProjection}
-      },
-      ${backgroundSettingsProjection}
-    },
-    ${pageSectionsQuery},
     metaDescription,
-    ogImage
+    ogImage,
+    // Left Panel
+    leftBackgroundColorType,
+    leftBackgroundColorShade,
+    leftBackgroundCustomColor { label, value },
+    leftHeading,
+    leftHeadingColorType,
+    leftHeadingColorShade,
+    leftHeadingCustomColor { label, value },
+    leftDescription,
+    leftDescriptionColorType,
+    leftDescriptionColorShade,
+    leftDescriptionCustomColor { label, value },
+    leftQuote,
+    leftQuoteColorType,
+    leftQuoteColorShade,
+    leftQuoteCustomColor { label, value },
+    leftQuoteBorderColorType,
+    leftQuoteBorderColorShade,
+    leftQuoteBorderCustomColor { label, value },
+    email,
+    emailLinkColorType,
+    emailLinkColorShade,
+    emailLinkCustomColor { label, value },
+    emailHoverColorType,
+    emailHoverColorShade,
+    emailHoverCustomColor { label, value },
+    // Right Panel
+    rightBackgroundColorType,
+    rightBackgroundColorShade,
+    rightBackgroundCustomColor { label, value },
+    formNameLabel,
+    formNamePlaceholder,
+    formEmailLabel,
+    formEmailPlaceholder,
+    formMessageLabel,
+    formMessagePlaceholder,
+    formLabelColorType,
+    formLabelColorShade,
+    formLabelCustomColor { label, value },
+    formSubmitText,
+    formSubmitButtonColor {
+      colorType,
+      shade,
+      useBaseTextColor,
+      customColor { label, value }
+    },
+    formFocusColorType,
+    formFocusColorShade,
+    formFocusCustomColor { label, value }
   }
 `;
 

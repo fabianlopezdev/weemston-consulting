@@ -1,0 +1,563 @@
+---
+import {
+  resolveColorSelection,
+  resolveButtonColor,
+  resolveButtonTextColor,
+} from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import { Icon } from 'astro-icon/components';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface ButtonColorData {
+  colorType: string;
+  shade?: number;
+  useBaseTextColor?: boolean;
+  customColor?: ColorData;
+}
+
+interface Props {
+  // Left Panel
+  leftBackgroundColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  leftBackgroundColorShade?: number;
+  leftBackgroundCustomColor?: ColorData;
+  leftHeading?: string;
+  leftHeadingColorType?:
+    | 'white'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  leftHeadingColorShade?: number;
+  leftHeadingCustomColor?: ColorData;
+  leftDescription?: string;
+  leftDescriptionColorType?:
+    | 'white'
+    | 'muted'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  leftDescriptionColorShade?: number;
+  leftDescriptionCustomColor?: ColorData;
+  leftQuote?: string;
+  leftQuoteColorType?:
+    | 'white'
+    | 'muted'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  leftQuoteColorShade?: number;
+  leftQuoteCustomColor?: ColorData;
+  leftQuoteBorderColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  leftQuoteBorderColorShade?: number;
+  leftQuoteBorderCustomColor?: ColorData;
+  email?: string;
+  emailLinkColorType?: 'white' | 'primary' | 'secondary' | 'accent' | 'custom';
+  emailLinkColorShade?: number;
+  emailLinkCustomColor?: ColorData;
+  emailHoverColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  emailHoverColorShade?: number;
+  emailHoverCustomColor?: ColorData;
+  // Right Panel
+  rightBackgroundColorType?:
+    | 'white'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  rightBackgroundColorShade?: number;
+  rightBackgroundCustomColor?: ColorData;
+  formNameLabel?: string;
+  formNamePlaceholder?: string;
+  formEmailLabel?: string;
+  formEmailPlaceholder?: string;
+  formMessageLabel?: string;
+  formMessagePlaceholder?: string;
+  formLabelColorType?: 'dark' | 'primary' | 'secondary' | 'accent' | 'custom';
+  formLabelColorShade?: number;
+  formLabelCustomColor?: ColorData;
+  formSubmitText?: string;
+  formSubmitButtonColor?: ButtonColorData;
+  formFocusColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  formFocusColorShade?: number;
+  formFocusCustomColor?: ColorData;
+}
+
+const {
+  // Left Panel defaults
+  leftBackgroundColorType = 'secondary',
+  leftBackgroundColorShade = 0,
+  leftBackgroundCustomColor,
+  leftHeading = "Let's start a conversation.",
+  leftHeadingColorType = 'white',
+  leftHeadingColorShade = 0,
+  leftHeadingCustomColor,
+  leftDescription = "Whether you're exploring operational support, strategic project leadership, or help designing an impactful convening, we'd love to hear from you.",
+  leftDescriptionColorType = 'muted',
+  leftDescriptionColorShade = 0,
+  leftDescriptionCustomColor,
+  leftQuote = 'At Weemston Consulting, every collaboration begins with curiosity, understanding your goals, your challenges, and where you want to go next.',
+  leftQuoteColorType = 'muted',
+  leftQuoteColorShade = 0,
+  leftQuoteCustomColor,
+  leftQuoteBorderColorType = 'accent',
+  leftQuoteBorderColorShade = 0,
+  leftQuoteBorderCustomColor,
+  email = 'hello@weemston.com',
+  emailLinkColorType = 'white',
+  emailLinkColorShade = 0,
+  emailLinkCustomColor,
+  emailHoverColorType = 'accent',
+  emailHoverColorShade = 0,
+  emailHoverCustomColor,
+  // Right Panel defaults
+  rightBackgroundColorType = 'white',
+  rightBackgroundColorShade = 0,
+  rightBackgroundCustomColor,
+  formNameLabel = 'Name',
+  formNamePlaceholder = 'Jane Doe',
+  formEmailLabel = 'Email',
+  formEmailPlaceholder = 'jane@company.com',
+  formMessageLabel = 'What challenge are you navigating?',
+  formMessagePlaceholder = 'Tell us a bit about your organization...',
+  formLabelColorType = 'dark',
+  formLabelColorShade = 0,
+  formLabelCustomColor,
+  formSubmitText = 'Send Message',
+  formSubmitButtonColor,
+  formFocusColorType = 'accent',
+  formFocusColorShade = 0,
+  formFocusCustomColor,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Helper to resolve color with special values
+function resolveTextColor(
+  colorType: string | undefined,
+  shade: number | undefined,
+  customColor: ColorData | undefined
+): string {
+  if (colorType === 'white') return '#ffffff';
+  if (colorType === 'muted') return 'rgb(203 213 225)'; // slate-300 equivalent
+  if (colorType === 'dark') return 'rgb(55 65 81)'; // gray-700 equivalent
+
+  return resolveColorSelection(
+    {
+      colorType: colorType || 'primary',
+      shade: shade || 0,
+      customColor,
+    },
+    siteColors
+  );
+}
+
+// Resolve Left Panel colors
+const leftBgColor = resolveColorSelection(
+  {
+    colorType: leftBackgroundColorType,
+    shade: leftBackgroundColorShade,
+    customColor: leftBackgroundCustomColor,
+  },
+  siteColors
+);
+
+const headingColor = resolveTextColor(
+  leftHeadingColorType,
+  leftHeadingColorShade,
+  leftHeadingCustomColor
+);
+
+const descriptionColor = resolveTextColor(
+  leftDescriptionColorType,
+  leftDescriptionColorShade,
+  leftDescriptionCustomColor
+);
+
+const quoteColor = resolveTextColor(
+  leftQuoteColorType,
+  leftQuoteColorShade,
+  leftQuoteCustomColor
+);
+
+const quoteBorderColor = resolveColorSelection(
+  {
+    colorType: leftQuoteBorderColorType,
+    shade: leftQuoteBorderColorShade,
+    customColor: leftQuoteBorderCustomColor,
+  },
+  siteColors
+);
+
+const emailColor = resolveTextColor(
+  emailLinkColorType,
+  emailLinkColorShade,
+  emailLinkCustomColor
+);
+
+const emailHoverColor = resolveColorSelection(
+  {
+    colorType: emailHoverColorType,
+    shade: emailHoverColorShade,
+    customColor: emailHoverCustomColor,
+  },
+  siteColors
+);
+
+// Resolve Right Panel colors
+const rightBgColor =
+  rightBackgroundColorType === 'white'
+    ? '#ffffff'
+    : resolveColorSelection(
+        {
+          colorType: rightBackgroundColorType,
+          shade: rightBackgroundColorShade,
+          customColor: rightBackgroundCustomColor,
+        },
+        siteColors
+      );
+
+const labelColor = resolveTextColor(
+  formLabelColorType,
+  formLabelColorShade,
+  formLabelCustomColor
+);
+
+const buttonBgColor = resolveButtonColor(formSubmitButtonColor, siteColors);
+const buttonTextColor = resolveButtonTextColor(formSubmitButtonColor);
+
+const focusColor = resolveColorSelection(
+  {
+    colorType: formFocusColorType,
+    shade: formFocusColorShade,
+    customColor: formFocusCustomColor,
+  },
+  siteColors
+);
+
+// Build CSS variables
+const cssVars = [
+  `--left-bg: ${leftBgColor}`,
+  `--heading-color: ${headingColor}`,
+  `--description-color: ${descriptionColor}`,
+  `--quote-color: ${quoteColor}`,
+  `--quote-border-color: ${quoteBorderColor}`,
+  `--email-color: ${emailColor}`,
+  `--email-hover-color: ${emailHoverColor}`,
+  `--right-bg: ${rightBgColor}`,
+  `--label-color: ${labelColor}`,
+  `--button-bg: ${buttonBgColor}`,
+  `--button-text: ${buttonTextColor}`,
+  `--focus-color: ${focusColor}`,
+].join('; ');
+
+// Button styles from site settings
+const buttonStyles = settings?.buttonStyles;
+const buttonRadius = buttonStyles?.borderRadius ?? 6;
+const buttonPaddingV = buttonStyles?.verticalPadding ?? 16;
+const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
+---
+
+<section class="contact-section" style={cssVars}>
+  <!-- Left Panel -->
+  <div class="contact-section__left">
+    <div class="contact-section__left-content">
+      <h1 class="contact-section__heading">{leftHeading}</h1>
+      <p class="contact-section__description">{leftDescription}</p>
+
+      {
+        leftQuote && (
+          <blockquote class="contact-section__quote">
+            <p>"{leftQuote}"</p>
+          </blockquote>
+        )
+      }
+
+      <div class="contact-section__contact-info">
+        <a href={`mailto:${email}`} class="contact-section__email-link">
+          <Icon name="mail" size={20} />
+          <span>{email}</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="contact-section__right">
+    <div class="contact-section__form-wrapper">
+      <form
+        class="contact-section__form"
+        name="contact"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+      >
+        <input type="hidden" name="form-name" value="contact" />
+        <p class="hidden">
+          <label>
+            Don't fill this out if you're human: <input name="bot-field" />
+          </label>
+        </p>
+
+        <div class="contact-section__field">
+          <label for="name" class="contact-section__label"
+            >{formNameLabel}</label
+          >
+          <input
+            type="text"
+            id="name"
+            name="name"
+            class="contact-section__input"
+            placeholder={formNamePlaceholder}
+            required
+            style={`--btn-radius: ${buttonRadius}px`}
+          />
+        </div>
+
+        <div class="contact-section__field">
+          <label for="email" class="contact-section__label"
+            >{formEmailLabel}</label
+          >
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="contact-section__input"
+            placeholder={formEmailPlaceholder}
+            required
+            style={`--btn-radius: ${buttonRadius}px`}
+          />
+        </div>
+
+        <div class="contact-section__field">
+          <label for="message" class="contact-section__label"
+            >{formMessageLabel}</label
+          >
+          <textarea
+            id="message"
+            name="message"
+            rows="4"
+            class="contact-section__textarea"
+            placeholder={formMessagePlaceholder}
+            required
+            style={`--btn-radius: ${buttonRadius}px`}></textarea>
+        </div>
+
+        <button
+          type="submit"
+          class="contact-section__submit"
+          style={`--btn-radius: ${buttonRadius}px; --btn-padding-v: ${buttonPaddingV}px; --btn-padding-h: ${buttonPaddingH}px`}
+        >
+          {formSubmitText}
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 80vh;
+  }
+
+  @media (min-width: 768px) {
+    .contact-section {
+      flex-direction: row;
+    }
+  }
+
+  /* Left Panel */
+  .contact-section__left {
+    width: 100%;
+    background-color: var(--left-bg);
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  @media (min-width: 768px) {
+    .contact-section__left {
+      width: 50%;
+      padding: var(--space-3xl);
+    }
+  }
+
+  .contact-section__left-content {
+    max-width: 32rem;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 768px) {
+    .contact-section__left-content {
+      margin: 0;
+    }
+  }
+
+  .contact-section__heading {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--heading-color);
+    margin-bottom: var(--space-lg);
+    line-height: 1.2;
+  }
+
+  .contact-section__description {
+    font-size: 1.125rem;
+    color: var(--description-color);
+    line-height: 1.75;
+    margin-bottom: var(--space-xl);
+  }
+
+  .contact-section__quote {
+    border-left: 2px solid var(--quote-border-color);
+    padding-left: var(--space-lg);
+    padding-top: var(--space-sm);
+    padding-bottom: var(--space-sm);
+    margin-bottom: var(--space-2xl);
+  }
+
+  .contact-section__quote p {
+    font-style: italic;
+    font-size: 1.125rem;
+    color: var(--quote-color);
+    line-height: 1.75;
+    margin: 0;
+  }
+
+  .contact-section__contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .contact-section__email-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--email-color);
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.2s ease;
+  }
+
+  .contact-section__email-link:hover {
+    color: var(--email-hover-color);
+  }
+
+  /* Right Panel */
+  .contact-section__right {
+    width: 100%;
+    background-color: var(--right-bg);
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  @media (min-width: 768px) {
+    .contact-section__right {
+      width: 50%;
+      padding: var(--space-3xl);
+    }
+  }
+
+  .contact-section__form-wrapper {
+    max-width: 28rem;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .contact-section__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .contact-section__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .contact-section__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--label-color);
+  }
+
+  .contact-section__input,
+  .contact-section__textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgb(209 213 219);
+    border-radius: var(--btn-radius, 6px);
+    font-size: 1rem;
+    font-family: inherit;
+    background-color: white;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+    outline: none;
+  }
+
+  .contact-section__input::placeholder,
+  .contact-section__textarea::placeholder {
+    color: rgb(156 163 175);
+  }
+
+  .contact-section__input:focus,
+  .contact-section__textarea:focus {
+    border-color: transparent;
+    box-shadow:
+      0 0 0 2px var(--focus-color),
+      0 0 0 4px color-mix(in srgb, var(--focus-color) 20%, transparent);
+  }
+
+  .contact-section__textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .contact-section__submit {
+    width: 100%;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    font-weight: 600;
+    padding: var(--btn-padding-v, 16px) var(--btn-padding-h, 24px);
+    border: none;
+    border-radius: var(--btn-radius, 6px);
+    font-size: 1rem;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      transform 0.1s ease,
+      box-shadow 0.2s ease;
+    box-shadow:
+      0 4px 6px -1px color-mix(in srgb, var(--button-bg) 20%, transparent),
+      0 2px 4px -2px color-mix(in srgb, var(--button-bg) 10%, transparent);
+  }
+
+  .contact-section__submit:hover {
+    filter: brightness(0.9);
+    transform: translateY(-1px);
+  }
+
+  .contact-section__submit:active {
+    transform: translateY(0);
+  }
+
+  .hidden {
+    display: none;
+  }
+</style>

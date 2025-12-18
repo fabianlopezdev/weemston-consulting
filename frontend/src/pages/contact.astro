@@ -2,8 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { sanityClient as client } from 'sanity:client';
 import { contactPageQuery } from '@lib/sanity/queries';
-import HeroSection from '@components/sections/HeroSection.astro';
-import SectionRenderer from '@components/sections/SectionRenderer.astro';
+import ContactSection from '@components/sections/ContactSection.astro';
 
 const lang = Astro.locals.lang || 'en';
 const contactPage = await client.fetch(contactPageQuery, {
@@ -13,14 +12,51 @@ const contactPage = await client.fetch(contactPageQuery, {
 if (!contactPage) {
   return Astro.redirect('/404');
 }
-
-// Filter enabled sections
-const visibleSections =
-  contactPage.sections?.filter((section: any) => section.enabled) || [];
 ---
 
 <BaseLayout title={contactPage.title} description={contactPage.metaDescription}>
-  {contactPage.hero && <HeroSection {...contactPage.hero} />}
-
-  {visibleSections.map((section: any) => <SectionRenderer section={section} />)}
+  <ContactSection
+    leftBackgroundColorType={contactPage.leftBackgroundColorType}
+    leftBackgroundColorShade={contactPage.leftBackgroundColorShade}
+    leftBackgroundCustomColor={contactPage.leftBackgroundCustomColor}
+    leftHeading={contactPage.leftHeading}
+    leftHeadingColorType={contactPage.leftHeadingColorType}
+    leftHeadingColorShade={contactPage.leftHeadingColorShade}
+    leftHeadingCustomColor={contactPage.leftHeadingCustomColor}
+    leftDescription={contactPage.leftDescription}
+    leftDescriptionColorType={contactPage.leftDescriptionColorType}
+    leftDescriptionColorShade={contactPage.leftDescriptionColorShade}
+    leftDescriptionCustomColor={contactPage.leftDescriptionCustomColor}
+    leftQuote={contactPage.leftQuote}
+    leftQuoteColorType={contactPage.leftQuoteColorType}
+    leftQuoteColorShade={contactPage.leftQuoteColorShade}
+    leftQuoteCustomColor={contactPage.leftQuoteCustomColor}
+    leftQuoteBorderColorType={contactPage.leftQuoteBorderColorType}
+    leftQuoteBorderColorShade={contactPage.leftQuoteBorderColorShade}
+    leftQuoteBorderCustomColor={contactPage.leftQuoteBorderCustomColor}
+    email={contactPage.email}
+    emailLinkColorType={contactPage.emailLinkColorType}
+    emailLinkColorShade={contactPage.emailLinkColorShade}
+    emailLinkCustomColor={contactPage.emailLinkCustomColor}
+    emailHoverColorType={contactPage.emailHoverColorType}
+    emailHoverColorShade={contactPage.emailHoverColorShade}
+    emailHoverCustomColor={contactPage.emailHoverCustomColor}
+    rightBackgroundColorType={contactPage.rightBackgroundColorType}
+    rightBackgroundColorShade={contactPage.rightBackgroundColorShade}
+    rightBackgroundCustomColor={contactPage.rightBackgroundCustomColor}
+    formNameLabel={contactPage.formNameLabel}
+    formNamePlaceholder={contactPage.formNamePlaceholder}
+    formEmailLabel={contactPage.formEmailLabel}
+    formEmailPlaceholder={contactPage.formEmailPlaceholder}
+    formMessageLabel={contactPage.formMessageLabel}
+    formMessagePlaceholder={contactPage.formMessagePlaceholder}
+    formLabelColorType={contactPage.formLabelColorType}
+    formLabelColorShade={contactPage.formLabelColorShade}
+    formLabelCustomColor={contactPage.formLabelCustomColor}
+    formSubmitText={contactPage.formSubmitText}
+    formSubmitButtonColor={contactPage.formSubmitButtonColor}
+    formFocusColorType={contactPage.formFocusColorType}
+    formFocusColorShade={contactPage.formFocusColorShade}
+    formFocusCustomColor={contactPage.formFocusCustomColor}
+  />
 </BaseLayout>
