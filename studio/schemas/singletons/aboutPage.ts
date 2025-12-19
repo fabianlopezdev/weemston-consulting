@@ -26,13 +26,23 @@ export default defineType({
       options: { collapsible: true, collapsed: false },
     },
     {
-      name: 'bioFields',
-      title: '👤 Bio Section',
+      name: 'bioPhotoFields',
+      title: '📸 Photo & Identity',
       options: { collapsible: true, collapsed: false },
     },
     {
-      name: 'infoGridFields',
-      title: '📋 Info Grid Section',
+      name: 'bioDescriptionFields',
+      title: '📝 Bio Description',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'bioBackgroundFields',
+      title: '🎨 Background',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: 'bioInfoCardsFields',
+      title: '📋 Info Cards',
       options: { collapsible: true, collapsed: false },
     },
     {
@@ -44,7 +54,6 @@ export default defineType({
   groups: [
     { name: 'hero', title: 'Hero Section' },
     { name: 'bio', title: 'Bio Section' },
-    { name: 'infoGrid', title: 'Info Grid' },
     { name: 'trustedBy', title: 'Trusted By' },
   ],
   fields: [
@@ -376,7 +385,7 @@ export default defineType({
       title: 'Background Color Mode',
       type: 'string',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioBackgroundFields',
       options: {
         list: [
           { title: 'Solid', value: 'solid' },
@@ -392,7 +401,7 @@ export default defineType({
       title: 'Background Color',
       type: 'string',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioBackgroundFields',
       options: {
         list: [
           { title: 'Default (White)', value: 'default' },
@@ -410,7 +419,7 @@ export default defineType({
       title: 'Background Shade',
       type: 'number',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioBackgroundFields',
       initialValue: 95,
       hidden: ({ parent }) =>
         parent?.bioBackgroundColorType === 'custom' ||
@@ -426,7 +435,7 @@ export default defineType({
       title: 'Custom Background Color',
       type: 'simplerColor',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioBackgroundFields',
       hidden: ({ parent }) =>
         parent?.bioBackgroundColorType !== 'custom' ||
         parent?.bioBackgroundColorMode === 'gradient',
@@ -436,7 +445,7 @@ export default defineType({
       title: 'Gradient',
       type: 'object',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioBackgroundFields',
       hidden: ({ parent }) => parent?.bioBackgroundColorMode !== 'gradient',
       fields: [
         {

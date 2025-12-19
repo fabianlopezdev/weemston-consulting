@@ -272,8 +272,10 @@ const sectionCssVars = [
 
     if (!grid || cards.length === 0) return;
 
-    // Initial states
-    gsap.set(cards, { opacity: 0, y: 50 });
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+
+    // Initial states - larger y offset on mobile for more dramatic slide up
+    gsap.set(cards, { opacity: 0, y: isMobile ? 80 : 50 });
     cards.forEach((card) => {
       const icon = card.querySelector('.core-values__icon-wrapper');
       if (icon) {
@@ -281,45 +283,79 @@ const sectionCssVars = [
       }
     });
 
-    // Create timeline for sequential card entrance
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: grid,
-        start: 'top 80%',
-        once: true,
-        markers: ANIMATION_CONFIG.scrollTrigger.markers,
-      },
-    });
+    if (isMobile) {
+      // Mobile: Each card animates individually as it enters viewport
+      cards.forEach((card) => {
+        const icon = card.querySelector('.core-values__icon-wrapper');
 
-    // Animate cards one at a time with stagger
-    cards.forEach((card, index) => {
-      const icon = card.querySelector('.core-values__icon-wrapper');
-      const startTime = index * 0.6; // Each card starts 0.6s after the previous
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 90%',
+            once: true,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+        });
 
-      tl.to(
-        card,
-        {
+        tl.to(card, {
           opacity: 1,
           y: 0,
-          duration: 0.8,
+          duration: 0.7,
           ease: 'power3.out',
-        },
-        startTime
-      );
+        });
 
-      // Icon pops in slightly after card starts
-      if (icon) {
+        if (icon) {
+          tl.to(
+            icon,
+            {
+              scale: 1,
+              rotation: 0,
+              duration: 0.5,
+              ease: 'back.out(1.7)',
+            },
+            '-=0.4'
+          );
+        }
+      });
+    } else {
+      // Desktop: Sequential card entrance with stagger
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: grid,
+          start: 'top 80%',
+          once: true,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+        },
+      });
+
+      cards.forEach((card, index) => {
+        const icon = card.querySelector('.core-values__icon-wrapper');
+        const startTime = index * 0.6;
+
         tl.to(
-          icon,
+          card,
           {
-            scale: 1,
-            rotation: 0,
-            duration: 0.6,
-            ease: 'back.out(1.7)',
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
           },
-          startTime + 0.25
+          startTime
         );
-      }
-    });
+
+        if (icon) {
+          tl.to(
+            icon,
+            {
+              scale: 1,
+              rotation: 0,
+              duration: 0.6,
+              ease: 'back.out(1.7)',
+            },
+            startTime + 0.25
+          );
+        }
+      });
+    }
   });
 </script>
