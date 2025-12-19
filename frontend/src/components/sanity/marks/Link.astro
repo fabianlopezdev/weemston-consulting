@@ -1,7 +1,7 @@
 ---
 import type { MarkProps } from 'astro-portabletext/types';
 
-interface LinkMark {
+interface LinkMark extends Record<string, unknown> {
   href?: string;
   openInNewTab?: boolean;
 }
