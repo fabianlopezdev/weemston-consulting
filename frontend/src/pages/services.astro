@@ -37,8 +37,9 @@ if (!page) {
   {
     page.services &&
       page.services.length > 0 &&
-      page.services.map((service: any) => (
+      page.services.map((service: any, index: number) => (
         <ServiceSection
+          serviceIndex={index}
           tag={service.tag}
           title={service.title}
           leadText={service.leadText}

@@ -65,6 +65,8 @@ interface Props {
   icon?: string;
   iconImage?: IconImageData;
   imagePosition?: 'left' | 'right';
+  // Service index for catalogue numbering (01, 02, 03...)
+  serviceIndex?: number;
   // Color settings
   backgroundColorType?:
     | 'default'
@@ -94,7 +96,7 @@ interface Props {
   iconContainerColorShade?: number;
   iconContainerCustomColor?: ColorData;
   // List settings
-  listStyle?: 'checkmark' | 'arrow' | 'bullet';
+  listStyle?: 'checkmark' | 'arrow' | 'bullet' | 'numbered';
   listTitle?: string;
   listItems?: string[];
   listTextColor?: 'base' | 'muted' | 'contrast';
@@ -127,6 +129,7 @@ const {
   icon = 'settings',
   iconImage,
   imagePosition = 'left',
+  serviceIndex = 0,
   // Color settings
   backgroundColorType = 'default',
   backgroundColorMode = 'solid',
@@ -146,7 +149,7 @@ const {
   iconContainerColorShade = 0,
   iconContainerCustomColor,
   // List settings
-  listStyle = 'checkmark',
+  listStyle = 'numbered',
   listTitle,
   listItems = [],
   listTextColor = 'base',
@@ -334,15 +337,8 @@ const iconPaths: Record<string, string> = {
     '<path d="M2 3h20"></path><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"></path><path d="m7 21 5-5 5 5"></path>',
 };
 
-const gridClasses = [
-  'service-section__grid',
-  imagePosition === 'right' ? 'service-section__grid--reversed' : '',
-]
-  .filter(Boolean)
-  .join(' ');
-
-// Detect content-heavy services that need expanded layout
-const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
+// Format service number for catalogue display (01, 02, 03...)
+const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
 ---
 
 <article
@@ -351,7 +347,6 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
   data-animate
   data-reversed={imagePosition === 'right'}
   data-no-image={iconType === 'none'}
-  data-expanded={isContentHeavy}
 >
   <div class="container">
     {
@@ -451,243 +446,129 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
             </div>
           )}
         </>
-      ) : isContentHeavy ? (
-        /* Expanded layout for content-heavy services */
+      ) : (
+        /* Catalogue layout - editorial magazine style (matches React Variant F) */
         <>
-          {/* Row 1: Full-width intro */}
-          <div class="service-section__expanded-intro">
-            {tag && <span class="service-section__tag">{tag}</span>}
-            <h2 class="service-section__title">{title}</h2>
-            {leadText && <p class="service-section__lead">{leadText}</p>}
-            {description && description.length > 0 && (
-              <div class="service-section__description">
-                <PortableText content={description} />
-              </div>
-            )}
+          {/* Label Row - OUTSIDE grid like React */}
+          <div class="service-section__label-row">
+            <span class="service-section__label-text">Service</span>
+            <span class="service-section__label-number">{serviceNumber}</span>
+            <div class="service-section__label-line" />
           </div>
 
-          {/* Row 2: Image (centered) | List */}
-          <div class="service-section__expanded-grid">
-            <div class="service-section__expanded-image">
-              <div class="service-section__image-container">
-                {iconType === 'image' && iconImage?.asset ? (
-                  <Image
-                    image={iconImage}
-                    alt={iconImage.alt || title}
-                    class="service-section__image"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                ) : (
-                  <svg
-                    class="service-section__icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                    set:html={iconPaths[icon] || iconPaths.settings}
-                  />
-                )}
-              </div>
-            </div>
-            <div class="service-section__expanded-list">
+          {/* Grid - only text and image columns */}
+          <div
+            class={`service-section__grid service-section__grid--catalogue ${imagePosition === 'right' ? 'service-section__grid--reversed' : ''}`}
+          >
+            {/* Text Column */}
+            <div class="service-section__text-column">
+              {tag && <span class="service-section__tag">{tag}</span>}
+              <h2 class="service-section__title service-section__title--serif">
+                {title}
+              </h2>
+              {leadText && <p class="service-section__lead">{leadText}</p>}
+              {description && description.length > 0 && (
+                <div class="service-section__description">
+                  <PortableText content={description} />
+                </div>
+              )}
+
+              {/* Outcomes list - ALWAYS numbered style for catalogue layout */}
               {listItems.length > 0 && (
-                <div
-                  class={`service-section__list-wrapper ${listTitle || listContainerColor ? 'service-section__list-wrapper--boxed' : ''}`}
-                >
+                <div class="service-section__list-wrapper">
                   {listTitle && (
                     <strong class="service-section__list-title">
                       {listTitle}
                     </strong>
                   )}
-                  <ul
-                    class={`service-section__list service-section__list--${listStyle}`}
-                  >
-                    {listItems.map((item) => (
-                      <li>
-                        {listStyle === 'checkmark' && (
-                          <svg
-                            class="service-section__list-icon"
-                            viewBox="0 0 24 24"
-                          >
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        )}
-                        {listStyle === 'arrow' && (
-                          <span class="service-section__list-arrow">
-                            &rarr;
-                          </span>
-                        )}
-                        {listStyle === 'bullet' && (
-                          <span class="service-section__list-bullet">
-                            &bull;
-                          </span>
-                        )}
-                        {item}
+                  <ul class="service-section__list service-section__list--numbered">
+                    {listItems.map((item, idx) => (
+                      <li class="service-section__list-item">
+                        <span class="service-section__list-number">
+                          {idx + 1}.
+                        </span>
+                        <span class="service-section__list-text">{item}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
-            </div>
-          </div>
 
-          {/* Row 3: Full-width clients */}
-          {caseStudiesWithLogos.length > 0 && (
-            <div class="service-section__expanded-clients">
-              {caseStudiesSectionTitle && (
-                <p class="service-section__case-studies-title">
-                  {caseStudiesSectionTitle}
-                </p>
-              )}
-              <div class="service-section__case-studies-logos">
-                {caseStudiesWithLogos.map((caseStudy) => {
-                  const logoUrl = urlForImage(caseStudy.clientLogo!)
-                    .height(96)
-                    .auto('format')
-                    .url();
-                  const { filter, hoverFilter } = getLogoFilters(
-                    caseStudy.logoVariant
-                  );
-                  return (
-                    <a
-                      href={`/case-studies#${slugify(caseStudy.client || '')}`}
-                      class="service-section__case-study-logo"
-                      title={caseStudy.client || 'View case study'}
-                    >
-                      <img
-                        src={logoUrl}
-                        alt={
-                          caseStudy.clientLogo?.alt ||
-                          `${caseStudy.client} logo`
-                        }
-                        class="service-section__logo-image"
-                        style={`--logo-filter: ${filter}; --logo-filter-hover: ${hoverFilter}`}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </>
-      ) : (
-        /* Standard layout with image/icon */
-        <div class={gridClasses}>
-          <div class="service-section__media-column">
-            <div class="service-section__image-container">
-              {iconType === 'image' && iconImage?.asset ? (
-                <Image
-                  image={iconImage}
-                  alt={iconImage.alt || title}
-                  class="service-section__image"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-              ) : (
-                <svg
-                  class="service-section__icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                  set:html={iconPaths[icon] || iconPaths.settings}
-                />
-              )}
-            </div>
-
-            {caseStudiesWithLogos.length > 0 && (
-              <div class="service-section__case-studies">
-                {caseStudiesSectionTitle && (
-                  <p class="service-section__case-studies-title">
-                    {caseStudiesSectionTitle}
-                  </p>
-                )}
-                <div class="service-section__case-studies-logos">
-                  {caseStudiesWithLogos.map((caseStudy) => {
-                    const logoUrl = urlForImage(caseStudy.clientLogo!)
-                      .height(96)
-                      .auto('format')
-                      .url();
-                    const { filter, hoverFilter } = getLogoFilters(
-                      caseStudy.logoVariant
-                    );
-                    return (
-                      <a
-                        href={`/case-studies#${slugify(caseStudy.client || '')}`}
-                        class="service-section__case-study-logo"
-                        title={caseStudy.client || 'View case study'}
-                      >
-                        <img
-                          src={logoUrl}
-                          alt={
-                            caseStudy.clientLogo?.alt ||
-                            `${caseStudy.client} logo`
-                          }
-                          class="service-section__logo-image"
-                          style={`--logo-filter: ${filter}; --logo-filter-hover: ${hoverFilter}`}
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-          <div class="service-section__content">
-            {tag && <span class="service-section__tag">{tag}</span>}
-            <h2 class="service-section__title">{title}</h2>
-            {leadText && <p class="service-section__lead">{leadText}</p>}
-            {description && description.length > 0 && (
-              <div class="service-section__description">
-                <PortableText content={description} />
-              </div>
-            )}
-
-            {listItems.length > 0 && (
-              <div
-                class={`service-section__list-wrapper ${listTitle || listContainerColor ? 'service-section__list-wrapper--boxed' : ''}`}
-              >
-                {listTitle && (
-                  <strong class="service-section__list-title">
-                    {listTitle}
-                  </strong>
-                )}
-                <ul
-                  class={`service-section__list service-section__list--${listStyle}`}
-                >
-                  {listItems.map((item) => (
-                    <li>
-                      {listStyle === 'checkmark' && (
-                        <svg
-                          class="service-section__list-icon"
-                          viewBox="0 0 24 24"
+              {/* Client logos - inline below content */}
+              {caseStudiesWithLogos.length > 0 && (
+                <div class="service-section__case-studies service-section__case-studies--inline">
+                  {caseStudiesSectionTitle && (
+                    <p class="service-section__case-studies-title">
+                      {caseStudiesSectionTitle}
+                    </p>
+                  )}
+                  <div class="service-section__case-studies-logos">
+                    {caseStudiesWithLogos.map((caseStudy) => {
+                      const logoUrl = urlForImage(caseStudy.clientLogo!)
+                        .height(96)
+                        .auto('format')
+                        .url();
+                      const { filter, hoverFilter } = getLogoFilters(
+                        caseStudy.logoVariant
+                      );
+                      return (
+                        <a
+                          href={`/case-studies#${slugify(caseStudy.client || '')}`}
+                          class="service-section__case-study-logo"
+                          title={caseStudy.client || 'View case study'}
                         >
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      )}
-                      {listStyle === 'arrow' && (
-                        <span class="service-section__list-arrow">&rarr;</span>
-                      )}
-                      {listStyle === 'bullet' && (
-                        <span class="service-section__list-bullet">&bull;</span>
-                      )}
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                          <img
+                            src={logoUrl}
+                            alt={
+                              caseStudy.clientLogo?.alt ||
+                              `${caseStudy.client} logo`
+                            }
+                            class="service-section__logo-image"
+                            style={`--logo-filter: ${filter}; --logo-filter-hover: ${hoverFilter}`}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Image Column with decorative elements */}
+            <div class="service-section__image-column">
+              <div class="service-section__image-wrapper">
+                <div class="service-section__image-container service-section__image-container--portrait">
+                  {iconType === 'image' && iconImage?.asset ? (
+                    <Image
+                      image={iconImage}
+                      alt={iconImage.alt || title}
+                      class="service-section__image"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  ) : (
+                    <svg
+                      class="service-section__icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                      set:html={iconPaths[icon] || iconPaths.settings}
+                    />
+                  )}
+                  {/* Ring overlay for subtle depth */}
+                  <div class="service-section__image-ring" />
+                </div>
+                {/* Decorative background square */}
+                <div class="service-section__image-decor" />
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        </>
       )
     }
   </div>
@@ -749,52 +630,6 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
   /* Case studies when below content (no-image mode) */
   .service-section__case-studies--below {
     /* No margin-top to keep it connected to the grid above */
-  }
-
-  /* Expanded layout for content-heavy services */
-  .service-section__expanded-intro {
-    width: 100%;
-    max-width: none;
-    margin-bottom: var(--space-xl);
-  }
-
-  .service-section__expanded-intro p,
-  .service-section__expanded-intro .service-section__lead,
-  .service-section__expanded-intro :global(.portable-text p) {
-    max-inline-size: none;
-  }
-
-  .service-section__expanded-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-xl);
-    align-items: center;
-  }
-
-  @media (min-width: 768px) {
-    .service-section__expanded-grid {
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-2xl);
-    }
-  }
-
-  .service-section__expanded-image {
-    display: flex;
-    justify-content: center;
-  }
-
-  .service-section__expanded-list {
-    /* List takes full height naturally */
-  }
-
-  .service-section__expanded-clients {
-    margin-top: var(--space-xl);
-  }
-
-  @media (min-width: 768px) {
-    .service-section__expanded-clients {
-      margin-top: var(--space-2xl);
-    }
   }
 
   .service-section__media-column {
@@ -1014,15 +849,262 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
     filter: var(--logo-filter-hover, none);
   }
 
+  /* ============================================
+     CATALOGUE LAYOUT - Matches React Variant F exactly
+     ============================================ */
+
+  /* Catalogue grid - matches React: grid-cols-12 gap-12 */
+  .service-section__grid--catalogue {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem; /* gap-12 in Tailwind */
+  }
+
+  @media (min-width: 768px) {
+    .service-section__grid--catalogue {
+      grid-template-columns: repeat(12, 1fr);
+      gap: 3rem; /* gap-12 in Tailwind */
+    }
+
+    /* Text column: md:col-span-5 */
+    .service-section__grid--catalogue .service-section__text-column {
+      grid-column: span 5;
+    }
+
+    /* Image column: md:col-span-6 relative */
+    .service-section__grid--catalogue .service-section__image-column {
+      grid-column: span 6;
+      position: relative; /* React has relative */
+      align-self: stretch; /* Required for sticky to work - column must be taller than sticky element */
+    }
+
+    /* Reversed layout */
+    .service-section__grid--catalogue.service-section__grid--reversed {
+      direction: rtl;
+    }
+
+    .service-section__grid--catalogue.service-section__grid--reversed > * {
+      direction: ltr;
+    }
+  }
+
+  /* Service Label Row - decorative header */
+  .service-section__label-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  .service-section__label-text {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--service-tag, var(--color-text-muted));
+  }
+
+  .service-section__label-number {
+    font-family: var(--font-heading);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-style: italic;
+    font-weight: 400;
+    color: #e7e5e4; /* stone-200 - visible but muted */
+    line-height: 1;
+    transition: color 0.5s ease;
+  }
+
+  /* Number goes solid on HOVER - matches React group-hover:text-stone-900 */
+  .service-section:hover .service-section__label-number {
+    color: #1c1917; /* stone-900 */
+  }
+
+  .service-section__label-line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: #f5f5f4; /* stone-100 */
+    transition: background-color 0.5s ease;
+  }
+
+  /* Line goes darker on HOVER - matches React group-hover:bg-stone-300 */
+  .service-section:hover .service-section__label-line {
+    background-color: #d6d3d1; /* stone-300 */
+  }
+
+  /* Text column */
+  .service-section__text-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  /* Serif title variant for catalogue */
+  .service-section__title--serif {
+    font-family: var(--font-heading);
+    font-size: clamp(1.875rem, 4vw, 2.5rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--service-title, var(--color-text));
+  }
+
+  /* Image wrapper - pinned via GSAP ScrollTrigger (CSS sticky breaks with Lenis) */
+  .service-section__image-wrapper {
+    position: relative;
+  }
+
+  /* Portrait aspect ratio container for catalogue */
+  .service-section__image-container--portrait {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 4 / 5;
+    background-color: var(--service-icon-container, var(--color-surface));
+    border-radius: 0.5rem;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .service-section__image-container--portrait .service-section__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Hover zoom on image - triggered by SECTION hover (group-hover equivalent) */
+  /* Use :global() because image is rendered by child Image component */
+  .service-section:hover :global(.service-section__image) {
+    transform: scale(1.05);
+  }
+
+  /* Portrait container image reveal animation */
+  .service-section__image-container--portrait:has(.service-section__image) {
+    clip-path: inset(8% round 0.5rem);
+    transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .service-section__image-container--portrait.is-revealed {
+    clip-path: inset(0% round 0.5rem);
+  }
+
+  /* Ring overlay for subtle depth */
+  .service-section__image-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+    pointer-events: none;
+    transition: box-shadow 0.4s ease;
+  }
+
+  .service-section:hover .service-section__image-ring {
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Decorative background square */
+  .service-section__image-decor {
+    position: absolute;
+    bottom: -1rem;
+    right: -1rem;
+    width: 6rem;
+    height: 6rem;
+    background-color: var(--color-surface, #f8f8f8);
+    border: 1px solid var(--color-border, #e5e5e5);
+    z-index: -1;
+  }
+
+  /* Flip decor position for reversed layout */
+  .service-section__grid--reversed .service-section__image-decor {
+    right: auto;
+    left: -1rem;
+  }
+
+  /* Numbered list variant */
+  .service-section__list--numbered {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .service-section__list--numbered .service-section__list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-md) 0;
+    border-bottom: 1px solid #f5f5f4; /* stone-100 - visible */
+    font-size: var(--font-size-sm);
+    color: var(--service-list-text, var(--color-text));
+    line-height: 1.6;
+  }
+
+  .service-section__list--numbered .service-section__list-item:last-child {
+    border-bottom: none;
+  }
+
+  .service-section__list-number {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-weight: 400;
+    color: #d6d3d1; /* stone-300 - matches React */
+    flex-shrink: 0;
+    min-width: 1.5rem;
+  }
+
+  .service-section__list-text {
+    flex: 1;
+  }
+
+  /* Inline client logos (below outcomes list) */
+  .service-section__case-studies--inline {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid #f5f5f4; /* stone-100 */
+  }
+
+  .service-section__case-studies--inline .service-section__case-studies-logos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem; /* gap-6 in Tailwind */
+    opacity: 0.5;
+    filter: grayscale(1);
+    transition:
+      opacity 0.4s ease,
+      filter 0.4s ease;
+  }
+
+  .service-section__case-studies--inline:hover
+    .service-section__case-studies-logos {
+    opacity: 1;
+    filter: grayscale(0);
+  }
+
+  /* Smaller logos for catalogue layout */
+  .service-section__case-studies--inline .service-section__case-study-logo {
+    height: 36px;
+  }
+
+  .service-section__case-studies--inline .service-section__logo-image {
+    max-width: 100px;
+  }
+
   /* Animation-ready states - simplified to main blocks */
+  /* Note: label-row is NOT included - always visible like React */
   .service-section[data-animate] .service-section__media-column,
   .service-section[data-animate] .service-section__content,
   .service-section[data-animate] .service-section__content-column,
   .service-section[data-animate] .service-section__list-column,
   .service-section[data-animate] .service-section__case-studies--below,
-  .service-section[data-animate] .service-section__expanded-intro,
-  .service-section[data-animate] .service-section__expanded-grid,
-  .service-section[data-animate] .service-section__expanded-clients {
+  .service-section[data-animate] .service-section__text-column {
+    opacity: 0;
+  }
+
+  /* Image column: only hide the WRAPPER, not the column itself (to preserve sticky) */
+  .service-section[data-animate] .service-section__image-wrapper {
+    opacity: 0;
+  }
+
+  .service-section[data-animate] .service-section__list-item {
     opacity: 0;
   }
 
@@ -1046,9 +1128,9 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
     .service-section[data-animate] .service-section__content-column,
     .service-section[data-animate] .service-section__list-column,
     .service-section[data-animate] .service-section__case-studies--below,
-    .service-section[data-animate] .service-section__expanded-intro,
-    .service-section[data-animate] .service-section__expanded-grid,
-    .service-section[data-animate] .service-section__expanded-clients {
+    .service-section[data-animate] .service-section__text-column,
+    .service-section[data-animate] .service-section__image-wrapper,
+    .service-section[data-animate] .service-section__list-item {
       opacity: 1 !important;
       transform: none !important;
     }
@@ -1103,6 +1185,7 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
           scale: 1,
           duration: 1.5,
           ease: 'power2.out',
+          clearProps: 'transform', // Clear inline styles so CSS hover can work
           scrollTrigger: {
             trigger: container,
             start: 'top 55%',
@@ -1129,8 +1212,9 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
 
       // Check layout type
       const isNoImage = section.getAttribute('data-no-image') === 'true';
-      const isExpanded = section.getAttribute('data-expanded') === 'true';
       const isReversed = section.getAttribute('data-reversed') === 'true';
+      const isCatalogue =
+        section.querySelector('.service-section__grid--catalogue') !== null;
 
       // Get main elements based on layout type
       let columnsToAnimate: Element[] = [];
@@ -1148,13 +1232,22 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
         columnsToAnimate = [contentColumn, listColumn, caseStudiesBelow].filter(
           Boolean
         ) as Element[];
-      } else if (isExpanded) {
-        const intro = section.querySelector('.service-section__expanded-intro');
-        const grid = section.querySelector('.service-section__expanded-grid');
-        const clients = section.querySelector(
-          '.service-section__expanded-clients'
+      } else if (isCatalogue) {
+        // Catalogue layout - ONLY animate text column with transforms
+        // Image column must NOT have transforms applied - they break CSS sticky positioning
+        // Label row is always visible like React (no animation)
+        const textColumn = section.querySelector(
+          '.service-section__text-column'
         );
-        columnsToAnimate = [intro, grid, clients].filter(Boolean) as Element[];
+        columnsToAnimate = [textColumn].filter(Boolean) as Element[];
+
+        // Set up image wrapper for opacity-only animation (no transforms)
+        const imageWrapper = section.querySelector(
+          '.service-section__image-wrapper'
+        );
+        if (imageWrapper) {
+          gsap.set(imageWrapper, { opacity: 0 });
+        }
       } else {
         const mediaColumn = section.querySelector(
           '.service-section__media-column'
@@ -1164,6 +1257,7 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
       }
 
       const title = section.querySelector('.service-section__title');
+      const listItems = section.querySelectorAll('.service-section__list-item');
 
       // Set initial states - dramatic offsets with alternating directions
       columnsToAnimate.forEach((col, index) => {
@@ -1178,6 +1272,14 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
           scale: 0.97,
         });
       });
+
+      // Set initial states for list items (for stagger animation)
+      if (isCatalogue && listItems.length > 0) {
+        gsap.set(listItems, {
+          opacity: 0,
+          x: -15,
+        });
+      }
 
       // Split title into words for subtle editorial reveal
       let titleWords: HTMLElement[] = [];
@@ -1206,9 +1308,13 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: 'top 55%',
+          start: 'top 60%',
           once: true,
           markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          onEnter: () => {
+            // Add is-active class to trigger CSS transitions (line growth, number color)
+            section.classList.add('is-active');
+          },
         },
       });
 
@@ -1220,8 +1326,28 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
         scale: 1,
         duration: 0.9,
         ease: 'power3.out',
-        stagger: 0.12,
+        stagger: 0.15,
+        clearProps: 'transform', // Clear transforms so sticky positioning works on image column
       });
+
+      // For catalogue layout: fade in image with OPACITY ONLY (no transforms)
+      // This preserves CSS sticky positioning on the image wrapper
+      if (isCatalogue) {
+        const imageWrapper = section.querySelector(
+          '.service-section__image-wrapper'
+        );
+        if (imageWrapper) {
+          tl.to(
+            imageWrapper,
+            {
+              opacity: 1,
+              duration: 0.9,
+              ease: 'power3.out',
+            },
+            0.15 // Start slightly after text column
+          );
+        }
+      }
 
       // Title words reveal - pronounced word-by-word effect
       if (titleWords.length > 0) {
@@ -1231,11 +1357,60 @@ const isContentHeavy = listItems.length >= 5 && iconType !== 'none';
             y: 0,
             opacity: 1,
             duration: 0.6,
-            stagger: 0.035,
+            stagger: 0.04,
             ease: 'power3.out',
           },
-          0.15
+          0.2
         );
+      }
+
+      // List items stagger animation (catalogue layout)
+      if (isCatalogue && listItems.length > 0) {
+        tl.to(
+          listItems,
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.5,
+            stagger: 0.08,
+            ease: 'power2.out',
+          },
+          0.5
+        );
+      }
+
+      // GSAP ScrollTrigger PIN for catalogue layout (replaces CSS sticky which breaks with Lenis)
+      if (isCatalogue) {
+        const imageWrapper = section.querySelector(
+          '.service-section__image-wrapper'
+        );
+        const textColumn = section.querySelector(
+          '.service-section__text-column'
+        );
+
+        if (imageWrapper && textColumn) {
+          // Only pin on desktop (768px+)
+          const mm = gsap.matchMedia();
+
+          mm.add('(min-width: 768px)', () => {
+            // Calculate how much the image should stay pinned
+            // Pin distance = text column height - image wrapper height (the scrollable overflow)
+            const textHeight = textColumn.getBoundingClientRect().height;
+            const imageHeight = imageWrapper.getBoundingClientRect().height;
+            const pinDistance = Math.max(0, textHeight - imageHeight);
+
+            gsap.to(imageWrapper, {
+              scrollTrigger: {
+                trigger: imageWrapper,
+                start: 'top 128px', // top-32 = 8rem = 128px
+                end: `+=${pinDistance}`,
+                pin: true,
+                pinSpacing: false, // Don't add extra spacing
+                markers: ANIMATION_CONFIG.scrollTrigger.markers,
+              },
+            });
+          });
+        }
       }
     });
   });

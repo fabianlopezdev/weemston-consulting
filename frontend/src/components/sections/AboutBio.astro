@@ -131,23 +131,11 @@ const textColorMap = {
   contrast: 'rgba(255, 255, 255, 0.9)',
 };
 
-// Get decorative circle colors from site colors
-const decoTealColor = resolveColorSelection(
-  { colorType: 'accent', shade: 95, customColor: undefined },
-  siteColors
-);
-const decoSlateColor = resolveColorSelection(
-  { colorType: 'primary', shade: 95, customColor: undefined },
-  siteColors
-);
-
 const cssVars = [
   backgroundColor ? `--bio-bg: ${backgroundColor}` : null,
   `--bio-label-color: ${labelColor}`,
   `--bio-name-color: ${nameColor}`,
   `--bio-text-color: ${textColorMap[descriptionColor]}`,
-  `--bio-deco-teal: ${decoTealColor}`,
-  `--bio-deco-slate: ${decoSlateColor}`,
 ]
   .filter(Boolean)
   .join('; ');
@@ -173,22 +161,18 @@ const imageLqip = image?.asset?.metadata?.lqip;
       {
         imageUrl && (
           <div class="about-bio__image-wrapper">
-            <div class="about-bio__deco-circle-teal" />
-            <div class="about-bio__deco-circle-slate" />
-            <div class="about-bio__image-container">
-              <img
-                src={imageUrl}
-                alt={image?.alt || name || ''}
-                class="about-bio__image"
-                loading="lazy"
-                decoding="async"
-                style={
-                  imageLqip
-                    ? `background-image: url(${imageLqip}); background-size: cover;`
-                    : ''
-                }
-              />
-            </div>
+            <img
+              src={imageUrl}
+              alt={image?.alt || name || ''}
+              class="about-bio__image"
+              loading="lazy"
+              decoding="async"
+              style={
+                imageLqip
+                  ? `background-image: url(${imageLqip}); background-size: cover;`
+                  : ''
+              }
+            />
           </div>
         )
       }
@@ -203,45 +187,38 @@ const imageLqip = image?.asset?.metadata?.lqip;
 
 <style>
   .about-bio {
-    padding: clamp(4rem, 8vw, 6rem) 0 clamp(5rem, 10vw, 8rem);
+    padding-bottom: var(--space-2xl);
     background: var(--bio-bg, transparent);
   }
 
   .about-bio__layout {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
     align-items: center;
   }
 
   @media (min-width: 768px) {
     .about-bio__layout {
-      flex-direction: row;
-      gap: 4rem;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2xl);
     }
   }
 
   .about-bio__image-wrapper {
-    flex: 5;
     position: relative;
-    width: 100%;
-    max-width: 400px;
-  }
-
-  @media (min-width: 768px) {
-    .about-bio__image-wrapper {
-      max-width: none;
-    }
-  }
-
-  .about-bio__image-container {
-    position: relative;
-    background-color: var(--color-border, #e5e5e5);
-    border-radius: 0.5rem;
-    overflow: hidden;
     aspect-ratio: 4 / 5;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    z-index: 10;
+    overflow: hidden;
+    background-color: var(--color-border, #e5e5e5);
+    max-width: 450px;
+    width: 100%;
+    margin: 0 auto;
+    clip-path: inset(10% round 1rem);
+    transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .about-bio__image-wrapper.is-revealed {
+    clip-path: inset(0% round 0.75rem);
   }
 
   .about-bio__image {
@@ -250,41 +227,18 @@ const imageLqip = image?.asset?.metadata?.lqip;
     object-fit: cover;
   }
 
-  /* Decorative circles */
-  .about-bio__deco-circle-teal {
-    position: absolute;
-    bottom: -1.5rem;
-    right: -1.5rem;
-    width: 8rem;
-    height: 8rem;
-    background-color: var(--bio-deco-teal, #f0fdfa);
-    border-radius: 9999px;
-    z-index: 1;
-  }
-
-  .about-bio__deco-circle-slate {
-    position: absolute;
-    top: -1.5rem;
-    left: -1.5rem;
-    width: 8rem;
-    height: 8rem;
-    background-color: var(--bio-deco-slate, #f8fafc);
-    border-radius: 9999px;
-    z-index: 1;
-  }
-
   .about-bio__content {
-    flex: 7;
+    padding: var(--space-md) 0;
   }
 
   .about-bio__label {
     display: block;
-    color: var(--bio-label-color, var(--color-accent));
+    font-size: 0.875rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 0.875rem;
-    margin-bottom: 0.75rem;
+    letter-spacing: 0.05em;
+    color: var(--bio-label-color, var(--color-accent));
+    margin-bottom: var(--space-sm);
   }
 
   .about-bio__name {
@@ -310,104 +264,71 @@ const imageLqip = image?.asset?.metadata?.lqip;
 
   setupAnimationLifecycle(() => {
     const section = document.querySelector('.about-bio');
-    const imageContainer = document.querySelector(
-      '.about-bio__image-container'
-    );
+    const imageWrapper = document.querySelector('.about-bio__image-wrapper');
     const image = document.querySelector('.about-bio__image');
-    const decoTeal = document.querySelector('.about-bio__deco-circle-teal');
-    const decoSlate = document.querySelector('.about-bio__deco-circle-slate');
     const label = document.querySelector('.about-bio__label');
     const name = document.querySelector('.about-bio__name');
     const description = document.querySelector('.about-bio__description');
 
     if (!section) return;
 
-    // Initial states
-    if (imageContainer) gsap.set(imageContainer, { opacity: 0, y: 30 });
-    if (image) gsap.set(image, { scale: 1.1 });
-    if (decoTeal) gsap.set(decoTeal, { opacity: 0, scale: 0.5 });
-    if (decoSlate) gsap.set(decoSlate, { opacity: 0, scale: 0.5 });
+    // Initial states for content elements
     if (label) gsap.set(label, { opacity: 0, y: 20 });
     if (name) gsap.set(name, { opacity: 0, y: 30 });
     if (description) gsap.set(description, { opacity: 0, y: 25 });
+    if (image) gsap.set(image, { scale: 1.1 });
 
-    // Create timeline
-    const tl = gsap.timeline({
+    // Image reveal with clip-path animation
+    if (imageWrapper) {
+      gsap.to(imageWrapper, {
+        scrollTrigger: {
+          trigger: imageWrapper,
+          start: 'top 75%',
+          once: true,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          onEnter: () => imageWrapper.classList.add('is-revealed'),
+        },
+      });
+
+      // Ken Burns effect on image
+      if (image) {
+        gsap.to(image, {
+          scale: 1,
+          duration: 1.2,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: imageWrapper,
+            start: 'top 75%',
+            once: true,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+        });
+      }
+    }
+
+    // Create content timeline
+    const contentTl = gsap.timeline({
       scrollTrigger: {
-        trigger: section,
-        start: 'top 75%',
+        trigger: '.about-bio__content',
+        start: 'top 80%',
         once: true,
         markers: ANIMATION_CONFIG.scrollTrigger.markers,
       },
     });
 
-    // Image container reveals
-    if (imageContainer) {
-      tl.to(imageContainer, {
+    // Label fades in first
+    if (label) {
+      contentTl.to(label, {
         opacity: 1,
         y: 0,
-        duration: 0.8,
-        ease: 'power3.out',
+        duration: 0.5,
+        ease: 'power2.out',
       });
-    }
-
-    // Image scale
-    if (image) {
-      tl.to(
-        image,
-        {
-          scale: 1,
-          duration: 1,
-          ease: 'power2.out',
-        },
-        '-=0.6'
-      );
-    }
-
-    // Decorative circles
-    if (decoTeal) {
-      tl.to(
-        decoTeal,
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.5,
-          ease: 'back.out(1.7)',
-        },
-        '-=0.7'
-      );
-    }
-
-    if (decoSlate) {
-      tl.to(
-        decoSlate,
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.5,
-          ease: 'back.out(1.7)',
-        },
-        '-=0.4'
-      );
-    }
-
-    // Label fades in
-    if (label) {
-      tl.to(
-        label,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          ease: 'power2.out',
-        },
-        '-=0.5'
-      );
     }
 
     // Name follows
     if (name) {
-      tl.to(
+      contentTl.to(
         name,
         {
           opacity: 1,
@@ -415,13 +336,13 @@ const imageLqip = image?.asset?.metadata?.lqip;
           duration: 0.6,
           ease: 'power3.out',
         },
-        '-=0.3'
+        '-=0.2'
       );
     }
 
     // Description
     if (description) {
-      tl.to(
+      contentTl.to(
         description,
         {
           opacity: 1,
