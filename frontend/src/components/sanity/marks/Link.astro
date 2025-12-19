@@ -1,0 +1,22 @@
+---
+import type { MarkProps } from 'astro-portabletext/types';
+
+interface LinkMark {
+  href?: string;
+  openInNewTab?: boolean;
+}
+
+type Props = MarkProps<LinkMark>;
+
+const { node } = Astro.props;
+const href = node.markDef?.href || '#';
+const openInNewTab = node.markDef?.openInNewTab ?? true;
+---
+
+<a
+  href={href}
+  target={openInNewTab ? '_blank' : undefined}
+  rel={openInNewTab ? 'noopener noreferrer' : undefined}
+>
+  <slot />
+</a>

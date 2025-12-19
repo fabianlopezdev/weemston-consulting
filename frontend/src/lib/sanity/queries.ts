@@ -744,7 +744,10 @@ export const aboutPageQuery = groq`
       titleColorType,
       titleColorShade,
       titleCustomColor { label, value },
-      content
+      content[] {
+        ...,
+        markDefs[]
+      }
     },
     // Trusted By Section
     trustedByBackgroundColorType,

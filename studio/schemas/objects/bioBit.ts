@@ -96,11 +96,36 @@ export default defineType({
               { title: 'Bold', value: 'strong' },
               { title: 'Italic', value: 'em' },
             ],
-            annotations: [],
+            annotations: [
+              {
+                name: 'link',
+                type: 'object',
+                title: 'Link',
+                fields: [
+                  {
+                    name: 'href',
+                    type: 'url',
+                    title: 'URL',
+                    validation: (Rule) =>
+                      Rule.uri({
+                        allowRelative: true,
+                        scheme: ['http', 'https', 'mailto', 'tel'],
+                      }),
+                  },
+                  {
+                    name: 'openInNewTab',
+                    type: 'boolean',
+                    title: 'Open in new tab',
+                    initialValue: true,
+                  },
+                ],
+              },
+            ],
           },
         },
       ],
-      description: 'Multiple paragraphs with basic formatting (bold, italic)',
+      description:
+        'Multiple paragraphs with basic formatting (bold, italic, links)',
     },
   ],
   preview: {
