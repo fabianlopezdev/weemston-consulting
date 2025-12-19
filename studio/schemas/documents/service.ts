@@ -32,6 +32,12 @@ export default defineType({
       options: { collapsible: true, collapsed: false },
     },
     {
+      name: 'decorativeColors',
+      title: '🎨 Decorative Colors',
+      description: 'Colors for numbers and divider lines',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
       name: 'listSection',
       title: '📝 List Section',
       description: 'Bulleted list to highlight key offerings',
@@ -261,6 +267,35 @@ export default defineType({
       hidden: ({ parent }) => parent?.titleColorType !== 'custom',
     },
 
+    // Subtitle
+    {
+      name: 'subtitle',
+      title: 'Subtitle',
+      type: 'text',
+      rows: 2,
+      group: 'servicePage',
+      fieldset: 'servicesPage',
+      description: 'Bold introductory text below the title',
+    },
+    {
+      name: 'subtitleColor',
+      title: 'Subtitle Color',
+      type: 'string',
+      group: 'servicePage',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
+      hidden: ({ parent }) => !parent?.subtitle,
+    },
+
     // Description
     {
       name: 'description',
@@ -343,33 +378,131 @@ export default defineType({
       hidden: ({ parent }) => parent?.iconType === 'none',
     },
 
-    // Subtitle
+    // Decorative Colors
     {
-      name: 'subtitle',
-      title: 'Subtitle',
-      type: 'text',
-      rows: 2,
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      description: 'Bold introductory text below the title',
-    },
-    {
-      name: 'subtitleColor',
-      title: 'Subtitle Color',
+      name: 'decorativeNumberColorType',
+      title: 'Number Color',
+      description:
+        'Color for service numbers (01, 02) and list numbers (1., 2.)',
       type: 'string',
       group: 'servicePage',
-      fieldset: 'servicesPage',
+      fieldset: 'decorativeColors',
       options: {
         list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Muted', value: 'muted' },
-          { title: 'Contrast', value: 'contrast' },
+          { title: 'Default', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
         ],
-        layout: 'radio',
-        direction: 'horizontal',
       },
-      initialValue: 'base',
-      hidden: ({ parent }) => !parent?.subtitle,
+      initialValue: 'default',
+    },
+    {
+      name: 'decorativeNumberColorShade',
+      title: 'Number Shade',
+      type: 'number',
+      group: 'servicePage',
+      fieldset: 'decorativeColors',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        parent?.decorativeNumberColorType === 'custom' ||
+        parent?.decorativeNumberColorType === 'default' ||
+        !parent?.decorativeNumberColorType,
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'decorativeNumberCustomColor',
+      title: 'Custom Number Color',
+      type: 'simplerColor',
+      group: 'servicePage',
+      fieldset: 'decorativeColors',
+      hidden: ({ parent }) => parent?.decorativeNumberColorType !== 'custom',
+    },
+    {
+      name: 'decorativeNumberHoverColorType',
+      title: 'Number Hover Color',
+      description: 'Color for service number on hover',
+      type: 'string',
+      group: 'servicePage',
+      fieldset: 'decorativeColors',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+    },
+    {
+      name: 'decorativeNumberHoverColorShade',
+      title: 'Number Hover Shade',
+      type: 'number',
+      group: 'servicePage',
+      fieldset: 'decorativeColors',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        parent?.decorativeNumberHoverColorType === 'custom' ||
+        parent?.decorativeNumberHoverColorType === 'default' ||
+        !parent?.decorativeNumberHoverColorType,
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'decorativeNumberHoverCustomColor',
+      title: 'Custom Number Hover Color',
+      type: 'simplerColor',
+      group: 'servicePage',
+      fieldset: 'decorativeColors',
+      hidden: ({ parent }) =>
+        parent?.decorativeNumberHoverColorType !== 'custom',
+    },
+    {
+      name: 'dividerColorType',
+      title: 'Divider Color',
+      description: 'Color for list borders and section dividers',
+      type: 'string',
+      group: 'servicePage',
+      fieldset: 'decorativeColors',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'default',
+    },
+    {
+      name: 'dividerColorShade',
+      title: 'Divider Shade',
+      type: 'number',
+      group: 'servicePage',
+      fieldset: 'decorativeColors',
+      initialValue: 0,
+      hidden: ({ parent }) =>
+        parent?.dividerColorType === 'custom' ||
+        parent?.dividerColorType === 'default' ||
+        !parent?.dividerColorType,
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'dividerCustomColor',
+      title: 'Custom Divider Color',
+      type: 'simplerColor',
+      group: 'servicePage',
+      fieldset: 'decorativeColors',
+      hidden: ({ parent }) => parent?.dividerColorType !== 'custom',
     },
 
     // List Section

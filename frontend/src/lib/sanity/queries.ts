@@ -938,6 +938,16 @@ export const servicesPageNewQuery = groq`
       titleColorShade,
       titleCustomColor { label, value },
       descriptionTextColor,
+      // Decorative colors
+      decorativeNumberColorType,
+      decorativeNumberColorShade,
+      decorativeNumberCustomColor { label, value },
+      decorativeNumberHoverColorType,
+      decorativeNumberHoverColorShade,
+      decorativeNumberHoverCustomColor { label, value },
+      dividerColorType,
+      dividerColorShade,
+      dividerCustomColor { label, value },
       // List settings
       listTitle,
       listItems,

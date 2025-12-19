@@ -81,6 +81,26 @@ interface Props {
   titleColorShade?: number;
   titleCustomColor?: ColorData;
   descriptionTextColor?: 'base' | 'muted' | 'contrast';
+  // Decorative colors
+  decorativeNumberColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  decorativeNumberColorShade?: number;
+  decorativeNumberCustomColor?: ColorData;
+  decorativeNumberHoverColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  decorativeNumberHoverColorShade?: number;
+  decorativeNumberHoverCustomColor?: ColorData;
+  dividerColorType?: 'default' | 'primary' | 'secondary' | 'accent' | 'custom';
+  dividerColorShade?: number;
+  dividerCustomColor?: ColorData;
   // List settings
   listTitle?: string;
   listItems?: string[];
@@ -113,6 +133,16 @@ const {
   titleColorShade = 0,
   titleCustomColor,
   descriptionTextColor = 'muted',
+  // Decorative colors
+  decorativeNumberColorType = 'default',
+  decorativeNumberColorShade = 0,
+  decorativeNumberCustomColor,
+  decorativeNumberHoverColorType = 'default',
+  decorativeNumberHoverColorShade = 0,
+  decorativeNumberHoverCustomColor,
+  dividerColorType = 'default',
+  dividerColorShade = 0,
+  dividerCustomColor,
   // List settings
   listTitle,
   listItems = [],
@@ -181,6 +211,44 @@ const caseStudiesTitleColor = resolveColorSelection(
   siteColors
 );
 
+// Resolve decorative colors (null if default to use CSS fallbacks)
+const decorativeNumberColor =
+  decorativeNumberColorType === 'default' || !decorativeNumberColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: decorativeNumberColorType,
+          shade: decorativeNumberColorShade,
+          customColor: decorativeNumberCustomColor,
+        },
+        siteColors
+      );
+
+const decorativeNumberHoverColor =
+  decorativeNumberHoverColorType === 'default' ||
+  !decorativeNumberHoverColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: decorativeNumberHoverColorType,
+          shade: decorativeNumberHoverColorShade,
+          customColor: decorativeNumberHoverCustomColor,
+        },
+        siteColors
+      );
+
+const dividerColor =
+  dividerColorType === 'default' || !dividerColorType
+    ? null
+    : resolveColorSelection(
+        {
+          colorType: dividerColorType,
+          shade: dividerColorShade,
+          customColor: dividerCustomColor,
+        },
+        siteColors
+      );
+
 // Helper to calculate CSS filters for a logo based on display mode and variant
 // Returns both default and hover filters
 function getLogoFilters(variant: 'dark' | 'light' | undefined): {
@@ -217,6 +285,14 @@ cssVarParts.push(`--service-subtitle: ${resolvedSubtitleColor}`);
 cssVarParts.push(`--service-description: ${resolvedDescriptionTextColor}`);
 cssVarParts.push(`--service-list-text: ${resolvedListTextColor}`);
 cssVarParts.push(`--service-case-studies-title: ${caseStudiesTitleColor}`);
+// Decorative colors (only if not default)
+if (decorativeNumberColor)
+  cssVarParts.push(`--service-number-color: ${decorativeNumberColor}`);
+if (decorativeNumberHoverColor)
+  cssVarParts.push(
+    `--service-number-hover-color: ${decorativeNumberHoverColor}`
+  );
+if (dividerColor) cssVarParts.push(`--service-divider-color: ${dividerColor}`);
 const cssVars = cssVarParts.join('; ');
 
 // Format service number for catalogue display (01, 02, 03...)
@@ -713,26 +789,30 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     font-size: clamp(2.5rem, 5vw, 4rem);
     font-style: italic;
     font-weight: 400;
-    color: #e7e5e4; /* stone-200 - visible but muted */
+    color: var(--service-number-color, #e7e5e4);
     line-height: 1;
     transition: color 0.5s ease;
   }
 
   /* Number goes solid on HOVER - matches React group-hover:text-stone-900 */
   .service-section:hover .service-section__label-number {
-    color: #1c1917; /* stone-900 */
+    color: var(--service-number-hover-color, #1c1917);
   }
 
   .service-section__label-line {
     flex-grow: 1;
     height: 1px;
-    background-color: #f5f5f4; /* stone-100 */
+    background-color: var(--service-divider-color, #f5f5f4);
     transition: background-color 0.5s ease;
   }
 
   /* Line goes darker on HOVER - matches React group-hover:bg-stone-300 */
   .service-section:hover .service-section__label-line {
-    background-color: #d6d3d1; /* stone-300 */
+    background-color: color-mix(
+      in srgb,
+      var(--service-divider-color, #f5f5f4) 60%,
+      #000
+    );
   }
 
   /* Text column */
@@ -817,7 +897,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     align-items: flex-start;
     gap: var(--space-md);
     padding: var(--space-md) 0;
-    border-bottom: 1px solid #f5f5f4; /* stone-100 - visible */
+    border-bottom: 1px solid var(--service-divider-color, #f5f5f4);
     font-size: var(--font-size-sm);
     color: var(--service-list-text, var(--color-text));
     line-height: 1.6;
@@ -831,7 +911,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     font-family: var(--font-heading);
     font-style: italic;
     font-weight: 400;
-    color: #d6d3d1; /* stone-300 - matches React */
+    color: var(--service-number-color, #d6d3d1);
     flex-shrink: 0;
     min-width: 1.5rem;
   }
@@ -844,7 +924,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
   .service-section__case-studies--inline {
     margin-top: var(--space-xl);
     padding-top: var(--space-lg);
-    border-top: 1px solid #f5f5f4; /* stone-100 */
+    border-top: 1px solid var(--service-divider-color, #f5f5f4);
   }
 
   .service-section__case-studies--inline .service-section__case-studies-logos {
