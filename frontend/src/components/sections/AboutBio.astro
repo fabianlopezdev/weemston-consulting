@@ -327,10 +327,9 @@ const imageLqip = image?.asset?.metadata?.lqip;
     position: relative;
   }
 
+  /* Image column pinned via GSAP ScrollTrigger (CSS sticky breaks with Lenis) */
   @media (min-width: 768px) {
     .about-narrative__image-column {
-      position: sticky;
-      top: 8rem;
       align-self: start;
     }
   }
@@ -628,5 +627,29 @@ const imageLqip = image?.asset?.metadata?.lqip;
         });
       }
     });
+
+    // GSAP ScrollTrigger PIN for sticky image (CSS sticky breaks with Lenis)
+    const imageColumn = section.querySelector('.about-narrative__image-column');
+    const cardsColumn = section.querySelector('.about-narrative__cards-column');
+
+    if (imageColumn && cardsColumn) {
+      const mm = gsap.matchMedia();
+
+      mm.add('(min-width: 768px)', () => {
+        const imageHeight = imageColumn.getBoundingClientRect().height;
+
+        gsap.to(imageColumn, {
+          scrollTrigger: {
+            trigger: imageColumn,
+            start: 'top 128px',
+            endTrigger: cardsColumn,
+            end: `bottom ${128 + imageHeight}px`,
+            pin: true,
+            pinSpacing: false,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+        });
+      });
+    }
   });
 </script>
