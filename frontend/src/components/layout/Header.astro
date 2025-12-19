@@ -223,12 +223,12 @@ const showText =
       flex-direction: column;
       position: absolute;
       top: 100%;
-      left: 0;
-      right: 0;
+      left: calc(-1 * var(--container-padding));
+      right: calc(-1 * var(--container-padding));
       background-color: rgba(255, 255, 255, 0.95);
       -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
-      padding: var(--space-md);
+      padding: var(--space-md) var(--container-padding);
       gap: var(--space-md);
     }
 
