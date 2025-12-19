@@ -44,6 +44,19 @@ interface GradientData {
   endColor?: GradientColorData;
 }
 
+interface InfoCard {
+  _key: string;
+  icon?: { name: string };
+  iconColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  iconColorShade?: number;
+  iconCustomColor?: ColorData;
+  title: string;
+  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  titleColorShade?: number;
+  titleCustomColor?: ColorData;
+  content?: any[];
+}
+
 interface Props {
   image?: SanityImage;
   label?: string;
@@ -66,6 +79,7 @@ interface Props {
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
   backgroundGradient?: GradientData;
+  infoCards?: InfoCard[];
 }
 
 const {
@@ -78,13 +92,15 @@ const {
   nameColorType = 'primary',
   nameColorShade = 0,
   nameCustomColor,
-  description,
-  descriptionColor = 'muted',
+  // description is kept in props for Sanity schema compatibility but not rendered
+  description: _description,
+  descriptionColor: _descriptionColor = 'muted',
   backgroundColorType = 'default',
   backgroundColorMode = 'solid',
   backgroundColorShade = 95,
   backgroundCustomColor,
   backgroundGradient,
+  infoCards = [],
 } = Astro.props;
 
 // Fetch site settings for colors
@@ -126,18 +142,71 @@ const nameColor = resolveColorSelection(
   siteColors
 );
 
-// Text color mapping
-const textColorMap = {
-  base: 'var(--color-text)',
-  muted: 'var(--color-text-muted)',
-  contrast: 'rgba(255, 255, 255, 0.9)',
-};
+// Lighten a hex color by mixing with white
+function lightenColor(hex: string, amount: number): string {
+  const cleanHex = hex.replace('#', '');
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+
+  const newR = Math.round(r + (255 - r) * amount);
+  const newG = Math.round(g + (255 - g) * amount);
+  const newB = Math.round(b + (255 - b) * amount);
+
+  const toHex = (n: number) =>
+    Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0');
+  return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
+}
+
+// Helper to resolve icon colors for each card
+function getCardIconColors(card: InfoCard) {
+  const iconColor =
+    card.iconColorType === 'custom' && card.iconCustomColor?.value
+      ? card.iconCustomColor.value
+      : resolveColorSelection(
+          {
+            colorType: card.iconColorType || 'accent',
+            shade: card.iconColorShade || 0,
+            customColor: card.iconCustomColor,
+          },
+          siteColors
+        );
+
+  let iconBgColor: string;
+  if (card.iconColorType === 'custom' && card.iconCustomColor?.value) {
+    iconBgColor = lightenColor(card.iconCustomColor.value, 0.85);
+  } else {
+    iconBgColor = resolveColorSelection(
+      {
+        colorType: card.iconColorType || 'accent',
+        shade: 90,
+        customColor: card.iconCustomColor,
+      },
+      siteColors
+    );
+  }
+
+  return { iconColor, iconBgColor };
+}
+
+// Helper to resolve title color for each card
+function getCardTitleColor(card: InfoCard): string {
+  return card.titleColorType === 'custom' && card.titleCustomColor?.value
+    ? card.titleCustomColor.value
+    : resolveColorSelection(
+        {
+          colorType: card.titleColorType || 'accent',
+          shade: card.titleColorShade || 0,
+          customColor: card.titleCustomColor,
+        },
+        siteColors
+      );
+}
 
 const cssVars = [
   backgroundColor ? `--bio-bg: ${backgroundColor}` : null,
   `--bio-label-color: ${labelColor}`,
   `--bio-name-color: ${nameColor}`,
-  `--bio-text-color: ${textColorMap[descriptionColor]}`,
 ]
   .filter(Boolean)
   .join('; ');
@@ -157,106 +226,254 @@ const imageUrl = image?.asset
 const imageLqip = image?.asset?.metadata?.lqip;
 ---
 
-<section class="about-bio" style={cssVars}>
+<section class="about-narrative" style={cssVars} data-animate>
   <div class="container">
-    <div class="about-bio__layout">
+    <div class="about-narrative__grid">
+      {/* Left Column - Sticky Image with Overlay */}
       {
         imageUrl && (
-          <div class="about-bio__image-wrapper">
-            <img
-              src={imageUrl}
-              alt={image?.alt || name || ''}
-              class="about-bio__image"
-              loading="lazy"
-              decoding="async"
-              style={
-                imageLqip
-                  ? `background-image: url(${imageLqip}); background-size: cover;`
-                  : ''
-              }
-            />
+          <div class="about-narrative__image-column">
+            <div class="about-narrative__image-wrapper">
+              <img
+                src={imageUrl}
+                alt={image?.alt || name || ''}
+                class="about-narrative__image"
+                loading="lazy"
+                decoding="async"
+                style={
+                  imageLqip
+                    ? `background-image: url(${imageLqip}); background-size: cover;`
+                    : ''
+                }
+              />
+              {/* Gradient overlay */}
+              <div class="about-narrative__image-overlay" />
+              {/* Text on overlay */}
+              <div class="about-narrative__image-content">
+                {label && <span class="about-narrative__label">{label}</span>}
+                {name && <h1 class="about-narrative__name">{name}</h1>}
+              </div>
+            </div>
           </div>
         )
       }
-      <div class="about-bio__content">
-        {label && <span class="about-bio__label">{label}</span>}
-        {name && <h1 class="about-bio__name">{name}</h1>}
-        {description && <p class="about-bio__description">{description}</p>}
+
+      {/* Right Column - Scrollable Narrative Cards */}
+      <div class="about-narrative__cards-column">
+        {
+          infoCards &&
+            infoCards.length > 0 &&
+            infoCards.map((card) => {
+              const { iconColor, iconBgColor } = getCardIconColors(card);
+              const titleColor = getCardTitleColor(card);
+              const cardCssVars = [
+                `--card-icon-color: ${iconColor}`,
+                `--card-icon-bg: ${iconBgColor}`,
+                `--card-title-color: ${titleColor}`,
+              ].join('; ');
+
+              return (
+                <article class="about-narrative__card" style={cardCssVars}>
+                  <h3 class="about-narrative__card-title">
+                    {card.icon?.name && (
+                      <span class="about-narrative__card-icon-wrapper">
+                        <Icon
+                          name={card.icon.name}
+                          class="about-narrative__card-icon"
+                          aria-hidden="true"
+                        />
+                      </span>
+                    )}
+                    {card.title}
+                  </h3>
+                  {card.content && (
+                    <div class="about-narrative__card-content">
+                      <PortableText value={card.content} />
+                    </div>
+                  )}
+                </article>
+              );
+            })
+        }
       </div>
     </div>
   </div>
 </section>
 
 <style>
-  .about-bio {
+  .about-narrative {
     padding-block: var(--space-2xl);
     background: var(--bio-bg, transparent);
   }
 
-  .about-bio__layout {
+  .about-narrative__grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-xl);
-    align-items: center;
   }
 
   @media (min-width: 768px) {
-    .about-bio__layout {
+    .about-narrative__grid {
       grid-template-columns: 1fr 1fr;
       gap: var(--space-2xl);
+      align-items: start;
     }
   }
 
-  .about-bio__image-wrapper {
+  /* ============================================
+     LEFT COLUMN - Sticky Image with Overlay
+     ============================================ */
+  .about-narrative__image-column {
+    position: relative;
+  }
+
+  @media (min-width: 768px) {
+    .about-narrative__image-column {
+      position: sticky;
+      top: 8rem;
+      align-self: start;
+    }
+  }
+
+  .about-narrative__image-wrapper {
     position: relative;
     aspect-ratio: 4 / 5;
     overflow: hidden;
     background-color: var(--color-border, #e5e5e5);
-    max-width: 450px;
-    width: 100%;
-    margin: 0 auto;
-    clip-path: inset(10% round 1rem);
+    border-radius: 0.75rem;
+    clip-path: inset(10% round 0.75rem);
     transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .about-bio__image-wrapper.is-revealed {
+  .about-narrative__image-wrapper.is-revealed {
     clip-path: inset(0% round 0.75rem);
   }
 
-  .about-bio__image {
+  .about-narrative__image {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .about-bio__content {
-    padding: var(--space-md) 0;
+  /* Gradient overlay - editorial dark fade from bottom */
+  .about-narrative__image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.4) 25%,
+      transparent 50%
+    );
+    pointer-events: none;
+    border-radius: 0.75rem;
   }
 
-  .about-bio__label {
+  /* Text content positioned at bottom-left on overlay */
+  .about-narrative__image-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--space-lg);
+    z-index: 1;
+  }
+
+  .about-narrative__label {
     display: block;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--bio-label-color, var(--color-accent));
-    margin-bottom: var(--space-sm);
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: var(--space-xs);
   }
 
-  .about-bio__name {
+  .about-narrative__name {
     font-family: var(--font-heading);
-    font-size: clamp(2rem, 5vw, 3rem);
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
     line-height: 1.1;
-    color: var(--bio-name-color, var(--color-primary));
-    margin: 0 0 1.5rem;
+    color: #ffffff;
+    margin: 0;
     font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
-  .about-bio__description {
-    font-size: 1.25rem;
-    color: var(--bio-text-color, var(--color-text-muted));
+  /* ============================================
+     RIGHT COLUMN - Scrollable Narrative Cards
+     ============================================ */
+  .about-narrative__cards-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+  }
+
+  .about-narrative__card {
+    padding: 0;
+  }
+
+  .about-narrative__card-title {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--card-title-color, var(--color-accent));
+    margin: 0 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .about-narrative__card-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: var(--card-icon-bg, var(--color-accent-light));
+    border-radius: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .about-narrative__card-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--card-icon-color, var(--color-accent));
+  }
+
+  .about-narrative__card-content {
+    color: var(--color-text-muted);
     line-height: 1.7;
-    margin: 0;
+  }
+
+  .about-narrative__card-content :global(p) {
+    margin: 0 0 1.5rem;
+  }
+
+  .about-narrative__card-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .about-narrative__card-content :global(strong) {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .about-narrative__card-content :global(em) {
+    font-style: italic;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .about-narrative__image-wrapper,
+    .about-narrative__image-content,
+    .about-narrative__card {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .about-narrative__image-wrapper {
+      clip-path: inset(0% round 0.75rem) !important;
+    }
   }
 </style>
 
@@ -265,24 +482,51 @@ const imageLqip = image?.asset?.metadata?.lqip;
   import { ANIMATION_CONFIG } from '@lib/animation/config';
 
   setupAnimationLifecycle(() => {
-    const section = document.querySelector('.about-bio');
-    const imageWrapper = document.querySelector('.about-bio__image-wrapper');
-    const image = document.querySelector('.about-bio__image');
-    const label = document.querySelector('.about-bio__label');
-    const name = document.querySelector('.about-bio__name');
-    const description = document.querySelector('.about-bio__description');
-
+    const section = document.querySelector('.about-narrative');
     if (!section) return;
 
-    // Initial states for content elements
-    if (label) gsap.set(label, { opacity: 0, y: 20 });
-    if (name) gsap.set(name, { opacity: 0, y: 30 });
-    if (description) gsap.set(description, { opacity: 0, y: 25 });
-    if (image) gsap.set(image, { scale: 1.1 });
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
 
-    // Image reveal with clip-path animation
+    if (prefersReducedMotion) {
+      gsap.set(section.querySelectorAll('[class*="about-narrative__"]'), {
+        opacity: 1,
+        transform: 'none',
+      });
+      const imageWrapper = section.querySelector(
+        '.about-narrative__image-wrapper'
+      );
+      if (imageWrapper) imageWrapper.classList.add('is-revealed');
+      return;
+    }
+
+    const imageWrapper = section.querySelector(
+      '.about-narrative__image-wrapper'
+    );
+    const image = section.querySelector('.about-narrative__image');
+    const imageContent = section.querySelector(
+      '.about-narrative__image-content'
+    );
+    const cards = section.querySelectorAll('.about-narrative__card');
+    const icons = section.querySelectorAll(
+      '.about-narrative__card-icon-wrapper'
+    );
+
+    // Initial states
+    if (imageWrapper) gsap.set(imageWrapper, { opacity: 0 });
+    if (image) gsap.set(image, { scale: 1.15 });
+    if (imageContent) gsap.set(imageContent, { opacity: 0, y: 30 });
+    gsap.set(cards, { opacity: 0, y: 40 });
+    gsap.set(icons, { scale: 0.8, rotation: -10 });
+
+    // Image reveal animation
     if (imageWrapper) {
       gsap.to(imageWrapper, {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'power2.out',
         scrollTrigger: {
           trigger: imageWrapper,
           start: 'top 75%',
@@ -296,7 +540,7 @@ const imageLqip = image?.asset?.metadata?.lqip;
       if (image) {
         gsap.to(image, {
           scale: 1,
-          duration: 1.2,
+          duration: 1.5,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: imageWrapper,
@@ -306,54 +550,57 @@ const imageLqip = image?.asset?.metadata?.lqip;
           },
         });
       }
-    }
 
-    // Create content timeline
-    const contentTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '.about-bio__content',
-        start: 'top 80%',
-        once: true,
-        markers: ANIMATION_CONFIG.scrollTrigger.markers,
-      },
-    });
-
-    // Label fades in first
-    if (label) {
-      contentTl.to(label, {
-        opacity: 1,
-        y: 0,
-        duration: 0.5,
-        ease: 'power2.out',
-      });
-    }
-
-    // Name follows
-    if (name) {
-      contentTl.to(
-        name,
-        {
+      // Image overlay content fades in after image reveals
+      if (imageContent) {
+        gsap.to(imageContent, {
           opacity: 1,
           y: 0,
           duration: 0.6,
           ease: 'power3.out',
-        },
-        '-=0.2'
-      );
+          scrollTrigger: {
+            trigger: imageWrapper,
+            start: 'top 60%',
+            once: true,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+        });
+      }
     }
 
-    // Description
-    if (description) {
-      contentTl.to(
-        description,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          ease: 'power2.out',
+    // Staggered card entrance - each card triggers independently
+    cards.forEach((card) => {
+      const icon = card.querySelector('.about-narrative__card-icon-wrapper');
+
+      gsap.to(card, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: card,
+          start: 'top 85%',
+          once: true,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
         },
-        '-=0.3'
-      );
-    }
+      });
+
+      // Icon pops in slightly after card
+      if (icon) {
+        gsap.to(icon, {
+          scale: 1,
+          rotation: 0,
+          duration: 0.5,
+          ease: 'back.out(1.7)',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 85%',
+            once: true,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+          delay: 0.2,
+        });
+      }
+    });
   });
 </script>
