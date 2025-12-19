@@ -5,6 +5,7 @@ import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import SectionTitle from '@components/ui/SectionTitle.astro';
 import PortableText from '@components/sanity/PortableText.astro';
+import PortraitImage from '@components/ui/PortraitImage.astro';
 import type { PortableTextBlock } from '@portabletext/types';
 
 interface ImageAsset {
@@ -373,20 +374,11 @@ const contentParts = parsePortableTextContent(content || [], quote);
     <div class="founder-section__grid">
       {
         imageUrl && (
-          <div class="founder-section__image-wrapper">
-            <img
-              src={imageUrl}
-              alt={image?.alt || ''}
-              class="founder-section__image"
-              loading="lazy"
-              decoding="async"
-              style={
-                imageLqip
-                  ? `background-image: url(${imageLqip}); background-size: cover;`
-                  : ''
-              }
-            />
-          </div>
+          <PortraitImage
+            src={imageUrl}
+            alt={image?.alt || ''}
+            lqip={imageLqip}
+          />
         )
       }
       <div class="founder-section__content">
@@ -437,22 +429,6 @@ const contentParts = parsePortableTextContent(content || [], quote);
     }
   }
 
-  .founder-section__image-wrapper {
-    position: relative;
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    background-color: var(--color-border, #e5e5e5);
-    max-width: 450px;
-    width: 100%;
-    margin: 0 auto;
-  }
-
-  .founder-section__image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
   .founder-section__content {
     padding: var(--space-md) 0;
   }
@@ -498,16 +474,6 @@ const contentParts = parsePortableTextContent(content || [], quote);
   .founder-section__text .founder-section__quote + :global(p) {
     margin-top: var(--space-lg);
   }
-
-  /* Animation styles */
-  .founder-section__image-wrapper {
-    clip-path: inset(10% round 1rem);
-    transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .founder-section__image-wrapper.is-revealed {
-    clip-path: inset(0% round 0.75rem);
-  }
 </style>
 
 <script>
@@ -516,10 +482,6 @@ const contentParts = parsePortableTextContent(content || [], quote);
 
   setupAnimationLifecycle(() => {
     const section = document.querySelector('.founder-section');
-    const imageWrapper = document.querySelector(
-      '.founder-section__image-wrapper'
-    );
-    const image = document.querySelector('.founder-section__image');
     const tagline = document.querySelector('.founder-section__tagline');
     const title = document.querySelector('.founder-section__title');
     const paragraphs = document.querySelectorAll('.founder-section__text p');
@@ -532,35 +494,6 @@ const contentParts = parsePortableTextContent(content || [], quote);
     if (title) gsap.set(title, { opacity: 0, y: 30 });
     paragraphs.forEach((p) => gsap.set(p, { opacity: 0, y: 25 }));
     if (quote) gsap.set(quote, { opacity: 0, x: -30 });
-    if (image) gsap.set(image, { scale: 1.1 });
-
-    // Image reveal with clip-path animation
-    if (imageWrapper) {
-      gsap.to(imageWrapper, {
-        scrollTrigger: {
-          trigger: imageWrapper,
-          start: 'top 75%',
-          once: true,
-          markers: ANIMATION_CONFIG.scrollTrigger.markers,
-          onEnter: () => imageWrapper.classList.add('is-revealed'),
-        },
-      });
-
-      // Ken Burns effect on image
-      if (image) {
-        gsap.to(image, {
-          scale: 1,
-          duration: 1.2,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: imageWrapper,
-            start: 'top 75%',
-            once: true,
-            markers: ANIMATION_CONFIG.scrollTrigger.markers,
-          },
-        });
-      }
-    }
 
     // Create content timeline
     const contentTl = gsap.timeline({

@@ -1,0 +1,209 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  lqip?: string | undefined;
+  hasOverlay?: boolean;
+  overlayGradient?: string;
+  label?: string | undefined;
+  name?: string | undefined;
+  class?: string;
+}
+
+const {
+  src,
+  alt,
+  lqip,
+  hasOverlay = false,
+  overlayGradient,
+  label,
+  name,
+  class: className,
+} = Astro.props;
+
+const hasText = Boolean(label || name);
+const uniqueId = `portrait-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div class:list={['portrait-image', className]} data-portrait-id={uniqueId}>
+  <div class="portrait-image__wrapper">
+    <img
+      src={src}
+      alt={alt}
+      class="portrait-image__img"
+      loading="lazy"
+      decoding="async"
+      style={lqip
+        ? `background-image: url(${lqip}); background-size: cover;`
+        : ''}
+    />
+    {
+      hasOverlay && overlayGradient && (
+        <div
+          class="portrait-image__overlay"
+          style={`background: ${overlayGradient};`}
+        />
+      )
+    }
+    {
+      hasText && (
+        <div class="portrait-image__content">
+          {label && <span class="portrait-image__label">{label}</span>}
+          {name && <h1 class="portrait-image__name">{name}</h1>}
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .portrait-image__wrapper {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background-color: var(--color-border, #e5e5e5);
+    max-width: 450px;
+    width: 100%;
+    margin: 0 auto;
+    border-radius: 0.75rem;
+    clip-path: inset(10% round 0.75rem);
+    transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .portrait-image__wrapper.is-revealed {
+    clip-path: inset(0% round 0.75rem);
+  }
+
+  .portrait-image__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .portrait-image__overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 0.75rem;
+  }
+
+  .portrait-image__content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--space-lg);
+    z-index: 1;
+  }
+
+  .portrait-image__label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: var(--space-xs);
+  }
+
+  .portrait-image__name {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    line-height: 1.1;
+    color: #ffffff;
+    margin: 0;
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .portrait-image__wrapper,
+    .portrait-image__content {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .portrait-image__wrapper {
+      clip-path: inset(0% round 0.75rem) !important;
+    }
+  }
+</style>
+
+<script>
+  import { setupAnimationLifecycle, gsap } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const portraits = document.querySelectorAll('[data-portrait-id]');
+
+    portraits.forEach((portrait) => {
+      const wrapper = portrait.querySelector('.portrait-image__wrapper');
+      const img = portrait.querySelector('.portrait-image__img');
+      const content = portrait.querySelector('.portrait-image__content');
+
+      if (!wrapper) return;
+
+      // Check for reduced motion preference
+      const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches;
+
+      if (prefersReducedMotion) {
+        wrapper.classList.add('is-revealed');
+        if (content) gsap.set(content, { opacity: 1, y: 0 });
+        return;
+      }
+
+      // Initial states
+      gsap.set(wrapper, { opacity: 0 });
+      if (img) gsap.set(img, { scale: 1.1 });
+      if (content) gsap.set(content, { opacity: 0, y: 30 });
+
+      // Image reveal animation
+      gsap.to(wrapper, {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: wrapper,
+          start: 'top 75%',
+          once: true,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          onEnter: () => wrapper.classList.add('is-revealed'),
+        },
+      });
+
+      // Ken Burns effect on image
+      if (img) {
+        gsap.to(img, {
+          scale: 1,
+          duration: 1.2,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: wrapper,
+            start: 'top 75%',
+            once: true,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+        });
+      }
+
+      // Content fades in after image reveals
+      if (content) {
+        gsap.to(content, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: wrapper,
+            start: 'top 60%',
+            once: true,
+            markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+        });
+      }
+    });
+  });
+</script>

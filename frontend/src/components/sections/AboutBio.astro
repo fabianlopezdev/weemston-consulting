@@ -5,6 +5,8 @@ import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import { Icon } from 'astro-icon/components';
 import { PortableText } from 'astro-portabletext';
+import Link from '@components/sanity/marks/Link.astro';
+import PortraitImage from '@components/ui/PortraitImage.astro';
 
 interface ImageAsset {
   _id: string;
@@ -256,27 +258,15 @@ const imageLqip = image?.asset?.metadata?.lqip;
       {
         imageUrl && (
           <div class="about-narrative__image-column">
-            <div class="about-narrative__image-wrapper">
-              <img
-                src={imageUrl}
-                alt={image?.alt || name || ''}
-                class="about-narrative__image"
-                loading="lazy"
-                decoding="async"
-                style={
-                  imageLqip
-                    ? `background-image: url(${imageLqip}); background-size: cover;`
-                    : ''
-                }
-              />
-              {/* Gradient overlay */}
-              <div class="about-narrative__image-overlay" />
-              {/* Text on overlay */}
-              <div class="about-narrative__image-content">
-                {label && <span class="about-narrative__label">{label}</span>}
-                {name && <h1 class="about-narrative__name">{name}</h1>}
-              </div>
-            </div>
+            <PortraitImage
+              src={imageUrl}
+              alt={image?.alt || name || ''}
+              lqip={imageLqip}
+              hasOverlay={true}
+              overlayGradient={overlayGradient}
+              label={label}
+              name={name}
+            />
           </div>
         )
       }
@@ -310,7 +300,10 @@ const imageLqip = image?.asset?.metadata?.lqip;
                     <h3 class="about-narrative__card-title">{card.title}</h3>
                     {card.content && (
                       <div class="about-narrative__card-content">
-                        <PortableText value={card.content} />
+                        <PortableText
+                          value={card.content}
+                          components={{ marks: { link: Link } }}
+                        />
                       </div>
                     )}
                   </div>
@@ -355,65 +348,6 @@ const imageLqip = image?.asset?.metadata?.lqip;
     .about-narrative__image-column {
       align-self: start;
     }
-  }
-
-  .about-narrative__image-wrapper {
-    position: relative;
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    background-color: var(--color-border, #e5e5e5);
-    border-radius: 0.75rem;
-    clip-path: inset(10% round 0.75rem);
-    transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .about-narrative__image-wrapper.is-revealed {
-    clip-path: inset(0% round 0.75rem);
-  }
-
-  .about-narrative__image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* Gradient overlay - accent color fade from bottom */
-  .about-narrative__image-overlay {
-    position: absolute;
-    inset: 0;
-    background: var(--bio-overlay-gradient);
-    pointer-events: none;
-    border-radius: 0.75rem;
-  }
-
-  /* Text content positioned at bottom-left on overlay */
-  .about-narrative__image-content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: var(--space-lg);
-    z-index: 1;
-  }
-
-  .about-narrative__label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: var(--space-xs);
-  }
-
-  .about-narrative__name {
-    font-family: var(--font-heading);
-    font-size: clamp(1.5rem, 4vw, 2.25rem);
-    line-height: 1.1;
-    color: #ffffff;
-    margin: 0;
-    font-weight: 500;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   /* ============================================
@@ -506,17 +440,22 @@ const imageLqip = image?.asset?.metadata?.lqip;
     font-style: italic;
   }
 
+  .about-narrative__card-content :global(a) {
+    color: var(--card-title-color, var(--color-accent));
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: opacity 0.2s ease;
+  }
+
+  .about-narrative__card-content :global(a:hover) {
+    opacity: 0.8;
+  }
+
   /* Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
-    .about-narrative__image-wrapper,
-    .about-narrative__image-content,
     .about-narrative__card {
       opacity: 1 !important;
       transform: none !important;
-    }
-
-    .about-narrative__image-wrapper {
-      clip-path: inset(0% round 0.75rem) !important;
     }
   }
 </style>
@@ -535,82 +474,21 @@ const imageLqip = image?.asset?.metadata?.lqip;
     ).matches;
 
     if (prefersReducedMotion) {
-      gsap.set(section.querySelectorAll('[class*="about-narrative__"]'), {
+      gsap.set(section.querySelectorAll('.about-narrative__card'), {
         opacity: 1,
         transform: 'none',
       });
-      const imageWrapper = section.querySelector(
-        '.about-narrative__image-wrapper'
-      );
-      if (imageWrapper) imageWrapper.classList.add('is-revealed');
       return;
     }
 
-    const imageWrapper = section.querySelector(
-      '.about-narrative__image-wrapper'
-    );
-    const image = section.querySelector('.about-narrative__image');
-    const imageContent = section.querySelector(
-      '.about-narrative__image-content'
-    );
     const cards = section.querySelectorAll('.about-narrative__card');
     const icons = section.querySelectorAll(
       '.about-narrative__card-icon-wrapper'
     );
 
-    // Initial states
-    if (imageWrapper) gsap.set(imageWrapper, { opacity: 0 });
-    if (image) gsap.set(image, { scale: 1.15 });
-    if (imageContent) gsap.set(imageContent, { opacity: 0, y: 30 });
+    // Initial states for cards
     gsap.set(cards, { opacity: 0, y: 40 });
     gsap.set(icons, { scale: 0.8, rotation: -10 });
-
-    // Image reveal animation
-    if (imageWrapper) {
-      gsap.to(imageWrapper, {
-        opacity: 1,
-        duration: 0.8,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: imageWrapper,
-          start: 'top 75%',
-          once: true,
-          markers: ANIMATION_CONFIG.scrollTrigger.markers,
-          onEnter: () => imageWrapper.classList.add('is-revealed'),
-        },
-      });
-
-      // Ken Burns effect on image
-      if (image) {
-        gsap.to(image, {
-          scale: 1,
-          duration: 1.5,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: imageWrapper,
-            start: 'top 75%',
-            once: true,
-            markers: ANIMATION_CONFIG.scrollTrigger.markers,
-          },
-        });
-      }
-
-      // Image overlay content fades in after image reveals
-      if (imageContent) {
-        gsap.to(imageContent, {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: imageWrapper,
-            start: 'top 60%',
-            once: true,
-            markers: ANIMATION_CONFIG.scrollTrigger.markers,
-          },
-        });
-      }
-    }
 
     // Staggered card entrance - each card triggers independently
     cards.forEach((card) => {
