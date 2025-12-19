@@ -44,7 +44,7 @@ interface GradientData {
   endColor?: GradientColorData;
 }
 
-interface InfoCard {
+interface BioBit {
   _key: string;
   icon?: { name: string };
   iconColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
@@ -77,7 +77,7 @@ interface Props {
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
   backgroundGradient?: GradientData;
-  infoCards?: InfoCard[];
+  bioBits?: BioBit[];
 }
 
 const {
@@ -95,7 +95,7 @@ const {
   backgroundColorShade = 95,
   backgroundCustomColor,
   backgroundGradient,
-  infoCards = [],
+  bioBits = [],
 } = Astro.props;
 
 // Fetch site settings for colors
@@ -154,7 +154,7 @@ function lightenColor(hex: string, amount: number): string {
 }
 
 // Helper to resolve icon colors for each card
-function getCardIconColors(card: InfoCard) {
+function getCardIconColors(card: BioBit) {
   const iconColor =
     card.iconColorType === 'custom' && card.iconCustomColor?.value
       ? card.iconCustomColor.value
@@ -185,7 +185,7 @@ function getCardIconColors(card: InfoCard) {
 }
 
 // Helper to resolve title color for each card
-function getCardTitleColor(card: InfoCard): string {
+function getCardTitleColor(card: BioBit): string {
   return card.titleColorType === 'custom' && card.titleCustomColor?.value
     ? card.titleCustomColor.value
     : resolveColorSelection(
@@ -256,9 +256,9 @@ const imageLqip = image?.asset?.metadata?.lqip;
       {/* Right Column - Scrollable Narrative Cards */}
       <div class="about-narrative__cards-column">
         {
-          infoCards &&
-            infoCards.length > 0 &&
-            infoCards.map((card) => {
+          bioBits &&
+            bioBits.length > 0 &&
+            bioBits.map((card) => {
               const { iconColor, iconBgColor } = getCardIconColors(card);
               const titleColor = getCardTitleColor(card);
               const cardCssVars = [

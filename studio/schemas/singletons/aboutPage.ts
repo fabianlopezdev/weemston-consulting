@@ -36,8 +36,8 @@ export default defineType({
       options: { collapsible: true, collapsed: true },
     },
     {
-      name: 'bioInfoCardsFields',
-      title: '📋 Info Cards',
+      name: 'bioBitsFields',
+      title: '📋 Bio Bits',
       options: { collapsible: true, collapsed: false },
     },
     {
@@ -646,12 +646,12 @@ export default defineType({
         !parent?.bioName || parent?.bioNameColorType !== 'custom',
     },
     {
-      name: 'infoCards',
-      title: 'Info Cards',
+      name: 'bioBits',
+      title: 'Bio Bits',
       type: 'array',
       group: 'bio',
-      fieldset: 'bioInfoCardsFields',
-      of: [{ type: 'aboutInfoCard' }],
+      fieldset: 'bioBitsFields',
+      of: [{ type: 'bioBit' }],
       description: 'Add cards with icons, titles, and content paragraphs',
     },
 

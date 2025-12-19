@@ -4,8 +4,8 @@ import { defineType } from 'sanity';
 import { BackgroundShadeInput } from '../../components/BackgroundShadeInput';
 
 export default defineType({
-  name: 'aboutInfoCard',
-  title: 'Info Card',
+  name: 'bioBit',
+  title: 'Bio Bit',
   type: 'object',
   fields: [
     {
@@ -110,7 +110,7 @@ export default defineType({
     },
     prepare({ title, iconName }) {
       return {
-        title: title || 'Untitled Card',
+        title: title || 'Untitled Bio Bit',
         subtitle: iconName ? `Icon: ${iconName}` : 'No icon selected',
         media: iconName ? createElement(Icon, { icon: iconName }) : undefined,
       };
