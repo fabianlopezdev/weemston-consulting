@@ -42,14 +42,14 @@ export default defineType({
     },
     {
       name: 'trustedByFields',
-      title: '🤝 Trusted By Section',
+      title: '👥 Clients Section',
       options: { collapsible: true, collapsed: false },
     },
   ],
   groups: [
     { name: 'hero', title: 'Hero Section' },
     { name: 'bio', title: 'Bio Section' },
-    { name: 'trustedBy', title: 'Trusted By' },
+    { name: 'trustedBy', title: 'Clients' },
   ],
   fields: [
     // SEO Fields
