@@ -264,7 +264,6 @@ if (showCta && ctaButton) {
     text-align: center;
     padding: clamp(2rem, 5vw, 4rem) clamp(4rem, 10vw, 8rem);
     max-width: min(900px, 95%);
-    min-height: clamp(240px, 35vh, 340px);
     position: relative;
     overflow: hidden;
   }
@@ -371,11 +370,11 @@ if (showCta && ctaButton) {
   /* Responsive adjustments */
   @media (max-width: 768px) {
     .collage {
-      --collage-height: clamp(240px, 35vh, 340px);
+      --collage-height: clamp(280px, 40vh, 380px);
     }
 
     .collage__content {
-      padding: var(--space-md) var(--space-md);
+      padding: var(--space-lg) var(--space-md);
       border-radius: 0.75rem;
     }
 
