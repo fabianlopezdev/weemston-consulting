@@ -31,11 +31,6 @@ export default defineType({
       options: { collapsible: true, collapsed: false },
     },
     {
-      name: 'bioDescriptionFields',
-      title: '📝 Bio Description',
-      options: { collapsible: true, collapsed: false },
-    },
-    {
       name: 'bioBackgroundFields',
       title: '🎨 Background',
       options: { collapsible: true, collapsed: true },
@@ -649,33 +644,6 @@ export default defineType({
       fieldset: 'bioPhotoFields',
       hidden: ({ parent }) =>
         !parent?.bioName || parent?.bioNameColorType !== 'custom',
-    },
-    {
-      name: 'bioDescription',
-      title: 'Description',
-      type: 'text',
-      rows: 4,
-      group: 'bio',
-      fieldset: 'bioDescriptionFields',
-      description: 'The paragraph describing the person',
-    },
-    {
-      name: 'bioDescriptionColor',
-      title: 'Description Color',
-      type: 'string',
-      group: 'bio',
-      fieldset: 'bioDescriptionFields',
-      options: {
-        list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Muted', value: 'muted' },
-          { title: 'Contrast', value: 'contrast' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'muted',
-      hidden: ({ parent }) => !parent?.bioDescription,
     },
     {
       name: 'infoCards',

@@ -67,8 +67,6 @@ interface Props {
   nameColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   nameColorShade?: number;
   nameCustomColor?: ColorData;
-  description?: string;
-  descriptionColor?: 'base' | 'muted' | 'contrast';
   backgroundColorType?:
     | 'default'
     | 'primary'
@@ -92,9 +90,6 @@ const {
   nameColorType = 'primary',
   nameColorShade = 0,
   nameCustomColor,
-  // description is kept in props for Sanity schema compatibility but not rendered
-  description: _description,
-  descriptionColor: _descriptionColor = 'muted',
   backgroundColorType = 'default',
   backgroundColorMode = 'solid',
   backgroundColorShade = 95,

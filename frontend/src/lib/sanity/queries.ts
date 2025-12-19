@@ -730,8 +730,6 @@ export const aboutPageQuery = groq`
     bioNameColorType,
     bioNameColorShade,
     bioNameCustomColor { label, value },
-    bioDescription,
-    bioDescriptionColor,
     // Info Cards
     infoCards[] {
       _key,
