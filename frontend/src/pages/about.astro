@@ -4,7 +4,6 @@ import { sanityClient as client } from 'sanity:client';
 import { aboutPageQuery } from '@lib/sanity/queries';
 import InternalPageHero from '@components/sections/InternalPageHero.astro';
 import AboutBio from '@components/sections/AboutBio.astro';
-import AboutGlobal from '@components/sections/AboutGlobal.astro';
 import AboutTrustedBy from '@components/sections/AboutTrustedBy.astro';
 
 const page = await client.fetch(aboutPageQuery);
@@ -56,29 +55,6 @@ if (!page) {
         backgroundCustomColor={page.bioBackgroundCustomColor}
         backgroundGradient={page.bioBackgroundGradient}
         infoCards={page.infoCards}
-      />
-    )
-  }
-
-  {/* Global Perspective Section */}
-  {
-    (page.globalTitle || page.globalDescription) && (
-      <AboutGlobal
-        icon={page.globalIcon}
-        iconColorType={page.globalIconColorType}
-        iconColorShade={page.globalIconColorShade}
-        iconCustomColor={page.globalIconCustomColor}
-        title={page.globalTitle}
-        titleColorType={page.globalTitleColorType}
-        titleColorShade={page.globalTitleColorShade}
-        titleCustomColor={page.globalTitleCustomColor}
-        description={page.globalDescription}
-        descriptionColor={page.globalDescriptionColor}
-        backgroundColorType={page.globalBackgroundColorType}
-        backgroundColorMode={page.globalBackgroundColorMode}
-        backgroundColorShade={page.globalBackgroundColorShade}
-        backgroundCustomColor={page.globalBackgroundCustomColor}
-        backgroundGradient={page.globalBackgroundGradient}
       />
     )
   }

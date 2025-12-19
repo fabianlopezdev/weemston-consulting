@@ -752,24 +752,6 @@ export const aboutPageQuery = groq`
       titleCustomColor { label, value },
       content
     },
-    // Global Perspective Section
-    globalBackgroundColorType,
-    globalBackgroundColorMode,
-    globalBackgroundColorShade,
-    globalBackgroundCustomColor { label, value },
-    globalBackgroundGradient {
-      ${gradientProjection}
-    },
-    globalIcon { name },
-    globalIconColorType,
-    globalIconColorShade,
-    globalIconCustomColor { label, value },
-    globalTitle,
-    globalTitleColorType,
-    globalTitleColorShade,
-    globalTitleCustomColor { label, value },
-    globalDescription,
-    globalDescriptionColor,
     // Trusted By Section
     trustedByBackgroundColorType,
     trustedByBackgroundColorMode,
