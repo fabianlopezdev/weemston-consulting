@@ -863,19 +863,19 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
   @media (min-width: 768px) {
     .service-section__grid--catalogue {
       grid-template-columns: repeat(12, 1fr);
-      gap: 3rem; /* gap-12 in Tailwind */
+      gap: 3rem;
     }
 
-    /* Text column: md:col-span-5 */
+    /* Text column: span 6 (50%) */
     .service-section__grid--catalogue .service-section__text-column {
-      grid-column: span 5;
+      grid-column: span 6;
     }
 
-    /* Image column: md:col-span-6 relative */
+    /* Image column: span 6 (50%) - NO flex display to preserve GSAP pin */
     .service-section__grid--catalogue .service-section__image-column {
       grid-column: span 6;
-      position: relative; /* React has relative */
-      align-self: stretch; /* Required for sticky to work - column must be taller than sticky element */
+      position: relative;
+      align-self: stretch; /* Required for pin - column must be taller than pinned element */
     }
 
     /* Reversed layout */
@@ -950,6 +950,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
   /* Image wrapper - pinned via GSAP ScrollTrigger (CSS sticky breaks with Lenis) */
   .service-section__image-wrapper {
     position: relative;
+    width: 100%;
   }
 
   /* Portrait aspect ratio container for catalogue */
