@@ -789,7 +789,8 @@ export const aboutPageQuery = groq`
       clientLogo {
         asset->{ _id, url, metadata { dimensions { width, height, aspectRatio } } },
         alt, hotspot, crop
-      }
+      },
+      logoVariant
     }
   }
 `;

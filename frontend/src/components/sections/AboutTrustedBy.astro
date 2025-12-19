@@ -43,6 +43,7 @@ interface CaseStudy {
   _id: string;
   client: string;
   clientLogo?: ClientLogo;
+  logoVariant?: 'light' | 'dark';
 }
 
 interface Props {
@@ -154,7 +155,13 @@ const caseStudiesWithLogos =
                     alt={
                       caseStudy.clientLogo?.alt || `${caseStudy.client} logo`
                     }
-                    class="about-trusted-by__logo"
+                    class:list={[
+                      'about-trusted-by__logo',
+                      {
+                        'about-trusted-by__logo--light':
+                          caseStudy.logoVariant === 'light',
+                      },
+                    ]}
                     loading="lazy"
                     decoding="async"
                   />
@@ -186,7 +193,13 @@ const caseStudiesWithLogos =
                   <img
                     src={logoUrl}
                     alt=""
-                    class="about-trusted-by__logo"
+                    class:list={[
+                      'about-trusted-by__logo',
+                      {
+                        'about-trusted-by__logo--light':
+                          caseStudy.logoVariant === 'light',
+                      },
+                    ]}
                     loading="lazy"
                     decoding="async"
                   />
@@ -305,6 +318,14 @@ const caseStudiesWithLogos =
 
   .about-trusted-by__logo-wrapper:hover .about-trusted-by__logo {
     filter: grayscale(0%);
+  }
+
+  .about-trusted-by__logo-wrapper:hover .about-trusted-by__logo--light {
+    filter: grayscale(0%) invert(1);
+  }
+
+  .about-trusted-by__logo--light {
+    filter: grayscale(100%) invert(1);
   }
 
   @media (min-width: 768px) {
