@@ -59,6 +59,9 @@ interface BioBit {
 
 interface Props {
   image?: SanityImage;
+  overlayColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  overlayColorShade?: number;
+  overlayCustomColor?: ColorData;
   label?: string;
   labelColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   labelColorShade?: number;
@@ -82,6 +85,9 @@ interface Props {
 
 const {
   image,
+  overlayColorType = 'accent',
+  overlayColorShade = 0,
+  overlayCustomColor,
   label,
   labelColorType = 'accent',
   labelColorShade = 0,
@@ -137,12 +143,29 @@ const nameColor = resolveColorSelection(
   siteColors
 );
 
+// Resolve overlay color for image
+const overlayColor = resolveColorSelection(
+  {
+    colorType: overlayColorType,
+    shade: overlayColorShade,
+    customColor: overlayCustomColor,
+  },
+  siteColors
+);
+
+// Convert hex to RGB for rgba() usage
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const cleanHex = hex.replace('#', '');
+  return {
+    r: parseInt(cleanHex.substring(0, 2), 16),
+    g: parseInt(cleanHex.substring(2, 4), 16),
+    b: parseInt(cleanHex.substring(4, 6), 16),
+  };
+}
+
 // Lighten a hex color by mixing with white
 function lightenColor(hex: string, amount: number): string {
-  const cleanHex = hex.replace('#', '');
-  const r = parseInt(cleanHex.substring(0, 2), 16);
-  const g = parseInt(cleanHex.substring(2, 4), 16);
-  const b = parseInt(cleanHex.substring(4, 6), 16);
+  const { r, g, b } = hexToRgb(hex);
 
   const newR = Math.round(r + (255 - r) * amount);
   const newG = Math.round(g + (255 - g) * amount);
@@ -198,10 +221,15 @@ function getCardTitleColor(card: BioBit): string {
       );
 }
 
+// Build overlay gradient
+const overlayRgb = hexToRgb(overlayColor);
+const overlayGradient = `linear-gradient(to top, rgba(${overlayRgb.r}, ${overlayRgb.g}, ${overlayRgb.b}, 0.75) 0%, rgba(${overlayRgb.r}, ${overlayRgb.g}, ${overlayRgb.b}, 0.4) 25%, transparent 50%)`;
+
 const cssVars = [
   backgroundColor ? `--bio-bg: ${backgroundColor}` : null,
   `--bio-label-color: ${labelColor}`,
   `--bio-name-color: ${nameColor}`,
+  `--bio-overlay-gradient: ${overlayGradient}`,
 ]
   .filter(Boolean)
   .join('; ');
@@ -349,16 +377,11 @@ const imageLqip = image?.asset?.metadata?.lqip;
     object-fit: cover;
   }
 
-  /* Gradient overlay - editorial dark fade from bottom */
+  /* Gradient overlay - accent color fade from bottom */
   .about-narrative__image-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.75) 0%,
-      rgba(0, 0, 0, 0.4) 25%,
-      transparent 50%
-    );
+    background: var(--bio-overlay-gradient);
     pointer-events: none;
     border-radius: 0.75rem;
   }

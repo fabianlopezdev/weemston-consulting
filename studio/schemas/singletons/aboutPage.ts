@@ -548,6 +548,45 @@ export default defineType({
       ],
     },
     {
+      name: 'bioOverlayColorType',
+      title: 'Image Overlay Color',
+      type: 'string',
+      group: 'bio',
+      fieldset: 'bioPhotoFields',
+      description:
+        'A subtle gradient overlay on the photo that improves text readability. The label and name appear on top of this overlay.',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+    },
+    {
+      name: 'bioOverlayColorShade',
+      title: 'Overlay Shade',
+      type: 'number',
+      group: 'bio',
+      fieldset: 'bioPhotoFields',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.bioOverlayColorType === 'custom',
+      validation: (Rule) => Rule.min(0).max(100).integer(),
+      components: {
+        input: BackgroundShadeInput,
+      },
+    },
+    {
+      name: 'bioOverlayCustomColor',
+      title: 'Custom Overlay Color',
+      type: 'simplerColor',
+      group: 'bio',
+      fieldset: 'bioPhotoFields',
+      hidden: ({ parent }) => parent?.bioOverlayColorType !== 'custom',
+    },
+    {
       name: 'bioLabel',
       title: 'Label',
       type: 'string',

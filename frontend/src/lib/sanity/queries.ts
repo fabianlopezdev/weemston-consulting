@@ -722,6 +722,9 @@ export const aboutPageQuery = groq`
     bioImage {
       ${imageProjection}
     },
+    bioOverlayColorType,
+    bioOverlayColorShade,
+    bioOverlayCustomColor { label, value },
     bioLabel,
     bioLabelColorType,
     bioLabelColorShade,
