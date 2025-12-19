@@ -3,6 +3,7 @@ import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
 import { urlForImageWithSeoFilename } from '@lib/sanity/image';
+import { slugify } from '@lib/utils/url';
 
 interface ColorData {
   label?: string;
@@ -121,9 +122,14 @@ const caseStudiesWithLogos =
 {
   caseStudiesWithLogos.length > 0 && (
     <section class="about-trusted-by" style={cssVars}>
-      <div class="container">
-        {showTitle && title && <p class="about-trusted-by__title">{title}</p>}
-        <div class="about-trusted-by__logos">
+      {showTitle && title && (
+        <div class="container">
+          <p class="about-trusted-by__title">{title}</p>
+        </div>
+      )}
+      <div class="about-trusted-by__marquee">
+        <div class="about-trusted-by__track">
+          {/* First set of logos */}
           {caseStudiesWithLogos.map((caseStudy) => {
             const logoUrl = caseStudy.clientLogo?.asset
               ? urlForImageWithSeoFilename(
@@ -138,7 +144,11 @@ const caseStudiesWithLogos =
 
             return (
               logoUrl && (
-                <div class="about-trusted-by__logo-wrapper">
+                <a
+                  href={`/case-studies#${slugify(caseStudy.client || '')}`}
+                  class="about-trusted-by__logo-wrapper"
+                  title={`View ${caseStudy.client} case study`}
+                >
                   <img
                     src={logoUrl}
                     alt={
@@ -148,7 +158,39 @@ const caseStudiesWithLogos =
                     loading="lazy"
                     decoding="async"
                   />
-                </div>
+                </a>
+              )
+            );
+          })}
+          {/* Duplicate set for seamless loop */}
+          {caseStudiesWithLogos.map((caseStudy) => {
+            const logoUrl = caseStudy.clientLogo?.asset
+              ? urlForImageWithSeoFilename(
+                  caseStudy.clientLogo as {
+                    asset?: { _ref?: string };
+                    alt?: string;
+                    seoFilename?: string;
+                  },
+                  { height: 60, quality: 90 }
+                )
+              : null;
+
+            return (
+              logoUrl && (
+                <a
+                  href={`/case-studies#${slugify(caseStudy.client || '')}`}
+                  class="about-trusted-by__logo-wrapper"
+                  aria-hidden="true"
+                  tabindex="-1"
+                >
+                  <img
+                    src={logoUrl}
+                    alt=""
+                    class="about-trusted-by__logo"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </a>
               )
             );
           })}
@@ -160,10 +202,19 @@ const caseStudiesWithLogos =
 
 <style>
   .about-trusted-by {
+    --marquee-speed: 30s;
+    --marquee-gap: 4rem;
+
     background: var(--trusted-by-bg, var(--color-background-muted, #f8fafc));
     padding: clamp(2rem, 4vw, 3rem) 0;
     border-top: 1px solid var(--color-border, #e2e8f0);
     border-bottom: 1px solid var(--color-border, #e2e8f0);
+    overflow: hidden;
+  }
+
+  .about-trusted-by :global(.container) {
+    display: flex;
+    justify-content: center;
   }
 
   .about-trusted-by__title {
@@ -173,38 +224,83 @@ const caseStudiesWithLogos =
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    margin: 0 0 2rem;
+    margin: 0 0 1.5rem;
   }
 
-  .about-trusted-by__logos {
+  .about-trusted-by__marquee {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    /* Fade edges for smooth visual transition */
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
+  }
+
+  .about-trusted-by__track {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
     align-items: center;
-    gap: 2rem 3rem;
+    gap: var(--marquee-gap);
+    width: max-content;
+    animation: marquee-scroll var(--marquee-speed) linear infinite;
   }
 
-  @media (min-width: 768px) {
-    .about-trusted-by__logos {
-      gap: 2rem 4rem;
+  /* Pause animation on hover for accessibility */
+  .about-trusted-by__marquee:hover .about-trusted-by__track {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(-50% - var(--marquee-gap) / 2));
     }
   }
 
   .about-trusted-by__logo-wrapper {
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
   }
 
   .about-trusted-by__logo-wrapper:hover {
     opacity: 1;
+    transform: scale(1.05);
+  }
+
+  .about-trusted-by__logo-wrapper:focus-visible {
+    outline: 2px solid var(--color-accent, #0066cc);
+    outline-offset: 4px;
+    border-radius: 4px;
+    opacity: 1;
   }
 
   .about-trusted-by__logo {
-    height: 40px;
+    height: 36px;
     width: auto;
     object-fit: contain;
     filter: grayscale(100%);
-    transition: filter 0.2s ease;
+    transition: filter 0.3s ease;
   }
 
   .about-trusted-by__logo-wrapper:hover .about-trusted-by__logo {
@@ -212,8 +308,36 @@ const caseStudiesWithLogos =
   }
 
   @media (min-width: 768px) {
+    .about-trusted-by {
+      --marquee-gap: 5rem;
+    }
+
+    .about-trusted-by__logo {
+      height: 44px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .about-trusted-by {
+      --marquee-gap: 6rem;
+    }
+
     .about-trusted-by__logo {
       height: 48px;
+    }
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .about-trusted-by__track {
+      animation: none;
+    }
+
+    .about-trusted-by__marquee {
+      mask-image: none;
+      -webkit-mask-image: none;
+      overflow-x: auto;
+      padding: 0 1rem;
     }
   }
 </style>
@@ -225,13 +349,13 @@ const caseStudiesWithLogos =
   setupAnimationLifecycle(() => {
     const section = document.querySelector('.about-trusted-by');
     const title = document.querySelector('.about-trusted-by__title');
-    const logos = document.querySelectorAll('.about-trusted-by__logo-wrapper');
+    const marquee = document.querySelector('.about-trusted-by__marquee');
 
     if (!section) return;
 
     // Initial states
     if (title) gsap.set(title, { opacity: 0, y: 15 });
-    gsap.set(logos, { opacity: 0, y: 20 });
+    if (marquee) gsap.set(marquee, { opacity: 0 });
 
     // Create timeline
     const tl = gsap.timeline({
@@ -253,18 +377,16 @@ const caseStudiesWithLogos =
       });
     }
 
-    // Logos stagger in
-    if (logos.length > 0) {
+    // Marquee fades in
+    if (marquee) {
       tl.to(
-        logos,
+        marquee,
         {
-          opacity: 0.7, // Match the default opacity
-          y: 0,
-          duration: 0.4,
+          opacity: 1,
+          duration: 0.6,
           ease: 'power2.out',
-          stagger: 0.08,
         },
-        '-=0.2'
+        title ? '-=0.3' : 0
       );
     }
   });
