@@ -578,6 +578,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
   .service-section {
     padding-block: clamp(6rem, 10vw, 8rem);
     background: var(--service-bg, var(--color-background));
+    overflow: hidden; /* Prevent pinned image from overflowing into next section */
   }
 
   .service-section__grid {
@@ -876,6 +877,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
       grid-column: span 6;
       position: relative;
       align-self: stretch; /* Required for pin - column must be taller than pinned element */
+      overflow: hidden; /* Clip pinned image when it exceeds column bounds */
     }
 
     /* Reversed layout */
@@ -935,7 +937,6 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
   .service-section__text-column {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xl);
   }
 
   /* Serif title variant for catalogue */
@@ -1394,17 +1395,16 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
           const mm = gsap.matchMedia();
 
           mm.add('(min-width: 768px)', () => {
-            // Calculate how much the image should stay pinned
-            // Pin distance = text column height - image wrapper height (the scrollable overflow)
-            const textHeight = textColumn.getBoundingClientRect().height;
+            // Pin starts when image top reaches 128px from viewport top
+            // Pin ends when text column bottom reaches image bottom position
             const imageHeight = imageWrapper.getBoundingClientRect().height;
-            const pinDistance = Math.max(0, textHeight - imageHeight);
 
             gsap.to(imageWrapper, {
               scrollTrigger: {
                 trigger: imageWrapper,
-                start: 'top 128px', // top-32 = 8rem = 128px
-                end: `+=${pinDistance}`,
+                start: 'top 128px', // top-32 = 8rem = 128px from viewport top
+                endTrigger: textColumn,
+                end: `bottom ${128 + imageHeight}px`, // when text bottom reaches pinned image bottom
                 pin: true,
                 pinSpacing: false, // Don't add extra spacing
                 markers: ANIMATION_CONFIG.scrollTrigger.markers,
