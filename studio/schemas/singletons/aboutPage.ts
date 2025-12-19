@@ -541,7 +541,7 @@ export default defineType({
       title: 'Photo',
       type: 'image',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioPhotoFields',
       options: { hotspot: true },
       fields: [
         {
@@ -557,7 +557,7 @@ export default defineType({
       title: 'Label',
       type: 'string',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioPhotoFields',
       description: 'E.g., "Founder & Lead Consultant"',
       initialValue: 'Founder & Lead Consultant',
     },
@@ -566,7 +566,7 @@ export default defineType({
       title: 'Label Color',
       type: 'string',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioPhotoFields',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -583,7 +583,7 @@ export default defineType({
       title: 'Label Shade',
       type: 'number',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioPhotoFields',
       initialValue: 0,
       hidden: ({ parent }) =>
         !parent?.bioLabel || parent?.bioLabelColorType === 'custom',
@@ -597,7 +597,7 @@ export default defineType({
       title: 'Custom Label Color',
       type: 'simplerColor',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioPhotoFields',
       hidden: ({ parent }) =>
         !parent?.bioLabel || parent?.bioLabelColorType !== 'custom',
     },
@@ -606,7 +606,7 @@ export default defineType({
       title: 'Name',
       type: 'string',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioPhotoFields',
       description: 'The main heading name',
       initialValue: 'Jessica Weeman',
     },
@@ -615,7 +615,7 @@ export default defineType({
       title: 'Name Color',
       type: 'string',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioPhotoFields',
       options: {
         list: [
           { title: 'Primary', value: 'primary' },
@@ -632,7 +632,7 @@ export default defineType({
       title: 'Name Shade',
       type: 'number',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioPhotoFields',
       initialValue: 0,
       hidden: ({ parent }) =>
         !parent?.bioName || parent?.bioNameColorType === 'custom',
@@ -646,7 +646,7 @@ export default defineType({
       title: 'Custom Name Color',
       type: 'simplerColor',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioPhotoFields',
       hidden: ({ parent }) =>
         !parent?.bioName || parent?.bioNameColorType !== 'custom',
     },
@@ -656,7 +656,7 @@ export default defineType({
       type: 'text',
       rows: 4,
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioDescriptionFields',
       description: 'The paragraph describing the person',
     },
     {
@@ -664,7 +664,7 @@ export default defineType({
       title: 'Description Color',
       type: 'string',
       group: 'bio',
-      fieldset: 'bioFields',
+      fieldset: 'bioDescriptionFields',
       options: {
         list: [
           { title: 'Base', value: 'base' },
@@ -677,174 +677,12 @@ export default defineType({
       initialValue: 'muted',
       hidden: ({ parent }) => !parent?.bioDescription,
     },
-
-    // ==========================================
-    // INFO GRID SECTION
-    // ==========================================
-    {
-      name: 'infoGridBackgroundColorMode',
-      title: 'Background Color Mode',
-      type: 'string',
-      group: 'infoGrid',
-      fieldset: 'infoGridFields',
-      options: {
-        list: [
-          { title: 'Solid', value: 'solid' },
-          { title: 'Gradient', value: 'gradient' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'solid',
-    },
-    {
-      name: 'infoGridBackgroundColorType',
-      title: 'Background Color',
-      type: 'string',
-      group: 'infoGrid',
-      fieldset: 'infoGridFields',
-      options: {
-        list: [
-          { title: 'Default (White)', value: 'default' },
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'default',
-      hidden: ({ parent }) =>
-        parent?.infoGridBackgroundColorMode === 'gradient',
-    },
-    {
-      name: 'infoGridBackgroundColorShade',
-      title: 'Background Shade',
-      type: 'number',
-      group: 'infoGrid',
-      fieldset: 'infoGridFields',
-      initialValue: 95,
-      hidden: ({ parent }) =>
-        parent?.infoGridBackgroundColorType === 'custom' ||
-        parent?.infoGridBackgroundColorType === 'default' ||
-        parent?.infoGridBackgroundColorMode === 'gradient',
-      validation: (Rule) => Rule.min(0).max(100).integer(),
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'infoGridBackgroundCustomColor',
-      title: 'Custom Background Color',
-      type: 'simplerColor',
-      group: 'infoGrid',
-      fieldset: 'infoGridFields',
-      hidden: ({ parent }) =>
-        parent?.infoGridBackgroundColorType !== 'custom' ||
-        parent?.infoGridBackgroundColorMode === 'gradient',
-    },
-    {
-      name: 'infoGridBackgroundGradient',
-      title: 'Gradient',
-      type: 'object',
-      group: 'infoGrid',
-      fieldset: 'infoGridFields',
-      hidden: ({ parent }) =>
-        parent?.infoGridBackgroundColorMode !== 'gradient',
-      fields: [
-        {
-          name: 'direction',
-          title: 'Direction',
-          type: 'string',
-          options: {
-            list: [
-              { title: 'Top to Bottom', value: 'to bottom' },
-              { title: 'Bottom to Top', value: 'to top' },
-              { title: 'Left to Right', value: 'to right' },
-              { title: 'Right to Left', value: 'to left' },
-              { title: 'Diagonal ↘', value: '135deg' },
-              { title: 'Diagonal ↗', value: '45deg' },
-            ],
-          },
-          initialValue: '135deg',
-        },
-        {
-          name: 'startColor',
-          title: 'Start Color',
-          type: 'object',
-          fields: [
-            {
-              name: 'colorType',
-              title: 'Color',
-              type: 'string',
-              options: {
-                list: [
-                  { title: 'Primary', value: 'primary' },
-                  { title: 'Secondary', value: 'secondary' },
-                  { title: 'Accent', value: 'accent' },
-                  { title: 'Custom', value: 'custom' },
-                ],
-              },
-              initialValue: 'primary',
-            },
-            {
-              name: 'shade',
-              title: 'Shade',
-              type: 'number',
-              initialValue: 0,
-              hidden: ({ parent }) => parent?.colorType === 'custom',
-              components: { input: BackgroundShadeInput },
-            },
-            {
-              name: 'customColor',
-              title: ' ',
-              type: 'simplerColor',
-              hidden: ({ parent }) => parent?.colorType !== 'custom',
-            },
-          ],
-        },
-        {
-          name: 'endColor',
-          title: 'End Color',
-          type: 'object',
-          fields: [
-            {
-              name: 'colorType',
-              title: 'Color',
-              type: 'string',
-              options: {
-                list: [
-                  { title: 'Primary', value: 'primary' },
-                  { title: 'Secondary', value: 'secondary' },
-                  { title: 'Accent', value: 'accent' },
-                  { title: 'Custom', value: 'custom' },
-                ],
-              },
-              initialValue: 'accent',
-            },
-            {
-              name: 'shade',
-              title: 'Shade',
-              type: 'number',
-              initialValue: 0,
-              hidden: ({ parent }) => parent?.colorType === 'custom',
-              components: { input: BackgroundShadeInput },
-            },
-            {
-              name: 'customColor',
-              title: ' ',
-              type: 'simplerColor',
-              hidden: ({ parent }) => parent?.colorType !== 'custom',
-            },
-          ],
-        },
-      ],
-    },
     {
       name: 'infoCards',
       title: 'Info Cards',
       type: 'array',
-      group: 'infoGrid',
-      fieldset: 'infoGridFields',
+      group: 'bio',
+      fieldset: 'bioInfoCardsFields',
       of: [{ type: 'aboutInfoCard' }],
       description: 'Add cards with icons, titles, and content paragraphs',
     },

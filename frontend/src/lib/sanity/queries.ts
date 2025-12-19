@@ -732,14 +732,7 @@ export const aboutPageQuery = groq`
     bioNameCustomColor { label, value },
     bioDescription,
     bioDescriptionColor,
-    // Info Grid Section
-    infoGridBackgroundColorType,
-    infoGridBackgroundColorMode,
-    infoGridBackgroundColorShade,
-    infoGridBackgroundCustomColor { label, value },
-    infoGridBackgroundGradient {
-      ${gradientProjection}
-    },
+    // Info Cards
     infoCards[] {
       _key,
       icon { name },
