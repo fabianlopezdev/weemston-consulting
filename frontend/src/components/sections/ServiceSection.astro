@@ -57,7 +57,6 @@ interface GradientData {
 }
 
 interface Props {
-  tag?: string;
   title: string;
   leadText?: string;
   description?: PortableTextBlock[];
@@ -81,7 +80,6 @@ interface Props {
   titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   titleColorShade?: number;
   titleCustomColor?: ColorData;
-  tagColor?: 'primary' | 'secondary' | 'accent';
   leadTextColor?: 'base' | 'muted' | 'contrast';
   descriptionTextColor?: 'base' | 'muted' | 'contrast';
   iconColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
@@ -121,7 +119,6 @@ interface Props {
 }
 
 const {
-  tag,
   title,
   leadText,
   description,
@@ -139,7 +136,6 @@ const {
   titleColorType = 'accent',
   titleColorShade = 0,
   titleCustomColor,
-  tagColor = 'accent',
   leadTextColor = 'base',
   descriptionTextColor = 'muted',
   iconColorType = 'accent',
@@ -198,11 +194,6 @@ const titleColor = resolveColorSelection(
     shade: titleColorShade,
     customColor: titleCustomColor,
   },
-  siteColors
-);
-
-const resolvedTagColor = resolveColorSelection(
-  { colorType: tagColor, shade: 0 },
   siteColors
 );
 
@@ -302,7 +293,6 @@ function getLogoFilters(variant: 'dark' | 'light' | undefined): {
 const cssVarParts: string[] = [];
 if (backgroundColor) cssVarParts.push(`--service-bg: ${backgroundColor}`);
 cssVarParts.push(`--service-title: ${titleColor}`);
-cssVarParts.push(`--service-tag: ${resolvedTagColor}`);
 cssVarParts.push(`--service-lead: ${resolvedLeadTextColor}`);
 cssVarParts.push(`--service-description: ${resolvedDescriptionTextColor}`);
 cssVarParts.push(`--service-icon: ${iconColor}`);
@@ -355,7 +345,6 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
           {/* No-image layout: content column | list column */}
           <div class="service-section__grid service-section__grid--no-image">
             <div class="service-section__content-column">
-              {tag && <span class="service-section__tag">{tag}</span>}
               <h2 class="service-section__title">{title}</h2>
               {leadText && <p class="service-section__lead">{leadText}</p>}
               {description && description.length > 0 && (
@@ -462,7 +451,6 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
           >
             {/* Text Column */}
             <div class="service-section__text-column">
-              {tag && <span class="service-section__tag">{tag}</span>}
               <h2 class="service-section__title service-section__title--serif">
                 {title}
               </h2>
@@ -684,16 +672,6 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
   .service-section__content {
   }
 
-  .service-section__tag {
-    display: inline-block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--service-tag, var(--color-accent));
-    margin-bottom: var(--space-sm);
-  }
-
   .service-section__title {
     font-family: var(--font-heading);
     font-size: clamp(1.75rem, 4vw, 2.5rem);
@@ -901,7 +879,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--service-tag, var(--color-text-muted));
+    color: var(--color-text-muted);
   }
 
   .service-section__label-number {

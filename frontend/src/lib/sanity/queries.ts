@@ -912,7 +912,6 @@ export const servicesPageNewQuery = groq`
     services[]-> {
       _id,
       title,
-      tag,
       leadText,
       description,
       iconType,
@@ -932,7 +931,6 @@ export const servicesPageNewQuery = groq`
       titleColorType,
       titleColorShade,
       titleCustomColor { label, value },
-      tagColor,
       leadTextColor,
       descriptionTextColor,
       iconColorType,

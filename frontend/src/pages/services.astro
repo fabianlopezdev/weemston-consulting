@@ -40,7 +40,6 @@ if (!page) {
       page.services.map((service: any, index: number) => (
         <ServiceSection
           serviceIndex={index}
-          tag={service.tag}
           title={service.title}
           leadText={service.leadText}
           description={service.description}
@@ -56,7 +55,6 @@ if (!page) {
           titleColorType={service.titleColorType}
           titleColorShade={service.titleColorShade}
           titleCustomColor={service.titleCustomColor}
-          tagColor={service.tagColor}
           leadTextColor={service.leadTextColor}
           descriptionTextColor={service.descriptionTextColor}
           iconColorType={service.iconColorType}

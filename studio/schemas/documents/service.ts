@@ -223,35 +223,6 @@ export default defineType({
       ],
     },
 
-    // Tag
-    {
-      name: 'tag',
-      title: 'Tag',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      description:
-        'Small uppercase label above the title (e.g., "01", "Strategy")',
-    },
-    {
-      name: 'tagColor',
-      title: 'Tag Color',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'accent',
-      hidden: ({ parent }) => !parent?.tag,
-    },
-
     // Title Color
     {
       name: 'titleColorType',
@@ -743,13 +714,12 @@ export default defineType({
   preview: {
     select: {
       title: 'title',
-      tag: 'tag',
       language: 'language',
     },
-    prepare({ title, tag, language }) {
+    prepare({ title, language }) {
       return {
         title,
-        subtitle: [tag, language?.toUpperCase()].filter(Boolean).join(' • '),
+        subtitle: language?.toUpperCase() || '',
       };
     },
   },
