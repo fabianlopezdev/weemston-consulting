@@ -3,6 +3,8 @@ import { urlForImageWithSeoFilename } from '@lib/sanity/image';
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
 import { sanityClient as client } from 'sanity:client';
 import { siteSettingsQuery } from '@lib/sanity/queries';
+import { Icon } from 'astro-icon/components';
+import { PortableText } from 'astro-portabletext';
 
 interface ImageAsset {
   _id: string;
