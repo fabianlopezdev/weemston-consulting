@@ -918,14 +918,14 @@ export const servicesPageNewQuery = groq`
     services[]-> {
       _id,
       title,
-      leadText,
       description,
       iconType,
-      icon,
       iconImage {
         ${imageProjection}
       },
       imagePosition,
+      subtitle,
+      subtitleColor,
       // Color settings
       backgroundColorType,
       backgroundColorMode,
@@ -937,25 +937,11 @@ export const servicesPageNewQuery = groq`
       titleColorType,
       titleColorShade,
       titleCustomColor { label, value },
-      leadTextColor,
       descriptionTextColor,
-      iconColorType,
-      iconColorShade,
-      iconCustomColor { label, value },
-      iconContainerColorType,
-      iconContainerColorShade,
-      iconContainerCustomColor { label, value },
       // List settings
-      listStyle,
       listTitle,
       listItems,
       listTextColor,
-      listContainerColorType,
-      listContainerColorShade,
-      listContainerCustomColor { label, value },
-      listIconColorType,
-      listIconColorShade,
-      listIconCustomColor { label, value },
       // Case Studies Section
       caseStudiesSectionTitle,
       caseStudiesTitleColorType,

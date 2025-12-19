@@ -34,7 +34,7 @@ export default defineType({
     {
       name: 'listSection',
       title: '📝 List Section',
-      description: 'Optional bulleted list to highlight key offerings',
+      description: 'Bulleted list to highlight key offerings',
       options: { collapsible: true, collapsed: true },
     },
     {
@@ -261,35 +261,6 @@ export default defineType({
       hidden: ({ parent }) => parent?.titleColorType !== 'custom',
     },
 
-    // Lead Text
-    {
-      name: 'leadText',
-      title: 'Lead Text',
-      type: 'text',
-      rows: 2,
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      description: 'Bold introductory text below the title',
-    },
-    {
-      name: 'leadTextColor',
-      title: 'Lead Text Color',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      options: {
-        list: [
-          { title: 'Base', value: 'base' },
-          { title: 'Muted', value: 'muted' },
-          { title: 'Contrast', value: 'contrast' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'base',
-      hidden: ({ parent }) => !parent?.leadText,
-    },
-
     // Description
     {
       name: 'description',
@@ -318,7 +289,7 @@ export default defineType({
       hidden: ({ parent }) => !parent?.description,
     },
 
-    // Image/Icon
+    // Image
     {
       name: 'iconType',
       title: 'Image Type',
@@ -328,80 +299,12 @@ export default defineType({
       options: {
         list: [
           { title: 'None', value: 'none' },
-          { title: 'Icon', value: 'svg' },
           { title: 'Image', value: 'image' },
         ],
         layout: 'radio',
         direction: 'horizontal',
       },
-      initialValue: 'svg',
-    },
-    {
-      name: 'icon',
-      title: 'Icon',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      options: {
-        list: [
-          { title: 'Settings (Gear)', value: 'settings' },
-          { title: 'Target', value: 'target' },
-          { title: 'Users (Team)', value: 'users' },
-          { title: 'Chart (Analytics)', value: 'chart' },
-          { title: 'Lightbulb (Ideas)', value: 'lightbulb' },
-          { title: 'Handshake', value: 'handshake' },
-          { title: 'Compass', value: 'compass' },
-          { title: 'Calendar', value: 'calendar' },
-          { title: 'Presentation', value: 'presentation' },
-        ],
-      },
-      initialValue: 'settings',
-      hidden: ({ parent }) =>
-        parent?.iconType === 'image' || parent?.iconType === 'none',
-    },
-    {
-      name: 'iconColorType',
-      title: 'Icon Color',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'accent',
-      hidden: ({ parent }) =>
-        parent?.iconType === 'image' || parent?.iconType === 'none',
-    },
-    {
-      name: 'iconColorShade',
-      title: 'Icon Shade',
-      type: 'number',
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      initialValue: 0,
-      hidden: ({ parent }) =>
-        parent?.iconType === 'image' ||
-        parent?.iconType === 'none' ||
-        parent?.iconColorType === 'custom',
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'iconCustomColor',
-      title: 'Custom Icon Color',
-      type: 'simplerColor',
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      hidden: ({ parent }) =>
-        parent?.iconType === 'image' ||
-        parent?.iconType === 'none' ||
-        parent?.iconColorType !== 'custom',
+      initialValue: 'none',
     },
     {
       name: 'iconImage',
@@ -423,52 +326,8 @@ export default defineType({
       hidden: ({ parent }) => parent?.iconType !== 'image',
     },
     {
-      name: 'iconContainerColorType',
-      title: 'Image/Icon Container Background',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      options: {
-        list: [
-          { title: 'Default', value: 'default' },
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'default',
-      hidden: ({ parent }) => parent?.iconType === 'none',
-    },
-    {
-      name: 'iconContainerColorShade',
-      title: 'Container Shade',
-      type: 'number',
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      initialValue: 0,
-      hidden: ({ parent }) =>
-        parent?.iconType === 'none' ||
-        parent?.iconContainerColorType === 'custom' ||
-        parent?.iconContainerColorType === 'default' ||
-        !parent?.iconContainerColorType,
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'iconContainerCustomColor',
-      title: 'Custom Container Color',
-      type: 'simplerColor',
-      group: 'servicePage',
-      fieldset: 'servicesPage',
-      hidden: ({ parent }) =>
-        parent?.iconType === 'none' ||
-        parent?.iconContainerColorType !== 'custom',
-    },
-    {
       name: 'imagePosition',
-      title: 'Image/Icon Position',
+      title: 'Image Position',
       type: 'string',
       group: 'servicePage',
       fieldset: 'servicesPage',
@@ -484,6 +343,35 @@ export default defineType({
       hidden: ({ parent }) => parent?.iconType === 'none',
     },
 
+    // Subtitle
+    {
+      name: 'subtitle',
+      title: 'Subtitle',
+      type: 'text',
+      rows: 2,
+      group: 'servicePage',
+      fieldset: 'servicesPage',
+      description: 'Bold introductory text below the title',
+    },
+    {
+      name: 'subtitleColor',
+      title: 'Subtitle Color',
+      type: 'string',
+      group: 'servicePage',
+      fieldset: 'servicesPage',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'base',
+      hidden: ({ parent }) => !parent?.subtitle,
+    },
+
     // List Section
     {
       name: 'listTitle',
@@ -491,7 +379,7 @@ export default defineType({
       type: 'string',
       group: 'servicePage',
       fieldset: 'listSection',
-      description: 'Optional heading above the list (e.g., "Key Offerings")',
+      description: 'Heading above the list (e.g., "Key Offerings")',
     },
     {
       name: 'listItems',
@@ -501,24 +389,6 @@ export default defineType({
       fieldset: 'listSection',
       of: [{ type: 'text', rows: 2 }],
       description: 'Individual items in the list',
-    },
-    {
-      name: 'listStyle',
-      title: 'List Style',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'listSection',
-      options: {
-        list: [
-          { title: 'Checkmark', value: 'checkmark' },
-          { title: 'Arrow', value: 'arrow' },
-          { title: 'Bullet', value: 'bullet' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'checkmark',
-      hidden: ({ parent }) => !parent?.listItems?.length,
     },
     {
       name: 'listTextColor',
@@ -537,89 +407,6 @@ export default defineType({
       },
       initialValue: 'base',
       hidden: ({ parent }) => !parent?.listItems?.length,
-    },
-    {
-      name: 'listIconColorType',
-      title: 'List Icon/Bullet Color',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'listSection',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'accent',
-      hidden: ({ parent }) => !parent?.listItems?.length,
-    },
-    {
-      name: 'listIconColorShade',
-      title: 'List Icon Shade',
-      type: 'number',
-      group: 'servicePage',
-      fieldset: 'listSection',
-      initialValue: 0,
-      hidden: ({ parent }) =>
-        !parent?.listItems?.length || parent?.listIconColorType === 'custom',
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'listIconCustomColor',
-      title: 'Custom List Icon Color',
-      type: 'simplerColor',
-      group: 'servicePage',
-      fieldset: 'listSection',
-      hidden: ({ parent }) =>
-        !parent?.listItems?.length || parent?.listIconColorType !== 'custom',
-    },
-    {
-      name: 'listContainerColorType',
-      title: 'List Container Background',
-      type: 'string',
-      group: 'servicePage',
-      fieldset: 'listSection',
-      options: {
-        list: [
-          { title: 'Default', value: 'default' },
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'default',
-      hidden: ({ parent }) => !parent?.listItems?.length,
-    },
-    {
-      name: 'listContainerColorShade',
-      title: 'List Container Shade',
-      type: 'number',
-      group: 'servicePage',
-      fieldset: 'listSection',
-      initialValue: 0,
-      hidden: ({ parent }) =>
-        !parent?.listItems?.length ||
-        parent?.listContainerColorType === 'custom' ||
-        parent?.listContainerColorType === 'default' ||
-        !parent?.listContainerColorType,
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'listContainerCustomColor',
-      title: 'Custom List Container Color',
-      type: 'simplerColor',
-      group: 'servicePage',
-      fieldset: 'listSection',
-      hidden: ({ parent }) =>
-        !parent?.listItems?.length ||
-        parent?.listContainerColorType !== 'custom',
     },
 
     // Case Studies Section
