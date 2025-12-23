@@ -852,13 +852,6 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  /* Hover zoom on image - triggered by SECTION hover (group-hover equivalent) */
-  /* Use :global() because image is rendered by child Image component */
-  .service-section:hover :global(.service-section__image) {
-    transform: scale(1.05);
   }
 
   /* Portrait container image reveal animation */
@@ -1051,12 +1044,35 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
           scale: 1,
           duration: 1.5,
           ease: 'power2.out',
-          clearProps: 'transform', // Clear inline styles so CSS hover can work
           scrollTrigger: {
             trigger: container,
             start: 'top 55%',
             once: true,
             markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          },
+          onComplete: () => {
+            // Add hover zoom animation (desktop only)
+            const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+            if (!isDesktop) return;
+
+            const section = container.closest('.service-section');
+            if (!section) return;
+
+            section.addEventListener('mouseenter', () => {
+              gsap.to(image, {
+                scale: 1.02,
+                duration: 1.8,
+                ease: 'power2.out',
+              });
+            });
+
+            section.addEventListener('mouseleave', () => {
+              gsap.to(image, {
+                scale: 1,
+                duration: 1.8,
+                ease: 'power2.out',
+              });
+            });
           },
         });
       }
