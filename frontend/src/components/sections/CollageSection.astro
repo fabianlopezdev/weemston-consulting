@@ -439,13 +439,13 @@ if (showCta && ctaButton) {
           0
         );
 
-      // Entrance animation timeline - delay until section is fully visible
-      const entranceTl = gsap.timeline({
+      // Text entrance animation timeline - plays once when section enters viewport
+      // Uses once: true so text reveals early and stays visible permanently
+      const textEntranceTl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: 'center 60%',
-          end: 'center 40%',
-          scrub: 1.5, // Smoother updates
+          start: 'top 80%', // Triggers early when section top is 80% from viewport top
+          once: true, // Plays once and stays - no reverse on scroll up
           markers: ANIMATION_CONFIG.scrollTrigger.markers,
         },
       });
@@ -454,12 +454,12 @@ if (showCta && ctaButton) {
       const contentCard = section.querySelector('.collage__content');
       if (contentCard) {
         gsap.set(contentCard, { scale: 0.95, opacity: 0, force3D: true });
-        entranceTl.to(
+        textEntranceTl.to(
           contentCard,
           {
             scale: 1,
             opacity: 1,
-            duration: 1,
+            duration: 0.8,
             ease: 'power2.out',
             force3D: true,
           },
@@ -470,60 +470,60 @@ if (showCta && ctaButton) {
       // Fade in tagline with elegant reveal - use force3D for GPU acceleration
       // Note: taglineText may be null when useAsSectionTitle is true
       if (taglineText) {
-        entranceTl.to(
+        textEntranceTl.to(
           taglineText,
           {
             opacity: 1,
             y: 0,
-            duration: 1,
+            duration: 0.6,
             ease: 'power3.out',
             force3D: true,
           },
-          0.1
+          '-=0.4'
         );
       }
 
       // Animate description
       const description = section.querySelector('.collage__description');
       if (description) {
-        entranceTl.to(
+        textEntranceTl.to(
           description,
           {
             opacity: 1,
             y: 0,
-            duration: 0.6,
+            duration: 0.5,
             ease: 'power2.out',
           },
-          0.2
+          '-=0.3'
         );
       }
 
       // Animate CTA button
       const ctaButton = section.querySelector('.collage__cta-button');
       if (ctaButton) {
-        entranceTl.to(
+        textEntranceTl.to(
           ctaButton,
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.5,
+            duration: 0.4,
             ease: 'back.out(1.4)',
           },
-          0.3
+          '-=0.2'
         );
       }
 
       // Fade in accent lines
-      entranceTl.to(
+      textEntranceTl.to(
         accents,
         {
           opacity: 0.6,
-          duration: 0.8,
+          duration: 0.6,
           stagger: 0.1,
           ease: 'power2.out',
         },
-        0.3
+        '-=0.3'
       );
 
       // Horizontal scroll parallax - images move left as you scroll down
