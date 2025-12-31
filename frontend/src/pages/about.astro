@@ -3,7 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { sanityClient as client } from 'sanity:client';
 import { aboutPageQuery } from '@lib/sanity/queries';
 import InternalPageHero from '@components/sections/InternalPageHero.astro';
-import AboutSection from '@components/sections/AboutSection.astro';
+import AboutCollageSection from '@components/sections/AboutCollageSection.astro';
 import AboutTrustedBy from '@components/sections/AboutTrustedBy.astro';
 
 const page = await client.fetch(aboutPageQuery);
@@ -57,7 +57,7 @@ if (!page) {
           },
           index: number
         ) => (
-          <AboutSection
+          <AboutCollageSection
             sectionIndex={index}
             title={section.title}
             {...(section.description && { description: section.description })}

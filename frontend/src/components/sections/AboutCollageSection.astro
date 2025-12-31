@@ -1,0 +1,476 @@
+---
+import ImageCollage from '@components/ui/ImageCollage.astro';
+import PortableText from '@components/sanity/PortableText.astro';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import type { PortableTextBlock } from '@portabletext/types';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
+interface CollageImage {
+  asset?: {
+    _id: string;
+    url?: string;
+    metadata?: {
+      lqip?: string;
+      dimensions?: {
+        width: number;
+        height: number;
+        aspectRatio: number;
+      };
+    };
+  };
+  alt?: string;
+  hotspot?: { x: number; y: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+  positionHorizontal?: 'left' | 'center' | 'right';
+  positionVertical?: 'top' | 'center' | 'bottom';
+}
+
+interface Props {
+  title: string;
+  description?: PortableTextBlock[];
+  images?: CollageImage[];
+  sectionIndex?: number;
+  // Background colors
+  backgroundColorMode?: 'solid' | 'gradient';
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
+  // Title colors
+  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  titleColorShade?: number;
+  titleCustomColor?: ColorData;
+  // Description text color
+  descriptionTextColor?: 'base' | 'muted' | 'contrast';
+}
+
+const {
+  title,
+  description,
+  images = [],
+  sectionIndex = 0,
+  // Background
+  backgroundColorMode = 'solid',
+  backgroundColorType = 'default',
+  backgroundColorShade = 0,
+  backgroundCustomColor,
+  backgroundGradient,
+  // Title
+  titleColorType = 'accent',
+  titleColorShade = 0,
+  titleCustomColor,
+  // Description
+  descriptionTextColor = 'muted',
+} = Astro.props;
+
+// Auto-alternate: even index = images left, odd index = images right
+const imagePosition = sectionIndex % 2 === 0 ? 'left' : 'right';
+
+// Check if we have images
+const hasImages = images && images.length > 0;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color
+let backgroundColor: string | null = null;
+
+if (backgroundColorMode === 'gradient' && backgroundGradient) {
+  // Gradient mode
+  backgroundColor = `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`;
+} else if (backgroundColorType && backgroundColorType !== 'default') {
+  // Solid color mode
+  backgroundColor = resolveColorSelection(
+    {
+      colorType: backgroundColorType,
+      shade: backgroundColorShade,
+      customColor: backgroundCustomColor,
+    },
+    siteColors
+  );
+}
+
+// Resolve title color
+const titleColor = resolveColorSelection(
+  {
+    colorType: titleColorType,
+    shade: titleColorShade,
+    customColor: titleCustomColor,
+  },
+  siteColors
+);
+
+// Text color mapping
+const textColorMap = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'rgba(255, 255, 255, 0.9)',
+};
+
+const cssVars = [
+  backgroundColor ? `--section-bg: ${backgroundColor}` : null,
+  `--section-title-color: ${titleColor}`,
+  `--section-text-color: ${textColorMap[descriptionTextColor]}`,
+]
+  .filter(Boolean)
+  .join('; ');
+---
+
+<article
+  class="about-collage-section"
+  data-animate
+  data-reversed={imagePosition === 'right'}
+  data-has-images={hasImages}
+  style={cssVars}
+>
+  <div class="container">
+    {/* Grid: Collage + Text (order controlled by CSS) */}
+    <div
+      class={`about-collage-section__grid ${imagePosition === 'left' ? '' : 'about-collage-section__grid--images-right'}`}
+    >
+      {/* Collage Column */}
+      {
+        hasImages && (
+          <div class="about-collage-section__collage-column">
+            <div class="about-collage-section__collage-wrapper">
+              <ImageCollage images={images} />
+            </div>
+          </div>
+        )
+      }
+
+      {/* Text Column */}
+      <div class="about-collage-section__text-column">
+        <h2 class="about-collage-section__title">
+          {title}
+        </h2>
+        {
+          description && description.length > 0 && (
+            <div class="about-collage-section__description">
+              <PortableText content={description} />
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</article>
+
+<style>
+  .about-collage-section {
+    padding-block: clamp(4rem, 8vw, 6rem);
+    background: var(--section-bg, var(--color-background));
+    overflow: hidden;
+  }
+
+  /* Grid Layout */
+  .about-collage-section__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+
+  @media (min-width: 768px) {
+    .about-collage-section__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+
+    /* When images should be on the right, reverse the order */
+    .about-collage-section__grid--images-right {
+      direction: rtl;
+    }
+
+    .about-collage-section__grid--images-right > * {
+      direction: ltr;
+    }
+  }
+
+  /* Text Column */
+  .about-collage-section__text-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .about-collage-section__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.875rem, 4vw, 2.5rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--section-title-color, var(--color-accent));
+    margin: 0 0 var(--space-md);
+  }
+
+  .about-collage-section__description {
+    font-size: var(--font-size-base);
+    color: var(--section-text-color, var(--color-text-muted));
+    line-height: 1.7;
+  }
+
+  .about-collage-section__description :global(.portable-text) {
+    color: inherit;
+    line-height: inherit;
+  }
+
+  .about-collage-section__description :global(.portable-text p) {
+    color: inherit;
+    margin-bottom: var(--space-md);
+  }
+
+  .about-collage-section__description :global(.portable-text p:last-child) {
+    margin-bottom: 0;
+  }
+
+  /* Collage Column */
+  .about-collage-section__collage-column {
+    position: relative;
+    min-height: 400px;
+  }
+
+  @media (min-width: 768px) {
+    .about-collage-section__collage-column {
+      align-self: stretch;
+      min-height: 500px;
+    }
+  }
+
+  .about-collage-section__collage-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .about-collage-section__collage-wrapper {
+      position: absolute;
+      inset: 0;
+    }
+  }
+
+  /* Animation-ready states */
+  .about-collage-section[data-animate] .about-collage-section__text-column {
+    opacity: 0;
+  }
+
+  .about-collage-section[data-animate] .about-collage-section__collage-wrapper {
+    opacity: 0;
+  }
+
+  /* Word reveal clip container */
+  .about-collage-section__title :global(.editorial-word-wrapper) {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.1em;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .about-collage-section[data-animate] .about-collage-section__text-column,
+    .about-collage-section[data-animate]
+      .about-collage-section__collage-wrapper {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+</style>
+
+<script>
+  import {
+    setupAnimationLifecycle,
+    gsap,
+    SplitText,
+  } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
+
+  setupAnimationLifecycle(() => {
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    const sections = document.querySelectorAll(
+      '.about-collage-section[data-animate]'
+    );
+
+    sections.forEach((section) => {
+      if (prefersReducedMotion) {
+        gsap.set(
+          section.querySelectorAll('[class*="about-collage-section__"]'),
+          {
+            opacity: 1,
+            transform: 'none',
+          }
+        );
+        return;
+      }
+
+      const isReversed = section.getAttribute('data-reversed') === 'true';
+      const textColumn = section.querySelector(
+        '.about-collage-section__text-column'
+      );
+      const collageWrapper = section.querySelector(
+        '.about-collage-section__collage-wrapper'
+      );
+      const title = section.querySelector('.about-collage-section__title');
+
+      // Set initial states
+      if (textColumn) {
+        const xOffset = isReversed ? 40 : -40;
+        gsap.set(textColumn, {
+          opacity: 0,
+          y: 50,
+          x: xOffset,
+          scale: 0.97,
+        });
+      }
+
+      if (collageWrapper) {
+        gsap.set(collageWrapper, { opacity: 0 });
+      }
+
+      // Split title into words
+      let titleWords: HTMLElement[] = [];
+      if (title) {
+        const titleSplit = new SplitText(title, { type: 'words' });
+        titleWords = titleSplit.words as HTMLElement[];
+
+        titleWords.forEach((word) => {
+          const wrapper = document.createElement('span');
+          wrapper.style.display = 'inline-block';
+          wrapper.style.overflow = 'hidden';
+          wrapper.style.verticalAlign = 'top';
+          wrapper.style.paddingBottom = '0.1em';
+          wrapper.classList.add('editorial-word-wrapper');
+
+          word.parentNode?.insertBefore(wrapper, word);
+          wrapper.appendChild(word);
+
+          gsap.set(word, { y: '100%', opacity: 0 });
+        });
+      }
+
+      // Create timeline
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 60%',
+          once: true,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          onEnter: () => {
+            section.classList.add('is-active');
+          },
+        },
+      });
+
+      // Animate text column
+      if (textColumn) {
+        tl.to(textColumn, {
+          opacity: 1,
+          y: 0,
+          x: 0,
+          scale: 1,
+          duration: 0.9,
+          ease: 'power3.out',
+          clearProps: 'transform',
+        });
+      }
+
+      // Animate collage
+      if (collageWrapper) {
+        tl.to(
+          collageWrapper,
+          {
+            opacity: 1,
+            duration: 0.9,
+            ease: 'power3.out',
+          },
+          0.15
+        );
+
+        // Animate collage items
+        const collageItems = collageWrapper.querySelectorAll(
+          '.image-collage__item'
+        );
+        if (collageItems.length > 0) {
+          gsap.set(collageItems, {
+            opacity: 0,
+            scale: 0.95,
+            y: 30,
+          });
+
+          tl.to(
+            collageItems,
+            {
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              duration: 0.8,
+              stagger: 0.15,
+              ease: 'power3.out',
+            },
+            0.3
+          );
+        }
+
+        // Ken Burns effect on images
+        const collageImages = collageWrapper.querySelectorAll(
+          '.image-collage__image, .image-collage__image-wrapper img'
+        );
+        if (collageImages.length > 0) {
+          gsap.set(collageImages, { scale: 1.15 });
+
+          tl.to(
+            collageImages,
+            {
+              scale: 1,
+              duration: 1.2,
+              stagger: 0.1,
+              ease: 'power2.out',
+            },
+            0.4
+          );
+        }
+      }
+
+      // Title words reveal
+      if (titleWords.length > 0) {
+        tl.to(
+          titleWords,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.04,
+            ease: 'power3.out',
+          },
+          0.2
+        );
+      }
+    });
+  });
+</script>
