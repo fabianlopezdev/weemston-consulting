@@ -310,81 +310,87 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     {
       iconType === 'none' ? (
         <>
-          {/* No-image layout: content column | list column */}
-          <div class="service-section__grid service-section__grid--no-image">
-            <div class="service-section__content-column">
-              <h2 class="service-section__title">{title}</h2>
-              {subtitle && <p class="service-section__subtitle">{subtitle}</p>}
-              {description && description.length > 0 && (
-                <div class="service-section__description">
-                  <PortableText content={description} />
-                </div>
-              )}
-            </div>
-            <div class="service-section__list-column">
-              {listItems.length > 0 && (
-                <div
-                  class={`service-section__list-wrapper ${listTitle ? 'service-section__list-wrapper--boxed' : ''}`}
-                >
-                  {listTitle && (
-                    <strong class="service-section__list-title">
-                      {listTitle}
-                    </strong>
-                  )}
-                  <ul class="service-section__list service-section__list--numbered">
-                    {listItems.map((item, idx) => (
-                      <li class="service-section__list-item">
-                        <span class="service-section__list-number">
-                          {idx + 1}.
-                        </span>
-                        <span class="service-section__list-text">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
+          {/* Label Row - same as with-image layout */}
+          <div class="service-section__label-row">
+            <span class="service-section__label-text">Service</span>
+            <span class="service-section__label-number">{serviceNumber}</span>
+            <div class="service-section__label-line" />
           </div>
-          {/* Case studies below for no-image layout */}
-          {caseStudiesWithLogos.length > 0 && (
-            <div class="service-section__case-studies service-section__case-studies--below">
-              {caseStudiesSectionTitle && (
-                <p class="service-section__case-studies-title">
-                  {caseStudiesSectionTitle}
-                </p>
-              )}
-              <div class="service-section__case-studies-logos">
-                {caseStudiesWithLogos.map((caseStudy) => {
-                  const logoUrl = urlForImage(caseStudy.clientLogo!)
-                    .height(96)
-                    .auto('format')
-                    .url();
-                  const { filter, hoverFilter } = getLogoFilters(
-                    caseStudy.logoVariant
-                  );
-                  return (
-                    <a
-                      href={`/case-studies#${slugify(caseStudy.client || '')}`}
-                      class="service-section__case-study-logo"
-                      title={caseStudy.client || 'View case study'}
-                    >
-                      <img
-                        src={logoUrl}
-                        alt={
-                          caseStudy.clientLogo?.alt ||
-                          `${caseStudy.client} logo`
-                        }
-                        class="service-section__logo-image"
-                        style={`--logo-filter: ${filter}; --logo-filter-hover: ${hoverFilter}`}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </a>
-                  );
-                })}
+
+          {/* Single text column - same structure as with-image, just full width */}
+          <div class="service-section__text-column service-section__text-column--full">
+            <h2 class="service-section__title service-section__title--serif">
+              {title}
+            </h2>
+            {subtitle && <p class="service-section__subtitle">{subtitle}</p>}
+            {description && description.length > 0 && (
+              <div class="service-section__description">
+                <PortableText content={description} />
               </div>
-            </div>
-          )}
+            )}
+
+            {/* List - same as with-image */}
+            {listItems.length > 0 && (
+              <div class="service-section__list-wrapper">
+                {listTitle && (
+                  <strong class="service-section__list-title">
+                    {listTitle}
+                  </strong>
+                )}
+                <ul class="service-section__list service-section__list--numbered">
+                  {listItems.map((item, idx) => (
+                    <li class="service-section__list-item">
+                      <span class="service-section__list-number">
+                        {idx + 1}.
+                      </span>
+                      <span class="service-section__list-text">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Case studies inline - same as with-image */}
+            {caseStudiesWithLogos.length > 0 && (
+              <div class="service-section__case-studies service-section__case-studies--inline">
+                {caseStudiesSectionTitle && (
+                  <p class="service-section__case-studies-title">
+                    {caseStudiesSectionTitle}
+                  </p>
+                )}
+                <div class="service-section__case-studies-logos">
+                  {caseStudiesWithLogos.map((caseStudy) => {
+                    const logoUrl = urlForImage(caseStudy.clientLogo!)
+                      .height(96)
+                      .auto('format')
+                      .url();
+                    const { filter, hoverFilter } = getLogoFilters(
+                      caseStudy.logoVariant
+                    );
+                    return (
+                      <a
+                        href={`/case-studies#${slugify(caseStudy.client || '')}`}
+                        class="service-section__case-study-logo"
+                        title={caseStudy.client || 'View case study'}
+                      >
+                        <img
+                          src={logoUrl}
+                          alt={
+                            caseStudy.clientLogo?.alt ||
+                            `${caseStudy.client} logo`
+                          }
+                          class="service-section__logo-image"
+                          style={`--logo-filter: ${filter}; --logo-filter-hover: ${hoverFilter}`}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </>
       ) : (
         /* Catalogue layout - editorial magazine style (matches React Variant F) */
@@ -526,36 +532,6 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     .service-section__grid--reversed > * {
       direction: ltr;
     }
-  }
-
-  /* No-image layout */
-  .service-section__grid--no-image {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-xl);
-    align-items: start;
-  }
-
-  @media (min-width: 768px) {
-    .service-section__grid--no-image {
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-2xl);
-    }
-  }
-
-  .service-section__content-column {
-    /* Inherits text styling from parent */
-  }
-
-  .service-section__list-column {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  /* Case studies when below content (no-image mode) */
-  .service-section__case-studies--below {
-    /* No margin-top to keep it connected to the grid above */
   }
 
   .service-section__media-column {
@@ -821,6 +797,23 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     flex-direction: column;
   }
 
+  /* Full-width text column (no-image layout) */
+  .service-section__text-column--full {
+    max-width: none;
+  }
+
+  /* Override global 65ch max-width for full-width layout */
+  .service-section__text-column--full .service-section__subtitle,
+  .service-section__text-column--full .service-section__description :global(p) {
+    max-inline-size: none;
+  }
+
+  /* Equal spacing for no-image layout: match description-to-list spacing */
+  .service-section__text-column--full .service-section__case-studies--inline {
+    margin-top: var(--space-lg);
+    padding-top: 0;
+  }
+
   /* Serif title variant for catalogue */
   .service-section__title--serif {
     font-family: var(--font-heading);
@@ -950,9 +943,6 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
   /* Note: label-row is NOT included - always visible like React */
   .service-section[data-animate] .service-section__media-column,
   .service-section[data-animate] .service-section__content,
-  .service-section[data-animate] .service-section__content-column,
-  .service-section[data-animate] .service-section__list-column,
-  .service-section[data-animate] .service-section__case-studies--below,
   .service-section[data-animate] .service-section__text-column {
     opacity: 0;
   }
@@ -962,7 +952,9 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     opacity: 0;
   }
 
-  .service-section[data-animate] .service-section__list-item {
+  /* Only hide list items for catalogue layout (with image) - no-image layout shows them immediately */
+  .service-section[data-animate]:not([data-no-image='true'])
+    .service-section__list-item {
     opacity: 0;
   }
 
@@ -983,12 +975,10 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
 
     .service-section[data-animate] .service-section__media-column,
     .service-section[data-animate] .service-section__content,
-    .service-section[data-animate] .service-section__content-column,
-    .service-section[data-animate] .service-section__list-column,
-    .service-section[data-animate] .service-section__case-studies--below,
     .service-section[data-animate] .service-section__text-column,
     .service-section[data-animate] .service-section__image-wrapper,
-    .service-section[data-animate] .service-section__list-item {
+    .service-section[data-animate]:not([data-no-image='true'])
+      .service-section__list-item {
       opacity: 1 !important;
       transform: none !important;
     }
@@ -1101,18 +1091,11 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
       let columnsToAnimate: Element[] = [];
 
       if (isNoImage) {
-        const contentColumn = section.querySelector(
-          '.service-section__content-column'
+        // No-image layout uses same structure as with-image, just full width
+        const textColumn = section.querySelector(
+          '.service-section__text-column'
         );
-        const listColumn = section.querySelector(
-          '.service-section__list-column'
-        );
-        const caseStudiesBelow = section.querySelector(
-          '.service-section__case-studies--below'
-        );
-        columnsToAnimate = [contentColumn, listColumn, caseStudiesBelow].filter(
-          Boolean
-        ) as Element[];
+        columnsToAnimate = [textColumn].filter(Boolean) as Element[];
       } else if (isCatalogue) {
         // Catalogue layout - ONLY animate text column with transforms
         // Image column must NOT have transforms applied - they break CSS sticky positioning
