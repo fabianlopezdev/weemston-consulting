@@ -377,22 +377,38 @@ export default defineType({
           type: 'object',
           name: 'aboutSection',
           title: 'About Section',
+          fieldsets: [
+            {
+              name: 'content',
+              title: '📝 Content',
+              options: { collapsible: true, collapsed: false },
+            },
+            {
+              name: 'colors',
+              title: '🎨 Colors',
+              options: { collapsible: true, collapsed: true },
+            },
+          ],
           fields: [
+            // Content fields
             {
               name: 'title',
               title: 'Title',
               type: 'string',
+              fieldset: 'content',
               validation: (Rule) => Rule.required(),
             },
             {
               name: 'description',
               title: 'Description',
               type: 'portableText',
+              fieldset: 'content',
             },
             {
               name: 'images',
               title: 'Photos',
               type: 'array',
+              fieldset: 'content',
               of: [
                 {
                   type: 'image',
@@ -406,6 +422,38 @@ export default defineType({
                       type: 'string',
                       description: 'Describe the image for accessibility',
                     },
+                    {
+                      name: 'positionHorizontal',
+                      title: 'Horizontal Position',
+                      type: 'string',
+                      description: 'Where to focus horizontally when cropping',
+                      options: {
+                        list: [
+                          { title: 'Left', value: 'left' },
+                          { title: 'Center', value: 'center' },
+                          { title: 'Right', value: 'right' },
+                        ],
+                        layout: 'radio',
+                        direction: 'horizontal',
+                      },
+                      initialValue: 'center',
+                    },
+                    {
+                      name: 'positionVertical',
+                      title: 'Vertical Position',
+                      type: 'string',
+                      description: 'Where to focus vertically when cropping',
+                      options: {
+                        list: [
+                          { title: 'Top', value: 'top' },
+                          { title: 'Center', value: 'center' },
+                          { title: 'Bottom', value: 'bottom' },
+                        ],
+                        layout: 'radio',
+                        direction: 'horizontal',
+                      },
+                      initialValue: 'center',
+                    },
                   ],
                 },
               ],
@@ -413,6 +461,212 @@ export default defineType({
                 Rule.max(3).warning('Maximum 3 images per section'),
               description:
                 'Add 1-3 photos. They will display as a collage alongside the content.',
+            },
+            // Background color fields
+            {
+              name: 'backgroundColorMode',
+              title: 'Background Mode',
+              type: 'string',
+              fieldset: 'colors',
+              options: {
+                list: [
+                  { title: 'Solid', value: 'solid' },
+                  { title: 'Gradient', value: 'gradient' },
+                ],
+                layout: 'radio',
+                direction: 'horizontal',
+              },
+              initialValue: 'solid',
+            },
+            {
+              name: 'backgroundColorType',
+              title: 'Background Color',
+              type: 'string',
+              fieldset: 'colors',
+              options: {
+                list: [
+                  { title: 'Default (White)', value: 'default' },
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'default',
+              hidden: ({ parent }) =>
+                parent?.backgroundColorMode === 'gradient',
+            },
+            {
+              name: 'backgroundColorShade',
+              title: 'Background Shade',
+              type: 'number',
+              fieldset: 'colors',
+              initialValue: 95,
+              hidden: ({ parent }) =>
+                parent?.backgroundColorType === 'custom' ||
+                parent?.backgroundColorType === 'default' ||
+                parent?.backgroundColorMode === 'gradient',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: {
+                input: BackgroundShadeInput,
+              },
+            },
+            {
+              name: 'backgroundCustomColor',
+              title: 'Custom Background Color',
+              type: 'simplerColor',
+              fieldset: 'colors',
+              hidden: ({ parent }) =>
+                parent?.backgroundColorType !== 'custom' ||
+                parent?.backgroundColorMode === 'gradient',
+            },
+            {
+              name: 'backgroundGradient',
+              title: 'Gradient',
+              type: 'object',
+              fieldset: 'colors',
+              hidden: ({ parent }) =>
+                parent?.backgroundColorMode !== 'gradient',
+              fields: [
+                {
+                  name: 'direction',
+                  title: 'Direction',
+                  type: 'string',
+                  options: {
+                    list: [
+                      { title: 'Top to Bottom', value: 'to bottom' },
+                      { title: 'Bottom to Top', value: 'to top' },
+                      { title: 'Left to Right', value: 'to right' },
+                      { title: 'Right to Left', value: 'to left' },
+                      { title: 'Diagonal ↘', value: '135deg' },
+                      { title: 'Diagonal ↗', value: '45deg' },
+                    ],
+                  },
+                  initialValue: '135deg',
+                },
+                {
+                  name: 'startColor',
+                  title: 'Start Color',
+                  type: 'object',
+                  fields: [
+                    {
+                      name: 'colorType',
+                      title: 'Color',
+                      type: 'string',
+                      options: {
+                        list: [
+                          { title: 'Primary', value: 'primary' },
+                          { title: 'Secondary', value: 'secondary' },
+                          { title: 'Accent', value: 'accent' },
+                          { title: 'Custom', value: 'custom' },
+                        ],
+                      },
+                      initialValue: 'primary',
+                    },
+                    {
+                      name: 'shade',
+                      title: 'Shade',
+                      type: 'number',
+                      initialValue: 0,
+                      hidden: ({ parent }) => parent?.colorType === 'custom',
+                      components: { input: BackgroundShadeInput },
+                    },
+                    {
+                      name: 'customColor',
+                      title: ' ',
+                      type: 'simplerColor',
+                      hidden: ({ parent }) => parent?.colorType !== 'custom',
+                    },
+                  ],
+                },
+                {
+                  name: 'endColor',
+                  title: 'End Color',
+                  type: 'object',
+                  fields: [
+                    {
+                      name: 'colorType',
+                      title: 'Color',
+                      type: 'string',
+                      options: {
+                        list: [
+                          { title: 'Primary', value: 'primary' },
+                          { title: 'Secondary', value: 'secondary' },
+                          { title: 'Accent', value: 'accent' },
+                          { title: 'Custom', value: 'custom' },
+                        ],
+                      },
+                      initialValue: 'accent',
+                    },
+                    {
+                      name: 'shade',
+                      title: 'Shade',
+                      type: 'number',
+                      initialValue: 0,
+                      hidden: ({ parent }) => parent?.colorType === 'custom',
+                      components: { input: BackgroundShadeInput },
+                    },
+                    {
+                      name: 'customColor',
+                      title: ' ',
+                      type: 'simplerColor',
+                      hidden: ({ parent }) => parent?.colorType !== 'custom',
+                    },
+                  ],
+                },
+              ],
+            },
+            // Title color fields
+            {
+              name: 'titleColorType',
+              title: 'Title Color',
+              type: 'string',
+              fieldset: 'colors',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'accent',
+            },
+            {
+              name: 'titleColorShade',
+              title: 'Title Shade',
+              type: 'number',
+              fieldset: 'colors',
+              initialValue: 0,
+              hidden: ({ parent }) => parent?.titleColorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: {
+                input: BackgroundShadeInput,
+              },
+            },
+            {
+              name: 'titleCustomColor',
+              title: 'Custom Title Color',
+              type: 'simplerColor',
+              fieldset: 'colors',
+              hidden: ({ parent }) => parent?.titleColorType !== 'custom',
+            },
+            // Description text color
+            {
+              name: 'descriptionTextColor',
+              title: 'Description Text Color',
+              type: 'string',
+              fieldset: 'colors',
+              options: {
+                list: [
+                  { title: 'Base', value: 'base' },
+                  { title: 'Muted', value: 'muted' },
+                  { title: 'Contrast', value: 'contrast' },
+                ],
+                layout: 'radio',
+                direction: 'horizontal',
+              },
+              initialValue: 'muted',
             },
           ],
           preview: {

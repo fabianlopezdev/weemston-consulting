@@ -720,8 +720,24 @@ export const aboutPageQuery = groq`
         markDefs[]
       },
       images[] {
-        ${imageProjection}
-      }
+        ${imageProjection},
+        positionHorizontal,
+        positionVertical
+      },
+      // Background colors
+      backgroundColorMode,
+      backgroundColorType,
+      backgroundColorShade,
+      backgroundCustomColor { label, value },
+      backgroundGradient {
+        ${gradientProjection}
+      },
+      // Title colors
+      titleColorType,
+      titleColorShade,
+      titleCustomColor { label, value },
+      // Text color
+      descriptionTextColor
     },
     // Trusted By Section
     trustedByBackgroundColorType,

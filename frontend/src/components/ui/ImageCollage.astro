@@ -18,6 +18,8 @@ interface CollageImage {
   alt?: string;
   hotspot?: { x: number; y: number };
   crop?: { top: number; bottom: number; left: number; right: number };
+  positionHorizontal?: 'left' | 'center' | 'right';
+  positionVertical?: 'top' | 'center' | 'bottom';
 }
 
 interface Props {
@@ -37,6 +39,13 @@ type Orientation = 'portrait' | 'landscape';
 const getOrientation = (image: CollageImage): Orientation => {
   const aspectRatio = image.asset?.metadata?.dimensions?.aspectRatio ?? 1;
   return aspectRatio < 1 ? 'portrait' : 'landscape';
+};
+
+// Get object-position for each image
+const getObjectPosition = (image: CollageImage): string => {
+  const h = image.positionHorizontal || 'center';
+  const v = image.positionVertical || 'center';
+  return `${h} ${v}`;
 };
 
 // Build orientation signature for the collage
@@ -62,7 +71,10 @@ const orientationKey = orientations.join('-'); // e.g., "portrait-landscape"
           data-collage-index={index}
           data-orientation={orientations[index]}
         >
-          <div class="image-collage__image-wrapper">
+          <div
+            class="image-collage__image-wrapper"
+            style={`--img-position: ${getObjectPosition(image)}`}
+          >
             <Image
               image={image as SanityImageSource}
               alt={image.alt || ''}
@@ -103,25 +115,18 @@ const orientationKey = orientations.join('-'); // e.g., "portrait-landscape"
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: left center;
+    object-position: var(--img-position, center center);
   }
 
   /* ===== 1 IMAGE LAYOUTS ===== */
 
-  /* Single image: full width/height, centered content */
+  /* Single image: full width/height */
   .image-collage--count-1 .image-collage__item {
     width: 100%;
     height: 100%;
     left: 0;
     top: 0;
     transform: none;
-  }
-
-  .image-collage--count-1
-    .image-collage__image-wrapper
-    :global(.image-blur-wrapper),
-  .image-collage--count-1 .image-collage__image-wrapper :global(img) {
-    object-position: center center;
   }
 
   /* ===== 2 IMAGE LAYOUTS ===== */

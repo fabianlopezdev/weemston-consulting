@@ -45,6 +45,15 @@ if (!page) {
             title: string;
             description?: any[];
             images?: any[];
+            backgroundColorMode?: 'solid' | 'gradient';
+            backgroundColorType?: string;
+            backgroundColorShade?: number;
+            backgroundCustomColor?: { label?: string; value: string };
+            backgroundGradient?: any;
+            titleColorType?: string;
+            titleColorShade?: number;
+            titleCustomColor?: { label?: string; value: string };
+            descriptionTextColor?: 'base' | 'muted' | 'contrast';
           },
           index: number
         ) => (
@@ -53,6 +62,33 @@ if (!page) {
             title={section.title}
             {...(section.description && { description: section.description })}
             {...(section.images && { images: section.images })}
+            {...(section.backgroundColorMode && {
+              backgroundColorMode: section.backgroundColorMode,
+            })}
+            {...(section.backgroundColorType && {
+              backgroundColorType: section.backgroundColorType,
+            })}
+            {...(section.backgroundColorShade !== undefined && {
+              backgroundColorShade: section.backgroundColorShade,
+            })}
+            {...(section.backgroundCustomColor && {
+              backgroundCustomColor: section.backgroundCustomColor,
+            })}
+            {...(section.backgroundGradient && {
+              backgroundGradient: section.backgroundGradient,
+            })}
+            {...(section.titleColorType && {
+              titleColorType: section.titleColorType,
+            })}
+            {...(section.titleColorShade !== undefined && {
+              titleColorShade: section.titleColorShade,
+            })}
+            {...(section.titleCustomColor && {
+              titleCustomColor: section.titleCustomColor,
+            })}
+            {...(section.descriptionTextColor && {
+              descriptionTextColor: section.descriptionTextColor,
+            })}
           />
         )
       )
