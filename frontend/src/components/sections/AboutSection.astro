@@ -1,469 +1,364 @@
 ---
-import SectionTitle from '@components/ui/SectionTitle.astro';
-import { resolveColorSelection } from '@lib/sanity/colorResolver';
-import { urlForImage } from '@lib/sanity/image';
-import { sanityClient as client } from 'sanity:client';
-import { siteSettingsQuery } from '@lib/sanity/queries';
+import ImageCollage from '@components/ui/ImageCollage.astro';
+import PortableText from '@components/sanity/PortableText.astro';
+import type { PortableTextBlock } from '@portabletext/types';
 
-interface ColorData {
-  label?: string;
-  value: string;
-}
-
-interface SanityImageAsset {
-  _id: string;
-  url: string;
-  metadata?: {
-    lqip?: string;
-    dimensions?: {
-      width: number;
-      height: number;
-      aspectRatio: number;
+interface CollageImage {
+  asset?: {
+    _id: string;
+    url?: string;
+    metadata?: {
+      lqip?: string;
+      dimensions?: {
+        width: number;
+        height: number;
+        aspectRatio: number;
+      };
     };
   };
-}
-
-interface SanityImage {
-  asset?: SanityImageAsset;
   alt?: string;
-  seoFilename?: string;
-  hotspot?: {
-    x: number;
-    y: number;
-  };
-  crop?: {
-    top: number;
-    bottom: number;
-    left: number;
-    right: number;
-  };
-}
-
-interface GradientColorData {
-  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
-  shade?: number;
-  customColor?: ColorData;
-}
-
-interface GradientData {
-  direction?: string;
-  startColor?: GradientColorData;
-  endColor?: GradientColorData;
-}
-
-interface PortableTextChild {
-  _key: string;
-  _type: string;
-  text: string;
-  marks?: string[];
-}
-
-interface PortableTextBlock {
-  _key: string;
-  _type: string;
-  children?: PortableTextChild[];
-  style?: string;
+  hotspot?: { x: number; y: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
 }
 
 interface Props {
   title: string;
-  showTitle?: boolean;
-  tagline?: PortableTextBlock[];
   description?: PortableTextBlock[];
-  fontSize?: number;
-  // Background type settings
-  backgroundType?: 'image' | 'color';
-  backgroundImage?: SanityImage;
-  colorMode?: 'solid' | 'gradient';
-  gradient?: GradientData;
-  // Solid color settings
-  backgroundColorType?:
-    | 'default'
-    | 'primary'
-    | 'secondary'
-    | 'accent'
-    | 'custom';
-  backgroundColorShade?: number;
-  backgroundCustomColor?: ColorData;
-  taglineColorType?: 'default' | 'primary' | 'secondary' | 'accent' | 'custom';
-  taglineColorShade?: number;
-  taglineCustomColor?: ColorData;
-  textColor?: 'base' | 'muted' | 'contrast';
+  images?: CollageImage[];
+  sectionIndex?: number;
 }
 
-const {
-  title,
-  showTitle = true,
-  tagline,
-  description,
-  fontSize = 2,
-  backgroundType = 'color',
-  backgroundImage,
-  colorMode = 'solid',
-  gradient,
-  backgroundColorType = 'default',
-  backgroundColorShade = 0,
-  backgroundCustomColor,
-  taglineColorType = 'default',
-  taglineColorShade = 0,
-  taglineCustomColor,
-  textColor = 'base',
-} = Astro.props;
+const { title, description, images = [], sectionIndex = 0 } = Astro.props;
 
-// Fetch site settings for colors
-const settings = await client.fetch(siteSettingsQuery);
-const siteColors = settings?.colors;
+// Auto-alternate: even index = images left, odd index = images right
+const imagePosition = sectionIndex % 2 === 0 ? 'left' : 'right';
 
-// Determine background mode
-const hasBackgroundImage = backgroundType === 'image' && backgroundImage?.asset;
-const isGradient = backgroundType === 'color' && colorMode === 'gradient';
-const isSolidColor = backgroundType === 'color' && colorMode !== 'gradient';
-
-// Generate background image URL if type is 'image'
-const bgImageUrl = hasBackgroundImage
-  ? urlForImage(backgroundImage).width(1920).height(1080).auto('format').url()
-  : null;
-const bgImageLqip = hasBackgroundImage
-  ? backgroundImage?.asset?.metadata?.lqip
-  : null;
-const bgImageAlt = backgroundImage?.alt || '';
-const bgHotspot = backgroundImage?.hotspot;
-const bgHotspotX = bgHotspot ? `${bgHotspot.x * 100}%` : '50%';
-const bgHotspotY = bgHotspot ? `${bgHotspot.y * 100}%` : '50%';
-
-// Resolve gradient colors
-let gradientCss: string | null = null;
-if (isGradient && gradient) {
-  const direction = gradient.direction || '135deg';
-  const startColor = resolveColorSelection(gradient.startColor, siteColors);
-  const endColor = resolveColorSelection(gradient.endColor, siteColors);
-  gradientCss = `linear-gradient(${direction}, ${startColor}, ${endColor})`;
-}
-
-// Resolve background color (null if default)
-const backgroundColor =
-  isSolidColor && (backgroundColorType === 'default' || !backgroundColorType)
-    ? null
-    : isSolidColor
-      ? resolveColorSelection(
-          {
-            colorType: backgroundColorType,
-            shade: backgroundColorShade,
-            customColor: backgroundCustomColor,
-          },
-          siteColors
-        )
-      : null;
-
-// Resolve tagline color (null if default)
-const taglineColor =
-  taglineColorType === 'default' || !taglineColorType
-    ? null
-    : resolveColorSelection(
-        {
-          colorType: taglineColorType,
-          shade: taglineColorShade,
-          customColor: taglineCustomColor,
-        },
-        siteColors
-      );
-
-// Fluid font size: 1.75rem minimum, scales with viewport, capped at Sanity fontSize
-const fluidFontSize = `clamp(1.75rem, 4vw, ${fontSize}rem)`;
-
-// Determine effective text color - default to contrast for image backgrounds
-const effectiveTextColor = hasBackgroundImage ? 'contrast' : textColor;
-
-// Helper to resolve text color using centralized CSS variables
-const getTextColorVar = (color: 'base' | 'muted' | 'contrast'): string => {
-  switch (color) {
-    case 'contrast':
-      return 'var(--color-text-contrast)';
-    case 'muted':
-      return 'var(--color-text-muted)';
-    default:
-      return 'var(--color-text)';
-  }
-};
-
-// Define CSS variables for dynamic colors
-const cssVars: Record<string, string> = {
-  '--about-font-size': fluidFontSize,
-  '--about-text': getTextColorVar(effectiveTextColor),
-};
-
-// Set background based on type
-if (gradientCss) {
-  cssVars['--about-bg'] = gradientCss;
-} else if (backgroundColor) {
-  cssVars['--about-bg'] = backgroundColor;
-}
-
-// Only set tagline color if not default
-if (taglineColor) {
-  cssVars['--about-tagline-color'] = taglineColor;
-}
-
-const cssVarsString = Object.entries(cssVars)
-  .map(([key, value]) => `${key}: ${value}`)
-  .join('; ');
-
-// Render portable text block children with marks (bold = accent highlight)
-const renderChildren = (children: PortableTextChild[] | undefined) => {
-  if (!children) return '';
-  return children
-    .map((child) => {
-      if (child._type !== 'span') return child.text || '';
-      const isBold = child.marks?.includes('strong');
-      if (isBold) {
-        return `<span class="highlight">${child.text}</span>`;
-      }
-      return child.text;
-    })
-    .join('');
-};
-
-// Process tagline blocks
-const taglineParagraphs =
-  tagline
-    ?.filter((block: PortableTextBlock) => block._type === 'block')
-    .map((block: PortableTextBlock) => renderChildren(block.children)) || [];
-
-// Process description blocks
-const descriptionParagraphs =
-  description
-    ?.filter((block: PortableTextBlock) => block._type === 'block')
-    .map((block: PortableTextBlock) => renderChildren(block.children)) || [];
+// Check if we have images
+const hasImages = images && images.length > 0;
 ---
 
-<section
-  class:list={[
-    'about-section',
-    { 'about-section--has-bg-image': hasBackgroundImage },
-  ]}
-  style={cssVarsString}
+<article
+  class="about-section"
+  data-animate
+  data-reversed={imagePosition === 'right'}
+  data-has-images={hasImages}
 >
-  {/* Background Image Layer */}
-  {
-    hasBackgroundImage && bgImageUrl && (
-      <div class="about-section__bg">
-        <div
-          class="about-section__bg-blur"
-          style={bgImageLqip ? `background-image: url(${bgImageLqip})` : ''}
-        />
-        <img
-          src={bgImageUrl}
-          alt={bgImageAlt}
-          class="about-section__bg-image"
-          style={`object-position: ${bgHotspotX} ${bgHotspotY}`}
-          loading="eager"
-          decoding="async"
-        />
-        <div class="about-section__bg-overlay" />
-        <div class="about-section__bg-grain" aria-hidden="true" />
-      </div>
-    )
-  }
   <div class="container">
-    <SectionTitle title={title} showTitle={showTitle} />
-
-    <div class="about-section__content">
+    {/* Grid: Collage + Text (order controlled by CSS) */}
+    <div
+      class={`about-section__grid ${imagePosition === 'left' ? '' : 'about-section__grid--images-right'}`}
+    >
+      {/* Collage Column */}
       {
-        taglineParagraphs.length > 0 && (
-          <div class="about-section__tagline">
-            {taglineParagraphs.map((paragraphHtml) => (
-              <p set:html={paragraphHtml} />
-            ))}
+        hasImages && (
+          <div class="about-section__collage-column">
+            <div class="about-section__collage-wrapper">
+              <ImageCollage images={images} />
+            </div>
           </div>
         )
       }
 
-      {
-        descriptionParagraphs.length > 0 && (
-          <div class="about-section__description">
-            {descriptionParagraphs.map((paragraphHtml) => (
-              <p set:html={paragraphHtml} />
-            ))}
-          </div>
-        )
-      }
+      {/* Text Column */}
+      <div class="about-section__text-column">
+        <h2 class="about-section__title">
+          {title}
+        </h2>
+        {
+          description && description.length > 0 && (
+            <div class="about-section__description">
+              <PortableText content={description} />
+            </div>
+          )
+        }
+      </div>
     </div>
   </div>
-</section>
-
-<script>
-  // Handle background image blur-up loading effect
-  const bgImage = document.querySelector(
-    '.about-section__bg-image'
-  ) as HTMLImageElement;
-  const bgBlur = document.querySelector(
-    '.about-section__bg-blur'
-  ) as HTMLElement;
-
-  if (bgImage) {
-    const handleImageLoad = () => {
-      bgImage.classList.add('loaded');
-      if (bgBlur) {
-        bgBlur.classList.add('loaded');
-      }
-    };
-
-    // Check if already loaded (cached)
-    if (bgImage.complete && bgImage.naturalHeight !== 0) {
-      handleImageLoad();
-    } else {
-      bgImage.addEventListener('load', handleImageLoad);
-    }
-  }
-</script>
+</article>
 
 <style>
   .about-section {
-    position: relative;
-    padding: var(--space-2xl) 0;
-    background: var(--about-bg, var(--color-background));
-  }
-
-  /* ========================================
-     BACKGROUND IMAGE STYLES
-     ======================================== */
-  .about-section__bg {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
+    padding-block: clamp(4rem, 8vw, 6rem);
+    background: var(--color-background);
     overflow: hidden;
   }
 
-  /* LQIP blur placeholder - fades out when main image loads */
-  .about-section__bg-blur {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    filter: blur(20px);
-    transform: scale(1.1);
-    opacity: 1;
-    transition: opacity 0.6s ease-out;
+  /* Grid Layout */
+  .about-section__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+    align-items: start;
   }
 
-  .about-section__bg-blur.loaded {
-    opacity: 0;
+  @media (min-width: 768px) {
+    .about-section__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+
+    /* When images should be on the right, reverse the order */
+    .about-section__grid--images-right {
+      direction: rtl;
+    }
+
+    .about-section__grid--images-right > * {
+      direction: ltr;
+    }
   }
 
-  /* Main background image with Ken Burns effect */
-  .about-section__bg-image {
-    position: absolute;
-    inset: 0;
+  /* Text Column */
+  .about-section__text-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .about-section__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.875rem, 4vw, 2.5rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--color-accent);
+    margin: 0 0 var(--space-md);
+  }
+
+  .about-section__description {
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
+    line-height: 1.7;
+  }
+
+  .about-section__description :global(.portable-text) {
+    color: inherit;
+    line-height: inherit;
+  }
+
+  .about-section__description :global(.portable-text p) {
+    color: inherit;
+    margin-bottom: var(--space-md);
+  }
+
+  .about-section__description :global(.portable-text p:last-child) {
+    margin-bottom: 0;
+  }
+
+  /* Collage Column */
+  .about-section__collage-column {
+    position: relative;
+    min-height: 400px;
+  }
+
+  @media (min-width: 768px) {
+    .about-section__collage-column {
+      align-self: stretch;
+      min-height: 500px;
+    }
+  }
+
+  .about-section__collage-wrapper {
+    position: relative;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+  }
+
+  @media (min-width: 768px) {
+    .about-section__collage-wrapper {
+      position: absolute;
+      inset: 0;
+    }
+  }
+
+  /* Animation-ready states */
+  .about-section[data-animate] .about-section__text-column {
     opacity: 0;
-    transition: opacity 0.6s ease-out;
-    animation: about-ken-burns 25s ease-in-out infinite alternate;
   }
 
-  .about-section__bg-image.loaded {
-    opacity: 1;
+  .about-section[data-animate] .about-section__collage-wrapper {
+    opacity: 0;
   }
 
-  @keyframes about-ken-burns {
-    0% {
-      transform: scale(1);
-    }
-    100% {
-      transform: scale(1.08);
-    }
+  /* Word reveal clip container */
+  .about-section__title :global(.editorial-word-wrapper) {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.1em;
   }
 
-  /* Dark overlay for text legibility */
-  .about-section__bg-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.35) 0%,
-      rgba(0, 0, 0, 0.5) 50%,
-      rgba(0, 0, 0, 0.6) 100%
-    );
-  }
-
-  /* Subtle grain texture for depth */
-  .about-section__bg-grain {
-    position: absolute;
-    inset: 0;
-    opacity: 0.08;
-    pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  }
-
-  /* When background image is present, ensure content is above */
-  .about-section--has-bg-image .container {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Hide background color when image is present */
-  .about-section--has-bg-image {
-    background: transparent;
-  }
-
-  /* Reduce motion: disable Ken Burns animation */
+  /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .about-section__bg-image {
-      animation: none;
+    .about-section[data-animate] .about-section__text-column,
+    .about-section[data-animate] .about-section__collage-wrapper {
+      opacity: 1 !important;
+      transform: none !important;
     }
-  }
-
-  .about-section__content {
-    margin-inline: auto;
-  }
-
-  /* Tagline: Large Lora (serif) */
-  .about-section__tagline p {
-    font-family: var(--font-heading);
-    font-size: var(--about-font-size, 2rem);
-    text-align: center;
-    margin-block-end: var(--space-md);
-    color: var(--about-tagline-color, var(--about-text, var(--color-text)));
-  }
-
-  .about-section__tagline p:last-child {
-    margin-block-end: var(--space-lg);
-  }
-
-  /* Description: Smaller Now (sans-serif) */
-  .about-section__description p {
-    font-family: var(--font-sans);
-    font-size: var(--font-size-lg);
-    text-align: center;
-    margin-inline: auto;
-    margin-block-end: var(--space-md);
-    color: var(--about-text, var(--color-text));
-    line-height: var(--line-height-relaxed);
-  }
-
-  .about-section__description p:last-child {
-    margin-block-end: 0;
-  }
-
-  /* Highlight styling */
-  .about-section__tagline :global(.highlight) {
-    color: var(--about-tagline-color, var(--color-accent));
-  }
-
-  .about-section__description :global(.highlight) {
-    color: var(--color-accent);
   }
 </style>
 
-<!-- Animation disabled per client request
 <script>
-  import { setupAnimationLifecycle, createTextReveal } from '@lib/animation';
+  import {
+    setupAnimationLifecycle,
+    gsap,
+    SplitText,
+  } from '@lib/animation/utils';
+  import { ANIMATION_CONFIG } from '@lib/animation/config';
 
   setupAnimationLifecycle(() => {
-    createTextReveal('.about-section__paragraph', {
-      gradient: 'darkOnLight',
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    const sections = document.querySelectorAll('.about-section[data-animate]');
+
+    sections.forEach((section) => {
+      if (prefersReducedMotion) {
+        gsap.set(section.querySelectorAll('[class*="about-section__"]'), {
+          opacity: 1,
+          transform: 'none',
+        });
+        return;
+      }
+
+      const isReversed = section.getAttribute('data-reversed') === 'true';
+      const textColumn = section.querySelector('.about-section__text-column');
+      const collageWrapper = section.querySelector(
+        '.about-section__collage-wrapper'
+      );
+      const title = section.querySelector('.about-section__title');
+
+      // Set initial states
+      if (textColumn) {
+        const xOffset = isReversed ? 40 : -40;
+        gsap.set(textColumn, {
+          opacity: 0,
+          y: 50,
+          x: xOffset,
+          scale: 0.97,
+        });
+      }
+
+      if (collageWrapper) {
+        gsap.set(collageWrapper, { opacity: 0 });
+      }
+
+      // Split title into words
+      let titleWords: HTMLElement[] = [];
+      if (title) {
+        const titleSplit = new SplitText(title, { type: 'words' });
+        titleWords = titleSplit.words as HTMLElement[];
+
+        titleWords.forEach((word) => {
+          const wrapper = document.createElement('span');
+          wrapper.style.display = 'inline-block';
+          wrapper.style.overflow = 'hidden';
+          wrapper.style.verticalAlign = 'top';
+          wrapper.style.paddingBottom = '0.1em';
+          wrapper.classList.add('editorial-word-wrapper');
+
+          word.parentNode?.insertBefore(wrapper, word);
+          wrapper.appendChild(word);
+
+          gsap.set(word, { y: '100%', opacity: 0 });
+        });
+      }
+
+      // Create timeline
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 60%',
+          once: true,
+          markers: ANIMATION_CONFIG.scrollTrigger.markers,
+          onEnter: () => {
+            section.classList.add('is-active');
+          },
+        },
+      });
+
+      // Animate text column
+      if (textColumn) {
+        tl.to(textColumn, {
+          opacity: 1,
+          y: 0,
+          x: 0,
+          scale: 1,
+          duration: 0.9,
+          ease: 'power3.out',
+          clearProps: 'transform',
+        });
+      }
+
+      // Animate collage
+      if (collageWrapper) {
+        tl.to(
+          collageWrapper,
+          {
+            opacity: 1,
+            duration: 0.9,
+            ease: 'power3.out',
+          },
+          0.15
+        );
+
+        // Animate collage items
+        const collageItems = collageWrapper.querySelectorAll(
+          '.image-collage__item'
+        );
+        if (collageItems.length > 0) {
+          gsap.set(collageItems, {
+            opacity: 0,
+            scale: 0.95,
+            y: 30,
+          });
+
+          tl.to(
+            collageItems,
+            {
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              duration: 0.8,
+              stagger: 0.15,
+              ease: 'power3.out',
+            },
+            0.3
+          );
+        }
+
+        // Ken Burns effect on images
+        const collageImages = collageWrapper.querySelectorAll(
+          '.image-collage__image, .image-collage__image-wrapper img'
+        );
+        if (collageImages.length > 0) {
+          gsap.set(collageImages, { scale: 1.15 });
+
+          tl.to(
+            collageImages,
+            {
+              scale: 1,
+              duration: 1.2,
+              stagger: 0.1,
+              ease: 'power2.out',
+            },
+            0.4
+          );
+        }
+      }
+
+      // Title words reveal
+      if (titleWords.length > 0) {
+        tl.to(
+          titleWords,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.04,
+            ease: 'power3.out',
+          },
+          0.2
+        );
+      }
     });
   });
 </script>
--->

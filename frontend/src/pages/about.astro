@@ -3,7 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { sanityClient as client } from 'sanity:client';
 import { aboutPageQuery } from '@lib/sanity/queries';
 import InternalPageHero from '@components/sections/InternalPageHero.astro';
-import AboutBio from '@components/sections/AboutBio.astro';
+import AboutSection from '@components/sections/AboutSection.astro';
 import AboutTrustedBy from '@components/sections/AboutTrustedBy.astro';
 
 const page = await client.fetch(aboutPageQuery);
@@ -34,30 +34,28 @@ if (!page) {
     backgroundGradient={page.heroBackgroundGradient}
   />
 
-  {/* Bio Section */}
+  {/* About Sections */}
   {
-    (page.bioName || page.bioImage) && (
-      <AboutBio
-        image={page.bioImage}
-        overlayColorType={page.bioOverlayColorType}
-        overlayColorShade={page.bioOverlayColorShade}
-        overlayCustomColor={page.bioOverlayCustomColor}
-        label={page.bioLabel}
-        labelColorType={page.bioLabelColorType}
-        labelColorShade={page.bioLabelColorShade}
-        labelCustomColor={page.bioLabelCustomColor}
-        name={page.bioName}
-        nameColorType={page.bioNameColorType}
-        nameColorShade={page.bioNameColorShade}
-        nameCustomColor={page.bioNameCustomColor}
-        backgroundColorType={page.bioBackgroundColorType}
-        backgroundColorMode={page.bioBackgroundColorMode}
-        backgroundColorShade={page.bioBackgroundColorShade}
-        backgroundCustomColor={page.bioBackgroundCustomColor}
-        backgroundGradient={page.bioBackgroundGradient}
-        bioBits={page.bioBits}
-      />
-    )
+    page.aboutSections &&
+      page.aboutSections.length > 0 &&
+      page.aboutSections.map(
+        (
+          section: {
+            _key: string;
+            title: string;
+            description?: any[];
+            images?: any[];
+          },
+          index: number
+        ) => (
+          <AboutSection
+            sectionIndex={index}
+            title={section.title}
+            {...(section.description && { description: section.description })}
+            {...(section.images && { images: section.images })}
+          />
+        )
+      )
   }
 
   {/* Trusted By Section */}

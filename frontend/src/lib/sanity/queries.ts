@@ -711,42 +711,16 @@ export const aboutPageQuery = groq`
     heroDividerCustomColor { label, value },
     heroTagline,
     heroTaglineColor,
-    // Bio Section
-    bioBackgroundColorType,
-    bioBackgroundColorMode,
-    bioBackgroundColorShade,
-    bioBackgroundCustomColor { label, value },
-    bioBackgroundGradient {
-      ${gradientProjection}
-    },
-    bioImage {
-      ${imageProjection}
-    },
-    bioOverlayColorType,
-    bioOverlayColorShade,
-    bioOverlayCustomColor { label, value },
-    bioLabel,
-    bioLabelColorType,
-    bioLabelColorShade,
-    bioLabelCustomColor { label, value },
-    bioName,
-    bioNameColorType,
-    bioNameColorShade,
-    bioNameCustomColor { label, value },
-    // Bio Bits
-    bioBits[] {
+    // About Sections
+    aboutSections[] {
       _key,
-      icon { name },
-      iconColorType,
-      iconColorShade,
-      iconCustomColor { label, value },
       title,
-      titleColorType,
-      titleColorShade,
-      titleCustomColor { label, value },
-      content[] {
+      description[] {
         ...,
         markDefs[]
+      },
+      images[] {
+        ${imageProjection}
       }
     },
     // Trusted By Section

@@ -1,0 +1,383 @@
+---
+import Image from '@components/media/Image.astro';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+
+interface CollageImage {
+  asset?: {
+    _id: string;
+    url?: string;
+    metadata?: {
+      lqip?: string;
+      dimensions?: {
+        width: number;
+        height: number;
+        aspectRatio: number;
+      };
+    };
+  };
+  alt?: string;
+  hotspot?: { x: number; y: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface Props {
+  images: CollageImage[];
+  class?: string;
+}
+
+const { images, class: className } = Astro.props;
+
+// Filter to only include images with valid assets
+const validImages = images?.filter((img) => img.asset) || [];
+const imageCount = validImages.length;
+
+// Detect orientation for each image (portrait < 1, landscape >= 1)
+type Orientation = 'portrait' | 'landscape';
+
+const getOrientation = (image: CollageImage): Orientation => {
+  const aspectRatio = image.asset?.metadata?.dimensions?.aspectRatio ?? 1;
+  return aspectRatio < 1 ? 'portrait' : 'landscape';
+};
+
+// Build orientation signature for the collage
+const orientations = validImages.map(getOrientation);
+const orientationKey = orientations.join('-'); // e.g., "portrait-landscape"
+---
+
+{
+  imageCount > 0 && (
+    <div
+      class:list={[
+        'image-collage',
+        `image-collage--count-${imageCount}`,
+        `image-collage--${orientationKey}`,
+        className,
+      ]}
+      data-collage-count={imageCount}
+      data-orientations={orientationKey}
+    >
+      {validImages.map((image, index) => (
+        <div
+          class="image-collage__item"
+          data-collage-index={index}
+          data-orientation={orientations[index]}
+        >
+          <div class="image-collage__image-wrapper">
+            <Image
+              image={image as SanityImageSource}
+              alt={image.alt || ''}
+              class="image-collage__image"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+<style>
+  .image-collage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+  }
+
+  .image-collage__item {
+    position: absolute;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 4px white,
+      0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  .image-collage__image-wrapper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .image-collage__image-wrapper :global(.image-blur-wrapper),
+  .image-collage__image-wrapper :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: left center;
+  }
+
+  /* ===== 1 IMAGE LAYOUTS ===== */
+
+  /* Single image: full width/height, centered content */
+  .image-collage--count-1 .image-collage__item {
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    transform: none;
+  }
+
+  .image-collage--count-1
+    .image-collage__image-wrapper
+    :global(.image-blur-wrapper),
+  .image-collage--count-1 .image-collage__image-wrapper :global(img) {
+    object-position: center center;
+  }
+
+  /* ===== 2 IMAGE LAYOUTS ===== */
+
+  /* Portrait + Portrait: stacked vertically with offset */
+  .image-collage--portrait-portrait .image-collage__item:nth-child(1) {
+    width: 65%;
+    height: 70%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .image-collage--portrait-portrait .image-collage__item:nth-child(2) {
+    width: 55%;
+    height: 60%;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
+  }
+
+  /* Portrait + Landscape: portrait tall left, landscape wide below-right */
+  .image-collage--portrait-landscape .image-collage__item:nth-child(1) {
+    width: 55%;
+    height: 80%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .image-collage--portrait-landscape .image-collage__item:nth-child(2) {
+    width: 70%;
+    height: 45%;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
+  }
+
+  /* Landscape + Portrait: landscape wide top, portrait tall bottom-right */
+  .image-collage--landscape-portrait .image-collage__item:nth-child(1) {
+    width: 85%;
+    height: 50%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .image-collage--landscape-portrait .image-collage__item:nth-child(2) {
+    width: 50%;
+    height: 65%;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
+  }
+
+  /* Landscape + Landscape: stacked with wider dimensions */
+  .image-collage--landscape-landscape .image-collage__item:nth-child(1) {
+    width: 85%;
+    height: 55%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .image-collage--landscape-landscape .image-collage__item:nth-child(2) {
+    width: 80%;
+    height: 50%;
+    bottom: 0;
+    right: 5%;
+    z-index: 2;
+  }
+
+  /* ===== 3 IMAGE LAYOUTS ===== */
+
+  /* Default 3 images (mixed or all portrait) */
+  .image-collage--count-3 .image-collage__item:nth-child(1) {
+    width: 55%;
+    height: 60%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+  }
+
+  .image-collage--count-3 .image-collage__item:nth-child(2) {
+    width: 45%;
+    height: 45%;
+    top: 0;
+    left: 0;
+    z-index: 2;
+  }
+
+  .image-collage--count-3 .image-collage__item:nth-child(3) {
+    width: 45%;
+    height: 45%;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+  }
+
+  /* 3 landscapes: horizontal emphasis */
+  .image-collage--landscape-landscape-landscape
+    .image-collage__item:nth-child(1) {
+    width: 80%;
+    height: 45%;
+    top: 0;
+    left: 10%;
+    transform: none;
+    z-index: 3;
+  }
+
+  .image-collage--landscape-landscape-landscape
+    .image-collage__item:nth-child(2) {
+    width: 55%;
+    height: 40%;
+    bottom: 10%;
+    left: 0;
+    z-index: 2;
+  }
+
+  .image-collage--landscape-landscape-landscape
+    .image-collage__item:nth-child(3) {
+    width: 55%;
+    height: 40%;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+  }
+
+  /* Portrait-Landscape-Portrait */
+  .image-collage--portrait-landscape-portrait
+    .image-collage__item:nth-child(1) {
+    width: 40%;
+    height: 75%;
+    top: 0;
+    left: 0;
+    transform: none;
+    z-index: 2;
+  }
+
+  .image-collage--portrait-landscape-portrait
+    .image-collage__item:nth-child(2) {
+    width: 70%;
+    height: 40%;
+    bottom: 15%;
+    right: 0;
+    z-index: 3;
+  }
+
+  .image-collage--portrait-landscape-portrait
+    .image-collage__item:nth-child(3) {
+    width: 40%;
+    height: 75%;
+    bottom: 0;
+    right: 5%;
+    z-index: 1;
+  }
+
+  /* Landscape-Portrait-Landscape */
+  .image-collage--landscape-portrait-landscape
+    .image-collage__item:nth-child(1) {
+    width: 70%;
+    height: 40%;
+    top: 0;
+    left: 0;
+    transform: none;
+    z-index: 2;
+  }
+
+  .image-collage--landscape-portrait-landscape
+    .image-collage__item:nth-child(2) {
+    width: 45%;
+    height: 70%;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+  }
+
+  .image-collage--landscape-portrait-landscape
+    .image-collage__item:nth-child(3) {
+    width: 70%;
+    height: 40%;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+  }
+
+  /* ===== Responsive adjustments ===== */
+  @media (max-width: 1024px) {
+    .image-collage {
+      min-height: 350px;
+    }
+
+    /* Reduce sizes proportionally for tablet */
+    .image-collage--portrait-landscape .image-collage__item:nth-child(1) {
+      width: 50%;
+      height: 75%;
+    }
+
+    .image-collage--portrait-landscape .image-collage__item:nth-child(2) {
+      width: 65%;
+      height: 42%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .image-collage {
+      min-height: 300px;
+    }
+
+    /* Single image: full size on mobile too */
+    .image-collage--count-1 .image-collage__item {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* 2 images on mobile: simple vertical stack */
+    .image-collage--count-2 .image-collage__item:nth-child(1) {
+      width: 75% !important;
+      height: 55% !important;
+      top: 0 !important;
+      left: 5% !important;
+      right: auto !important;
+      bottom: auto !important;
+    }
+
+    .image-collage--count-2 .image-collage__item:nth-child(2) {
+      width: 70% !important;
+      height: 50% !important;
+      bottom: 0 !important;
+      right: 5% !important;
+      top: auto !important;
+      left: auto !important;
+    }
+
+    /* 3 images: show only 2 on mobile for cleaner layout */
+    .image-collage--count-3 .image-collage__item:nth-child(3) {
+      display: none;
+    }
+
+    .image-collage--count-3 .image-collage__item:nth-child(1) {
+      width: 70% !important;
+      height: 55% !important;
+      top: 0 !important;
+      left: 5% !important;
+      transform: none !important;
+    }
+
+    .image-collage--count-3 .image-collage__item:nth-child(2) {
+      width: 65% !important;
+      height: 50% !important;
+      top: auto !important;
+      bottom: 0 !important;
+      left: auto !important;
+      right: 5% !important;
+    }
+  }
+</style>

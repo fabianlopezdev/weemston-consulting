@@ -26,18 +26,9 @@ export default defineType({
       options: { collapsible: true, collapsed: false },
     },
     {
-      name: 'bioPhotoFields',
-      title: '📸 Photo & Identity',
-      options: { collapsible: true, collapsed: false },
-    },
-    {
-      name: 'bioBackgroundFields',
-      title: '🎨 Background',
-      options: { collapsible: true, collapsed: true },
-    },
-    {
-      name: 'bioBitsFields',
-      title: '📋 Bio Bits',
+      name: 'aboutFields',
+      title: '📖 About Sections',
+      description: 'Add sections with title, description, and photo collages',
       options: { collapsible: true, collapsed: false },
     },
     {
@@ -48,7 +39,7 @@ export default defineType({
   ],
   groups: [
     { name: 'hero', title: 'Hero Section' },
-    { name: 'bio', title: 'Bio Section' },
+    { name: 'about', title: 'About Sections' },
     { name: 'trustedBy', title: 'Clients' },
   ],
   fields: [
@@ -373,325 +364,73 @@ export default defineType({
     },
 
     // ==========================================
-    // BIO SECTION
+    // ABOUT SECTIONS
     // ==========================================
     {
-      name: 'bioBackgroundColorMode',
-      title: 'Background Color Mode',
-      type: 'string',
-      group: 'bio',
-      fieldset: 'bioBackgroundFields',
-      options: {
-        list: [
-          { title: 'Solid', value: 'solid' },
-          { title: 'Gradient', value: 'gradient' },
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'solid',
-    },
-    {
-      name: 'bioBackgroundColorType',
-      title: 'Background Color',
-      type: 'string',
-      group: 'bio',
-      fieldset: 'bioBackgroundFields',
-      options: {
-        list: [
-          { title: 'Default (White)', value: 'default' },
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'default',
-      hidden: ({ parent }) => parent?.bioBackgroundColorMode === 'gradient',
-    },
-    {
-      name: 'bioBackgroundColorShade',
-      title: 'Background Shade',
-      type: 'number',
-      group: 'bio',
-      fieldset: 'bioBackgroundFields',
-      initialValue: 95,
-      hidden: ({ parent }) =>
-        parent?.bioBackgroundColorType === 'custom' ||
-        parent?.bioBackgroundColorType === 'default' ||
-        parent?.bioBackgroundColorMode === 'gradient',
-      validation: (Rule) => Rule.min(0).max(100).integer(),
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'bioBackgroundCustomColor',
-      title: 'Custom Background Color',
-      type: 'simplerColor',
-      group: 'bio',
-      fieldset: 'bioBackgroundFields',
-      hidden: ({ parent }) =>
-        parent?.bioBackgroundColorType !== 'custom' ||
-        parent?.bioBackgroundColorMode === 'gradient',
-    },
-    {
-      name: 'bioBackgroundGradient',
-      title: 'Gradient',
-      type: 'object',
-      group: 'bio',
-      fieldset: 'bioBackgroundFields',
-      hidden: ({ parent }) => parent?.bioBackgroundColorMode !== 'gradient',
-      fields: [
-        {
-          name: 'direction',
-          title: 'Direction',
-          type: 'string',
-          options: {
-            list: [
-              { title: 'Top to Bottom', value: 'to bottom' },
-              { title: 'Bottom to Top', value: 'to top' },
-              { title: 'Left to Right', value: 'to right' },
-              { title: 'Right to Left', value: 'to left' },
-              { title: 'Diagonal ↘', value: '135deg' },
-              { title: 'Diagonal ↗', value: '45deg' },
-            ],
-          },
-          initialValue: '135deg',
-        },
-        {
-          name: 'startColor',
-          title: 'Start Color',
-          type: 'object',
-          fields: [
-            {
-              name: 'colorType',
-              title: 'Color',
-              type: 'string',
-              options: {
-                list: [
-                  { title: 'Primary', value: 'primary' },
-                  { title: 'Secondary', value: 'secondary' },
-                  { title: 'Accent', value: 'accent' },
-                  { title: 'Custom', value: 'custom' },
-                ],
-              },
-              initialValue: 'primary',
-            },
-            {
-              name: 'shade',
-              title: 'Shade',
-              type: 'number',
-              initialValue: 0,
-              hidden: ({ parent }) => parent?.colorType === 'custom',
-              components: { input: BackgroundShadeInput },
-            },
-            {
-              name: 'customColor',
-              title: ' ',
-              type: 'simplerColor',
-              hidden: ({ parent }) => parent?.colorType !== 'custom',
-            },
-          ],
-        },
-        {
-          name: 'endColor',
-          title: 'End Color',
-          type: 'object',
-          fields: [
-            {
-              name: 'colorType',
-              title: 'Color',
-              type: 'string',
-              options: {
-                list: [
-                  { title: 'Primary', value: 'primary' },
-                  { title: 'Secondary', value: 'secondary' },
-                  { title: 'Accent', value: 'accent' },
-                  { title: 'Custom', value: 'custom' },
-                ],
-              },
-              initialValue: 'accent',
-            },
-            {
-              name: 'shade',
-              title: 'Shade',
-              type: 'number',
-              initialValue: 0,
-              hidden: ({ parent }) => parent?.colorType === 'custom',
-              components: { input: BackgroundShadeInput },
-            },
-            {
-              name: 'customColor',
-              title: ' ',
-              type: 'simplerColor',
-              hidden: ({ parent }) => parent?.colorType !== 'custom',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: 'bioImage',
-      title: 'Photo',
-      type: 'image',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      options: { hotspot: true },
-      fields: [
-        {
-          name: 'alt',
-          title: 'Alt Text',
-          type: 'string',
-          description: 'Describes the image for screen readers',
-        },
-      ],
-    },
-    {
-      name: 'bioOverlayColorType',
-      title: 'Image Overlay Color',
-      type: 'string',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      description:
-        'A subtle gradient overlay on the photo that improves text readability. The label and name appear on top of this overlay.',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'accent',
-    },
-    {
-      name: 'bioOverlayColorShade',
-      title: 'Overlay Shade',
-      type: 'number',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      initialValue: 0,
-      hidden: ({ parent }) => parent?.bioOverlayColorType === 'custom',
-      validation: (Rule) => Rule.min(0).max(100).integer(),
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'bioOverlayCustomColor',
-      title: 'Custom Overlay Color',
-      type: 'simplerColor',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      hidden: ({ parent }) => parent?.bioOverlayColorType !== 'custom',
-    },
-    {
-      name: 'bioLabel',
-      title: 'Label',
-      type: 'string',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      description: 'E.g., "Founder & Lead Consultant"',
-      initialValue: 'Founder & Lead Consultant',
-    },
-    {
-      name: 'bioLabelColorType',
-      title: 'Label Color',
-      type: 'string',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'accent',
-      hidden: ({ parent }) => !parent?.bioLabel,
-    },
-    {
-      name: 'bioLabelColorShade',
-      title: 'Label Shade',
-      type: 'number',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      initialValue: 0,
-      hidden: ({ parent }) =>
-        !parent?.bioLabel || parent?.bioLabelColorType === 'custom',
-      validation: (Rule) => Rule.min(0).max(100).integer(),
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'bioLabelCustomColor',
-      title: 'Custom Label Color',
-      type: 'simplerColor',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      hidden: ({ parent }) =>
-        !parent?.bioLabel || parent?.bioLabelColorType !== 'custom',
-    },
-    {
-      name: 'bioName',
-      title: 'Name',
-      type: 'string',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      description: 'The main heading name',
-      initialValue: 'Jessica Weeman',
-    },
-    {
-      name: 'bioNameColorType',
-      title: 'Name Color',
-      type: 'string',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      options: {
-        list: [
-          { title: 'Primary', value: 'primary' },
-          { title: 'Secondary', value: 'secondary' },
-          { title: 'Accent', value: 'accent' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      initialValue: 'primary',
-      hidden: ({ parent }) => !parent?.bioName,
-    },
-    {
-      name: 'bioNameColorShade',
-      title: 'Name Shade',
-      type: 'number',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      initialValue: 0,
-      hidden: ({ parent }) =>
-        !parent?.bioName || parent?.bioNameColorType === 'custom',
-      validation: (Rule) => Rule.min(0).max(100).integer(),
-      components: {
-        input: BackgroundShadeInput,
-      },
-    },
-    {
-      name: 'bioNameCustomColor',
-      title: 'Custom Name Color',
-      type: 'simplerColor',
-      group: 'bio',
-      fieldset: 'bioPhotoFields',
-      hidden: ({ parent }) =>
-        !parent?.bioName || parent?.bioNameColorType !== 'custom',
-    },
-    {
-      name: 'bioBits',
-      title: 'Bio Bits',
+      name: 'aboutSections',
+      title: 'About Sections',
       type: 'array',
-      group: 'bio',
-      fieldset: 'bioBitsFields',
-      of: [{ type: 'bioBit' }],
-      description: 'Add cards with icons, titles, and content paragraphs',
+      group: 'about',
+      fieldset: 'aboutFields',
+      of: [
+        {
+          type: 'object',
+          name: 'aboutSection',
+          title: 'About Section',
+          fields: [
+            {
+              name: 'title',
+              title: 'Title',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'description',
+              title: 'Description',
+              type: 'portableText',
+            },
+            {
+              name: 'images',
+              title: 'Photos',
+              type: 'array',
+              of: [
+                {
+                  type: 'image',
+                  options: {
+                    hotspot: true,
+                  },
+                  fields: [
+                    {
+                      name: 'alt',
+                      title: 'Alt Text',
+                      type: 'string',
+                      description: 'Describe the image for accessibility',
+                    },
+                  ],
+                },
+              ],
+              validation: (Rule) =>
+                Rule.max(3).warning('Maximum 3 images per section'),
+              description:
+                'Add 1-3 photos. They will display as a collage alongside the content.',
+            },
+          ],
+          preview: {
+            select: {
+              title: 'title',
+              media: 'images.0',
+            },
+            prepare({ title, media }) {
+              return {
+                title: title || 'About Section',
+                media,
+              };
+            },
+          },
+        },
+      ],
+      description:
+        'Add sections with titles, descriptions, and photo collages. Images alternate sides automatically.',
     },
 
     // ==========================================
