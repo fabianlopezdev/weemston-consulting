@@ -265,9 +265,7 @@ const descriptionParagraphs =
     )
   }
   <div class="container">
-    <SectionTitle class={!showTitle ? 'visually-hidden' : undefined}>
-      {title}
-    </SectionTitle>
+    <SectionTitle title={title} showTitle={showTitle} />
 
     <div class="about-section__content">
       {
