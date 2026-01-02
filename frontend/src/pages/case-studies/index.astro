@@ -393,7 +393,7 @@ const filterCssVars = [
 
   .filter-buttons {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     gap: var(--space-sm);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -402,6 +402,12 @@ const filterCssVars = [
 
   .filter-buttons::-webkit-scrollbar {
     display: none;
+  }
+
+  @media (min-width: 768px) {
+    .filter-buttons {
+      justify-content: center;
+    }
   }
 
   .filter-btn {
