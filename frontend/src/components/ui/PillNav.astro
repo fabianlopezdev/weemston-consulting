@@ -10,6 +10,7 @@ interface Props {
   showAllButton?: boolean;
   allLabel?: string;
   class?: string;
+  style?: string;
 }
 
 const {
@@ -18,10 +19,11 @@ const {
   showAllButton = false,
   allLabel = 'All',
   class: className,
+  style,
 } = Astro.props;
 ---
 
-<div class:list={['pill-nav', className]} data-mode={mode}>
+<div class:list={['pill-nav', className]} data-mode={mode} style={style}>
   <div class="container">
     <div class="pill-nav__buttons">
       {
@@ -50,7 +52,8 @@ const {
 
 <style>
   .pill-nav {
-    padding-block: var(--space-md);
+    padding-block-start: clamp(6rem, 10vw, 8rem);
+    padding-block-end: var(--space-md);
     position: sticky;
     inset-block-start: var(--header-height);
     background-color: var(--color-background);
