@@ -177,9 +177,9 @@ const imageUrl = image?.asset
 
 const imageLqip = image?.asset?.metadata?.lqip;
 
-// Normalize text for comparison (trim, collapse whitespace)
+// Normalize text for comparison (trim, collapse spaces/tabs but preserve newlines)
 function normalizeText(text: string): string {
-  return text.trim().replace(/\s+/g, ' ');
+  return text.trim().replace(/[^\S\n]+/g, ' ');
 }
 
 // Span type for Portable Text children
@@ -237,13 +237,14 @@ function splitBlockAroundQuote(
   origIndex = leadingSpaces;
   for (let i = 0; i < trimmedFull.length; i++) {
     const char = trimmedFull.charAt(i);
-    if (/\s/.test(char)) {
-      // Skip consecutive whitespace after first
-      if (i === 0 || !/\s/.test(trimmedFull.charAt(i - 1))) {
+    if (/[^\S\n]/.test(char)) {
+      // Skip consecutive non-newline whitespace after first
+      if (i === 0 || !/[^\S\n]/.test(trimmedFull.charAt(i - 1))) {
         normToOrig.push(origIndex);
         normIndex++;
       }
     } else {
+      // Regular char or newline - always include
       normToOrig.push(origIndex);
       normIndex++;
     }
@@ -371,7 +372,12 @@ const contentParts = parsePortableTextContent(content || [], quote);
 
 <section class="founder-section" style={cssVars}>
   <div class="container">
-    <div class="founder-section__grid">
+    <div
+      class:list={[
+        'founder-section__grid',
+        { 'founder-section__grid--no-image': !imageUrl },
+      ]}
+    >
       {
         imageUrl && (
           <PortraitImage
@@ -386,7 +392,7 @@ const contentParts = parsePortableTextContent(content || [], quote);
         <SectionTitle
           title={title}
           color={titleColor}
-          align="left"
+          align={imageUrl ? 'left' : 'center'}
           class="founder-section__title"
         />
         {
@@ -427,6 +433,13 @@ const contentParts = parsePortableTextContent(content || [], quote);
       grid-template-columns: 1fr 1fr;
       gap: var(--space-2xl);
     }
+
+    .founder-section__grid--no-image {
+      grid-template-columns: 1fr;
+      max-width: 48rem;
+      margin: 0 auto;
+      text-align: center;
+    }
   }
 
   .founder-section__content {
@@ -450,10 +463,15 @@ const contentParts = parsePortableTextContent(content || [], quote);
   .founder-section__text :global(p) {
     margin: 0 0 var(--space-md);
     line-height: 1.7;
+    white-space: pre-line;
   }
 
   .founder-section__text :global(p:last-child) {
     margin-bottom: 0;
+  }
+
+  .founder-section__text :global(p:empty) {
+    min-height: 1em;
   }
 
   .founder-section__quote {
@@ -469,6 +487,11 @@ const contentParts = parsePortableTextContent(content || [], quote);
 
   .founder-section__quote:last-child {
     margin-bottom: 0;
+  }
+
+  .founder-section__grid--no-image .founder-section__quote {
+    border-left: none;
+    padding-left: 0;
   }
 
   .founder-section__text .founder-section__quote + :global(p) {
