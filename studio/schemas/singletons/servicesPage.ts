@@ -30,9 +30,15 @@ export default defineType({
       title: '📋 Services Sections',
       options: { collapsible: true, collapsed: false },
     },
+    {
+      name: 'navFields',
+      title: '🔘 Navigation',
+      options: { collapsible: true, collapsed: true },
+    },
   ],
   groups: [
     { name: 'hero', title: 'Hero Section' },
+    { name: 'nav', title: 'Navigation' },
     { name: 'services', title: 'Services' },
   ],
   fields: [
@@ -355,6 +361,111 @@ export default defineType({
       },
       initialValue: 'muted',
       hidden: ({ parent }) => !parent?.heroTagline,
+    },
+
+    // Navigation Section
+    {
+      name: 'navActiveColorType',
+      title: 'Active Button Color',
+      type: 'string',
+      group: 'nav',
+      fieldset: 'navFields',
+      description: 'Background color for active navigation button',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'accent',
+    },
+    {
+      name: 'navActiveColorShade',
+      title: 'Active Button Shade',
+      type: 'number',
+      group: 'nav',
+      fieldset: 'navFields',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.navActiveColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'navActiveCustomColor',
+      title: 'Custom Active Button Color',
+      type: 'simplerColor',
+      group: 'nav',
+      fieldset: 'navFields',
+      hidden: ({ parent }) => parent?.navActiveColorType !== 'custom',
+    },
+    {
+      name: 'navActiveTextColor',
+      title: 'Active Button Text',
+      type: 'string',
+      group: 'nav',
+      fieldset: 'navFields',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'contrast',
+    },
+    {
+      name: 'navInactiveColorType',
+      title: 'Inactive Button Border Color',
+      type: 'string',
+      group: 'nav',
+      fieldset: 'navFields',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Custom', value: 'custom' },
+        ],
+      },
+      initialValue: 'secondary',
+    },
+    {
+      name: 'navInactiveColorShade',
+      title: 'Inactive Button Border Shade',
+      type: 'number',
+      group: 'nav',
+      fieldset: 'navFields',
+      initialValue: 0,
+      hidden: ({ parent }) => parent?.navInactiveColorType === 'custom',
+      components: { input: BackgroundShadeInput },
+    },
+    {
+      name: 'navInactiveCustomColor',
+      title: 'Custom Inactive Button Border',
+      type: 'simplerColor',
+      group: 'nav',
+      fieldset: 'navFields',
+      hidden: ({ parent }) => parent?.navInactiveColorType !== 'custom',
+    },
+    {
+      name: 'navInactiveTextColor',
+      title: 'Inactive Button Text',
+      type: 'string',
+      group: 'nav',
+      fieldset: 'navFields',
+      options: {
+        list: [
+          { title: 'Base', value: 'base' },
+          { title: 'Muted', value: 'muted' },
+          { title: 'Contrast', value: 'contrast' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'muted',
     },
 
     // Services - References to service documents

@@ -57,6 +57,7 @@ interface GradientData {
 }
 
 interface Props {
+  id?: string;
   title: string;
   description?: PortableTextBlock[];
   iconType?: 'image' | 'none';
@@ -115,6 +116,7 @@ interface Props {
 }
 
 const {
+  id,
   title,
   description,
   iconType = 'none',
@@ -300,6 +302,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
 ---
 
 <article
+  id={id}
   class="service-section"
   style={cssVars}
   data-animate

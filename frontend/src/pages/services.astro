@@ -1,15 +1,68 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { sanityClient as client } from 'sanity:client';
-import { servicesPageNewQuery } from '@lib/sanity/queries';
+import { servicesPageNewQuery, siteSettingsQuery } from '@lib/sanity/queries';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { slugify } from '@lib/utils/url';
 import InternalPageHero from '@components/sections/InternalPageHero.astro';
 import ServiceSection from '@components/sections/ServiceSection.astro';
+import PillNav from '@components/ui/PillNav.astro';
 
-const page = await client.fetch(servicesPageNewQuery);
+const [page, settings] = await Promise.all([
+  client.fetch(servicesPageNewQuery),
+  client.fetch(siteSettingsQuery),
+]);
 
 if (!page) {
   return Astro.redirect('/404');
 }
+
+const siteColors = settings?.colors;
+
+// Text color map
+const textColorMap: Record<string, string> = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'var(--color-text-contrast)',
+};
+
+// Resolve navigation colors
+const navActiveColor = resolveColorSelection(
+  {
+    colorType: page?.navActiveColorType || 'accent',
+    shade: page?.navActiveColorShade || 0,
+    customColor: page?.navActiveCustomColor,
+  },
+  siteColors
+);
+
+const navInactiveColor = resolveColorSelection(
+  {
+    colorType: page?.navInactiveColorType || 'secondary',
+    shade: page?.navInactiveColorShade || 0,
+    customColor: page?.navInactiveCustomColor,
+  },
+  siteColors
+);
+
+const navActiveTextResolved =
+  textColorMap[page?.navActiveTextColor || 'contrast'] || textColorMap.contrast;
+const navInactiveTextResolved =
+  textColorMap[page?.navInactiveTextColor || 'muted'] || textColorMap.muted;
+
+// Build navigation CSS variables
+const navCssVars = [
+  `--filter-active-bg: ${navActiveColor}`,
+  `--filter-active-text: ${navActiveTextResolved}`,
+  `--filter-inactive-border: ${navInactiveColor}`,
+  `--filter-inactive-text: ${navInactiveTextResolved}`,
+].join('; ');
+
+// Build navigation items from services
+const navItems = (page.services || []).map((service: any) => ({
+  id: slugify(service.title),
+  label: service.title,
+}));
 ---
 
 <BaseLayout title={page.title} description={page.metaDescription}>
@@ -33,12 +86,20 @@ if (!page) {
     backgroundGradient={page.heroBackgroundGradient}
   />
 
+  {/* Navigation Pills */}
+  {
+    navItems.length > 0 && (
+      <PillNav items={navItems} mode="scroll" style={navCssVars} />
+    )
+  }
+
   {/* Service Sections */}
   {
     page.services &&
       page.services.length > 0 &&
       page.services.map((service: any, index: number) => (
         <ServiceSection
+          id={slugify(service.title)}
           serviceIndex={index}
           title={service.title}
           description={service.description}

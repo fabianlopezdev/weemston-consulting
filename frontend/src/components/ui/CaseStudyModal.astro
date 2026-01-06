@@ -271,15 +271,27 @@ const modalCssVars = [
                     href={`/#testimonial-${cs.testimonial._id}`}
                     class="case-study-modal__quote-link"
                   >
-                    <Quote
-                      text={cs.testimonial.quote}
-                      authorName={cs.testimonial.authorName}
-                      authorPosition={cs.testimonial.authorPosition}
-                      textColor="var(--modal-quote-text)"
-                      borderColor="var(--modal-quote-border)"
-                      authorColor="var(--modal-quote-author)"
-                      size="sm"
-                    />
+                    <blockquote class="case-study-modal__quote">
+                      <p class="case-study-modal__quote-text">
+                        "{cs.testimonial.quote.replace(/\.+$/, '')}..."
+                        <span
+                          class="case-study-modal__quote-arrow"
+                          aria-hidden="true"
+                        >
+                          ↗
+                        </span>
+                      </p>
+                      <footer class="case-study-modal__quote-author">
+                        <span class="case-study-modal__quote-name">
+                          {cs.testimonial.authorName}
+                        </span>
+                        {cs.testimonial.authorPosition && (
+                          <span class="case-study-modal__quote-position">
+                            {cs.testimonial.authorPosition}
+                          </span>
+                        )}
+                      </footer>
+                    </blockquote>
                   </a>
                 </div>
               )}
@@ -467,6 +479,51 @@ const modalCssVars = [
 
   .case-study-modal__quote-link:hover {
     opacity: 0.8;
+  }
+
+  .case-study-modal__quote {
+    border-left: 3px solid var(--modal-quote-border);
+    padding-left: var(--space-md);
+    margin: 0;
+  }
+
+  .case-study-modal__quote-text {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-base);
+    font-style: italic;
+    color: var(--modal-quote-text);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .case-study-modal__quote-arrow {
+    display: inline;
+    margin-left: 0.25em;
+    font-style: normal;
+    opacity: 0.6;
+    transition: opacity var(--transition-fast);
+  }
+
+  .case-study-modal__quote-link:hover .case-study-modal__quote-arrow {
+    opacity: 1;
+  }
+
+  .case-study-modal__quote-author {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs, 0.125rem);
+    margin-block-start: var(--space-sm);
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    color: var(--modal-quote-author);
+  }
+
+  .case-study-modal__quote-name {
+    font-weight: 600;
+  }
+
+  .case-study-modal__quote-position {
+    opacity: 0.7;
   }
 
   /* Right Panel */

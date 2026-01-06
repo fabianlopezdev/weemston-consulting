@@ -14,6 +14,7 @@ import CaseStudyModal from '@components/ui/CaseStudyModal.astro';
 import InternalPageHero from '@components/sections/InternalPageHero.astro';
 import SectionTitle from '@components/ui/SectionTitle.astro';
 import PortableText from '@components/sanity/PortableText.astro';
+import PillNav from '@components/ui/PillNav.astro';
 
 const lang = Astro.locals.lang || 'en';
 const t = createTranslator(lang);
@@ -181,6 +182,12 @@ const filterCssVars = [
   `--filter-inactive-border: ${filterInactiveColor}`,
   `--filter-inactive-text: ${filterInactiveTextResolved}`,
 ].join('; ');
+
+// Build filter items from services
+const filterItems = (services as ServiceWithCaseStudies[]).map((service) => ({
+  id: service._id,
+  label: service.title,
+}));
 ---
 
 <BaseLayout title={page?.title || t('seo.case_studies_title')}>
@@ -241,21 +248,13 @@ const filterCssVars = [
 
   {/* Filter Bar */}
   {
-    services && services.length > 0 && (
-      <div class="filter-bar" style={filterCssVars}>
-        <div class="container">
-          <div class="filter-buttons">
-            <button data-filter="all" class="filter-btn active">
-              All
-            </button>
-            {(services as ServiceWithCaseStudies[]).map((service) => (
-              <button data-filter={service._id} class="filter-btn">
-                {service.title}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+    filterItems.length > 0 && (
+      <PillNav
+        items={filterItems}
+        mode="filter"
+        showAllButton={true}
+        style={filterCssVars}
+      />
     )
   }
 
@@ -378,74 +377,6 @@ const filterCssVars = [
     max-inline-size: none;
   }
 
-  /* Filter Bar */
-  .filter-bar {
-    padding-block: var(--space-md);
-    position: sticky;
-    inset-block-start: var(--header-height);
-    background-color: var(--color-background);
-    z-index: var(--z-sticky);
-  }
-
-  .filter-bar .container {
-    border-block-start: 1px solid var(--color-border);
-    border-block-end: 1px solid var(--color-border);
-    padding-block: var(--space-md);
-  }
-
-  .filter-buttons {
-    display: flex;
-    justify-content: flex-start;
-    gap: var(--space-sm);
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .filter-buttons::-webkit-scrollbar {
-    display: none;
-  }
-
-  @media (min-width: 768px) {
-    .filter-buttons {
-      justify-content: center;
-    }
-  }
-
-  .filter-btn {
-    padding-inline: var(--button-padding-horizontal, var(--space-md));
-    padding-block: var(--button-padding-vertical, var(--space-sm));
-    border-radius: var(--button-border-radius, var(--border-radius-full));
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
-    transition: all var(--transition-base);
-    cursor: pointer;
-
-    /* Inactive state */
-    background: transparent;
-    border: 1px solid var(--filter-inactive-border);
-    color: var(--filter-inactive-text);
-  }
-
-  .filter-btn:hover {
-    background: var(--filter-active-bg);
-    border-color: var(--filter-active-bg);
-    color: var(--filter-active-text);
-  }
-
-  .filter-btn:active {
-    transform: scale(0.95);
-  }
-
-  .filter-btn.active {
-    background: var(--filter-active-bg);
-    border-color: var(--filter-active-bg);
-    color: var(--filter-active-text);
-  }
-
   /* Content Section */
   .case-studies-content {
     padding-block: var(--space-2xl);
@@ -500,7 +431,6 @@ const filterCssVars = [
       '(prefers-reduced-motion: reduce)'
     ).matches;
 
-    const filterButtons = document.querySelectorAll('[data-filter]');
     const boxWrappers = document.querySelectorAll('[data-service-ids]');
 
     // Initial page load animation only
@@ -522,27 +452,22 @@ const filterCssVars = [
       });
     }
 
-    // Filter functionality - no animation, just show/hide
-    if (filterButtons.length && boxWrappers.length) {
-      filterButtons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const filter = (btn as HTMLElement).dataset.filter;
+    // Filter functionality via PillNav custom event
+    document.addEventListener('pillnav:filter', ((
+      event: CustomEvent<{ filter: string }>
+    ) => {
+      const filter = event.detail.filter;
 
-          filterButtons.forEach((b) => b.classList.remove('active'));
-          btn.classList.add('active');
+      boxWrappers.forEach((wrapper) => {
+        const serviceIds =
+          (wrapper as HTMLElement).dataset.serviceIds
+            ?.split(',')
+            .filter(Boolean) || [];
+        const shouldShow =
+          filter === 'all' || (filter && serviceIds.includes(filter));
 
-          boxWrappers.forEach((wrapper) => {
-            const serviceIds =
-              (wrapper as HTMLElement).dataset.serviceIds
-                ?.split(',')
-                .filter(Boolean) || [];
-            const shouldShow =
-              filter === 'all' || (filter && serviceIds.includes(filter));
-
-            (wrapper as HTMLElement).style.display = shouldShow ? '' : 'none';
-          });
-        });
+        (wrapper as HTMLElement).style.display = shouldShow ? '' : 'none';
       });
-    }
+    }) as EventListener);
   });
 </script>

@@ -904,6 +904,15 @@ export const servicesPageNewQuery = groq`
     heroDividerCustomColor { label, value },
     heroTagline,
     heroTaglineColor,
+    // Navigation colors
+    navActiveColorType,
+    navActiveColorShade,
+    navActiveCustomColor { label, value },
+    navActiveTextColor,
+    navInactiveColorType,
+    navInactiveColorShade,
+    navInactiveCustomColor { label, value },
+    navInactiveTextColor,
     // Services - dereferenced from service documents
     services[]-> {
       _id,

@@ -1,0 +1,164 @@
+---
+interface PillItem {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  items: PillItem[];
+  mode: 'filter' | 'scroll';
+  showAllButton?: boolean;
+  allLabel?: string;
+  class?: string;
+}
+
+const {
+  items,
+  mode,
+  showAllButton = false,
+  allLabel = 'All',
+  class: className,
+} = Astro.props;
+---
+
+<div class:list={['pill-nav', className]} data-mode={mode}>
+  <div class="container">
+    <div class="pill-nav__buttons">
+      {
+        showAllButton && (
+          <button data-pill="all" class="pill-nav__btn active">
+            {allLabel}
+          </button>
+        )
+      }
+      {
+        items.map((item, index) => (
+          <button
+            data-pill={item.id}
+            class:list={[
+              'pill-nav__btn',
+              { active: !showAllButton && index === 0 },
+            ]}
+          >
+            {item.label}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .pill-nav {
+    padding-block: var(--space-md);
+    position: sticky;
+    inset-block-start: var(--header-height);
+    background-color: var(--color-background);
+    z-index: var(--z-sticky);
+  }
+
+  .pill-nav .container {
+    border-block-start: 1px solid var(--color-border);
+    border-block-end: 1px solid var(--color-border);
+    padding-block: var(--space-md);
+  }
+
+  .pill-nav__buttons {
+    display: flex;
+    justify-content: flex-start;
+    gap: var(--space-sm);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .pill-nav__buttons::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .pill-nav__buttons {
+      justify-content: center;
+    }
+  }
+
+  .pill-nav__btn {
+    padding-inline: var(--button-padding-horizontal, var(--space-md));
+    padding-block: var(--button-padding-vertical, var(--space-sm));
+    border-radius: var(--button-border-radius, var(--border-radius-full));
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    transition: all var(--transition-base);
+    cursor: pointer;
+
+    /* Inactive state */
+    background: transparent;
+    border: 1px solid var(--filter-inactive-border);
+    color: var(--filter-inactive-text);
+  }
+
+  .pill-nav__btn:hover {
+    background: var(--filter-active-bg);
+    border-color: var(--filter-active-bg);
+    color: var(--filter-active-text);
+  }
+
+  .pill-nav__btn:active {
+    transform: scale(0.95);
+  }
+
+  .pill-nav__btn.active {
+    background: var(--filter-active-bg);
+    border-color: var(--filter-active-bg);
+    color: var(--filter-active-text);
+  }
+</style>
+
+<script>
+  function initPillNav() {
+    const navs = document.querySelectorAll('.pill-nav');
+
+    navs.forEach((nav) => {
+      if ((nav as HTMLElement).dataset.initialized === 'true') return;
+      (nav as HTMLElement).dataset.initialized = 'true';
+
+      const mode = (nav as HTMLElement).dataset.mode;
+      const buttons = nav.querySelectorAll('[data-pill]');
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const pillId = (btn as HTMLElement).dataset.pill;
+
+          // Update active state
+          buttons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          if (mode === 'filter') {
+            // Dispatch custom event for filter mode
+            nav.dispatchEvent(
+              new CustomEvent('pillnav:filter', {
+                bubbles: true,
+                detail: { filter: pillId },
+              })
+            );
+          } else if (mode === 'scroll' && pillId) {
+            // Scroll to target element
+            const target = document.getElementById(pillId);
+            if (target) {
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }
+        });
+      });
+    });
+  }
+
+  // Initialize on page load
+  initPillNav();
+
+  // Re-initialize after Astro view transitions
+  document.addEventListener('astro:after-swap', initPillNav);
+</script>
