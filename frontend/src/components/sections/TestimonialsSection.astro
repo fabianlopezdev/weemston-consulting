@@ -346,7 +346,10 @@ const cards = testimonials.map(renderCard);
           {/* First set of cards */}
           {
             cards.map(({ testimonial, avatarUrl }) => (
-              <div class="testimonial-card">
+              <div
+                class="testimonial-card"
+                data-testimonial-id={testimonial._id}
+              >
                 <blockquote class="testimonial-card__quote">
                   "{testimonial.quote}"
                 </blockquote>
@@ -390,7 +393,11 @@ const cards = testimonials.map(renderCard);
           {/* Duplicate set for seamless infinite loop */}
           {
             cards.map(({ testimonial, avatarUrl }) => (
-              <div class="testimonial-card" aria-hidden="true">
+              <div
+                class="testimonial-card"
+                data-testimonial-id={testimonial._id}
+                aria-hidden="true"
+              >
                 <blockquote class="testimonial-card__quote">
                   "{testimonial.quote}"
                 </blockquote>
@@ -569,6 +576,40 @@ const cards = testimonials.map(renderCard);
         nextBtn.addEventListener('click', () => goToCard('next'));
       }
 
+      // Handle deep link from case study testimonials
+      const hash = window.location.hash;
+      if (hash.startsWith('#testimonial-')) {
+        const targetId = hash.replace('#testimonial-', '');
+        const originalCards = Array.from(
+          track.querySelectorAll('.testimonial-card:not([aria-hidden])')
+        );
+        const targetIndex = originalCards.findIndex(
+          (card) => (card as HTMLElement).dataset.testimonialId === targetId
+        );
+
+        if (targetIndex >= 0) {
+          // Navigate to the target card immediately
+          gsap.set(track, { x: -targetIndex * cardWidth });
+          currentIndex = targetIndex;
+
+          // Delay scroll to ensure page is fully rendered
+          setTimeout(() => {
+            const section = document.querySelector('.testimonials-section');
+            section?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Highlight the card after scroll starts
+            const targetCard = originalCards[targetIndex] as HTMLElement;
+            targetCard.classList.add('testimonial-card--highlighted');
+            setTimeout(() => {
+              targetCard.classList.remove('testimonial-card--highlighted');
+            }, 2000);
+          }, 100);
+
+          // Clear hash from URL
+          history.replaceState(null, '', window.location.pathname);
+        }
+      }
+
       return;
     }
 
@@ -685,6 +726,43 @@ const cards = testimonials.map(renderCard);
           tl.resume();
         }
       });
+
+      // Handle deep link from case study testimonials (desktop)
+      const hash = window.location.hash;
+      if (hash.startsWith('#testimonial-')) {
+        const targetId = hash.replace('#testimonial-', '');
+        const targetCard = track.querySelector(
+          `.testimonial-card[data-testimonial-id="${targetId}"]:not([aria-hidden])`
+        ) as HTMLElement;
+
+        if (targetCard) {
+          // Stop the auto-scroll permanently
+          tl.pause();
+
+          // Position carousel to center the target card
+          const trackRect = track.getBoundingClientRect();
+          const cardRect = targetCard.getBoundingClientRect();
+          const cardOffset = cardRect.left - trackRect.left;
+          const centerOffset =
+            (marquee.offsetWidth - targetCard.offsetWidth) / 2;
+          gsap.set(track, { x: -cardOffset + centerOffset });
+
+          // Delay scroll to ensure page is fully rendered
+          setTimeout(() => {
+            const section = document.querySelector('.testimonials-section');
+            section?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Highlight the card after scroll starts
+            targetCard.classList.add('testimonial-card--highlighted');
+            setTimeout(() => {
+              targetCard.classList.remove('testimonial-card--highlighted');
+            }, 2000);
+          }, 100);
+
+          // Clear hash from URL
+          history.replaceState(null, '', window.location.pathname);
+        }
+      }
     } else {
       // Reduced motion mode: arrows still work for manual scroll
       if (prevBtn && nextBtn) {
@@ -943,6 +1021,20 @@ const cards = testimonials.map(renderCard);
     border-radius: var(--border-radius, 8px);
     display: flex;
     flex-direction: column;
+  }
+
+  .testimonial-card--highlighted {
+    animation: card-highlight 2s ease-out;
+  }
+
+  @keyframes card-highlight {
+    0%,
+    50% {
+      box-shadow: 0 0 0 3px var(--color-primary);
+    }
+    100% {
+      box-shadow: none;
+    }
   }
 
   .testimonial-card__quote {

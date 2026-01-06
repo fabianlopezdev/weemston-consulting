@@ -12,6 +12,7 @@ interface ColorData {
 }
 
 interface TestimonialData {
+  _id: string;
   quote: string;
   authorName: string;
   authorPosition?: string | undefined;
@@ -266,15 +267,20 @@ const modalCssVars = [
 
               {cs.testimonial && (
                 <div class="case-study-modal__quote-wrapper">
-                  <Quote
-                    text={cs.testimonial.quote}
-                    authorName={cs.testimonial.authorName}
-                    authorPosition={cs.testimonial.authorPosition}
-                    textColor="var(--modal-quote-text)"
-                    borderColor="var(--modal-quote-border)"
-                    authorColor="var(--modal-quote-author)"
-                    size="sm"
-                  />
+                  <a
+                    href={`/#testimonial-${cs.testimonial._id}`}
+                    class="case-study-modal__quote-link"
+                  >
+                    <Quote
+                      text={cs.testimonial.quote}
+                      authorName={cs.testimonial.authorName}
+                      authorPosition={cs.testimonial.authorPosition}
+                      textColor="var(--modal-quote-text)"
+                      borderColor="var(--modal-quote-border)"
+                      authorColor="var(--modal-quote-author)"
+                      size="sm"
+                    />
+                  </a>
                 </div>
               )}
             </div>
@@ -450,6 +456,17 @@ const modalCssVars = [
   .case-study-modal__quote-wrapper {
     margin-block-start: auto;
     padding-block-start: var(--space-lg);
+  }
+
+  .case-study-modal__quote-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity var(--transition-fast);
+  }
+
+  .case-study-modal__quote-link:hover {
+    opacity: 0.8;
   }
 
   /* Right Panel */
