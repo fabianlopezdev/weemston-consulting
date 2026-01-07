@@ -6,32 +6,33 @@
 ---
 
 <div class="layout-gallery">
-  <!-- Full-Bleed Hero -->
-  <section class="gallery-hero">
-    <div class="hero-image-container">
-      <img
-        src="/images/about/jessica-headshot.webp"
-        alt="Jessica Weeman"
-        class="hero-image"
-        loading="eager"
-      />
-    </div>
-    <div class="hero-overlay">
-      <div class="hero-content">
-        <h1>The Woman Behind Weemston Consulting</h1>
-      </div>
+  <!-- Section 1 Header -->
+  <section class="section-header">
+    <div class="container">
+      <h1>The Woman Behind Weemston Consulting</h1>
     </div>
   </section>
 
-  <!-- Intro Strip -->
-  <section class="text-strip">
+  <!-- Portrait + Intro -->
+  <section class="intro-section">
     <div class="container">
-      <p class="intro-text">
-        Jessica Weeman is the founder and lead consultant of Weemston
-        Consulting. She is an operational strategist with more than fifteen
-        years of experience helping businesses and organizations improve
-        culture, optimize operations, and navigate change.
-      </p>
+      <div class="intro-grid">
+        <div class="intro-portrait">
+          <img
+            src="/images/about/jessica-headshot.webp"
+            alt="Jessica Weeman"
+            loading="eager"
+          />
+        </div>
+        <div class="intro-text">
+          <p class="lead">
+            Jessica Weeman is the founder and lead consultant of Weemston
+            Consulting. She is an operational strategist with more than fifteen
+            years of experience helping businesses and organizations improve
+            culture, optimize operations, and navigate change.
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -159,29 +160,51 @@
     </div>
   </section>
 
-  <!-- Origin Section -->
-  <section class="origin-section">
-    <div class="origin-bg">
+  <!-- Origin Section Header -->
+  <section class="section-header section-header--dark">
+    <div class="container">
+      <h1>How Weemston Consulting Came to Life</h1>
+    </div>
+  </section>
+
+  <!-- A Life Built With Intention -->
+  <section class="text-strip">
+    <div class="container">
+      <h2>A Life Built With Intention</h2>
+      <p>
+        Weemston began in a moment of choosing a different kind of life. After
+        years leading operational and strategic work across nonprofits,
+        startups, and mission-driven organizations, my husband and I decided to
+        move onto a sailboat full-time. It was a shift rooted in values,
+        curiosity, and the desire to build a life with more freedom, purpose,
+        and intention.
+      </p>
+    </div>
+  </section>
+
+  <!-- Sailing Gallery - now includes sailing-helm -->
+  <section class="triple-showcase">
+    <figure class="triple-item triple-item--featured">
       <img
         src="/images/about/sailing-helm.webp"
-        alt="Jessica sailing"
+        alt="Jessica at the helm"
         loading="lazy"
       />
-    </div>
-    <div class="origin-overlay">
-      <div class="origin-content">
-        <h1>How Weemston Consulting Came to Life</h1>
-        <h2>A Life Built With Intention</h2>
-        <p>
-          Weemston began in a moment of choosing a different kind of life. After
-          years leading operational and strategic work across nonprofits,
-          startups, and mission-driven organizations, my husband and I decided
-          to move onto a sailboat full-time. It was a shift rooted in values,
-          curiosity, and the desire to build a life with more freedom, purpose,
-          and intention.
-        </p>
-      </div>
-    </div>
+    </figure>
+    <figure class="triple-item">
+      <img
+        src="/images/about/sailing-gear.webp"
+        alt="Life on the boat"
+        loading="lazy"
+      />
+    </figure>
+    <figure class="triple-item">
+      <img
+        src="/images/about/couple-marina.webp"
+        alt="Partnership at the marina"
+        loading="lazy"
+      />
+    </figure>
   </section>
 
   <!-- Large Quote 2 -->
@@ -193,24 +216,6 @@
         </p>
       </blockquote>
     </div>
-  </section>
-
-  <!-- Sailing Gallery -->
-  <section class="dual-showcase">
-    <figure class="dual-item">
-      <img
-        src="/images/about/sailing-gear.webp"
-        alt="Life on the boat"
-        loading="lazy"
-      />
-    </figure>
-    <figure class="dual-item">
-      <img
-        src="/images/about/couple-marina.webp"
-        alt="Partnership at the marina"
-        loading="lazy"
-      />
-    </figure>
   </section>
 
   <!-- Relationship Story -->
@@ -268,51 +273,77 @@
     padding-inline: var(--container-padding);
   }
 
-  /* Full-Bleed Hero */
-  .gallery-hero {
-    position: relative;
-    height: 70vh;
-    min-height: 500px;
-    max-height: 800px;
-    overflow: hidden;
+  /* Section Header */
+  .section-header {
+    padding: var(--space-3xl) 0 var(--space-xl);
+    text-align: center;
   }
 
-  .hero-image-container {
-    position: absolute;
-    inset: 0;
-  }
-
-  .hero-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
-  }
-
-  .hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: var(--overlay-gradient);
-    display: flex;
-    align-items: flex-end;
-    padding: var(--space-2xl);
-  }
-
-  .hero-content {
-    color: var(--color-text-contrast);
-  }
-
-  .hero-content h1 {
+  .section-header h1 {
     font-family: var(--font-heading);
     font-size: var(--font-size-3xl);
     font-weight: var(--font-weight-normal);
+    color: var(--color-text);
     margin: 0;
     line-height: var(--line-height-tight);
   }
 
   @media (min-width: 768px) {
-    .hero-content h1 {
+    .section-header h1 {
       font-size: var(--font-size-4xl);
+    }
+  }
+
+  .section-header--dark {
+    background: var(--color-text);
+    padding: var(--space-2xl) 0;
+  }
+
+  .section-header--dark h1 {
+    color: var(--color-text-contrast);
+  }
+
+  /* Intro Section */
+  .intro-section {
+    padding: var(--space-xl) 0 var(--space-2xl);
+  }
+
+  .intro-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+    max-width: 900px;
+    margin-inline: auto;
+  }
+
+  @media (min-width: 768px) {
+    .intro-grid {
+      grid-template-columns: 280px 1fr;
+      gap: var(--space-2xl);
+    }
+  }
+
+  .intro-portrait img {
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--border-radius-lg);
+    margin-inline: auto;
+    display: block;
+  }
+
+  .intro-text .lead {
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  @media (max-width: 767px) {
+    .intro-text {
+      text-align: center;
     }
   }
 
@@ -360,6 +391,7 @@
 
   .strip-scroll {
     display: flex;
+    justify-content: center;
     gap: var(--space-md);
     padding: 0 var(--container-padding);
     overflow-x: auto;
@@ -529,73 +561,43 @@
     margin: 0;
   }
 
-  /* Origin Section */
-  .origin-section {
-    position: relative;
-    min-height: 600px;
-    display: flex;
-    align-items: center;
+  /* Triple Showcase */
+  .triple-showcase {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+    padding: var(--space-lg) var(--container-padding);
+    max-width: 1200px;
+    margin-inline: auto;
   }
 
-  .origin-bg {
-    position: absolute;
-    inset: 0;
+  @media (min-width: 768px) {
+    .triple-showcase {
+      grid-template-columns: 1.5fr 1fr 1fr;
+      grid-template-rows: 200px 200px;
+    }
+
+    .triple-item--featured {
+      grid-row: span 2;
+    }
   }
 
-  .origin-bg img {
+  .triple-item {
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--border-radius-md);
+  }
+
+  .triple-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+    transition: transform 0.6s ease;
   }
 
-  .origin-overlay {
-    position: absolute;
-    inset: 0;
-    background: var(--overlay-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-2xl);
-  }
-
-  .origin-content {
-    text-align: center;
-    color: var(--color-text-contrast);
-    max-width: 700px;
-  }
-
-  .origin-content h1 {
-    font-family: var(--font-heading);
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-normal);
-    margin: 0 0 var(--space-lg);
-  }
-
-  @media (min-width: 768px) {
-    .origin-content h1 {
-      font-size: var(--font-size-3xl);
-    }
-  }
-
-  .origin-content h2 {
-    font-family: var(--font-heading);
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-normal);
-    margin: 0 0 var(--space-md);
-    opacity: 0.9;
-  }
-
-  .origin-content p {
-    font-size: var(--font-size-base);
-    line-height: var(--line-height-relaxed);
-    margin: 0;
-    opacity: 0.9;
-  }
-
-  @media (min-width: 768px) {
-    .origin-content p {
-      font-size: var(--font-size-lg);
-    }
+  .triple-item:hover img {
+    transform: scale(1.03);
   }
 
   /* Dual Showcase */
@@ -666,24 +668,37 @@
   ).matches;
 
   if (!prefersReducedMotion) {
-    // Hero Ken Burns effect
-    gsap.to('.hero-image', {
-      scale: 1.1,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '.gallery-hero',
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true,
-      },
+    // Section headers
+    const sectionHeaders = gsap.utils.toArray(
+      '.section-header'
+    ) as HTMLElement[];
+    sectionHeaders.forEach((header) => {
+      gsap.from(header.querySelector('h1'), {
+        scrollTrigger: {
+          trigger: header,
+          start: 'top 80%',
+          once: true,
+        },
+        opacity: 0,
+        y: 30,
+        duration: 0.8,
+        ease: 'power2.out',
+      });
     });
 
-    // Hero content entrance
-    gsap.from('.hero-content h1', {
+    // Intro section
+    gsap.from('.intro-portrait img', {
       opacity: 0,
-      y: 30,
+      scale: 0.95,
       duration: 0.8,
-      delay: 0.3,
+      ease: 'power2.out',
+    });
+
+    gsap.from('.intro-text', {
+      opacity: 0,
+      y: 20,
+      duration: 0.6,
+      delay: 0.2,
       ease: 'power2.out',
     });
 
@@ -790,29 +805,21 @@
       });
     });
 
-    // Origin section - parallax
-    gsap.to('.origin-bg img', {
-      yPercent: 20,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '.origin-section',
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: true,
-      },
-    });
-
-    gsap.from('.origin-content > *', {
-      scrollTrigger: {
-        trigger: '.origin-section',
-        start: 'top 60%',
-        once: true,
-      },
-      opacity: 0,
-      y: 30,
-      duration: 0.7,
-      stagger: 0.1,
-      ease: 'power2.out',
+    // Triple showcase
+    const tripleItems = gsap.utils.toArray('.triple-item') as HTMLElement[];
+    tripleItems.forEach((item, i) => {
+      gsap.from(item, {
+        scrollTrigger: {
+          trigger: item.closest('.triple-showcase'),
+          start: 'top 85%',
+          once: true,
+        },
+        opacity: 0,
+        y: 40,
+        duration: 0.6,
+        delay: i * 0.1,
+        ease: 'power2.out',
+      });
     });
 
     // Dual showcase
