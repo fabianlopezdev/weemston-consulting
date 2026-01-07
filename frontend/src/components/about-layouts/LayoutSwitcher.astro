@@ -1,0 +1,342 @@
+---
+interface Props {
+  currentLayout: number;
+}
+
+const { currentLayout } = Astro.props;
+
+const layouts = [
+  { id: 1, name: 'Editorial', description: 'Clean & minimal' },
+  { id: 2, name: 'Magazine', description: 'Two-column story' },
+  { id: 3, name: 'Collage', description: 'Image-rich narrative' },
+  { id: 4, name: 'Timeline', description: 'Journey through time' },
+  { id: 5, name: 'Gallery', description: 'Immersive photos' },
+];
+---
+
+<div class="layout-switcher" data-current={currentLayout}>
+  <button
+    class="switcher-toggle"
+    aria-label="Switch layout"
+    aria-expanded="false"
+  >
+    <span class="toggle-label">Layout {currentLayout}</span>
+    <svg
+      class="toggle-icon"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <rect x="3" y="3" width="7" height="7"></rect>
+      <rect x="14" y="3" width="7" height="7"></rect>
+      <rect x="14" y="14" width="7" height="7"></rect>
+      <rect x="3" y="14" width="7" height="7"></rect>
+    </svg>
+  </button>
+
+  <div class="switcher-panel" aria-hidden="true">
+    <div class="panel-header">
+      <span class="panel-title">Choose Layout</span>
+      <span class="panel-hint">Preview different designs</span>
+    </div>
+    <div class="layout-options">
+      {
+        layouts.map((layout) => (
+          <button
+            class:list={[
+              'layout-option',
+              { active: layout.id === currentLayout },
+            ]}
+            data-layout={layout.id}
+            aria-pressed={layout.id === currentLayout}
+          >
+            <span class="option-number">{layout.id}</span>
+            <div class="option-info">
+              <span class="option-name">{layout.name}</span>
+              <span class="option-description">{layout.description}</span>
+            </div>
+            {layout.id === currentLayout && (
+              <svg
+                class="option-check"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .layout-switcher {
+    position: fixed;
+    bottom: var(--space-lg);
+    right: var(--space-lg);
+    z-index: var(--z-fixed);
+    font-family: var(--font-sans);
+  }
+
+  .switcher-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-text);
+    color: var(--color-text-contrast);
+    border: none;
+    border-radius: var(--border-radius-full);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    box-shadow: var(--shadow-lg);
+    transition:
+      transform var(--transition-fast),
+      box-shadow var(--transition-fast);
+  }
+
+  .switcher-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .toggle-icon {
+    flex-shrink: 0;
+  }
+
+  .switcher-panel {
+    position: absolute;
+    bottom: calc(100% + var(--space-sm));
+    right: 0;
+    width: 280px;
+    background: var(--color-background);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--color-border);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition:
+      opacity var(--transition-fast),
+      visibility var(--transition-fast),
+      transform var(--transition-fast);
+  }
+
+  .layout-switcher.open .switcher-panel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .panel-header {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .panel-title {
+    display: block;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+  }
+
+  .panel-hint {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin-top: 2px;
+  }
+
+  .layout-options {
+    padding: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .layout-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: transparent;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    text-align: left;
+    transition: background var(--transition-fast);
+  }
+
+  .layout-option:hover {
+    background: var(--color-surface);
+  }
+
+  .layout-option.active {
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  }
+
+  .option-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--color-surface);
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+
+  .layout-option.active .option-number {
+    background: var(--color-primary);
+    color: var(--color-text-contrast);
+  }
+
+  .option-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .option-name {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+  }
+
+  .option-description {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+  }
+
+  .option-check {
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 640px) {
+    .layout-switcher {
+      bottom: var(--space-md);
+      right: var(--space-md);
+    }
+
+    .switcher-panel {
+      width: calc(100vw - var(--space-md) * 2);
+      right: 0;
+    }
+  }
+</style>
+
+<script>
+  class LayoutSwitcher {
+    private container: HTMLElement;
+    private toggle: HTMLButtonElement;
+    private panel: HTMLElement;
+    private options: NodeListOf<HTMLButtonElement>;
+    private isOpen = false;
+
+    constructor(container: HTMLElement) {
+      this.container = container;
+      this.toggle = container.querySelector(
+        '.switcher-toggle'
+      ) as HTMLButtonElement;
+      this.panel = container.querySelector('.switcher-panel') as HTMLElement;
+      this.options = container.querySelectorAll('.layout-option');
+
+      this.init();
+    }
+
+    private init() {
+      // Toggle panel
+      this.toggle.addEventListener('click', () => this.togglePanel());
+
+      // Close on outside click
+      document.addEventListener('click', (e) => {
+        if (!this.container.contains(e.target as Node)) {
+          this.closePanel();
+        }
+      });
+
+      // Close on escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') this.closePanel();
+      });
+
+      // Handle layout selection
+      this.options.forEach((option) => {
+        option.addEventListener('click', () => {
+          const layoutId = option.dataset.layout;
+          if (layoutId) this.selectLayout(parseInt(layoutId));
+        });
+      });
+
+      // Restore from localStorage
+      const saved = localStorage.getItem('aboutLayoutPreference');
+      if (saved) {
+        const current = parseInt(this.container.dataset.current || '1');
+        const savedInt = parseInt(saved);
+        if (savedInt !== current && savedInt >= 1 && savedInt <= 5) {
+          this.selectLayout(savedInt);
+        }
+      }
+    }
+
+    private togglePanel() {
+      if (this.isOpen) {
+        this.closePanel();
+      } else {
+        this.openPanel();
+      }
+    }
+
+    private openPanel() {
+      this.isOpen = true;
+      this.container.classList.add('open');
+      this.toggle.setAttribute('aria-expanded', 'true');
+      this.panel.setAttribute('aria-hidden', 'false');
+    }
+
+    private closePanel() {
+      this.isOpen = false;
+      this.container.classList.remove('open');
+      this.toggle.setAttribute('aria-expanded', 'false');
+      this.panel.setAttribute('aria-hidden', 'true');
+    }
+
+    private selectLayout(layoutId: number) {
+      localStorage.setItem('aboutLayoutPreference', layoutId.toString());
+
+      // Update URL and reload
+      const url = new URL(window.location.href);
+      url.searchParams.set('layout', layoutId.toString());
+      window.location.href = url.toString();
+    }
+  }
+
+  // Initialize
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.layout-switcher');
+    if (container) new LayoutSwitcher(container as HTMLElement);
+  });
+
+  // Also init on astro page transitions
+  document.addEventListener('astro:page-load', () => {
+    const container = document.querySelector('.layout-switcher');
+    if (container) new LayoutSwitcher(container as HTMLElement);
+  });
+</script>
