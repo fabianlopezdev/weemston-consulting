@@ -23,6 +23,7 @@ const {
 } = Astro.props;
 ---
 
+<div class="pill-nav-spacer"></div>
 <div class:list={['pill-nav', className]} data-mode={mode} style={style}>
   <div class="container">
     <div class="pill-nav__buttons">
@@ -52,12 +53,25 @@ const {
 
 <style>
   .pill-nav {
-    padding-block-start: clamp(6rem, 10vw, 8rem);
-    padding-block-end: var(--space-md);
-    position: sticky;
-    inset-block-start: var(--header-height);
+    padding-block: var(--space-md);
     background-color: var(--color-background);
     z-index: var(--z-sticky);
+  }
+
+  .pill-nav.is-sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+  }
+
+  .pill-nav-spacer {
+    display: none;
+  }
+
+  .pill-nav-spacer.is-active {
+    display: block;
   }
 
   .pill-nav .container {
@@ -130,6 +144,46 @@ const {
 
       const mode = (nav as HTMLElement).dataset.mode;
       const buttons = nav.querySelectorAll('[data-pill]');
+
+      // Sticky behavior for scroll mode
+      if (mode === 'scroll') {
+        const spacer = nav.previousElementSibling as HTMLElement;
+
+        // Store original position
+        let originalTop = (nav as HTMLElement).offsetTop;
+        let navHeight = (nav as HTMLElement).offsetHeight;
+
+        function updateSticky() {
+          const scrollY = window.scrollY;
+          const triggerPoint = originalTop;
+
+          if (scrollY >= triggerPoint) {
+            nav.classList.add('is-sticky');
+            if (spacer) {
+              spacer.classList.add('is-active');
+              spacer.style.height = `${navHeight}px`;
+            }
+          } else {
+            nav.classList.remove('is-sticky');
+            if (spacer) {
+              spacer.classList.remove('is-active');
+            }
+          }
+        }
+
+        // Recalculate positions on resize
+        function recalculatePositions() {
+          nav.classList.remove('is-sticky');
+          if (spacer) spacer.classList.remove('is-active');
+          originalTop = (nav as HTMLElement).offsetTop;
+          navHeight = (nav as HTMLElement).offsetHeight;
+          updateSticky();
+        }
+
+        window.addEventListener('scroll', updateSticky, { passive: true });
+        window.addEventListener('resize', recalculatePositions);
+        updateSticky();
+      }
 
       buttons.forEach((btn) => {
         btn.addEventListener('click', () => {
