@@ -101,12 +101,12 @@ const {
 const settings = await client.fetch(siteSettingsQuery);
 const siteColors = settings?.colors;
 
-// Resolve background color
+// Resolve background color (check gradient mode first, since colorType stays 'default' when hidden)
 const backgroundColor =
-  backgroundColorType === 'default'
-    ? null
-    : backgroundColorMode === 'gradient' && backgroundGradient
-      ? `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`
+  backgroundColorMode === 'gradient' && backgroundGradient
+    ? `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`
+    : backgroundColorType === 'default'
+      ? null
       : resolveColorSelection(
           {
             colorType: backgroundColorType,
@@ -370,7 +370,10 @@ function parsePortableTextContent(
 const contentParts = parsePortableTextContent(content || [], quote);
 ---
 
-<section class="founder-section" style={cssVars}>
+<section
+  class:list={['founder-section', { 'founder-section--no-image': !imageUrl }]}
+  style={cssVars}
+>
   <div class="container">
     <div
       class:list={[
@@ -419,6 +422,10 @@ const contentParts = parsePortableTextContent(content || [], quote);
   .founder-section {
     padding-bottom: var(--space-2xl);
     background: var(--founder-bg, transparent);
+  }
+
+  .founder-section--no-image {
+    padding-top: var(--space-2xl);
   }
 
   .founder-section__grid {
