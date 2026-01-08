@@ -847,6 +847,7 @@ export const approachPageQuery = groq`
       ${imageProjection}
     },
     // Highlight Section
+    highlightEnabled,
     highlightTitle,
     highlightTitleColorType,
     highlightTitleColorShade,

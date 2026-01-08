@@ -1036,11 +1036,21 @@ export default defineType({
 
     // Highlight Section
     {
+      name: 'highlightEnabled',
+      title: 'Show This Section',
+      type: 'boolean',
+      group: 'highlight',
+      fieldset: 'highlightFields',
+      initialValue: true,
+      description: 'Toggle visibility of the highlight section on the page.',
+    },
+    {
       name: 'highlightBackgroundColorMode',
       title: 'Background Color Mode',
       type: 'string',
       group: 'highlight',
       fieldset: 'highlightFields',
+      hidden: ({ parent }) => !parent?.highlightEnabled,
       options: {
         list: [
           { title: 'Solid', value: 'solid' },
@@ -1067,6 +1077,7 @@ export default defineType({
       },
       initialValue: 'accent',
       hidden: ({ parent }) =>
+        !parent?.highlightEnabled ||
         parent?.highlightBackgroundColorMode === 'gradient',
     },
     {
@@ -1077,6 +1088,7 @@ export default defineType({
       fieldset: 'highlightFields',
       initialValue: 0,
       hidden: ({ parent }) =>
+        !parent?.highlightEnabled ||
         parent?.highlightBackgroundColorType === 'custom' ||
         parent?.highlightBackgroundColorMode === 'gradient',
       validation: (Rule) => Rule.min(0).max(100).integer(),
@@ -1091,6 +1103,7 @@ export default defineType({
       group: 'highlight',
       fieldset: 'highlightFields',
       hidden: ({ parent }) =>
+        !parent?.highlightEnabled ||
         parent?.highlightBackgroundColorType !== 'custom' ||
         parent?.highlightBackgroundColorMode === 'gradient',
     },
@@ -1101,6 +1114,7 @@ export default defineType({
       group: 'highlight',
       fieldset: 'highlightFields',
       hidden: ({ parent }) =>
+        !parent?.highlightEnabled ||
         parent?.highlightBackgroundColorMode !== 'gradient',
       fields: [
         {
@@ -1198,6 +1212,7 @@ export default defineType({
       group: 'highlight',
       fieldset: 'highlightFields',
       initialValue: 'The Coaching Difference',
+      hidden: ({ parent }) => !parent?.highlightEnabled,
     },
     {
       name: 'highlightTitleColorType',
@@ -1214,6 +1229,7 @@ export default defineType({
         ],
       },
       initialValue: 'accent',
+      hidden: ({ parent }) => !parent?.highlightEnabled,
     },
     {
       name: 'highlightTitleColorShade',
@@ -1222,7 +1238,9 @@ export default defineType({
       group: 'highlight',
       fieldset: 'highlightFields',
       initialValue: 0,
-      hidden: ({ parent }) => parent?.highlightTitleColorType === 'custom',
+      hidden: ({ parent }) =>
+        !parent?.highlightEnabled ||
+        parent?.highlightTitleColorType === 'custom',
       validation: (Rule) => Rule.min(0).max(100).integer(),
       components: {
         input: BackgroundShadeInput,
@@ -1234,7 +1252,9 @@ export default defineType({
       type: 'simplerColor',
       group: 'highlight',
       fieldset: 'highlightFields',
-      hidden: ({ parent }) => parent?.highlightTitleColorType !== 'custom',
+      hidden: ({ parent }) =>
+        !parent?.highlightEnabled ||
+        parent?.highlightTitleColorType !== 'custom',
     },
     {
       name: 'highlightContent',
@@ -1243,6 +1263,7 @@ export default defineType({
       group: 'highlight',
       fieldset: 'highlightFields',
       description: 'Body paragraphs for the highlight section.',
+      hidden: ({ parent }) => !parent?.highlightEnabled,
     },
     {
       name: 'highlightTextColor',
@@ -1260,6 +1281,7 @@ export default defineType({
         direction: 'horizontal',
       },
       initialValue: 'base',
+      hidden: ({ parent }) => !parent?.highlightEnabled,
     },
 
     // Collage Section Fields
