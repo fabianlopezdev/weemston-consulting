@@ -1,0 +1,148 @@
+---
+/**
+ * AboutQuoteBanner - Full-width quote banner with colored background
+ * Matches PDF design with lavender/purple tinted background and italic text
+ */
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
+interface Props {
+  quote: string;
+  textColor?: 'base' | 'muted' | 'contrast';
+  backgroundColorMode?: 'solid' | 'gradient';
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
+}
+
+const {
+  quote,
+  textColor = 'base',
+  backgroundColorMode = 'solid',
+  backgroundColorType = 'accent',
+  backgroundColorShade = 85,
+  backgroundCustomColor,
+  backgroundGradient,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color (default to light accent tint like lavender)
+const backgroundColor =
+  backgroundColorMode === 'gradient' && backgroundGradient
+    ? `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`
+    : backgroundColorType === 'default'
+      ? 'color-mix(in srgb, var(--color-accent) 15%, white)'
+      : resolveColorSelection(
+          {
+            colorType: backgroundColorType,
+            shade: backgroundColorShade,
+            customColor: backgroundCustomColor,
+          },
+          siteColors
+        );
+
+// Text color mapping
+const textColorMap = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'var(--color-text-contrast)',
+};
+
+const cssVars = [
+  `--quote-bg: ${backgroundColor}`,
+  `--quote-text-color: ${textColorMap[textColor]}`,
+].join('; ');
+---
+
+<section class="quote-banner" style={cssVars}>
+  <div class="container">
+    <blockquote class="quote-banner__quote">
+      <p>"{quote}"</p>
+    </blockquote>
+  </div>
+</section>
+
+<style>
+  .quote-banner {
+    background: var(--quote-bg);
+    padding: var(--space-2xl) 0;
+  }
+
+  .container {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    padding-inline: var(--container-padding);
+  }
+
+  .quote-banner__quote {
+    margin: 0;
+    text-align: center;
+  }
+
+  .quote-banner__quote p {
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-style: italic;
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+    color: var(--quote-text-color);
+    margin: 0;
+    max-width: 800px;
+    margin-inline: auto;
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+
+  if (!prefersReducedMotion) {
+    const quotes = gsap.utils.toArray('.quote-banner__quote') as HTMLElement[];
+    quotes.forEach((quote) => {
+      gsap.from(quote, {
+        scrollTrigger: {
+          trigger: quote,
+          start: 'top 85%',
+          once: true,
+        },
+        opacity: 0,
+        y: 20,
+        duration: 0.7,
+        ease: 'power2.out',
+      });
+    });
+  }
+</script>

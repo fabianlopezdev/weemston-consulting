@@ -1,0 +1,212 @@
+---
+/**
+ * AboutCenteredText - Full-width centered text section
+ * Used for bio paragraphs and general content blocks
+ */
+import PortableText from '@components/sanity/PortableText.astro';
+import { resolveColorSelection } from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import type { PortableTextBlock } from '@portabletext/types';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface GradientColorData {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColorData;
+  endColor?: GradientColorData;
+}
+
+interface Props {
+  title?: string;
+  titleScriptPortion?: string;
+  content?: PortableTextBlock[];
+  textColor?: 'base' | 'muted' | 'contrast';
+  backgroundColorMode?: 'solid' | 'gradient';
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
+}
+
+const {
+  title,
+  titleScriptPortion,
+  content,
+  textColor = 'muted',
+  backgroundColorMode = 'solid',
+  backgroundColorType = 'default',
+  backgroundColorShade = 95,
+  backgroundCustomColor,
+  backgroundGradient,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve background color
+let backgroundColor = 'transparent';
+if (backgroundColorType !== 'default') {
+  backgroundColor =
+    backgroundColorMode === 'gradient' && backgroundGradient
+      ? `linear-gradient(${backgroundGradient.direction || '135deg'}, ${resolveColorSelection(backgroundGradient.startColor, siteColors)}, ${resolveColorSelection(backgroundGradient.endColor, siteColors)})`
+      : resolveColorSelection(
+          {
+            colorType: backgroundColorType,
+            shade: backgroundColorShade,
+            customColor: backgroundCustomColor,
+          },
+          siteColors
+        );
+}
+
+// Text color mapping
+const textColorMap = {
+  base: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  contrast: 'var(--color-text-contrast)',
+};
+
+// Process title for script portion
+const renderTitle = () => {
+  if (!title) return null;
+  if (!titleScriptPortion || !title.includes(titleScriptPortion)) {
+    return { full: title };
+  }
+  const parts = title.split(titleScriptPortion);
+  return {
+    before: parts[0] || '',
+    script: titleScriptPortion,
+    after: parts[1] || '',
+  };
+};
+
+const titleParts = renderTitle();
+const hasScriptPortion = titleParts && 'script' in titleParts;
+
+const cssVars = [
+  `--centered-bg: ${backgroundColor}`,
+  `--centered-text-color: ${textColorMap[textColor]}`,
+].join('; ');
+---
+
+<section class="centered-text" style={cssVars}>
+  <div class="container">
+    <div class="centered-text__content">
+      {
+        titleParts && (
+          <h2 class="centered-text__title">
+            {hasScriptPortion ? (
+              <>
+                {titleParts.before}
+                <span class="centered-text__title-script">
+                  {titleParts.script}
+                </span>
+                {titleParts.after}
+              </>
+            ) : (
+              titleParts.full
+            )}
+          </h2>
+        )
+      }
+      {content && <PortableText content={content} />}
+    </div>
+  </div>
+</section>
+
+<style>
+  .centered-text {
+    background: var(--centered-bg);
+    padding: var(--space-2xl) 0;
+  }
+
+  .container {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    padding-inline: var(--container-padding);
+  }
+
+  .centered-text__content {
+    max-width: 800px;
+    margin-inline: auto;
+    text-align: center;
+    color: var(--centered-text-color);
+  }
+
+  .centered-text__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: var(--font-weight-normal);
+    color: var(--color-text);
+    margin: 0 0 var(--space-lg);
+    line-height: 1.3;
+  }
+
+  .centered-text__title-script {
+    font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
+    font-style: italic;
+  }
+
+  .centered-text__content :global(p) {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-relaxed);
+    margin: 0 0 var(--space-md);
+  }
+
+  .centered-text__content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .centered-text__content :global(p:first-of-type) {
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+
+  if (!prefersReducedMotion) {
+    const sections = gsap.utils.toArray('.centered-text') as HTMLElement[];
+    sections.forEach((section) => {
+      const content = section.querySelector('.centered-text__content');
+      if (content) {
+        gsap.from(content.children, {
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 80%',
+            once: true,
+          },
+          opacity: 0,
+          y: 30,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'power2.out',
+        });
+      }
+    });
+  }
+</script>

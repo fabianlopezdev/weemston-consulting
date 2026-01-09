@@ -1,0 +1,85 @@
+---
+/**
+ * AboutFullWidthImage - Full-width panoramic image section
+ * Matches PDF design for team photos and landscape shots
+ */
+import Image from '@components/media/Image.astro';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+
+interface ImageData {
+  asset: SanityImageSource;
+  alt?: string;
+  hotspot?: { x: number; y: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface Props {
+  image: ImageData;
+  maxHeight?: number;
+}
+
+const { image, maxHeight } = Astro.props;
+
+const cssVars = maxHeight
+  ? [`--full-image-max-height: ${maxHeight}px`].join('; ')
+  : '';
+---
+
+<section class="full-width-image" style={cssVars}>
+  <figure class="full-width-image__figure">
+    <Image image={image} alt={image?.alt || 'Full width image'} sizes="100vw" />
+  </figure>
+</section>
+
+<style>
+  .full-width-image {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .full-width-image__figure {
+    margin: 0;
+    width: 100%;
+    max-height: var(--full-image-max-height, 600px);
+    overflow: hidden;
+  }
+
+  .full-width-image__figure :global(img),
+  .full-width-image__figure :global(.image-blur-wrapper) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    max-height: var(--full-image-max-height, 600px);
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+
+  if (!prefersReducedMotion) {
+    const images = gsap.utils.toArray('.full-width-image') as HTMLElement[];
+    images.forEach((section) => {
+      const figure = section.querySelector('.full-width-image__figure');
+      if (figure) {
+        gsap.from(figure, {
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 0,
+          scale: 0.98,
+          duration: 0.8,
+          ease: 'power2.out',
+        });
+      }
+    });
+  }
+</script>

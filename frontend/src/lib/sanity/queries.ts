@@ -685,21 +685,14 @@ export const contactPageQuery = groq`
   }
 `;
 
-// About Page (singleton)
+// About Page (singleton) - New section-based structure
 export const aboutPageQuery = groq`
   *[_type == "aboutPage"][0] {
     _id,
     title,
     metaDescription,
     ogImage,
-    // Hero Section
-    heroBackgroundColorType,
-    heroBackgroundColorMode,
-    heroBackgroundColorShade,
-    heroBackgroundCustomColor { label, value },
-    heroBackgroundGradient {
-      ${gradientProjection}
-    },
+    // Hero section fields
     heroHeading,
     heroHeadingHighlight,
     heroHighlightColorType,
@@ -711,55 +704,113 @@ export const aboutPageQuery = groq`
     heroDividerCustomColor { label, value },
     heroTagline,
     heroTaglineColor,
-    // About Sections
-    aboutSections[] {
-      _key,
-      title,
-      description[] {
-        ...,
-        markDefs[]
-      },
-      images[] {
-        ${imageProjection},
-        positionHorizontal,
-        positionVertical
-      },
-      // Background colors
-      backgroundColorMode,
-      backgroundColorType,
-      backgroundColorShade,
-      backgroundCustomColor { label, value },
-      backgroundGradient {
-        ${gradientProjection}
-      },
-      // Title colors
-      titleColorType,
-      titleColorShade,
-      titleCustomColor { label, value },
-      // Text color
-      descriptionTextColor
-    },
-    // Trusted By Section
-    trustedByBackgroundColorType,
-    trustedByBackgroundColorMode,
-    trustedByBackgroundColorShade,
-    trustedByBackgroundCustomColor { label, value },
-    trustedByBackgroundGradient {
+    heroBackgroundColorType,
+    heroBackgroundColorMode,
+    heroBackgroundColorShade,
+    heroBackgroundCustomColor { label, value },
+    heroBackgroundGradient {
       ${gradientProjection}
     },
-    trustedByTitle,
-    trustedByShowTitle,
-    trustedByTitleColorType,
-    trustedByTitleColorShade,
-    trustedByTitleCustomColor { label, value },
-    trustedByCaseStudies[]-> {
-      _id,
-      client,
-      clientLogo {
-        asset->{ _id, url, metadata { dimensions { width, height, aspectRatio } } },
-        alt, hotspot, crop
+    // Sections array with all section types
+    sections[] {
+      _key,
+      _type,
+      // Featured Image fields
+      _type == "featuredImage" => {
+        image {
+          ${imageProjection}
+        },
+        overlayText[] {
+          ...,
+          markDefs[]
+        },
+        textPosition,
+        textColorType,
+        textColorShade,
+        textCustomColor { label, value }
       },
-      logoVariant
+      // Centered Text fields
+      _type == "centeredText" => {
+        title,
+        titleScriptPortion,
+        content[] {
+          ...,
+          markDefs[]
+        },
+        textColor,
+        backgroundColorMode,
+        backgroundColorType,
+        backgroundColorShade,
+        backgroundCustomColor { label, value },
+        backgroundGradient {
+          ${gradientProjection}
+        }
+      },
+      // Two Column fields
+      _type == "twoColumn" => {
+        title,
+        titleScriptPortion,
+        subtitle,
+        content[] {
+          ...,
+          markDefs[]
+        },
+        images[] {
+          ${imageProjection}
+        },
+        imagePosition,
+        verticalAlign,
+        titleColorType,
+        titleColorShade,
+        titleCustomColor { label, value },
+        textColor,
+        backgroundColorMode,
+        backgroundColorType,
+        backgroundColorShade,
+        backgroundCustomColor { label, value },
+        backgroundGradient {
+          ${gradientProjection}
+        }
+      },
+      // Quote Banner fields
+      _type == "quoteBanner" => {
+        quote,
+        textColor,
+        backgroundColorMode,
+        backgroundColorType,
+        backgroundColorShade,
+        backgroundCustomColor { label, value },
+        backgroundGradient {
+          ${gradientProjection}
+        }
+      },
+      // Full Width Image fields
+      _type == "fullWidthImage" => {
+        image {
+          ${imageProjection}
+        },
+        maxHeight
+      },
+      // Two Photos fields
+      _type == "twoPhotos" => {
+        title,
+        titleScriptPortion,
+        description,
+        images[] {
+          ${imageProjection}
+        },
+        titleColorType,
+        titleColorShade,
+        titleCustomColor { label, value },
+        textColor,
+        backgroundColorMode,
+        backgroundColorType,
+        backgroundColorShade,
+        backgroundCustomColor { label, value },
+        backgroundGradient {
+          ${gradientProjection}
+        }
+      }
     }
   }
 `;

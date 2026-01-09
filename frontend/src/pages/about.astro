@@ -1,76 +1,88 @@
 ---
+/**
+ * About Page - Editorial layout with dynamic CMS sections
+ * Matches PDF design with photo collages, quotes, and two-column layouts
+ */
 import BaseLayout from '@layouts/BaseLayout.astro';
-import LayoutSwitcher from '@components/about-layouts/LayoutSwitcher.astro';
-import Layout1Editorial from '@components/about-layouts/Layout1Editorial.astro';
-import Layout2TwoColumn from '@components/about-layouts/Layout2TwoColumn.astro';
-import Layout3Collage from '@components/about-layouts/Layout3Collage.astro';
-import Layout4Timeline from '@components/about-layouts/Layout4Timeline.astro';
-import Layout5Gallery from '@components/about-layouts/Layout5Gallery.astro';
+import { sanityClient as client } from 'sanity:client';
+import { aboutPageQuery } from '@lib/sanity/queries';
 
-// Get layout from URL param, default to 1
-const url = new URL(Astro.request.url);
-const layoutParam = url.searchParams.get('layout');
-const currentLayout = layoutParam ? parseInt(layoutParam) : 1;
+// Import hero component (standard across internal pages)
+import InternalPageHero from '@components/sections/InternalPageHero.astro';
 
-// Validate layout number (1-5)
-const validLayout =
-  currentLayout >= 1 && currentLayout <= 5 ? currentLayout : 1;
+// Import section components
+import AboutFeaturedImage from '@components/sections/about/AboutFeaturedImage.astro';
+import AboutCenteredText from '@components/sections/about/AboutCenteredText.astro';
+import AboutTwoColumn from '@components/sections/about/AboutTwoColumn.astro';
+import AboutQuoteBanner from '@components/sections/about/AboutQuoteBanner.astro';
+import AboutFullWidthImage from '@components/sections/about/AboutFullWidthImage.astro';
+import AboutTwoPhotos from '@components/sections/about/AboutTwoPhotos.astro';
 
-const layoutNames = {
-  1: 'Editorial Minimal',
-  2: 'Two-Column Story',
-  3: 'Image Collage',
-  4: 'Timeline Journey',
-  5: 'Immersive Gallery',
-};
+// Fetch page data from Sanity
+const page = await client.fetch(aboutPageQuery);
 
-const title = `About Jessica Weeman | Weemston Consulting`;
+if (!page) {
+  return Astro.redirect('/404');
+}
+
+const title = page.title || 'About';
 const description =
-  'Meet Jessica Weeman, founder of Weemston Consulting. An operational strategist with 15+ years of experience helping organizations improve culture, optimize operations, and navigate change.';
+  page.metaDescription ||
+  'Learn more about Weemston Consulting and Jessica Weeman.';
+
+// Map section types to components
+const sectionComponents: Record<string, any> = {
+  featuredImage: AboutFeaturedImage,
+  centeredText: AboutCenteredText,
+  twoColumn: AboutTwoColumn,
+  quoteBanner: AboutQuoteBanner,
+  fullWidthImage: AboutFullWidthImage,
+  twoPhotos: AboutTwoPhotos,
+};
 ---
 
 <BaseLayout title={title} description={description}>
-  <!-- Layout indicator for development -->
-  <div class="layout-indicator">
-    <span
-      >Layout {validLayout}: {
-        layoutNames[validLayout as keyof typeof layoutNames]
-      }</span
-    >
+  {/* Hero Section */}
+  <InternalPageHero
+    heading={page.heroHeading}
+    headingHighlight={page.heroHeadingHighlight}
+    highlightColorType={page.heroHighlightColorType}
+    highlightColorShade={page.heroHighlightColorShade}
+    highlightCustomColor={page.heroHighlightCustomColor}
+    showDivider={page.heroShowDivider}
+    dividerColorType={page.heroDividerColorType}
+    dividerColorShade={page.heroDividerColorShade}
+    dividerCustomColor={page.heroDividerCustomColor}
+    tagline={page.heroTagline}
+    taglineColor={page.heroTaglineColor}
+    backgroundColorType={page.heroBackgroundColorType}
+    backgroundColorMode={page.heroBackgroundColorMode}
+    backgroundColorShade={page.heroBackgroundColorShade}
+    backgroundCustomColor={page.heroBackgroundCustomColor}
+    backgroundGradient={page.heroBackgroundGradient}
+  />
+
+  <div class="about-page">
+    {
+      page.sections?.map((section: any) => {
+        const Component = sectionComponents[section._type];
+        if (!Component) {
+          console.warn(`Unknown section type: ${section._type}`);
+          return null;
+        }
+        return <Component {...section} />;
+      })
+    }
   </div>
-
-  <!-- Render selected layout -->
-  {validLayout === 1 && <Layout1Editorial />}
-  {validLayout === 2 && <Layout2TwoColumn />}
-  {validLayout === 3 && <Layout3Collage />}
-  {validLayout === 4 && <Layout4Timeline />}
-  {validLayout === 5 && <Layout5Gallery />}
-
-  <!-- Layout Switcher -->
-  <LayoutSwitcher currentLayout={validLayout} />
 </BaseLayout>
 
-<style>
-  .layout-indicator {
-    position: fixed;
-    top: calc(var(--header-height) + var(--space-sm));
-    left: var(--space-md);
-    z-index: var(--z-fixed);
-    background: var(--color-text);
-    color: var(--color-text-contrast);
-    padding: var(--space-xs) var(--space-sm);
-    border-radius: var(--border-radius-full);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-    opacity: 0.9;
-    pointer-events: none;
-  }
+<style is:global>
+  /* Import Google Font for script titles */
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&display=swap');
 
-  @media (max-width: 640px) {
-    .layout-indicator {
-      top: auto;
-      bottom: calc(var(--space-lg) + 50px);
-      left: var(--space-md);
-    }
+  /* Alias for script font fallback */
+  .about-page {
+    --font-script:
+      'Cormorant Garamond', 'Playlist Script', 'Dancing Script', Georgia, serif;
   }
 </style>
