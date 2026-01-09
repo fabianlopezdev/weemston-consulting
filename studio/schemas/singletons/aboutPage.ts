@@ -578,13 +578,13 @@ export default defineType({
         'Build your About page by adding and reordering sections. Each section type has its own layout and styling options.',
       of: [
         // ==========================================
-        // FEATURED IMAGE SECTION
+        // SECTION TITLE
         // ==========================================
         defineArrayMember({
           type: 'object',
-          name: 'featuredImage',
-          title: 'Featured Image',
-          icon: () => '🖼️',
+          name: 'sectionTitle',
+          title: 'Section Title',
+          icon: () => '🏷️',
           fieldsets: [
             {
               name: 'content',
@@ -592,19 +592,50 @@ export default defineType({
               options: { collapsible: true, collapsed: false },
             },
             {
+              name: 'background',
+              title: '🎨 Background',
+              options: { collapsible: true, collapsed: false },
+            },
+            {
               name: 'colors',
-              title: '🎨 Colors',
+              title: '🎨 Text Colors',
               options: { collapsible: true, collapsed: true },
             },
           ],
           fields: [
+            // Background type toggle
             {
-              name: 'image',
-              title: 'Photo',
-              type: 'image',
+              name: 'backgroundType',
+              title: 'Background Type',
+              type: 'string',
+              fieldset: 'background',
+              options: {
+                list: [
+                  { title: 'Image', value: 'image' },
+                  { title: 'Color', value: 'color' },
+                ],
+                layout: 'radio',
+                direction: 'horizontal',
+              },
+              initialValue: 'image',
+            },
+            // Shared fields (always visible)
+            {
+              name: 'title',
+              title: 'Title',
+              type: 'portableText',
               fieldset: 'content',
               description:
-                'Full-width hero image with text overlay. The image will cover the full width of the container.',
+                'Main title (renders as H2). Use line breaks to separate lines. Use italic for script font styling.',
+              validation: (Rule) => Rule.required(),
+            },
+            // Image mode fields
+            {
+              name: 'image',
+              title: 'Background Image',
+              type: 'image',
+              fieldset: 'background',
+              description: 'Full-width background image.',
               options: { hotspot: true },
               fields: [
                 {
@@ -615,15 +646,8 @@ export default defineType({
                   validation: (Rule) => Rule.required(),
                 },
               ],
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: 'overlayText',
-              title: 'Overlay Text',
-              type: 'portableText',
-              fieldset: 'content',
-              description:
-                'Text that appears over the image. Use line breaks to separate lines. Use italic for script font styling.',
+              hidden: ({ parent }: { parent: { backgroundType?: string } }) =>
+                parent?.backgroundType === 'color',
             },
             {
               name: 'textPosition',
@@ -640,11 +664,54 @@ export default defineType({
                 direction: 'horizontal',
               },
               initialValue: 'left',
+              hidden: ({ parent }: { parent: { backgroundType?: string } }) =>
+                parent?.backgroundType === 'color',
             },
-            // Text color
+            // Color mode fields
             {
-              name: 'textColorType',
-              title: 'Text Color',
+              name: 'subtitle',
+              title: 'Subtitle',
+              type: 'portableText',
+              fieldset: 'content',
+              description:
+                'Optional subtitle below the title. Use italic for script font styling.',
+              hidden: ({ parent }: { parent: { backgroundType?: string } }) =>
+                parent?.backgroundType !== 'color',
+            },
+            // Background color fields (only for color mode)
+            ...backgroundColorFields.map((field) => ({
+              ...field,
+              fieldset: 'background',
+              hidden: ({
+                parent,
+              }: {
+                parent: {
+                  backgroundType?: string;
+                  backgroundColorMode?: string;
+                  backgroundColorType?: string;
+                };
+              }) => {
+                // First check if we're in image mode
+                if (parent?.backgroundType !== 'color') return true;
+                // Then apply original hidden logic if it exists
+                const originalHidden = field.hidden as
+                  | ((args: {
+                      parent: {
+                        backgroundColorMode?: string;
+                        backgroundColorType?: string;
+                      };
+                    }) => boolean)
+                  | undefined;
+                if (originalHidden) {
+                  return originalHidden({ parent });
+                }
+                return false;
+              },
+            })),
+            // Title color (always visible)
+            {
+              name: 'titleColorType',
+              title: 'Title Color',
               type: 'string',
               fieldset: 'colors',
               options: {
@@ -658,34 +725,100 @@ export default defineType({
               initialValue: 'primary',
             },
             {
-              name: 'textColorShade',
-              title: 'Text Shade',
+              name: 'titleColorShade',
+              title: 'Title Shade',
               type: 'number',
               fieldset: 'colors',
               initialValue: 0,
-              hidden: ({ parent }: { parent: { textColorType?: string } }) =>
-                parent?.textColorType === 'custom',
+              hidden: ({ parent }: { parent: { titleColorType?: string } }) =>
+                parent?.titleColorType === 'custom',
               validation: (Rule) => Rule.min(0).max(100).integer(),
               components: { input: BackgroundShadeInput },
             },
             {
-              name: 'textCustomColor',
-              title: 'Custom Text Color',
+              name: 'titleCustomColor',
+              title: 'Custom Title Color',
               type: 'simplerColor',
               fieldset: 'colors',
-              hidden: ({ parent }: { parent: { textColorType?: string } }) =>
-                parent?.textColorType !== 'custom',
+              hidden: ({ parent }: { parent: { titleColorType?: string } }) =>
+                parent?.titleColorType !== 'custom',
+            },
+            // Subtitle color (only for color mode)
+            {
+              name: 'subtitleColorType',
+              title: 'Subtitle Color',
+              type: 'string',
+              fieldset: 'colors',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'secondary',
+              hidden: ({ parent }: { parent: { backgroundType?: string } }) =>
+                parent?.backgroundType !== 'color',
+            },
+            {
+              name: 'subtitleColorShade',
+              title: 'Subtitle Shade',
+              type: 'number',
+              fieldset: 'colors',
+              initialValue: 0,
+              hidden: ({
+                parent,
+              }: {
+                parent: {
+                  backgroundType?: string;
+                  subtitleColorType?: string;
+                };
+              }) =>
+                parent?.backgroundType !== 'color' ||
+                parent?.subtitleColorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: { input: BackgroundShadeInput },
+            },
+            {
+              name: 'subtitleCustomColor',
+              title: 'Custom Subtitle Color',
+              type: 'simplerColor',
+              fieldset: 'colors',
+              hidden: ({
+                parent,
+              }: {
+                parent: {
+                  backgroundType?: string;
+                  subtitleColorType?: string;
+                };
+              }) =>
+                parent?.backgroundType !== 'color' ||
+                parent?.subtitleColorType !== 'custom',
             },
           ],
           preview: {
             select: {
+              title: 'title',
+              backgroundType: 'backgroundType',
               media: 'image',
             },
-            prepare({ media }) {
+            prepare({ title, backgroundType, media }) {
+              // Extract plain text from portable text array
+              const titleText =
+                title
+                  ?.map(
+                    (block: { children?: { text?: string }[] }) =>
+                      block.children?.map((child) => child.text).join('') || ''
+                  )
+                  .join(' ') || 'Section Title';
               return {
-                title: 'Featured Image',
-                subtitle: 'Image with text overlay',
-                media,
+                title: titleText,
+                subtitle:
+                  backgroundType === 'color'
+                    ? 'Color background'
+                    : 'Image background',
+                media: backgroundType === 'image' ? media : undefined,
               };
             },
           },

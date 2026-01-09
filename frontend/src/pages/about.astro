@@ -11,7 +11,7 @@ import { aboutPageQuery } from '@lib/sanity/queries';
 import InternalPageHero from '@components/sections/InternalPageHero.astro';
 
 // Import section components
-import AboutFeaturedImage from '@components/sections/about/AboutFeaturedImage.astro';
+import AboutSectionTitle from '@components/sections/about/AboutSectionTitle.astro';
 import AboutCenteredText from '@components/sections/about/AboutCenteredText.astro';
 import AboutTwoColumn from '@components/sections/about/AboutTwoColumn.astro';
 import AboutQuoteBanner from '@components/sections/about/AboutQuoteBanner.astro';
@@ -32,7 +32,7 @@ const description =
 
 // Map section types to components
 const sectionComponents: Record<string, any> = {
-  featuredImage: AboutFeaturedImage,
+  sectionTitle: AboutSectionTitle,
   centeredText: AboutCenteredText,
   twoColumn: AboutTwoColumn,
   quoteBanner: AboutQuoteBanner,

@@ -1,0 +1,433 @@
+---
+/**
+ * AboutSectionTitle - Section title with image or color/gradient background
+ * Title always renders as H2 with portable text support for line breaks
+ * Image mode: full-width image with title overlay, configurable position
+ * Color mode: solid/gradient background with centered title + optional subtitle
+ */
+import { PortableText } from 'astro-portabletext';
+import type { PortableTextBlock } from '@portabletext/types';
+import {
+  resolveColorSelection,
+  resolveGradient,
+} from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import { urlForImage } from '@lib/sanity/image';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface GradientColor {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColor;
+  endColor?: GradientColor;
+}
+
+interface ImageData {
+  asset: SanityImageSource;
+  alt?: string;
+  hotspot?: { x: number; y: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface Props {
+  backgroundType?: 'image' | 'color';
+  title?: PortableTextBlock[];
+  // Image mode
+  image?: ImageData;
+  textPosition?: 'left' | 'center' | 'right';
+  // Color mode
+  subtitle?: PortableTextBlock[];
+  backgroundColorMode?: 'solid' | 'gradient';
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
+  // Title color (both modes)
+  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  titleColorShade?: number;
+  titleCustomColor?: ColorData;
+  // Subtitle color (color mode)
+  subtitleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  subtitleColorShade?: number;
+  subtitleCustomColor?: ColorData;
+}
+
+const {
+  backgroundType = 'image',
+  title,
+  // Image mode
+  image,
+  textPosition = 'left',
+  // Color mode
+  subtitle,
+  backgroundColorMode = 'solid',
+  backgroundColorType = 'primary',
+  backgroundColorShade = 90,
+  backgroundCustomColor,
+  backgroundGradient,
+  // Title color
+  titleColorType = 'primary',
+  titleColorShade = 0,
+  titleCustomColor,
+  // Subtitle color
+  subtitleColorType = 'secondary',
+  subtitleColorShade = 0,
+  subtitleCustomColor,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve title color
+const titleColor = resolveColorSelection(
+  {
+    colorType: titleColorType,
+    shade: titleColorShade,
+    customColor: titleCustomColor,
+  },
+  siteColors
+);
+
+// Resolve subtitle color (for color mode)
+const subtitleColor = resolveColorSelection(
+  {
+    colorType: subtitleColorType,
+    shade: subtitleColorShade,
+    customColor: subtitleCustomColor,
+  },
+  siteColors
+);
+
+// Resolve background for color mode
+let backgroundColor = '#ffffff';
+if (backgroundType === 'color') {
+  if (backgroundColorMode === 'gradient' && backgroundGradient) {
+    backgroundColor = resolveGradient(backgroundGradient, siteColors);
+  } else {
+    backgroundColor = resolveColorSelection(
+      {
+        colorType: backgroundColorType,
+        shade: backgroundColorShade,
+        customColor: backgroundCustomColor,
+      },
+      siteColors
+    );
+  }
+}
+
+// Generate optimized image URL (for image mode)
+const imageUrl = image?.asset
+  ? urlForImage(image).width(1800).quality(85).auto('format').url()
+  : null;
+const imageAlt = image?.alt || 'Section background';
+
+const isImageMode = backgroundType === 'image';
+const isGradient = backgroundColorMode === 'gradient';
+
+const cssVars = [
+  `--section-title-color: ${titleColor}`,
+  `--section-subtitle-color: ${subtitleColor}`,
+  `--section-bg: ${backgroundColor}`,
+].join('; ');
+---
+
+{
+  title && title.length > 0 && (
+    <section
+      class={`section-title section-title--${backgroundType}`}
+      style={cssVars}
+    >
+      {isImageMode && image?.asset ? (
+        <div class="section-title__container">
+          <figure class="section-title__photo">
+            <img src={imageUrl} alt={imageAlt} loading="eager" />
+            <div
+              class={`section-title__overlay section-title__overlay--${textPosition}`}
+            >
+              <h2 class="section-title__heading">
+                <PortableText value={title} />
+              </h2>
+            </div>
+          </figure>
+        </div>
+      ) : (
+        <div
+          class="section-title__color-bg"
+          style={isGradient ? `background: ${backgroundColor}` : undefined}
+        >
+          <div class="section-title__content">
+            <h2 class="section-title__heading section-title__heading--centered">
+              <PortableText value={title} />
+            </h2>
+            {subtitle && subtitle.length > 0 && (
+              <div class="section-title__subtitle">
+                <PortableText value={subtitle} />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}
+
+<style>
+  .section-title {
+    padding-top: var(--space-lg);
+  }
+
+  /* ========================================
+     IMAGE MODE
+     ======================================== */
+  .section-title__container {
+    position: relative;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .section-title__photo {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 0;
+    width: 100%;
+    height: 500px;
+  }
+
+  .section-title__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top left;
+    display: block;
+  }
+
+  /* Text overlay - vertically centered */
+  .section-title__overlay {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 50%;
+    z-index: 1;
+    pointer-events: none;
+    text-align: center;
+  }
+
+  .section-title__overlay--left {
+    left: var(--space-xl);
+  }
+
+  .section-title__overlay--center {
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .section-title__overlay--right {
+    right: var(--space-xl);
+    left: auto;
+  }
+
+  /* Image mode heading */
+  .section-title__overlay .section-title__heading {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.2;
+    color: var(--section-title-color);
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.9);
+  }
+
+  /* Portable text paragraphs inside heading (image mode) */
+  .section-title__overlay .section-title__heading :global(p) {
+    margin: 0;
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Italic renders in script font (image mode) */
+  .section-title__overlay .section-title__heading :global(em) {
+    font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
+    font-size: 1.2em;
+    font-style: italic;
+  }
+
+  /* Bold styling (image mode) */
+  .section-title__overlay .section-title__heading :global(strong) {
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  /* ========================================
+     COLOR MODE
+     ======================================== */
+  .section-title__color-bg {
+    width: 100%;
+    height: 500px;
+    background-color: var(--section-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .section-title__content {
+    text-align: center;
+    padding: var(--space-lg);
+    max-width: 800px;
+  }
+
+  .section-title__heading--centered {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.2;
+    color: var(--section-title-color);
+    margin: 0 0 var(--space-sm) 0;
+  }
+
+  /* Portable text paragraphs inside heading (color mode) */
+  .section-title__heading--centered :global(p) {
+    margin: 0;
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Italic renders in script font (color mode) */
+  .section-title__heading--centered :global(em) {
+    font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
+    font-size: 1.2em;
+    font-style: italic;
+  }
+
+  /* Bold styling (color mode title) */
+  .section-title__heading--centered :global(strong) {
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  .section-title__subtitle {
+    color: var(--section-subtitle-color);
+    margin-top: var(--space-xs);
+  }
+
+  /* Portable text paragraphs inside subtitle */
+  .section-title__subtitle :global(p) {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.2;
+    color: inherit;
+    margin: 0;
+  }
+
+  /* Italic renders in script font (subtitle) */
+  .section-title__subtitle :global(em) {
+    font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
+    font-size: 1.2em;
+    font-style: italic;
+  }
+
+  /* Bold styling */
+  .section-title__subtitle :global(strong) {
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  /* ========================================
+     RESPONSIVE
+     ======================================== */
+  @media (max-width: 767px) {
+    .section-title__photo {
+      height: 350px;
+    }
+
+    .section-title__overlay {
+      max-width: 70%;
+    }
+
+    .section-title__overlay--left {
+      left: var(--space-md);
+    }
+
+    .section-title__overlay--right {
+      right: var(--space-md);
+    }
+
+    .section-title__overlay .section-title__heading {
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+    }
+
+    .section-title__color-bg {
+      height: 350px;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+
+  if (!prefersReducedMotion) {
+    const photo = document.querySelector('.section-title__photo');
+    const overlay = document.querySelector('.section-title__overlay');
+    const colorBg = document.querySelector('.section-title__color-bg');
+    const content = document.querySelector('.section-title__content');
+
+    // Image mode animations
+    if (photo) {
+      gsap.from(photo, {
+        opacity: 0,
+        y: 30,
+        scale: 0.98,
+        duration: 0.8,
+        ease: 'power2.out',
+      });
+    }
+
+    if (overlay) {
+      gsap.from(overlay, {
+        opacity: 0,
+        y: 20,
+        duration: 0.6,
+        delay: 0.3,
+        ease: 'power2.out',
+      });
+    }
+
+    // Color mode animations
+    if (colorBg && content) {
+      gsap.from(colorBg, {
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+      });
+
+      gsap.from(content.children, {
+        opacity: 0,
+        y: 20,
+        duration: 0.6,
+        delay: 0.2,
+        stagger: 0.1,
+        ease: 'power2.out',
+      });
+    }
+  }
+</script>

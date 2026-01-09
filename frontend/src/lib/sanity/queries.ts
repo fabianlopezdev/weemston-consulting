@@ -715,19 +715,38 @@ export const aboutPageQuery = groq`
     sections[] {
       _key,
       _type,
-      // Featured Image fields
-      _type == "featuredImage" => {
-        image {
-          ${imageProjection}
-        },
-        overlayText[] {
+      // Section Title fields
+      _type == "sectionTitle" => {
+        backgroundType,
+        title[] {
           ...,
           markDefs[]
         },
+        // Image mode fields
+        image {
+          ${imageProjection}
+        },
         textPosition,
-        textColorType,
-        textColorShade,
-        textCustomColor { label, value }
+        // Color mode fields
+        subtitle[] {
+          ...,
+          markDefs[]
+        },
+        backgroundColorMode,
+        backgroundColorType,
+        backgroundColorShade,
+        backgroundCustomColor { label, value },
+        backgroundGradient {
+          ${gradientProjection}
+        },
+        // Title color (always)
+        titleColorType,
+        titleColorShade,
+        titleCustomColor { label, value },
+        // Subtitle color (color mode)
+        subtitleColorType,
+        subtitleColorShade,
+        subtitleCustomColor { label, value }
       },
       // Centered Text fields
       _type == "centeredText" => {
