@@ -777,6 +777,9 @@ export const aboutPageQuery = groq`
         images[] {
           ${imageProjection}
         },
+        secondaryImage {
+          ${imageProjection}
+        },
         imagePosition,
         verticalAlign,
         titleColorType,

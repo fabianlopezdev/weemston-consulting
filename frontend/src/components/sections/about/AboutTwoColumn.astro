@@ -42,6 +42,7 @@ interface Props {
   subtitle?: string;
   content?: PortableTextBlock[];
   images?: ImageData[];
+  secondaryImage?: ImageData;
   imagePosition?: 'left' | 'right';
   verticalAlign?: 'start' | 'center' | 'end';
   titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
@@ -66,6 +67,7 @@ const {
   subtitle,
   content,
   images = [],
+  secondaryImage,
   imagePosition = 'left',
   verticalAlign = 'center',
   titleColorType = 'primary',
@@ -169,29 +171,42 @@ const cssVars = [
         )
       }
       <div class="two-column__content">
+        <div class="two-column__content-text">
+          {
+            titleParts && (
+              <h2 class="two-column__title">
+                {hasScriptPortion ? (
+                  <>
+                    {titleParts.before}
+                    <span class="two-column__title-script">
+                      {titleParts.script}
+                    </span>
+                    {titleParts.after}
+                  </>
+                ) : (
+                  titleParts.full
+                )}
+              </h2>
+            )
+          }
+          {subtitle && <p class="two-column__subtitle">{subtitle}</p>}
+          {
+            content && (
+              <div class="two-column__text">
+                <PortableText content={content} />
+              </div>
+            )
+          }
+        </div>
         {
-          titleParts && (
-            <h2 class="two-column__title">
-              {hasScriptPortion ? (
-                <>
-                  {titleParts.before}
-                  <span class="two-column__title-script">
-                    {titleParts.script}
-                  </span>
-                  {titleParts.after}
-                </>
-              ) : (
-                titleParts.full
-              )}
-            </h2>
-          )
-        }
-        {subtitle && <p class="two-column__subtitle">{subtitle}</p>}
-        {
-          content && (
-            <div class="two-column__text">
-              <PortableText content={content} />
-            </div>
+          secondaryImage?.asset && (
+            <figure class="two-column__secondary-image">
+              <Image
+                image={secondaryImage}
+                alt={secondaryImage?.alt || 'Secondary image'}
+                sizes="(max-width: 768px) 100vw, 45vw"
+              />
+            </figure>
           )
         }
       </div>
@@ -215,7 +230,7 @@ const cssVars = [
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-xl);
-    align-items: var(--two-column-align);
+    align-items: stretch; /* Both columns same height */
   }
 
   @media (min-width: 768px) {
@@ -235,22 +250,26 @@ const cssVars = [
 
   /* Image container */
   .two-column__images {
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Push images to bottom */
     gap: var(--space-sm);
   }
 
   /* Single image layout */
   .two-column__images--count-1 {
-    grid-template-columns: 1fr;
+    /* Single image takes natural height up to max */
   }
 
   .two-column__images--count-1 .two-column__image {
-    min-height: 300px;
+    min-height: 450px;
+    max-height: 700px;
   }
 
   @media (min-width: 768px) {
     .two-column__images--count-1 .two-column__image {
-      min-height: 400px;
+      min-height: 550px;
+      max-height: 800px;
     }
   }
 
@@ -336,6 +355,13 @@ const cssVars = [
   .two-column__content {
     display: flex;
     flex-direction: column;
+  }
+
+  /* Text wrapper - vertically centered in available space */
+  .two-column__content-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
   }
 
@@ -374,6 +400,32 @@ const cssVars = [
 
   .two-column__text :global(p:last-child) {
     margin-bottom: 0;
+  }
+
+  /* Match Centered Text - first paragraph is larger */
+  .two-column__text :global(p:first-of-type) {
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+  }
+
+  /* Secondary image - appears below text content */
+  .two-column__secondary-image {
+    margin: var(--space-lg) 0 0;
+    overflow: hidden;
+    border-radius: var(--border-radius-md);
+    flex-shrink: 0; /* Don't shrink, stay at bottom */
+  }
+
+  .two-column__secondary-image :global(img),
+  .two-column__secondary-image :global(.image-blur-wrapper) {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .two-column__secondary-image:hover :global(img) {
+    transform: scale(1.03);
   }
 </style>
 

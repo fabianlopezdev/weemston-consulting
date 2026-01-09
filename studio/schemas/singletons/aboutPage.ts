@@ -982,6 +982,23 @@ export default defineType({
               validation: (Rule) => Rule.max(3),
             },
             {
+              name: 'secondaryImage',
+              title: 'Secondary Image (below text)',
+              type: 'image',
+              fieldset: 'content',
+              description:
+                'Optional image that appears below the text content on the opposite side of main images',
+              options: { hotspot: true },
+              fields: [
+                {
+                  name: 'alt',
+                  title: 'Alt Text',
+                  type: 'string',
+                  validation: (Rule) => Rule.required(),
+                },
+              ],
+            },
+            {
               name: 'imagePosition',
               title: 'Image Position',
               type: 'string',
