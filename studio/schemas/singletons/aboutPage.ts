@@ -885,6 +885,41 @@ export default defineType({
               },
               initialValue: 'muted',
             },
+            // Title color
+            {
+              name: 'titleColorType',
+              title: 'Title Color',
+              type: 'string',
+              fieldset: 'colors',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'primary',
+            },
+            {
+              name: 'titleColorShade',
+              title: 'Title Shade',
+              type: 'number',
+              fieldset: 'colors',
+              initialValue: 0,
+              hidden: ({ parent }: { parent: { titleColorType?: string } }) =>
+                parent?.titleColorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: { input: BackgroundShadeInput },
+            },
+            {
+              name: 'titleCustomColor',
+              title: 'Custom Title Color',
+              type: 'simplerColor',
+              fieldset: 'colors',
+              hidden: ({ parent }: { parent: { titleColorType?: string } }) =>
+                parent?.titleColorType !== 'custom',
+            },
             ...backgroundColorFields.map((field) => ({
               ...field,
               fieldset: 'colors',
@@ -1012,6 +1047,23 @@ export default defineType({
                 direction: 'horizontal',
               },
               initialValue: 'left',
+            },
+            {
+              name: 'titlePosition',
+              title: 'Title Position',
+              type: 'string',
+              fieldset: 'layout',
+              options: {
+                list: [
+                  { title: 'Above Image', value: 'image' },
+                  { title: 'Above Text', value: 'text' },
+                ],
+                layout: 'radio',
+                direction: 'horizontal',
+              },
+              initialValue: 'image',
+              hidden: ({ parent }: { parent: { title?: string } }) =>
+                !parent?.title,
             },
             {
               name: 'verticalAlign',
@@ -1355,6 +1407,144 @@ export default defineType({
               return {
                 title: title || 'Two Photos',
                 subtitle: 'Two Photos Section',
+                media,
+              };
+            },
+          },
+        }),
+
+        // ==========================================
+        // TEXT WRAP SECTION (Magazine-style)
+        // ==========================================
+        defineArrayMember({
+          type: 'object',
+          name: 'textWrap',
+          title: 'Text Wrap (Magazine Style)',
+          icon: () => '📰',
+          fieldsets: [
+            {
+              name: 'content',
+              title: '📝 Content',
+              options: { collapsible: true, collapsed: false },
+            },
+            {
+              name: 'colors',
+              title: '🎨 Colors',
+              options: { collapsible: true, collapsed: true },
+            },
+          ],
+          fields: [
+            {
+              name: 'title',
+              title: 'Title',
+              type: 'string',
+              fieldset: 'content',
+            },
+            {
+              name: 'titleScriptPortion',
+              title: 'Script Font Portion',
+              type: 'string',
+              fieldset: 'content',
+              description:
+                'Enter exact text from title that should appear in script font',
+              hidden: ({ parent }: { parent: { title?: string } }) =>
+                !parent?.title,
+            },
+            {
+              name: 'content',
+              title: 'Content',
+              type: 'portableText',
+              fieldset: 'content',
+            },
+            {
+              name: 'images',
+              title: 'Images (Right Side)',
+              type: 'array',
+              fieldset: 'content',
+              description:
+                'Add exactly 2 images. First = top (narrower), Second = bottom (wider, overlaps first).',
+              of: [
+                {
+                  type: 'image',
+                  options: { hotspot: true },
+                  fields: [
+                    {
+                      name: 'alt',
+                      title: 'Alt Text',
+                      type: 'string',
+                      validation: (Rule) => Rule.required(),
+                    },
+                  ],
+                },
+              ],
+              validation: (Rule) =>
+                Rule.min(2).max(2).error('Exactly 2 images required'),
+            },
+            // Title color
+            {
+              name: 'titleColorType',
+              title: 'Title Color',
+              type: 'string',
+              fieldset: 'colors',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'primary',
+            },
+            {
+              name: 'titleColorShade',
+              title: 'Title Shade',
+              type: 'number',
+              fieldset: 'colors',
+              initialValue: 0,
+              hidden: ({ parent }: { parent: { titleColorType?: string } }) =>
+                parent?.titleColorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: { input: BackgroundShadeInput },
+            },
+            {
+              name: 'titleCustomColor',
+              title: 'Custom Title Color',
+              type: 'simplerColor',
+              fieldset: 'colors',
+              hidden: ({ parent }: { parent: { titleColorType?: string } }) =>
+                parent?.titleColorType !== 'custom',
+            },
+            {
+              name: 'textColor',
+              title: 'Text Color',
+              type: 'string',
+              fieldset: 'colors',
+              options: {
+                list: [
+                  { title: 'Base', value: 'base' },
+                  { title: 'Muted', value: 'muted' },
+                  { title: 'Contrast', value: 'contrast' },
+                ],
+                layout: 'radio',
+                direction: 'horizontal',
+              },
+              initialValue: 'muted',
+            },
+            ...backgroundColorFields.map((field) => ({
+              ...field,
+              fieldset: 'colors',
+            })),
+          ],
+          preview: {
+            select: {
+              title: 'title',
+              media: 'images.0',
+            },
+            prepare({ title, media }) {
+              return {
+                title: title || 'Text Wrap Section',
+                subtitle: 'Magazine-style text wrap',
                 media,
               };
             },

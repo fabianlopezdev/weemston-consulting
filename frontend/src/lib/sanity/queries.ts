@@ -757,6 +757,9 @@ export const aboutPageQuery = groq`
           markDefs[]
         },
         textColor,
+        titleColorType,
+        titleColorShade,
+        titleCustomColor { label, value },
         backgroundColorMode,
         backgroundColorType,
         backgroundColorShade,
@@ -781,6 +784,7 @@ export const aboutPageQuery = groq`
           ${imageProjection}
         },
         imagePosition,
+        titlePosition,
         verticalAlign,
         titleColorType,
         titleColorShade,
@@ -818,6 +822,29 @@ export const aboutPageQuery = groq`
         title,
         titleScriptPortion,
         description,
+        images[] {
+          ${imageProjection}
+        },
+        titleColorType,
+        titleColorShade,
+        titleCustomColor { label, value },
+        textColor,
+        backgroundColorMode,
+        backgroundColorType,
+        backgroundColorShade,
+        backgroundCustomColor { label, value },
+        backgroundGradient {
+          ${gradientProjection}
+        }
+      },
+      // Text Wrap (Magazine Style) fields
+      _type == "textWrap" => {
+        title,
+        titleScriptPortion,
+        content[] {
+          ...,
+          markDefs[]
+        },
         images[] {
           ${imageProjection}
         },

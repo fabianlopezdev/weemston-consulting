@@ -31,6 +31,9 @@ interface Props {
   titleScriptPortion?: string;
   content?: PortableTextBlock[];
   textColor?: 'base' | 'muted' | 'contrast';
+  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  titleColorShade?: number;
+  titleCustomColor?: ColorData;
   backgroundColorMode?: 'solid' | 'gradient';
   backgroundColorType?:
     | 'default'
@@ -48,6 +51,9 @@ const {
   titleScriptPortion,
   content,
   textColor = 'muted',
+  titleColorType = 'primary',
+  titleColorShade = 0,
+  titleCustomColor,
   backgroundColorMode = 'solid',
   backgroundColorType = 'default',
   backgroundColorShade = 95,
@@ -58,6 +64,16 @@ const {
 // Fetch site settings for colors
 const settings = await client.fetch(siteSettingsQuery);
 const siteColors = settings?.colors;
+
+// Resolve title color
+const titleColor = resolveColorSelection(
+  {
+    colorType: titleColorType,
+    shade: titleColorShade,
+    customColor: titleCustomColor,
+  },
+  siteColors
+);
 
 // Resolve background color
 let backgroundColor = 'transparent';
@@ -102,6 +118,7 @@ const hasScriptPortion = titleParts && 'script' in titleParts;
 const cssVars = [
   `--centered-bg: ${backgroundColor}`,
   `--centered-text-color: ${textColorMap[textColor]}`,
+  `--centered-title-color: ${titleColor}`,
 ].join('; ');
 ---
 
@@ -153,7 +170,7 @@ const cssVars = [
     font-family: var(--font-heading);
     font-size: var(--font-size-3xl);
     font-weight: var(--font-weight-normal);
-    color: var(--color-text);
+    color: var(--centered-title-color);
     margin: 0 0 var(--space-lg);
     line-height: 1.3;
   }

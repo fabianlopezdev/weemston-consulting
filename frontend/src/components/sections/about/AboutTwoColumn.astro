@@ -44,6 +44,7 @@ interface Props {
   images?: ImageData[];
   secondaryImage?: ImageData;
   imagePosition?: 'left' | 'right';
+  titlePosition?: 'image' | 'text';
   verticalAlign?: 'start' | 'center' | 'end';
   titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   titleColorShade?: number;
@@ -69,6 +70,7 @@ const {
   images = [],
   secondaryImage,
   imagePosition = 'left',
+  titlePosition = 'image',
   verticalAlign = 'center',
   titleColorType = 'primary',
   titleColorShade = 0,
@@ -155,7 +157,7 @@ const cssVars = [
     <div class="two-column__grid">
       <div class:list={['two-column__images', imageLayoutClass]}>
         {
-          titleParts && (
+          titleParts && titlePosition === 'image' && (
             <h3 class="two-column__title">
               {hasScriptPortion ? (
                 <>
@@ -185,6 +187,23 @@ const cssVars = [
       </div>
       <div class="two-column__content">
         <div class="two-column__content-text">
+          {
+            titleParts && titlePosition === 'text' && (
+              <h3 class="two-column__title">
+                {hasScriptPortion ? (
+                  <>
+                    {titleParts.before}
+                    <span class="two-column__title-script">
+                      {titleParts.script}
+                    </span>
+                    {titleParts.after}
+                  </>
+                ) : (
+                  titleParts.full
+                )}
+              </h3>
+            )
+          }
           {subtitle && <p class="two-column__subtitle">{subtitle}</p>}
           {
             content && (
