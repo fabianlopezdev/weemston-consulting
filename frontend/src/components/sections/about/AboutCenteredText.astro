@@ -110,7 +110,7 @@ const cssVars = [
     <div class="centered-text__content">
       {
         titleParts && (
-          <h2 class="centered-text__title">
+          <h3 class="centered-text__title">
             {hasScriptPortion ? (
               <>
                 {titleParts.before}
@@ -122,7 +122,7 @@ const cssVars = [
             ) : (
               titleParts.full
             )}
-          </h2>
+          </h3>
         )
       }
       {content && <PortableText content={content} />}
@@ -151,7 +151,7 @@ const cssVars = [
 
   .centered-text__title {
     font-family: var(--font-heading);
-    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-size: var(--font-size-3xl);
     font-weight: var(--font-weight-normal);
     color: var(--color-text);
     margin: 0 0 var(--space-lg);
