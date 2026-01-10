@@ -138,19 +138,21 @@ const cssVars = [
   <div class="container">
     <div class="text-wrap__flow">
       {
-        /* Each image floats individually - text wraps around each based on its width */
+        /* Images in a container with shape-outside for proper text wrapping around overlap */
       }
-      {
-        images.map((image, index) => (
-          <figure class={`text-wrap__image text-wrap__image--${index + 1}`}>
-            <Image
-              image={image}
-              alt={image?.alt || ''}
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </figure>
-        ))
-      }
+      <div class="text-wrap__images">
+        {
+          images.map((image, index) => (
+            <figure class={`text-wrap__image text-wrap__image--${index + 1}`}>
+              <Image
+                image={image}
+                alt={image?.alt || ''}
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </figure>
+          ))
+        }
+      </div>
 
       {/* Title flows beside images (not full width) */}
       {
@@ -203,10 +205,30 @@ const cssVars = [
     }
   }
 
+  /* Images container - floats right with custom shape for text wrap */
+  .text-wrap__images {
+    float: right;
+    width: 55%;
+    margin: 0 0 var(--space-md) var(--space-xl);
+    /* Define stepped shape: narrower at top (image-1), wider at bottom (image-2) */
+    shape-outside: polygon(
+      27% 0%,
+      100% 0%,
+      100% 38%,
+      0% 38%,
+      0% 100%,
+      100% 100%,
+      100% 38%,
+      27% 38%
+    );
+    shape-margin: var(--space-lg);
+  }
+
   /* Base image styles */
   .text-wrap__image {
     border-radius: var(--border-radius-md);
     overflow: hidden;
+    margin: 0;
   }
 
   .text-wrap__image :global(img),
@@ -222,22 +244,22 @@ const cssVars = [
     transform: scale(1.03);
   }
 
-  /* Top image - narrower, floated right */
+  /* Top image - narrower, aligned to right of container */
   .text-wrap__image--1 {
-    float: right;
-    clear: right;
-    width: 40%;
-    margin: 0 0 var(--space-md) var(--space-xl);
+    width: 72.7%; /* 40% / 55% of container */
+    margin-left: auto; /* Push to right */
     aspect-ratio: 4 / 3;
   }
 
-  /* Bottom image - wider, floated right below first */
+  /* Bottom image - full width, overlaps top image */
   .text-wrap__image--2 {
-    float: right;
-    clear: right;
-    width: 55%;
-    margin: 0 0 var(--space-md) var(--space-lg);
+    width: 100%;
+    margin-top: calc(
+      -1 * var(--space-md)
+    ); /* Overlap upward - minimal for more visibility of top image */
     aspect-ratio: 4 / 3;
+    position: relative;
+    z-index: 1;
   }
 
   .text-wrap__title {
@@ -271,11 +293,20 @@ const cssVars = [
 
   /* Mobile: Stack images above text */
   @media (max-width: 768px) {
-    .text-wrap__image--1,
-    .text-wrap__image--2 {
+    .text-wrap__images {
       float: none;
       width: 100%;
       margin: 0 0 var(--space-md) 0;
+      shape-outside: none;
+    }
+
+    .text-wrap__image--1 {
+      width: 100%;
+      margin-left: 0;
+    }
+
+    .text-wrap__image--2 {
+      margin-top: var(--space-md);
     }
 
     .text-wrap__title {
