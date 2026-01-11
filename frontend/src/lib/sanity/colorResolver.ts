@@ -218,6 +218,27 @@ export function resolveColorSelection(
 }
 
 /**
+ * Resolves a gradient to a CSS linear-gradient string
+ * @param gradient - The gradient object from Sanity
+ * @param siteColors - The site colors from settings
+ * @returns CSS linear-gradient string
+ */
+export function resolveGradient(
+  gradient: GradientData | null | undefined,
+  siteColors: SiteColors | null | undefined
+): string {
+  if (!gradient) {
+    return 'linear-gradient(135deg, #0066cc, #4ecdc4)';
+  }
+
+  const direction = gradient.direction || '135deg';
+  const startColor = resolveColorSelection(gradient.startColor, siteColors);
+  const endColor = resolveColorSelection(gradient.endColor, siteColors);
+
+  return `linear-gradient(${direction}, ${startColor}, ${endColor})`;
+}
+
+/**
  * Resolves background settings to CSS background value (flat structure)
  * @param backgroundSettings - The background settings object from Sanity
  * @param siteColors - The site colors from settings

@@ -588,7 +588,7 @@ export default defineType({
           fieldsets: [
             {
               name: 'content',
-              title: '📝 Content',
+              title: '📝 Title',
               options: { collapsible: true, collapsed: false },
             },
             {
@@ -625,8 +625,6 @@ export default defineType({
               title: 'Title',
               type: 'portableText',
               fieldset: 'content',
-              description:
-                'Main title (renders as H2). Use line breaks to separate lines. Use italic for script font styling.',
               validation: (Rule) => Rule.required(),
             },
             // Image mode fields
@@ -651,7 +649,7 @@ export default defineType({
             },
             {
               name: 'textPosition',
-              title: 'Text Position',
+              title: 'Title Position',
               type: 'string',
               fieldset: 'content',
               options: {
