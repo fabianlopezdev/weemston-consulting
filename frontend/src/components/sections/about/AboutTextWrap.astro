@@ -38,7 +38,6 @@ interface ImageData {
 
 interface Props {
   title?: string;
-  titleScriptPortion?: string;
   content?: PortableTextBlock[];
   images?: ImageData[];
   titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
@@ -59,7 +58,6 @@ interface Props {
 
 const {
   title,
-  titleScriptPortion,
   content,
   images = [],
   titleColorType = 'primary',
@@ -110,23 +108,6 @@ const textColorMap = {
   contrast: 'var(--color-text-contrast)',
 };
 
-// Process title for script portion
-const renderTitle = () => {
-  if (!title) return null;
-  if (!titleScriptPortion || !title.includes(titleScriptPortion)) {
-    return { full: title };
-  }
-  const parts = title.split(titleScriptPortion);
-  return {
-    before: parts[0] || '',
-    script: titleScriptPortion,
-    after: parts[1] || '',
-  };
-};
-
-const titleParts = renderTitle();
-const hasScriptPortion = titleParts && 'script' in titleParts;
-
 const cssVars = [
   `--text-wrap-bg: ${backgroundColor}`,
   `--text-wrap-title-color: ${titleColor}`,
@@ -155,21 +136,7 @@ const cssVars = [
       </div>
 
       {/* Title flows beside images (not full width) */}
-      {
-        titleParts && (
-          <h3 class="text-wrap__title">
-            {hasScriptPortion ? (
-              <>
-                {titleParts.before}
-                <span class="text-wrap__title-script">{titleParts.script}</span>
-                {titleParts.after}
-              </>
-            ) : (
-              titleParts.full
-            )}
-          </h3>
-        )
-      }
+      {title && <h3 class="text-wrap__title">{title}</h3>}
 
       {/* Text flows around the floated images */}
       {
@@ -186,7 +153,6 @@ const cssVars = [
 <style>
   .text-wrap {
     background: var(--text-wrap-bg);
-    padding: var(--space-2xl) 0;
   }
 
   .container {
@@ -270,11 +236,6 @@ const cssVars = [
     margin: 0 0 var(--space-lg);
     line-height: 1.3;
     /* Title does NOT clear floats - it flows beside images */
-  }
-
-  .text-wrap__title-script {
-    font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
-    font-style: italic;
   }
 
   .text-wrap__text {

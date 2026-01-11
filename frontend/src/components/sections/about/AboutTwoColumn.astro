@@ -38,7 +38,6 @@ interface ImageData {
 
 interface Props {
   title?: string;
-  titleScriptPortion?: string;
   content?: PortableTextBlock[];
   image?: ImageData;
   secondaryImage?: ImageData;
@@ -62,7 +61,6 @@ interface Props {
 
 const {
   title,
-  titleScriptPortion,
   content,
   image,
   secondaryImage,
@@ -116,23 +114,6 @@ const textColorMap = {
   contrast: 'var(--color-text-contrast)',
 };
 
-// Process title for script portion
-const renderTitle = () => {
-  if (!title) return null;
-  if (!titleScriptPortion || !title.includes(titleScriptPortion)) {
-    return { full: title };
-  }
-  const parts = title.split(titleScriptPortion);
-  return {
-    before: parts[0] || '',
-    script: titleScriptPortion,
-    after: parts[1] || '',
-  };
-};
-
-const titleParts = renderTitle();
-const hasScriptPortion = titleParts && 'script' in titleParts;
-
 const cssVars = [
   `--two-column-bg: ${backgroundColor}`,
   `--two-column-title-color: ${titleColor}`,
@@ -148,20 +129,8 @@ const cssVars = [
     <div class="two-column__grid">
       <div class="two-column__images">
         {
-          titleParts && titlePosition === 'image' && (
-            <h3 class="two-column__title">
-              {hasScriptPortion ? (
-                <>
-                  {titleParts.before}
-                  <span class="two-column__title-script">
-                    {titleParts.script}
-                  </span>
-                  {titleParts.after}
-                </>
-              ) : (
-                titleParts.full
-              )}
-            </h3>
+          title && titlePosition === 'image' && (
+            <h3 class="two-column__title">{title}</h3>
           )
         }
         {
@@ -179,20 +148,8 @@ const cssVars = [
       <div class="two-column__content">
         <div class="two-column__content-text">
           {
-            titleParts && titlePosition === 'text' && (
-              <h3 class="two-column__title">
-                {hasScriptPortion ? (
-                  <>
-                    {titleParts.before}
-                    <span class="two-column__title-script">
-                      {titleParts.script}
-                    </span>
-                    {titleParts.after}
-                  </>
-                ) : (
-                  titleParts.full
-                )}
-              </h3>
+            title && titlePosition === 'text' && (
+              <h3 class="two-column__title">{title}</h3>
             )
           }
           {
@@ -222,7 +179,6 @@ const cssVars = [
 <style>
   .two-column {
     background: var(--two-column-bg);
-    padding: var(--space-2xl) 0;
   }
 
   .container {
@@ -306,11 +262,6 @@ const cssVars = [
   /* When title is in images column, push it to top */
   .two-column__images .two-column__title {
     margin-bottom: auto;
-  }
-
-  .two-column__title-script {
-    font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
-    font-style: italic;
   }
 
   .two-column__text {

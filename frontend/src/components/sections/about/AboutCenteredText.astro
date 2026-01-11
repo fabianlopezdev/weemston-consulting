@@ -28,7 +28,6 @@ interface GradientData {
 
 interface Props {
   title?: string;
-  titleScriptPortion?: string;
   content?: PortableTextBlock[];
   textColor?: 'base' | 'muted' | 'contrast';
   titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
@@ -48,7 +47,6 @@ interface Props {
 
 const {
   title,
-  titleScriptPortion,
   content,
   textColor = 'muted',
   titleColorType = 'primary',
@@ -98,23 +96,6 @@ const textColorMap = {
   contrast: 'var(--color-text-contrast)',
 };
 
-// Process title for script portion
-const renderTitle = () => {
-  if (!title) return null;
-  if (!titleScriptPortion || !title.includes(titleScriptPortion)) {
-    return { full: title };
-  }
-  const parts = title.split(titleScriptPortion);
-  return {
-    before: parts[0] || '',
-    script: titleScriptPortion,
-    after: parts[1] || '',
-  };
-};
-
-const titleParts = renderTitle();
-const hasScriptPortion = titleParts && 'script' in titleParts;
-
 const cssVars = [
   `--centered-bg: ${backgroundColor}`,
   `--centered-text-color: ${textColorMap[textColor]}`,
@@ -125,23 +106,7 @@ const cssVars = [
 <section class="centered-text" style={cssVars}>
   <div class="container">
     <div class="centered-text__content">
-      {
-        titleParts && (
-          <h3 class="centered-text__title">
-            {hasScriptPortion ? (
-              <>
-                {titleParts.before}
-                <span class="centered-text__title-script">
-                  {titleParts.script}
-                </span>
-                {titleParts.after}
-              </>
-            ) : (
-              titleParts.full
-            )}
-          </h3>
-        )
-      }
+      {title && <h3 class="centered-text__title">{title}</h3>}
       {content && <PortableText content={content} />}
     </div>
   </div>
@@ -150,7 +115,6 @@ const cssVars = [
 <style>
   .centered-text {
     background: var(--centered-bg);
-    padding: var(--space-2xl) 0;
   }
 
   .container {
@@ -173,11 +137,6 @@ const cssVars = [
     color: var(--centered-title-color);
     margin: 0 0 var(--space-lg);
     line-height: 1.3;
-  }
-
-  .centered-text__title-script {
-    font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
-    font-style: italic;
   }
 
   .centered-text__content :global(p) {
