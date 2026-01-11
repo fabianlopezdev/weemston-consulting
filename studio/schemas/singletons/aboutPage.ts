@@ -1206,14 +1206,6 @@ export default defineType({
               ],
               validation: (Rule) => Rule.required(),
             },
-            {
-              name: 'maxHeight',
-              title: 'Max Height (px)',
-              type: 'number',
-              description:
-                'Optional maximum height in pixels. Leave empty for auto height.',
-              validation: (Rule) => Rule.min(100).max(1000),
-            },
           ],
           preview: {
             select: {
