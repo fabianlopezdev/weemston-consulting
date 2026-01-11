@@ -593,7 +593,7 @@ export default defineType({
             },
             {
               name: 'background',
-              title: '🎨 Background',
+              title: '🎨 Section Background',
               options: { collapsible: true, collapsed: false },
             },
             {
@@ -799,21 +799,12 @@ export default defineType({
           ],
           preview: {
             select: {
-              title: 'title',
               backgroundType: 'backgroundType',
               media: 'image',
             },
-            prepare({ title, backgroundType, media }) {
-              // Extract plain text from portable text array
-              const titleText =
-                title
-                  ?.map(
-                    (block: { children?: { text?: string }[] }) =>
-                      block.children?.map((child) => child.text).join('') || ''
-                  )
-                  .join(' ') || 'Section Title';
+            prepare({ backgroundType, media }) {
               return {
-                title: titleText,
+                title: 'Section Title',
                 subtitle:
                   backgroundType === 'color'
                     ? 'Color background'
@@ -926,13 +917,9 @@ export default defineType({
             })),
           ],
           preview: {
-            select: {
-              title: 'title',
-            },
-            prepare({ title }) {
+            prepare() {
               return {
-                title: title || 'Centered Text',
-                subtitle: 'Centered Text Section',
+                title: 'Centered Text',
               };
             },
           },
@@ -1139,14 +1126,11 @@ export default defineType({
           ],
           preview: {
             select: {
-              title: 'title',
-              imagePosition: 'imagePosition',
               media: 'images.0',
             },
-            prepare({ title, imagePosition, media }) {
+            prepare({ media }) {
               return {
-                title: title || 'Two Column Section',
-                subtitle: `Image ${imagePosition || 'left'}`,
+                title: 'Two Column Images and Text',
                 media,
               };
             },
@@ -1211,15 +1195,9 @@ export default defineType({
             })),
           ],
           preview: {
-            select: {
-              quote: 'quote',
-            },
-            prepare({ quote }) {
+            prepare() {
               return {
-                title:
-                  quote?.substring(0, 50) + (quote?.length > 50 ? '...' : '') ||
-                  'Quote Banner',
-                subtitle: 'Quote Banner Section',
+                title: 'Quote Banner',
               };
             },
           },
@@ -1261,12 +1239,10 @@ export default defineType({
           preview: {
             select: {
               media: 'image',
-              alt: 'image.alt',
             },
-            prepare({ media, alt }) {
+            prepare({ media }) {
               return {
-                title: alt || 'Full Width Image',
-                subtitle: 'Full Width Image Section',
+                title: 'Full Width Image',
                 media,
               };
             },
@@ -1400,13 +1376,11 @@ export default defineType({
           ],
           preview: {
             select: {
-              title: 'title',
               media: 'images.0',
             },
-            prepare({ title, media }) {
+            prepare({ media }) {
               return {
-                title: title || 'Two Photos',
-                subtitle: 'Two Photos Section',
+                title: 'Two Photos',
                 media,
               };
             },
@@ -1538,13 +1512,11 @@ export default defineType({
           ],
           preview: {
             select: {
-              title: 'title',
               media: 'images.0',
             },
-            prepare({ title, media }) {
+            prepare({ media }) {
               return {
-                title: title || 'Text Wrap Section',
-                subtitle: 'Magazine-style text wrap',
+                title: 'Text Wrapping Images',
                 media,
               };
             },
