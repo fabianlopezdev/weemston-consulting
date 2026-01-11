@@ -812,21 +812,13 @@ export const aboutPageQuery = groq`
       _type == "fullWidthImage" => {
         image {
           ${imageProjection}
-        },
-        maxHeight
+        }
       },
       // Two Photos fields
       _type == "twoPhotos" => {
-        title,
-        titleScriptPortion,
-        description,
         images[] {
           ${imageProjection}
         },
-        titleColorType,
-        titleColorShade,
-        titleCustomColor { label, value },
-        textColor,
         backgroundColorMode,
         backgroundColorType,
         backgroundColorShade,

@@ -1230,11 +1230,6 @@ export default defineType({
           icon: () => '🖼️🖼️',
           fieldsets: [
             {
-              name: 'content',
-              title: '📝 Content',
-              options: { collapsible: true, collapsed: false },
-            },
-            {
               name: 'colors',
               title: '🎨 Colors',
               options: { collapsible: true, collapsed: true },
@@ -1242,35 +1237,9 @@ export default defineType({
           ],
           fields: [
             {
-              name: 'title',
-              title: 'Title (optional)',
-              type: 'string',
-              fieldset: 'content',
-              description: 'Centered title above the photos',
-            },
-            {
-              name: 'titleScriptPortion',
-              title: 'Script Font Portion',
-              type: 'string',
-              fieldset: 'content',
-              description:
-                'Enter exact text from title that should appear in script font',
-              hidden: ({ parent }: { parent: { title?: string } }) =>
-                !parent?.title,
-            },
-            {
-              name: 'description',
-              title: 'Description (optional)',
-              type: 'text',
-              rows: 3,
-              fieldset: 'content',
-              description: 'Text below the title, above the photos',
-            },
-            {
               name: 'images',
               title: 'Photos',
               type: 'array',
-              fieldset: 'content',
               description: 'Add exactly 2 photos',
               of: [
                 {
@@ -1289,7 +1258,7 @@ export default defineType({
               validation: (Rule) =>
                 Rule.min(2).max(2).error('Exactly 2 photos required'),
             },
-            // Background color fields first
+            // Background color fields
             ...backgroundColorFields.map((field) => ({
               ...field,
               fieldset: 'colors',
@@ -1297,57 +1266,6 @@ export default defineType({
                 title: 'Background Color',
               }),
             })),
-            // Title color
-            {
-              name: 'titleColorType',
-              title: 'Title Color',
-              type: 'string',
-              fieldset: 'colors',
-              options: {
-                list: [
-                  { title: 'Primary', value: 'primary' },
-                  { title: 'Secondary', value: 'secondary' },
-                  { title: 'Accent', value: 'accent' },
-                  { title: 'Custom', value: 'custom' },
-                ],
-              },
-              initialValue: 'primary',
-            },
-            {
-              name: 'titleColorShade',
-              title: 'Title Shade',
-              type: 'number',
-              fieldset: 'colors',
-              initialValue: 0,
-              hidden: ({ parent }: { parent: { titleColorType?: string } }) =>
-                parent?.titleColorType === 'custom',
-              validation: (Rule) => Rule.min(0).max(100).integer(),
-              components: { input: BackgroundShadeInput },
-            },
-            {
-              name: 'titleCustomColor',
-              title: 'Custom Title Color',
-              type: 'simplerColor',
-              fieldset: 'colors',
-              hidden: ({ parent }: { parent: { titleColorType?: string } }) =>
-                parent?.titleColorType !== 'custom',
-            },
-            {
-              name: 'textColor',
-              title: 'Text Color',
-              type: 'string',
-              fieldset: 'colors',
-              options: {
-                list: [
-                  { title: 'Base', value: 'base' },
-                  { title: 'Muted', value: 'muted' },
-                  { title: 'Contrast', value: 'contrast' },
-                ],
-                layout: 'radio',
-                direction: 'horizontal',
-              },
-              initialValue: 'muted',
-            },
           ],
           preview: {
             select: {

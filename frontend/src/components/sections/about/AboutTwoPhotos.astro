@@ -1,7 +1,6 @@
 ---
 /**
- * AboutTwoPhotos - Two photos side by side with optional title and description
- * Matches PDF "A Personal Glimpse" section layout
+ * AboutTwoPhotos - Two photos side by side
  */
 import Image from '@components/media/Image.astro';
 import { resolveColorSelection } from '@lib/sanity/colorResolver';
@@ -34,14 +33,7 @@ interface ImageData {
 }
 
 interface Props {
-  title?: string;
-  titleScriptPortion?: string;
-  description?: string;
   images?: ImageData[];
-  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
-  titleColorShade?: number;
-  titleCustomColor?: ColorData;
-  textColor?: 'base' | 'muted' | 'contrast';
   backgroundColorMode?: 'solid' | 'gradient';
   backgroundColorType?:
     | 'default'
@@ -55,14 +47,7 @@ interface Props {
 }
 
 const {
-  title,
-  titleScriptPortion,
-  description,
   images = [],
-  titleColorType = 'primary',
-  titleColorShade = 0,
-  titleCustomColor,
-  textColor = 'muted',
   backgroundColorMode = 'solid',
   backgroundColorType = 'default',
   backgroundColorShade = 95,
@@ -90,71 +75,11 @@ if (backgroundColorType !== 'default') {
         );
 }
 
-// Resolve title color
-const titleColor = resolveColorSelection(
-  {
-    colorType: titleColorType,
-    shade: titleColorShade,
-    customColor: titleCustomColor,
-  },
-  siteColors
-);
-
-// Text color mapping
-const textColorMap = {
-  base: 'var(--color-text)',
-  muted: 'var(--color-text-muted)',
-  contrast: 'var(--color-text-contrast)',
-};
-
-// Process title for script portion
-const renderTitle = () => {
-  if (!title) return null;
-  if (!titleScriptPortion || !title.includes(titleScriptPortion)) {
-    return { full: title };
-  }
-  const parts = title.split(titleScriptPortion);
-  return {
-    before: parts[0] || '',
-    script: titleScriptPortion,
-    after: parts[1] || '',
-  };
-};
-
-const titleParts = renderTitle();
-const hasScriptPortion = titleParts && 'script' in titleParts;
-
-const cssVars = [
-  `--two-photos-bg: ${backgroundColor}`,
-  `--two-photos-title-color: ${titleColor}`,
-  `--two-photos-text-color: ${textColorMap[textColor]}`,
-].join('; ');
+const cssVars = [`--two-photos-bg: ${backgroundColor}`].join('; ');
 ---
 
 <section class="two-photos" style={cssVars}>
   <div class="container">
-    {
-      (title || description) && (
-        <div class="two-photos__header">
-          {titleParts && (
-            <h2 class="two-photos__title">
-              {hasScriptPortion ? (
-                <>
-                  {titleParts.before}
-                  <span class="two-photos__title-script">
-                    {titleParts.script}
-                  </span>
-                  {titleParts.after}
-                </>
-              ) : (
-                titleParts.full
-              )}
-            </h2>
-          )}
-          {description && <p class="two-photos__description">{description}</p>}
-        </div>
-      )
-    }
     {
       images[0] && images[1] && (
         <div class="two-photos__grid">
@@ -188,33 +113,6 @@ const cssVars = [
     max-width: var(--container-max-width);
     margin-inline: auto;
     padding-inline: var(--container-padding);
-  }
-
-  .two-photos__header {
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto var(--space-xl);
-  }
-
-  .two-photos__title {
-    font-family: var(--font-heading);
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    font-weight: var(--font-weight-normal);
-    font-style: italic;
-    color: var(--two-photos-title-color);
-    margin: 0 0 var(--space-md);
-    line-height: 1.3;
-  }
-
-  .two-photos__title-script {
-    font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
-  }
-
-  .two-photos__description {
-    font-size: var(--font-size-base);
-    line-height: var(--line-height-relaxed);
-    color: var(--two-photos-text-color);
-    margin: 0;
   }
 
   .two-photos__grid {
@@ -263,24 +161,7 @@ const cssVars = [
   if (!prefersReducedMotion) {
     const sections = gsap.utils.toArray('.two-photos') as HTMLElement[];
     sections.forEach((section) => {
-      const header = section.querySelector('.two-photos__header');
       const images = section.querySelectorAll('.two-photos__image');
-
-      // Animate header
-      if (header) {
-        gsap.from(header.children, {
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 80%',
-            once: true,
-          },
-          opacity: 0,
-          y: 20,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: 'power2.out',
-        });
-      }
 
       // Animate images
       if (images.length) {
@@ -294,7 +175,6 @@ const cssVars = [
           y: 30,
           duration: 0.7,
           stagger: 0.15,
-          delay: 0.2,
           ease: 'power2.out',
         });
       }
