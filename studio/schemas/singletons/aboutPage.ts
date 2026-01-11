@@ -858,22 +858,14 @@ export default defineType({
               fieldset: 'content',
               description: 'The main text content',
             },
-            {
-              name: 'textColor',
-              title: 'Text Color',
-              type: 'string',
+            // Background color fields first
+            ...backgroundColorFields.map((field) => ({
+              ...field,
               fieldset: 'colors',
-              options: {
-                list: [
-                  { title: 'Base', value: 'base' },
-                  { title: 'Muted', value: 'muted' },
-                  { title: 'Contrast', value: 'contrast' },
-                ],
-                layout: 'radio',
-                direction: 'horizontal',
-              },
-              initialValue: 'muted',
-            },
+              ...(field.name === 'backgroundColorMode' && {
+                title: 'Background Color',
+              }),
+            })),
             // Title color
             {
               name: 'titleColorType',
@@ -909,10 +901,22 @@ export default defineType({
               hidden: ({ parent }: { parent: { titleColorType?: string } }) =>
                 parent?.titleColorType !== 'custom',
             },
-            ...backgroundColorFields.map((field) => ({
-              ...field,
+            {
+              name: 'textColor',
+              title: 'Text Color',
+              type: 'string',
               fieldset: 'colors',
-            })),
+              options: {
+                list: [
+                  { title: 'Base', value: 'base' },
+                  { title: 'Muted', value: 'muted' },
+                  { title: 'Contrast', value: 'contrast' },
+                ],
+                layout: 'radio',
+                direction: 'horizontal',
+              },
+              initialValue: 'muted',
+            },
           ],
           preview: {
             prepare() {
@@ -1137,6 +1141,21 @@ export default defineType({
               fieldset: 'content',
               validation: (Rule) => Rule.required(),
             },
+            // Background color fields first
+            ...backgroundColorFields.map((field) => ({
+              ...field,
+              fieldset: 'colors',
+              ...(field.name === 'backgroundColorMode' && {
+                title: 'Background Color',
+              }),
+              // Override defaults for quote banner
+              ...(field.name === 'backgroundColorType' && {
+                initialValue: 'accent',
+              }),
+              ...(field.name === 'backgroundColorShade' && {
+                initialValue: 85,
+              }),
+            })),
             {
               name: 'textColor',
               title: 'Text Color',
@@ -1153,17 +1172,6 @@ export default defineType({
               },
               initialValue: 'base',
             },
-            ...backgroundColorFields.map((field) => ({
-              ...field,
-              fieldset: 'colors',
-              // Override defaults for quote banner
-              ...(field.name === 'backgroundColorType' && {
-                initialValue: 'accent',
-              }),
-              ...(field.name === 'backgroundColorShade' && {
-                initialValue: 85,
-              }),
-            })),
           ],
           preview: {
             prepare() {
@@ -1289,6 +1297,14 @@ export default defineType({
               validation: (Rule) =>
                 Rule.min(2).max(2).error('Exactly 2 photos required'),
             },
+            // Background color fields first
+            ...backgroundColorFields.map((field) => ({
+              ...field,
+              fieldset: 'colors',
+              ...(field.name === 'backgroundColorMode' && {
+                title: 'Background Color',
+              }),
+            })),
             // Title color
             {
               name: 'titleColorType',
@@ -1340,10 +1356,6 @@ export default defineType({
               },
               initialValue: 'muted',
             },
-            ...backgroundColorFields.map((field) => ({
-              ...field,
-              fieldset: 'colors',
-            })),
           ],
           preview: {
             select: {
@@ -1425,6 +1437,14 @@ export default defineType({
               validation: (Rule) =>
                 Rule.min(2).max(2).error('Exactly 2 images required'),
             },
+            // Background color fields first
+            ...backgroundColorFields.map((field) => ({
+              ...field,
+              fieldset: 'colors',
+              ...(field.name === 'backgroundColorMode' && {
+                title: 'Background Color',
+              }),
+            })),
             // Title color
             {
               name: 'titleColorType',
@@ -1476,10 +1496,6 @@ export default defineType({
               },
               initialValue: 'muted',
             },
-            ...backgroundColorFields.map((field) => ({
-              ...field,
-              fieldset: 'colors',
-            })),
           ],
           preview: {
             select: {
