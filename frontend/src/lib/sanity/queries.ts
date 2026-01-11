@@ -772,12 +772,11 @@ export const aboutPageQuery = groq`
       _type == "twoColumn" => {
         title,
         titleScriptPortion,
-        subtitle,
         content[] {
           ...,
           markDefs[]
         },
-        images[] {
+        image {
           ${imageProjection}
         },
         secondaryImage {
@@ -785,7 +784,6 @@ export const aboutPageQuery = groq`
         },
         imagePosition,
         titlePosition,
-        verticalAlign,
         titleColorType,
         titleColorShade,
         titleCustomColor { label, value },

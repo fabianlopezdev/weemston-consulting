@@ -933,13 +933,13 @@ export default defineType({
           icon: () => '⬛⬜',
           fieldsets: [
             {
-              name: 'content',
-              title: '📝 Content',
+              name: 'layout',
+              title: '📐 Columns Layout',
               options: { collapsible: true, collapsed: false },
             },
             {
-              name: 'layout',
-              title: '📐 Layout',
+              name: 'content',
+              title: '📝 Content',
               options: { collapsible: true, collapsed: false },
             },
             {
@@ -949,89 +949,21 @@ export default defineType({
             },
           ],
           fields: [
-            {
-              name: 'title',
-              title: 'Title',
-              type: 'string',
-              fieldset: 'content',
-            },
-            {
-              name: 'titleScriptPortion',
-              title: 'Script Font Portion',
-              type: 'string',
-              fieldset: 'content',
-              description:
-                'Enter exact text from title that should appear in script font',
-              hidden: ({ parent }: { parent: { title?: string } }) =>
-                !parent?.title,
-            },
-            {
-              name: 'subtitle',
-              title: 'Subtitle (Script Font)',
-              type: 'string',
-              fieldset: 'content',
-              description:
-                'Optional subtitle displayed in script font below the title',
-            },
-            {
-              name: 'content',
-              title: 'Content',
-              type: 'portableText',
-              fieldset: 'content',
-            },
-            {
-              name: 'images',
-              title: 'Images',
-              type: 'array',
-              fieldset: 'content',
-              description: 'Add 1-3 images for this section',
-              of: [
-                {
-                  type: 'image',
-                  options: { hotspot: true },
-                  fields: [
-                    {
-                      name: 'alt',
-                      title: 'Alt Text',
-                      type: 'string',
-                      validation: (Rule) => Rule.required(),
-                    },
-                  ],
-                },
-              ],
-              validation: (Rule) => Rule.max(3),
-            },
-            {
-              name: 'secondaryImage',
-              title: 'Secondary Image (below text)',
-              type: 'image',
-              fieldset: 'content',
-              description:
-                'Optional image that appears below the text content on the opposite side of main images',
-              options: { hotspot: true },
-              fields: [
-                {
-                  name: 'alt',
-                  title: 'Alt Text',
-                  type: 'string',
-                  validation: (Rule) => Rule.required(),
-                },
-              ],
-            },
+            // Layout fields first
             {
               name: 'imagePosition',
-              title: 'Image Position',
+              title: 'Where should the text appear?',
               type: 'string',
               fieldset: 'layout',
               options: {
                 list: [
-                  { title: 'Left', value: 'left' },
-                  { title: 'Right', value: 'right' },
+                  { title: 'Left Column', value: 'right' },
+                  { title: 'Right Column', value: 'left' },
                 ],
                 layout: 'radio',
                 direction: 'horizontal',
               },
-              initialValue: 'left',
+              initialValue: 'right',
             },
             {
               name: 'titlePosition',
@@ -1047,25 +979,70 @@ export default defineType({
                 direction: 'horizontal',
               },
               initialValue: 'image',
+            },
+            // Content fields
+            {
+              name: 'title',
+              title: 'Title (optional)',
+              type: 'string',
+              fieldset: 'content',
+            },
+            {
+              name: 'titleScriptPortion',
+              title: 'Script Font Portion',
+              type: 'string',
+              fieldset: 'content',
+              description:
+                'Enter exact text from title that should appear in script font',
               hidden: ({ parent }: { parent: { title?: string } }) =>
                 !parent?.title,
             },
             {
-              name: 'verticalAlign',
-              title: 'Vertical Alignment',
-              type: 'string',
-              fieldset: 'layout',
-              options: {
-                list: [
-                  { title: 'Top', value: 'start' },
-                  { title: 'Center', value: 'center' },
-                  { title: 'Bottom', value: 'end' },
-                ],
-                layout: 'radio',
-                direction: 'horizontal',
-              },
-              initialValue: 'center',
+              name: 'content',
+              title: 'Content',
+              type: 'portableText',
+              fieldset: 'content',
             },
+            {
+              name: 'image',
+              title: 'Image',
+              type: 'image',
+              fieldset: 'content',
+              options: { hotspot: true },
+              fields: [
+                {
+                  name: 'alt',
+                  title: 'Alt Text',
+                  type: 'string',
+                  validation: (Rule) => Rule.required(),
+                },
+              ],
+            },
+            {
+              name: 'secondaryImage',
+              title: 'Secondary Image (below text)',
+              type: 'image',
+              fieldset: 'content',
+              description: 'Optional image that appears below the text content',
+              options: { hotspot: true },
+              fields: [
+                {
+                  name: 'alt',
+                  title: 'Alt Text',
+                  type: 'string',
+                  validation: (Rule) => Rule.required(),
+                },
+              ],
+            },
+            // Background color fields first
+            ...backgroundColorFields.map((field) => ({
+              ...field,
+              fieldset: 'colors',
+              // Rename "Background Mode" to "Background Color"
+              ...(field.name === 'backgroundColorMode' && {
+                title: 'Background Color',
+              }),
+            })),
             // Title color
             {
               name: 'titleColorType',
@@ -1117,14 +1094,10 @@ export default defineType({
               },
               initialValue: 'muted',
             },
-            ...backgroundColorFields.map((field) => ({
-              ...field,
-              fieldset: 'colors',
-            })),
           ],
           preview: {
             select: {
-              media: 'images.0',
+              media: 'image',
             },
             prepare({ media }) {
               return {

@@ -39,13 +39,11 @@ interface ImageData {
 interface Props {
   title?: string;
   titleScriptPortion?: string;
-  subtitle?: string;
   content?: PortableTextBlock[];
-  images?: ImageData[];
+  image?: ImageData;
   secondaryImage?: ImageData;
   imagePosition?: 'left' | 'right';
   titlePosition?: 'image' | 'text';
-  verticalAlign?: 'start' | 'center' | 'end';
   titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
   titleColorShade?: number;
   titleCustomColor?: ColorData;
@@ -65,13 +63,11 @@ interface Props {
 const {
   title,
   titleScriptPortion,
-  subtitle,
   content,
-  images = [],
+  image,
   secondaryImage,
   imagePosition = 'left',
   titlePosition = 'image',
-  verticalAlign = 'center',
   titleColorType = 'primary',
   titleColorShade = 0,
   titleCustomColor,
@@ -137,15 +133,10 @@ const renderTitle = () => {
 const titleParts = renderTitle();
 const hasScriptPortion = titleParts && 'script' in titleParts;
 
-// Determine image layout based on count
-const imageCount = images.length;
-const imageLayoutClass = `two-column__images--count-${Math.min(imageCount, 3)}`;
-
 const cssVars = [
   `--two-column-bg: ${backgroundColor}`,
   `--two-column-title-color: ${titleColor}`,
   `--two-column-text-color: ${textColorMap[textColor]}`,
-  `--two-column-align: ${verticalAlign}`,
 ].join('; ');
 ---
 
@@ -155,7 +146,7 @@ const cssVars = [
 >
   <div class="container">
     <div class="two-column__grid">
-      <div class:list={['two-column__images', imageLayoutClass]}>
+      <div class="two-column__images">
         {
           titleParts && titlePosition === 'image' && (
             <h3 class="two-column__title">
@@ -174,15 +165,15 @@ const cssVars = [
           )
         }
         {
-          images.map((image, index) => (
-            <figure class={`two-column__image two-column__image--${index + 1}`}>
+          image?.asset && (
+            <figure class="two-column__image">
               <Image
                 image={image}
-                alt={image?.alt || `Image ${index + 1}`}
+                alt={image?.alt || 'Section image'}
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </figure>
-          ))
+          )
         }
       </div>
       <div class="two-column__content">
@@ -204,7 +195,6 @@ const cssVars = [
               </h3>
             )
           }
-          {subtitle && <p class="two-column__subtitle">{subtitle}</p>}
           {
             content && (
               <div class="two-column__text">
@@ -271,77 +261,8 @@ const cssVars = [
     gap: var(--space-sm);
   }
 
-  /* Single image layout */
-  .two-column__images--count-1 {
-    /* Single image takes natural height up to max */
-  }
-
-  .two-column__images--count-1 .two-column__image {
-    aspect-ratio: 3 / 4;
-    overflow: hidden;
-  }
-
-  /* Two image layout */
-  .two-column__images--count-2 {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto;
-  }
-
-  .two-column__images--count-2 .two-column__image--1 {
-    grid-column: span 2;
-    min-height: 250px;
-  }
-
-  .two-column__images--count-2 .two-column__image--2 {
-    grid-column: 2;
-    min-height: 180px;
-  }
-
-  @media (min-width: 768px) {
-    .two-column__images--count-2 {
-      grid-template-rows: 1fr 1fr;
-    }
-
-    .two-column__images--count-2 .two-column__image--1 {
-      grid-row: span 2;
-      grid-column: 1;
-      min-height: 100%;
-    }
-
-    .two-column__images--count-2 .two-column__image--2 {
-      grid-column: 2;
-      min-height: 100%;
-    }
-  }
-
-  /* Three image layout */
-  .two-column__images--count-3 {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-  }
-
-  .two-column__images--count-3 .two-column__image--1 {
-    grid-row: span 2;
-    min-height: 300px;
-  }
-
-  .two-column__images--count-3 .two-column__image--2,
-  .two-column__images--count-3 .two-column__image--3 {
-    min-height: 140px;
-  }
-
-  @media (min-width: 768px) {
-    .two-column__images--count-3 .two-column__image--1 {
-      min-height: 100%;
-    }
-
-    .two-column__images--count-3 .two-column__image--2,
-    .two-column__images--count-3 .two-column__image--3 {
-      min-height: 100%;
-    }
-  }
-
   .two-column__image {
+    aspect-ratio: 3 / 4;
     margin: 0;
     overflow: hidden;
     border-radius: var(--border-radius-md);
@@ -390,15 +311,6 @@ const cssVars = [
   .two-column__title-script {
     font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
     font-style: italic;
-  }
-
-  .two-column__subtitle {
-    font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
-    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-    font-style: italic;
-    color: var(--two-column-title-color);
-    margin: -0.5rem 0 var(--space-lg);
-    opacity: 0.8;
   }
 
   .two-column__text {
