@@ -856,6 +856,7 @@ export const aboutPageQuery = groq`
         image {
           ${imageProjection}
         },
+        imagePosition,
         backgroundColorMode,
         backgroundColorType,
         backgroundColorShade,

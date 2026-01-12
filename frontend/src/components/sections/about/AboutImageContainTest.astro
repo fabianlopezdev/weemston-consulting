@@ -42,6 +42,7 @@ interface ImageData {
 interface Props {
   title?: PortableTextBlock[];
   image?: ImageData;
+  imagePosition?: 'left' | 'right';
   // Background color
   backgroundColorMode?: 'solid' | 'gradient';
   backgroundColorType?:
@@ -62,6 +63,7 @@ interface Props {
 const {
   title,
   image,
+  imagePosition = 'right',
   backgroundColorMode = 'solid',
   backgroundColorType = 'default',
   backgroundColorShade = 95,
@@ -119,7 +121,7 @@ const cssVars = [
   image?.asset && (
     <section class="image-contain-test" style={cssVars}>
       <div
-        class="image-contain-test__container"
+        class={`image-contain-test__container${imagePosition === 'left' ? ' image-contain-test__container--image-left' : ''}`}
         style={isGradient ? `background: ${backgroundColor}` : undefined}
       >
         <div class="image-contain-test__text">
@@ -199,6 +201,22 @@ const cssVars = [
     height: 100%;
     width: auto;
     max-height: 500px;
+  }
+
+  /* Image on left */
+  .image-contain-test__container--image-left {
+    flex-direction: row-reverse;
+  }
+
+  .image-contain-test__container--image-left
+    .image-contain-test__image-wrapper {
+    justify-content: flex-start;
+  }
+
+  .image-contain-test__container--image-left
+    .image-contain-test__image-wrapper
+    img {
+    object-position: top left;
   }
 
   /* Responsive */

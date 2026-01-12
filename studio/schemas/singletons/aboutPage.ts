@@ -1422,8 +1422,7 @@ export default defineType({
               title: 'Image',
               type: 'image',
               fieldset: 'content',
-              description:
-                'Image will display with object-fit: contain on the right side.',
+              description: 'Image will display with object-fit: contain.',
               options: { hotspot: true },
               fields: [
                 {
@@ -1433,6 +1432,21 @@ export default defineType({
                   validation: (Rule) => Rule.required(),
                 },
               ],
+            },
+            {
+              name: 'imagePosition',
+              title: 'Image Position',
+              type: 'string',
+              fieldset: 'content',
+              description: 'Choose which side the image appears on',
+              options: {
+                list: [
+                  { title: 'Left', value: 'left' },
+                  { title: 'Right', value: 'right' },
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'right',
             },
             // Background color fields
             ...backgroundColorFields.map((field) => ({
