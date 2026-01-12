@@ -1,10 +1,26 @@
 import { Card, Text, Flex, Box, Stack, Button } from '@sanity/ui';
 import { HiInformationCircle, HiPlus } from 'react-icons/hi';
 import { useClient } from 'sanity';
-import { IntentLink } from 'sanity/router';
-import { useState, useEffect } from 'react';
+import { IntentLink, type IntentLinkProps } from 'sanity/router';
+import { useState, useEffect, forwardRef } from 'react';
+import type { HTMLProps, ForwardedRef } from 'react';
 
-interface DocumentListWithBannerOptions {
+// Wrapper components to properly type the IntentLink props
+const CreateIntentLink = forwardRef(function CreateIntentLink(
+  props: IntentLinkProps & HTMLProps<HTMLAnchorElement>,
+  ref: ForwardedRef<HTMLAnchorElement>
+) {
+  return <IntentLink {...props} ref={ref} />;
+});
+
+const EditIntentLink = forwardRef(function EditIntentLink(
+  props: IntentLinkProps & HTMLProps<HTMLAnchorElement>,
+  ref: ForwardedRef<HTMLAnchorElement>
+) {
+  return <IntentLink {...props} ref={ref} />;
+});
+
+export interface DocumentListWithBannerOptions {
   schemaType: string;
   message: string;
 }
@@ -17,12 +33,19 @@ interface SanityDocument {
   client?: string;
 }
 
-export function DocumentListWithBanner(props: {
-  options?: DocumentListWithBannerOptions;
-}) {
+// Props that Sanity's S.component() passes to custom components
+interface SanityComponentProps {
+  id: string;
+  paneKey: string;
+  itemId: string;
+  options?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export function DocumentListWithBanner(props: SanityComponentProps) {
   const { options } = props;
-  const message = options?.message || '';
-  const schemaType = options?.schemaType || '';
+  const message = (options?.message as string) || '';
+  const schemaType = (options?.schemaType as string) || '';
 
   const client = useClient({ apiVersion: '2024-01-01' });
   const [documents, setDocuments] = useState<SanityDocument[]>([]);
@@ -80,7 +103,8 @@ export function DocumentListWithBanner(props: {
       <Box padding={3}>
         <Box marginBottom={3}>
           <Button
-            as={IntentLink}
+            as={CreateIntentLink}
+            // @ts-expect-error - IntentLink props are passed through
             intent="create"
             params={{ type: schemaType }}
             icon={HiPlus}
@@ -102,7 +126,8 @@ export function DocumentListWithBanner(props: {
             {documents.map((doc) => (
               <Card
                 key={doc._id}
-                as={IntentLink}
+                as={EditIntentLink}
+                // @ts-expect-error - IntentLink props are passed through
                 intent="edit"
                 params={{ id: doc._id, type: doc._type }}
                 padding={3}

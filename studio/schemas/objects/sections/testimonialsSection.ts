@@ -415,10 +415,11 @@ export default defineType({
           const parent = context.parent as { enabled?: boolean };
           if (!parent?.enabled) return true;
 
-          if (!value || value.length === 0) {
+          const items = value as unknown[] | undefined;
+          if (!items || items.length === 0) {
             return 'At least 1 testimonial required when section is enabled';
           }
-          if (value.length > 6) {
+          if (items.length > 6) {
             return 'Maximum 6 testimonials allowed';
           }
           return true;

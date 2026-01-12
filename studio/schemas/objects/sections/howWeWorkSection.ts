@@ -147,7 +147,8 @@ export default defineType({
           const parent = context.parent as { enabled?: boolean };
           if (!parent?.enabled) return true;
 
-          if (!value || value.length === 0) {
+          const items = value as unknown[] | undefined;
+          if (!items || items.length === 0) {
             return 'At least 1 card required when section is enabled';
           }
           return true;

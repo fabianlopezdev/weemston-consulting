@@ -1,3 +1,5 @@
+import type { Rule } from 'sanity';
+
 // Sanity i18n configuration for field-level translations
 export const supportedLanguages = [
   { id: 'en', title: 'English', isDefault: true },
@@ -30,7 +32,7 @@ export function createI18nField(
 // Helper to create consistent language field for documents
 // Hidden when only one language is configured
 export function defineLanguageField() {
-  return {
+  const baseField = {
     name: 'language',
     title: 'Language',
     type: 'string',
@@ -41,8 +43,8 @@ export function defineLanguageField() {
       })),
     },
     initialValue: baseLanguage?.id,
-    validation: (Rule) =>
-      Rule.custom((value) => {
+    validation: (rule: Rule) =>
+      rule.custom((value) => {
         // Only require language field in multi-language setups where it's visible
         if (isMultiLanguage && !value) {
           return 'Language is required';
@@ -51,8 +53,12 @@ export function defineLanguageField() {
       }),
     readOnly: true,
     hidden: !isMultiLanguage,
-    description: isMultiLanguage
-      ? 'Language for this document version'
-      : undefined,
   };
+
+  // Only add description property when multi-language is enabled
+  // (avoids exactOptionalPropertyTypes issues with undefined)
+  if (isMultiLanguage) {
+    return { ...baseField, description: 'Language for this document version' };
+  }
+  return baseField;
 }
