@@ -1,7 +1,7 @@
 ---
 /**
- * AboutImageContainTest - Test section with object-fit: contain image
- * Image displays on the right with contain behavior, title on the left
+ * AboutTitleWithSideImage - Section with title and side image
+ * Image displays on either side with contain behavior
  * Background color fills the empty space
  */
 import { PortableText } from 'astro-portabletext';
@@ -119,19 +119,19 @@ const cssVars = [
 
 {
   image?.asset && (
-    <section class="image-contain-test" style={cssVars}>
+    <section class="title-side-image" style={cssVars}>
       <div
-        class={`image-contain-test__container${imagePosition === 'left' ? ' image-contain-test__container--image-left' : ''}`}
+        class={`title-side-image__container${imagePosition === 'left' ? ' title-side-image__container--image-left' : ''}`}
         style={isGradient ? `background: ${backgroundColor}` : undefined}
       >
-        <div class="image-contain-test__text">
+        <div class="title-side-image__text">
           {title && title.length > 0 && (
-            <h2 class="image-contain-test__heading">
+            <h2 class="title-side-image__heading">
               <PortableText value={title} />
             </h2>
           )}
         </div>
-        <div class="image-contain-test__image-wrapper">
+        <div class="title-side-image__image-wrapper">
           <img src={imageUrl} alt={imageAlt} loading="eager" />
         </div>
       </div>
@@ -140,18 +140,18 @@ const cssVars = [
 }
 
 <style>
-  .image-contain-test {
+  .title-side-image {
     overflow: hidden;
   }
 
-  .image-contain-test__container {
+  .title-side-image__container {
     display: flex;
     height: 500px;
     background-color: var(--section-bg);
     overflow: hidden;
   }
 
-  .image-contain-test__text {
+  .title-side-image__text {
     flex: 1;
     display: flex;
     align-items: center;
@@ -160,7 +160,7 @@ const cssVars = [
     text-align: center;
   }
 
-  .image-contain-test__heading {
+  .title-side-image__heading {
     font-family: var(--font-heading);
     font-size: clamp(2rem, 5vw, 3.5rem);
     font-weight: var(--font-weight-normal);
@@ -170,24 +170,24 @@ const cssVars = [
     text-align: center;
   }
 
-  .image-contain-test__heading :global(p) {
+  .title-side-image__heading :global(p) {
     margin: 0;
     font: inherit;
     color: inherit;
     text-align: center;
   }
 
-  .image-contain-test__heading :global(em) {
+  .title-side-image__heading :global(em) {
     font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
     font-size: 1.2em;
     font-style: italic;
   }
 
-  .image-contain-test__heading :global(strong) {
+  .title-side-image__heading :global(strong) {
     font-weight: var(--font-weight-bold, 700);
   }
 
-  .image-contain-test__image-wrapper {
+  .title-side-image__image-wrapper {
     flex-shrink: 0;
     display: flex;
     align-items: flex-start;
@@ -195,7 +195,7 @@ const cssVars = [
     height: 500px;
   }
 
-  .image-contain-test__image-wrapper img {
+  .title-side-image__image-wrapper img {
     object-fit: contain;
     object-position: top right;
     height: 100%;
@@ -204,42 +204,41 @@ const cssVars = [
   }
 
   /* Image on left */
-  .image-contain-test__container--image-left {
+  .title-side-image__container--image-left {
     flex-direction: row-reverse;
   }
 
-  .image-contain-test__container--image-left
-    .image-contain-test__image-wrapper {
+  .title-side-image__container--image-left .title-side-image__image-wrapper {
     justify-content: flex-start;
   }
 
-  .image-contain-test__container--image-left
-    .image-contain-test__image-wrapper
+  .title-side-image__container--image-left
+    .title-side-image__image-wrapper
     img {
     object-position: top left;
   }
 
   /* Responsive */
   @media (max-width: 767px) {
-    .image-contain-test__container {
+    .title-side-image__container {
       flex-direction: column;
       height: auto;
       min-height: 400px;
     }
 
-    .image-contain-test__text {
+    .title-side-image__text {
       padding: var(--space-lg);
       order: 1;
     }
 
-    .image-contain-test__image-wrapper {
+    .title-side-image__image-wrapper {
       order: 2;
       width: 100%;
       justify-content: center;
       min-height: 300px;
     }
 
-    .image-contain-test__heading {
+    .title-side-image__heading {
       font-size: clamp(1.5rem, 5vw, 2.5rem);
     }
   }
@@ -253,10 +252,10 @@ const cssVars = [
   ).matches;
 
   if (!prefersReducedMotion) {
-    const container = document.querySelector('.image-contain-test__container');
-    const text = document.querySelector('.image-contain-test__text');
+    const container = document.querySelector('.title-side-image__container');
+    const text = document.querySelector('.title-side-image__text');
     const imageWrapper = document.querySelector(
-      '.image-contain-test__image-wrapper'
+      '.title-side-image__image-wrapper'
     );
 
     if (container) {

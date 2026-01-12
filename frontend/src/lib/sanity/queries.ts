@@ -847,8 +847,8 @@ export const aboutPageQuery = groq`
           ${gradientProjection}
         }
       },
-      // Image Contain Test fields
-      _type == "imageContainTest" => {
+      // Title with Side Image fields
+      _type == "titleWithSideImage" => {
         title[] {
           ...,
           markDefs[]

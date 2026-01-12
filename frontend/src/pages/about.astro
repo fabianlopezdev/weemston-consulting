@@ -18,7 +18,7 @@ import AboutQuoteBanner from '@components/sections/about/AboutQuoteBanner.astro'
 import AboutFullWidthImage from '@components/sections/about/AboutFullWidthImage.astro';
 import AboutTwoPhotos from '@components/sections/about/AboutTwoPhotos.astro';
 import AboutTextWrap from '@components/sections/about/AboutTextWrap.astro';
-import AboutImageContainTest from '@components/sections/about/AboutImageContainTest.astro';
+import AboutTitleWithSideImage from '@components/sections/about/AboutTitleWithSideImage.astro';
 
 // Fetch page data from Sanity
 const page = await client.fetch(aboutPageQuery);
@@ -41,7 +41,7 @@ const sectionComponents: Record<string, any> = {
   fullWidthImage: AboutFullWidthImage,
   twoPhotos: AboutTwoPhotos,
   textWrap: AboutTextWrap,
-  imageContainTest: AboutImageContainTest,
+  titleWithSideImage: AboutTitleWithSideImage,
 };
 ---
 

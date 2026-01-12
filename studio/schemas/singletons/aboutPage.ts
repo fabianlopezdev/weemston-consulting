@@ -1391,13 +1391,13 @@ export default defineType({
         }),
 
         // ==========================================
-        // IMAGE CONTAIN TEST SECTION
+        // TITLE WITH SIDE IMAGE SECTION
         // ==========================================
         defineArrayMember({
           type: 'object',
-          name: 'imageContainTest',
-          title: 'Image Contain Test',
-          icon: () => '🧪',
+          name: 'titleWithSideImage',
+          title: 'Title with Side Image',
+          icon: () => '🖼️',
           fieldsets: [
             {
               name: 'content',
@@ -1498,7 +1498,7 @@ export default defineType({
             },
             prepare({ media }) {
               return {
-                title: 'Image Contain Test',
+                title: 'Title with Side Image',
                 media,
               };
             },
