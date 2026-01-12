@@ -1396,7 +1396,7 @@ export default defineType({
         defineArrayMember({
           type: 'object',
           name: 'titleWithSideImage',
-          title: 'Title with Side Image',
+          title: 'Section Title with Side Image',
           icon: () => '🖼️',
           fieldsets: [
             {
@@ -1498,7 +1498,7 @@ export default defineType({
             },
             prepare({ media }) {
               return {
-                title: 'Title with Side Image',
+                title: 'Section Title with Side Image',
                 media,
               };
             },
