@@ -751,7 +751,6 @@ export const aboutPageQuery = groq`
       // Centered Text fields
       _type == "centeredText" => {
         title,
-        titleScriptPortion,
         content[] {
           ...,
           markDefs[]
@@ -771,7 +770,6 @@ export const aboutPageQuery = groq`
       // Two Column fields
       _type == "twoColumn" => {
         title,
-        titleScriptPortion,
         content[] {
           ...,
           markDefs[]
@@ -830,7 +828,6 @@ export const aboutPageQuery = groq`
       // Text Wrap (Magazine Style) fields
       _type == "textWrap" => {
         title,
-        titleScriptPortion,
         content[] {
           ...,
           markDefs[]
@@ -849,6 +846,26 @@ export const aboutPageQuery = groq`
         backgroundGradient {
           ${gradientProjection}
         }
+      },
+      // Image Contain Test fields
+      _type == "imageContainTest" => {
+        title[] {
+          ...,
+          markDefs[]
+        },
+        image {
+          ${imageProjection}
+        },
+        backgroundColorMode,
+        backgroundColorType,
+        backgroundColorShade,
+        backgroundCustomColor { label, value },
+        backgroundGradient {
+          ${gradientProjection}
+        },
+        titleColorType,
+        titleColorShade,
+        titleCustomColor { label, value }
       }
     }
   }

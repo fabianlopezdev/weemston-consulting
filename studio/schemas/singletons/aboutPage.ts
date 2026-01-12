@@ -1,4 +1,4 @@
-import { defineType, defineArrayMember } from 'sanity';
+import { defineType, defineArrayMember, type Rule } from 'sanity';
 import { BackgroundShadeInput } from '../../components/BackgroundShadeInput';
 
 // Reusable background color fields for sections
@@ -50,7 +50,7 @@ const backgroundColorFields = [
       parent?.backgroundColorType === 'custom' ||
       parent?.backgroundColorType === 'default' ||
       parent?.backgroundColorMode === 'gradient',
-    validation: (Rule) => Rule.min(0).max(100).integer(),
+    validation: (rule: Rule) => rule.min(0).max(100).integer(),
     components: {
       input: BackgroundShadeInput,
     },
@@ -842,16 +842,6 @@ export default defineType({
               description: 'Optional heading above the text',
             },
             {
-              name: 'titleScriptPortion',
-              title: 'Script Font Portion',
-              type: 'string',
-              fieldset: 'content',
-              description:
-                'Enter exact text from title that should appear in script font',
-              hidden: ({ parent }: { parent: { title?: string } }) =>
-                !parent?.title,
-            },
-            {
               name: 'content',
               title: 'Content',
               type: 'portableText',
@@ -990,16 +980,6 @@ export default defineType({
               title: 'Title (optional)',
               type: 'string',
               fieldset: 'content',
-            },
-            {
-              name: 'titleScriptPortion',
-              title: 'Script Font Portion',
-              type: 'string',
-              fieldset: 'content',
-              description:
-                'Enter exact text from title that should appear in script font',
-              hidden: ({ parent }: { parent: { title?: string } }) =>
-                !parent?.title,
             },
             {
               name: 'content',
@@ -1308,16 +1288,6 @@ export default defineType({
               fieldset: 'content',
             },
             {
-              name: 'titleScriptPortion',
-              title: 'Script Font Portion',
-              type: 'string',
-              fieldset: 'content',
-              description:
-                'Enter exact text from title that should appear in script font',
-              hidden: ({ parent }: { parent: { title?: string } }) =>
-                !parent?.title,
-            },
-            {
               name: 'content',
               title: 'Content',
               type: 'portableText',
@@ -1414,6 +1384,107 @@ export default defineType({
             prepare({ media }) {
               return {
                 title: 'Text Wrapping Images',
+                media,
+              };
+            },
+          },
+        }),
+
+        // ==========================================
+        // IMAGE CONTAIN TEST SECTION
+        // ==========================================
+        defineArrayMember({
+          type: 'object',
+          name: 'imageContainTest',
+          title: 'Image Contain Test',
+          icon: () => '🧪',
+          fieldsets: [
+            {
+              name: 'content',
+              title: '📝 Content',
+              options: { collapsible: true, collapsed: false },
+            },
+            {
+              name: 'colors',
+              title: '🎨 Colors',
+              options: { collapsible: true, collapsed: true },
+            },
+          ],
+          fields: [
+            {
+              name: 'title',
+              title: 'Title',
+              type: 'portableText',
+              fieldset: 'content',
+            },
+            {
+              name: 'image',
+              title: 'Image',
+              type: 'image',
+              fieldset: 'content',
+              description:
+                'Image will display with object-fit: contain on the right side.',
+              options: { hotspot: true },
+              fields: [
+                {
+                  name: 'alt',
+                  title: 'Alt Text',
+                  type: 'string',
+                  validation: (Rule) => Rule.required(),
+                },
+              ],
+            },
+            // Background color fields
+            ...backgroundColorFields.map((field) => ({
+              ...field,
+              fieldset: 'colors',
+              ...(field.name === 'backgroundColorMode' && {
+                title: 'Background Color',
+              }),
+            })),
+            // Title color
+            {
+              name: 'titleColorType',
+              title: 'Title Color',
+              type: 'string',
+              fieldset: 'colors',
+              options: {
+                list: [
+                  { title: 'Primary', value: 'primary' },
+                  { title: 'Secondary', value: 'secondary' },
+                  { title: 'Accent', value: 'accent' },
+                  { title: 'Custom', value: 'custom' },
+                ],
+              },
+              initialValue: 'primary',
+            },
+            {
+              name: 'titleColorShade',
+              title: 'Title Shade',
+              type: 'number',
+              fieldset: 'colors',
+              initialValue: 0,
+              hidden: ({ parent }: { parent: { titleColorType?: string } }) =>
+                parent?.titleColorType === 'custom',
+              validation: (Rule) => Rule.min(0).max(100).integer(),
+              components: { input: BackgroundShadeInput },
+            },
+            {
+              name: 'titleCustomColor',
+              title: 'Custom Title Color',
+              type: 'simplerColor',
+              fieldset: 'colors',
+              hidden: ({ parent }: { parent: { titleColorType?: string } }) =>
+                parent?.titleColorType !== 'custom',
+            },
+          ],
+          preview: {
+            select: {
+              media: 'image',
+            },
+            prepare({ media }) {
+              return {
+                title: 'Image Contain Test',
                 media,
               };
             },

@@ -1,0 +1,272 @@
+---
+/**
+ * AboutImageContainTest - Test section with object-fit: contain image
+ * Image displays on the right with contain behavior, title on the left
+ * Background color fills the empty space
+ */
+import { PortableText } from 'astro-portabletext';
+import type { PortableTextBlock } from '@portabletext/types';
+import {
+  resolveColorSelection,
+  resolveGradient,
+} from '@lib/sanity/colorResolver';
+import { sanityClient as client } from 'sanity:client';
+import { siteSettingsQuery } from '@lib/sanity/queries';
+import { urlForImage } from '@lib/sanity/image';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+
+interface ColorData {
+  label?: string;
+  value: string;
+}
+
+interface GradientColor {
+  colorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  shade?: number;
+  customColor?: ColorData;
+}
+
+interface GradientData {
+  direction?: string;
+  startColor?: GradientColor;
+  endColor?: GradientColor;
+}
+
+interface ImageData {
+  asset: SanityImageSource;
+  alt?: string;
+  hotspot?: { x: number; y: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface Props {
+  title?: PortableTextBlock[];
+  image?: ImageData;
+  // Background color
+  backgroundColorMode?: 'solid' | 'gradient';
+  backgroundColorType?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'accent'
+    | 'custom';
+  backgroundColorShade?: number;
+  backgroundCustomColor?: ColorData;
+  backgroundGradient?: GradientData;
+  // Title color
+  titleColorType?: 'primary' | 'secondary' | 'accent' | 'custom';
+  titleColorShade?: number;
+  titleCustomColor?: ColorData;
+}
+
+const {
+  title,
+  image,
+  backgroundColorMode = 'solid',
+  backgroundColorType = 'default',
+  backgroundColorShade = 95,
+  backgroundCustomColor,
+  backgroundGradient,
+  titleColorType = 'primary',
+  titleColorShade = 0,
+  titleCustomColor,
+} = Astro.props;
+
+// Fetch site settings for colors
+const settings = await client.fetch(siteSettingsQuery);
+const siteColors = settings?.colors;
+
+// Resolve title color
+const titleColor = resolveColorSelection(
+  {
+    colorType: titleColorType,
+    shade: titleColorShade,
+    customColor: titleCustomColor,
+  },
+  siteColors
+);
+
+// Resolve background color
+let backgroundColor = '#ffffff';
+if (backgroundColorMode === 'gradient' && backgroundGradient) {
+  backgroundColor = resolveGradient(backgroundGradient, siteColors);
+} else {
+  backgroundColor = resolveColorSelection(
+    {
+      colorType: backgroundColorType,
+      shade: backgroundColorShade,
+      customColor: backgroundCustomColor,
+    },
+    siteColors
+  );
+}
+
+// Generate optimized image URL
+const imageUrl = image?.asset
+  ? urlForImage(image).height(1000).quality(85).auto('format').url()
+  : null;
+const imageAlt = image?.alt || 'Section image';
+
+const isGradient = backgroundColorMode === 'gradient';
+
+const cssVars = [
+  `--section-title-color: ${titleColor}`,
+  `--section-bg: ${backgroundColor}`,
+].join('; ');
+---
+
+{
+  image?.asset && (
+    <section class="image-contain-test" style={cssVars}>
+      <div
+        class="image-contain-test__container"
+        style={isGradient ? `background: ${backgroundColor}` : undefined}
+      >
+        <div class="image-contain-test__text">
+          {title && title.length > 0 && (
+            <h2 class="image-contain-test__heading">
+              <PortableText value={title} />
+            </h2>
+          )}
+        </div>
+        <div class="image-contain-test__image-wrapper">
+          <img src={imageUrl} alt={imageAlt} loading="eager" />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .image-contain-test {
+    overflow: hidden;
+  }
+
+  .image-contain-test__container {
+    display: flex;
+    height: 500px;
+    background-color: var(--section-bg);
+    overflow: hidden;
+  }
+
+  .image-contain-test__text {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    text-align: center;
+  }
+
+  .image-contain-test__heading {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.2;
+    color: var(--section-title-color);
+    margin: 0;
+    text-align: center;
+  }
+
+  .image-contain-test__heading :global(p) {
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    text-align: center;
+  }
+
+  .image-contain-test__heading :global(em) {
+    font-family: var(--font-script, 'Cormorant Garamond'), Georgia, serif;
+    font-size: 1.2em;
+    font-style: italic;
+  }
+
+  .image-contain-test__heading :global(strong) {
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  .image-contain-test__image-wrapper {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    height: 500px;
+  }
+
+  .image-contain-test__image-wrapper img {
+    object-fit: contain;
+    object-position: top right;
+    height: 100%;
+    width: auto;
+    max-height: 500px;
+  }
+
+  /* Responsive */
+  @media (max-width: 767px) {
+    .image-contain-test__container {
+      flex-direction: column;
+      height: auto;
+      min-height: 400px;
+    }
+
+    .image-contain-test__text {
+      padding: var(--space-lg);
+      order: 1;
+    }
+
+    .image-contain-test__image-wrapper {
+      order: 2;
+      width: 100%;
+      justify-content: center;
+      min-height: 300px;
+    }
+
+    .image-contain-test__heading {
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+
+  if (!prefersReducedMotion) {
+    const container = document.querySelector('.image-contain-test__container');
+    const text = document.querySelector('.image-contain-test__text');
+    const imageWrapper = document.querySelector(
+      '.image-contain-test__image-wrapper'
+    );
+
+    if (container) {
+      gsap.from(container, {
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+      });
+    }
+
+    if (text) {
+      gsap.from(text, {
+        opacity: 0,
+        x: -20,
+        duration: 0.6,
+        delay: 0.2,
+        ease: 'power2.out',
+      });
+    }
+
+    if (imageWrapper) {
+      gsap.from(imageWrapper, {
+        opacity: 0,
+        x: 20,
+        duration: 0.6,
+        delay: 0.3,
+        ease: 'power2.out',
+      });
+    }
+  }
+</script>
