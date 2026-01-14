@@ -208,10 +208,12 @@ const cssVars = [
     overflow: hidden;
     border-radius: 0;
     width: 100%;
-    height: 500px;
+    padding: clamp(6rem, 10vw, 8rem) var(--space-md) clamp(4rem, 8vw, 6rem);
   }
 
   .section-title__photo img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -279,7 +281,7 @@ const cssVars = [
      ======================================== */
   .section-title__color-bg {
     width: 100%;
-    height: 500px;
+    padding: clamp(6rem, 10vw, 8rem) var(--space-md) clamp(4rem, 8vw, 6rem);
     background-color: var(--section-bg);
     display: flex;
     align-items: center;
@@ -350,10 +352,6 @@ const cssVars = [
      RESPONSIVE
      ======================================== */
   @media (max-width: 767px) {
-    .section-title__photo {
-      height: 350px;
-    }
-
     .section-title__overlay {
       max-width: 70%;
     }
@@ -368,10 +366,6 @@ const cssVars = [
 
     .section-title__overlay .section-title__heading {
       font-size: clamp(1.5rem, 5vw, 2.5rem);
-    }
-
-    .section-title__color-bg {
-      height: 350px;
     }
   }
 </style>
