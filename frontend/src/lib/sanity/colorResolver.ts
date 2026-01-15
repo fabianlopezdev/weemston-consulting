@@ -117,6 +117,8 @@ function getBaseColor(
   const baseType = colorType.replace(/-light$/, '').replace(/-dark$/, '');
 
   switch (baseType) {
+    case 'default':
+      return '#ffffff';
     case 'primary':
       return siteColors?.primary?.value || '#0066cc';
     case 'secondary':
