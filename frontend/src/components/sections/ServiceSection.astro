@@ -313,104 +313,93 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     {
       iconType === 'none' ? (
         <>
-          {/* Label Row - same as with-image layout */}
-          <div class="service-section__label-row">
-            <span class="service-section__label-text">Service</span>
-            <span class="service-section__label-number">{serviceNumber}</span>
-            <div class="service-section__label-line" />
-          </div>
-
-          {/* Single text column - same structure as with-image, just full width */}
-          <div class="service-section__text-column service-section__text-column--full">
-            <h2 class="service-section__title service-section__title--serif">
-              {title}
-            </h2>
-            {subtitle && <p class="service-section__subtitle">{subtitle}</p>}
-            {description && description.length > 0 && (
-              <div class="service-section__description">
-                <PortableText content={description} />
-              </div>
-            )}
-
-            {/* List - same as with-image */}
-            {listItems.length > 0 && (
-              <div class="service-section__list-wrapper">
-                {listTitle && (
-                  <strong class="service-section__list-title">
-                    {listTitle}
-                  </strong>
-                )}
-                <ul class="service-section__list service-section__list--numbered">
-                  {listItems.map((item, idx) => (
-                    <li class="service-section__list-item">
-                      <span class="service-section__list-number">
-                        {idx + 1}.
-                      </span>
-                      <span class="service-section__list-text">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Case studies inline - same as with-image */}
-            {caseStudiesWithLogos.length > 0 && (
-              <div class="service-section__case-studies service-section__case-studies--inline">
-                {caseStudiesSectionTitle && (
-                  <p class="service-section__case-studies-title">
-                    {caseStudiesSectionTitle}
-                  </p>
-                )}
-                <div class="service-section__case-studies-logos">
-                  {caseStudiesWithLogos.map((caseStudy) => {
-                    const logoUrl = urlForImage(caseStudy.clientLogo!)
-                      .height(96)
-                      .auto('format')
-                      .url();
-                    const { filter, hoverFilter } = getLogoFilters(
-                      caseStudy.logoVariant
-                    );
-                    return (
-                      <a
-                        href={`/case-studies#${slugify(caseStudy.client || '')}`}
-                        class="service-section__case-study-logo"
-                        title={caseStudy.client || 'View case study'}
-                      >
-                        <img
-                          src={logoUrl}
-                          alt={
-                            caseStudy.clientLogo?.alt ||
-                            `${caseStudy.client} logo`
-                          }
-                          class="service-section__logo-image"
-                          style={`--logo-filter: ${filter}; --logo-filter-hover: ${hoverFilter}`}
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      </a>
-                    );
-                  })}
+          {/* Two-column layout: large number on left, content on right */}
+          <div class="service-section__header-grid">
+            <div class="service-section__number-column">
+              <span class="service-section__label-text">Service</span>
+              <span class="service-section__label-number">{serviceNumber}</span>
+            </div>
+            <div class="service-section__content-column">
+              <h2 class="service-section__title service-section__title--serif">
+                {title}
+              </h2>
+              {subtitle && <p class="service-section__subtitle">{subtitle}</p>}
+              {description && description.length > 0 && (
+                <div class="service-section__description">
+                  <PortableText content={description} />
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
+
+          {/* List - outside grid, starts below number */}
+          {listItems.length > 0 && (
+            <div class="service-section__list-wrapper">
+              {listTitle && (
+                <strong class="service-section__list-title">{listTitle}</strong>
+              )}
+              <ul class="service-section__list service-section__list--numbered">
+                {listItems.map((item, idx) => (
+                  <li class="service-section__list-item">
+                    <span class="service-section__list-number">{idx + 1}.</span>
+                    <span class="service-section__list-text">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Case studies inline */}
+          {caseStudiesWithLogos.length > 0 && (
+            <div class="service-section__case-studies service-section__case-studies--inline">
+              {caseStudiesSectionTitle && (
+                <p class="service-section__case-studies-title">
+                  {caseStudiesSectionTitle}
+                </p>
+              )}
+              <div class="service-section__case-studies-logos">
+                {caseStudiesWithLogos.map((caseStudy) => {
+                  const logoUrl = urlForImage(caseStudy.clientLogo!)
+                    .height(96)
+                    .auto('format')
+                    .url();
+                  const { filter, hoverFilter } = getLogoFilters(
+                    caseStudy.logoVariant
+                  );
+                  return (
+                    <a
+                      href={`/case-studies#${slugify(caseStudy.client || '')}`}
+                      class="service-section__case-study-logo"
+                      title={caseStudy.client || 'View case study'}
+                    >
+                      <img
+                        src={logoUrl}
+                        alt={
+                          caseStudy.clientLogo?.alt ||
+                          `${caseStudy.client} logo`
+                        }
+                        class="service-section__logo-image"
+                        style={`--logo-filter: ${filter}; --logo-filter-hover: ${hoverFilter}`}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </>
       ) : (
         /* Catalogue layout - editorial magazine style (matches React Variant F) */
         <>
-          {/* Label Row - OUTSIDE grid like React */}
-          <div class="service-section__label-row">
-            <span class="service-section__label-text">Service</span>
-            <span class="service-section__label-number">{serviceNumber}</span>
-            <div class="service-section__label-line" />
-          </div>
-
-          {/* Grid - only text and image columns */}
-          <div
-            class={`service-section__grid service-section__grid--catalogue ${imagePosition === 'right' ? 'service-section__grid--reversed' : ''}`}
-          >
-            {/* Text Column */}
-            <div class="service-section__text-column">
+          {/* Two-column layout: large number on left, content + image on right */}
+          <div class="service-section__header-grid service-section__header-grid--with-image">
+            <div class="service-section__number-column">
+              <span class="service-section__label-text">Service</span>
+              <span class="service-section__label-number">{serviceNumber}</span>
+            </div>
+            <div class="service-section__content-column">
               <h2 class="service-section__title service-section__title--serif">
                 {title}
               </h2>
@@ -483,22 +472,22 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Image Column with decorative elements */}
-            <div class="service-section__image-column">
-              <div class="service-section__image-wrapper">
-                <div class="service-section__image-container service-section__image-container--portrait">
-                  {iconType === 'image' && iconImage?.asset && (
-                    <Image
-                      image={iconImage}
-                      alt={iconImage.alt || title}
-                      class="service-section__image"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  )}
-                  {/* Ring overlay for subtle depth */}
-                  <div class="service-section__image-ring" />
-                </div>
+          {/* Image Section - outside header grid */}
+          <div class="service-section__image-section">
+            <div class="service-section__image-wrapper">
+              <div class="service-section__image-container service-section__image-container--portrait">
+                {iconType === 'image' && iconImage?.asset && (
+                  <Image
+                    image={iconImage}
+                    alt={iconImage.alt || title}
+                    class="service-section__image"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                )}
+                {/* Ring overlay for subtle depth */}
+                <div class="service-section__image-ring" />
               </div>
             </div>
           </div>
@@ -707,114 +696,83 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     filter: var(--logo-filter-hover, none);
   }
 
-  /* ============================================
-     CATALOGUE LAYOUT - Matches React Variant F exactly
-     ============================================ */
-
-  /* Catalogue grid - matches React: grid-cols-12 gap-12 */
-  .service-section__grid--catalogue {
+  /* Header Grid - two column layout with number on left */
+  .service-section__header-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 3rem; /* gap-12 in Tailwind */
+    grid-template-columns: auto 1fr;
+    gap: clamp(1.5rem, 3.82vw, 3.1rem);
+    align-items: start;
   }
 
-  @media (min-width: 768px) {
-    .service-section__grid--catalogue {
-      grid-template-columns: repeat(12, 1fr);
-      gap: 3rem;
-    }
-
-    /* Text column: span 6 (50%) */
-    .service-section__grid--catalogue .service-section__text-column {
-      grid-column: span 6;
-    }
-
-    /* Image column: span 6 (50%) - NO flex display to preserve GSAP pin */
-    .service-section__grid--catalogue .service-section__image-column {
-      grid-column: span 6;
-      position: relative;
-      align-self: stretch; /* Required for pin - column must be taller than pinned element */
-      overflow: hidden; /* Clip pinned image when it exceeds column bounds */
-    }
-
-    /* Reversed layout */
-    .service-section__grid--catalogue.service-section__grid--reversed {
-      direction: rtl;
-    }
-
-    .service-section__grid--catalogue.service-section__grid--reversed > * {
-      direction: ltr;
+  @media (max-width: 639px) {
+    .service-section__header-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
     }
   }
 
-  /* Service Label Row - decorative header */
-  .service-section__label-row {
+  /* Number column - stacked vertically */
+  .service-section__number-column {
     display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    margin-bottom: var(--space-lg);
+    flex-direction: column;
+    gap: 0.25rem;
   }
 
+  @media (max-width: 639px) {
+    .service-section__number-column {
+      flex-direction: row;
+      align-items: baseline;
+      gap: var(--space-md);
+    }
+  }
+
+  /* Service label above number */
   .service-section__label-text {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--color-text-muted);
+    font-size: 1.4rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--color-text);
   }
 
+  /* Large display number */
   .service-section__label-number {
     font-family: var(--font-heading);
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    font-style: italic;
+    font-size: clamp(10rem, 25vw, 18rem);
+    font-style: normal;
     font-weight: 400;
-    color: var(--service-number-color, #e7e5e4);
-    line-height: 1;
+    line-height: 0.8;
+    color: var(--service-number-color, var(--color-text, #1c1917));
     transition: color 0.5s ease;
   }
 
-  /* Number goes solid on HOVER - matches React group-hover:text-stone-900 */
+  /* Number goes solid on HOVER */
   .service-section:hover .service-section__label-number {
-    color: var(--service-number-hover-color, #1c1917);
+    color: var(--service-number-hover-color, var(--color-accent));
   }
 
-  .service-section__label-line {
-    flex-grow: 1;
-    height: 1px;
-    background-color: var(--service-divider-color, #f5f5f4);
-    transition: background-color 0.5s ease;
-  }
-
-  /* Line goes darker on HOVER - matches React group-hover:bg-stone-300 */
-  .service-section:hover .service-section__label-line {
-    background-color: color-mix(
-      in srgb,
-      var(--service-divider-color, #f5f5f4) 60%,
-      #000
-    );
-  }
-
-  /* Text column */
-  .service-section__text-column {
+  /* Content column */
+  .service-section__content-column {
     display: flex;
     flex-direction: column;
   }
 
-  /* Full-width text column (no-image layout) */
-  .service-section__text-column--full {
-    max-width: none;
+  /* Image section - separate from header grid for with-image layout */
+  .service-section__image-section {
+    margin-top: var(--space-xl);
   }
 
-  /* Override global 65ch max-width for full-width layout */
-  .service-section__text-column--full .service-section__subtitle,
-  .service-section__text-column--full .service-section__description :global(p) {
-    max-inline-size: none;
+  @media (min-width: 768px) {
+    .service-section__image-section {
+      max-width: 50%;
+      margin-left: auto;
+      margin-top: var(--space-2xl);
+    }
   }
 
-  /* Equal spacing for no-image layout: match description-to-list spacing */
-  .service-section__text-column--full .service-section__case-studies--inline {
-    margin-top: var(--space-lg);
-    padding-top: 0;
+  /* Text column (legacy support) */
+  .service-section__text-column {
+    display: flex;
+    flex-direction: column;
   }
 
   /* Serif title variant for catalogue */
@@ -943,10 +901,11 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
   }
 
   /* Animation-ready states - simplified to main blocks */
-  /* Note: label-row is NOT included - always visible like React */
+  /* Note: number-column is NOT included - always visible */
   .service-section[data-animate] .service-section__media-column,
   .service-section[data-animate] .service-section__content,
-  .service-section[data-animate] .service-section__text-column {
+  .service-section[data-animate] .service-section__text-column,
+  .service-section[data-animate] .service-section__content-column {
     opacity: 0;
   }
 
@@ -979,6 +938,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     .service-section[data-animate] .service-section__media-column,
     .service-section[data-animate] .service-section__content,
     .service-section[data-animate] .service-section__text-column,
+    .service-section[data-animate] .service-section__content-column,
     .service-section[data-animate] .service-section__image-wrapper,
     .service-section[data-animate]:not([data-no-image='true'])
       .service-section__list-item {
@@ -1087,26 +1047,26 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
       // Check layout type
       const isNoImage = section.getAttribute('data-no-image') === 'true';
       const isReversed = section.getAttribute('data-reversed') === 'true';
-      const isCatalogue =
-        section.querySelector('.service-section__grid--catalogue') !== null;
+      const hasImage =
+        section.querySelector('.service-section__header-grid--with-image') !==
+        null;
 
       // Get main elements based on layout type
       let columnsToAnimate: Element[] = [];
 
       if (isNoImage) {
-        // No-image layout uses same structure as with-image, just full width
-        const textColumn = section.querySelector(
-          '.service-section__text-column'
+        // No-image layout - animate content column
+        const contentColumn = section.querySelector(
+          '.service-section__content-column'
         );
-        columnsToAnimate = [textColumn].filter(Boolean) as Element[];
-      } else if (isCatalogue) {
-        // Catalogue layout - ONLY animate text column with transforms
-        // Image column must NOT have transforms applied - they break CSS sticky positioning
-        // Label row is always visible like React (no animation)
-        const textColumn = section.querySelector(
-          '.service-section__text-column'
+        columnsToAnimate = [contentColumn].filter(Boolean) as Element[];
+      } else if (hasImage) {
+        // With-image layout - animate content column
+        // Number column is always visible (no animation)
+        const contentColumn = section.querySelector(
+          '.service-section__content-column'
         );
-        columnsToAnimate = [textColumn].filter(Boolean) as Element[];
+        columnsToAnimate = [contentColumn].filter(Boolean) as Element[];
 
         // Set up image wrapper for opacity-only animation (no transforms)
         const imageWrapper = section.querySelector(
@@ -1141,7 +1101,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
       });
 
       // Set initial states for list items (for stagger animation)
-      if (isCatalogue && listItems.length > 0) {
+      if (hasImage && listItems.length > 0) {
         gsap.set(listItems, {
           opacity: 0,
           x: -15,
@@ -1197,9 +1157,9 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
         clearProps: 'transform', // Clear transforms so sticky positioning works on image column
       });
 
-      // For catalogue layout: fade in image with OPACITY ONLY (no transforms)
+      // For with-image layout: fade in image with OPACITY ONLY (no transforms)
       // This preserves CSS sticky positioning on the image wrapper
-      if (isCatalogue) {
+      if (hasImage) {
         const imageWrapper = section.querySelector(
           '.service-section__image-wrapper'
         );
@@ -1211,7 +1171,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
               duration: 0.9,
               ease: 'power3.out',
             },
-            0.15 // Start slightly after text column
+            0.15 // Start slightly after content column
           );
         }
       }
@@ -1231,8 +1191,8 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
         );
       }
 
-      // List items stagger animation (catalogue layout)
-      if (isCatalogue && listItems.length > 0) {
+      // List items stagger animation (with-image layout)
+      if (hasImage && listItems.length > 0) {
         tl.to(
           listItems,
           {
@@ -1246,30 +1206,30 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
         );
       }
 
-      // GSAP ScrollTrigger PIN for catalogue layout (replaces CSS sticky which breaks with Lenis)
-      if (isCatalogue) {
+      // GSAP ScrollTrigger PIN for with-image layout (replaces CSS sticky which breaks with Lenis)
+      if (hasImage) {
         const imageWrapper = section.querySelector(
           '.service-section__image-wrapper'
         );
-        const textColumn = section.querySelector(
-          '.service-section__text-column'
+        const contentColumn = section.querySelector(
+          '.service-section__content-column'
         );
 
-        if (imageWrapper && textColumn) {
+        if (imageWrapper && contentColumn) {
           // Only pin on desktop (768px+)
           const mm = gsap.matchMedia();
 
           mm.add('(min-width: 768px)', () => {
             // Pin starts when image top reaches 128px from viewport top
-            // Pin ends when text column bottom reaches image bottom position
+            // Pin ends when content column bottom reaches image bottom position
             const imageHeight = imageWrapper.getBoundingClientRect().height;
 
             gsap.to(imageWrapper, {
               scrollTrigger: {
                 trigger: imageWrapper,
                 start: 'top 128px', // top-32 = 8rem = 128px from viewport top
-                endTrigger: textColumn,
-                end: `bottom ${128 + imageHeight}px`, // when text bottom reaches pinned image bottom
+                endTrigger: contentColumn,
+                end: `bottom ${128 + imageHeight}px`, // when content bottom reaches pinned image bottom
                 pin: true,
                 pinSpacing: false, // Don't add extra spacing
                 markers: ANIMATION_CONFIG.scrollTrigger.markers,
