@@ -126,7 +126,12 @@ const cssVars = [
   style={cssVars}
 >
   <div class="container">
-    <div class="two-column__grid">
+    <div
+      class:list={[
+        'two-column__grid',
+        { 'two-column__grid--adapt-image': !secondaryImage?.asset },
+      ]}
+    >
       <div class="two-column__images">
         {
           title && titlePosition === 'image' && (
@@ -207,6 +212,22 @@ const cssVars = [
     .two-column--image-right .two-column__content {
       order: 1;
     }
+  }
+
+  /* Adapt image to text height (single image only) */
+  .two-column__grid--adapt-image {
+    align-items: stretch;
+  }
+
+  .two-column__grid--adapt-image .two-column__image {
+    aspect-ratio: unset;
+    height: 100%;
+    min-height: 200px;
+  }
+
+  .two-column__grid--adapt-image .two-column__content-text {
+    flex: 1;
+    justify-content: center;
   }
 
   /* Image container */
