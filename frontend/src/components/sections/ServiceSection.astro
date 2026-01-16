@@ -706,7 +706,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
   .service-section__header-grid {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: clamp(1.5rem, 3.82vw, 3.1rem);
+    gap: clamp(2rem, 5vw, 4rem);
     align-items: start;
   }
 
@@ -851,7 +851,20 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     align-items: flex-start;
     gap: var(--space-md);
     padding: var(--space-md) 0;
-    border-bottom: none;
+    position: relative;
+    font-size: var(--font-size-sm);
+    color: var(--service-list-text, var(--color-text));
+    line-height: 1.6;
+  }
+
+  /* Dashed divider as pseudo-element for animation */
+  .service-section__list--numbered .service-section__list-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
     background-image: linear-gradient(
       to right,
       var(--service-divider-color, #e5e5e4) 0,
@@ -861,14 +874,12 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     );
     background-size: 12px 1px;
     background-repeat: repeat-x;
-    background-position: bottom;
-    font-size: var(--font-size-sm);
-    color: var(--service-list-text, var(--color-text));
-    line-height: 1.6;
+    transform-origin: left center;
   }
 
-  .service-section__list--numbered .service-section__list-item:last-child {
-    background-image: none;
+  .service-section__list--numbered
+    .service-section__list-item:last-child::after {
+    display: none;
   }
 
   .service-section__list-number {
@@ -930,10 +941,30 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     opacity: 0;
   }
 
-  /* Only hide list items for catalogue layout (with image) - no-image layout shows them immediately */
-  .service-section[data-animate]:not([data-no-image='true'])
-    .service-section__list-item {
+  /* Number animation initial state - dramatic scale and blur */
+  .service-section[data-animate] .service-section__label-number {
     opacity: 0;
+    filter: blur(20px);
+    transform: scale(1.3);
+    transform-origin: left center;
+  }
+
+  /* "Service" label initial state */
+  .service-section[data-animate] .service-section__label-text {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  /* List items - initial state with divider ready for draw-in */
+  .service-section[data-animate] .service-section__list-item {
+    opacity: 0;
+  }
+
+  /* Dashed divider initial state - scaled to 0 for draw-in animation */
+  .service-section[data-animate]
+    .service-section__list--numbered
+    .service-section__list-item::after {
+    transform: scaleX(0);
   }
 
   /* Word reveal clip container */
@@ -942,6 +973,14 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     overflow: hidden;
     vertical-align: top;
     padding-bottom: 0.1em;
+  }
+
+  /* Divider revealed state - higher specificity to override initial state */
+  .service-section[data-animate]
+    .service-section__list--numbered
+    .service-section__list-item.divider-revealed::after {
+    transform: scaleX(1);
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Reduced motion: show all immediately */
@@ -956,10 +995,18 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     .service-section[data-animate] .service-section__text-column,
     .service-section[data-animate] .service-section__content-column,
     .service-section[data-animate] .service-section__image-wrapper,
-    .service-section[data-animate]:not([data-no-image='true'])
-      .service-section__list-item {
+    .service-section[data-animate] .service-section__list-item,
+    .service-section[data-animate] .service-section__label-number,
+    .service-section[data-animate] .service-section__label-text {
       opacity: 1 !important;
       transform: none !important;
+      filter: none !important;
+    }
+
+    .service-section[data-animate]
+      .service-section__list--numbered
+      .service-section__list-item::after {
+      transform: scaleX(1) !important;
     }
   }
 </style>
@@ -1101,6 +1148,10 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
 
       const title = section.querySelector('.service-section__title');
       const listItems = section.querySelectorAll('.service-section__list-item');
+      const labelNumber = section.querySelector(
+        '.service-section__label-number'
+      );
+      const labelText = section.querySelector('.service-section__label-text');
 
       // Set initial states - dramatic offsets with alternating directions
       columnsToAnimate.forEach((col, index) => {
@@ -1117,10 +1168,10 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
       });
 
       // Set initial states for list items (for stagger animation)
-      if (hasImage && listItems.length > 0) {
+      if (listItems.length > 0) {
         gsap.set(listItems, {
           opacity: 0,
-          x: -15,
+          x: -20,
         });
       }
 
@@ -1161,17 +1212,50 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
         },
       });
 
+      // "Service" label fades in first
+      if (labelText) {
+        tl.to(
+          labelText,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'power3.out',
+          },
+          0
+        );
+      }
+
+      // Number dramatic reveal - scale down from huge with blur clear
+      if (labelNumber) {
+        tl.to(
+          labelNumber,
+          {
+            opacity: 1,
+            scale: 1,
+            filter: 'blur(0px)',
+            duration: 1.2,
+            ease: 'power3.out',
+          },
+          0.1
+        );
+      }
+
       // Columns animate with stagger and dramatic movement
-      tl.to(columnsToAnimate, {
-        opacity: 1,
-        y: 0,
-        x: 0,
-        scale: 1,
-        duration: 0.9,
-        ease: 'power3.out',
-        stagger: 0.15,
-        clearProps: 'transform', // Clear transforms so sticky positioning works on image column
-      });
+      tl.to(
+        columnsToAnimate,
+        {
+          opacity: 1,
+          y: 0,
+          x: 0,
+          scale: 1,
+          duration: 0.9,
+          ease: 'power3.out',
+          stagger: 0.15,
+          clearProps: 'transform', // Clear transforms so sticky positioning works on image column
+        },
+        0.2
+      );
 
       // For with-image layout: fade in image with OPACITY ONLY (no transforms)
       // This preserves CSS sticky positioning on the image wrapper
@@ -1207,19 +1291,31 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
         );
       }
 
-      // List items stagger animation (with-image layout)
-      if (hasImage && listItems.length > 0) {
+      // List items stagger animation with divider draw-in
+      if (listItems.length > 0) {
+        // Fade in list items with stagger
         tl.to(
           listItems,
           {
             opacity: 1,
             x: 0,
             duration: 0.5,
-            stagger: 0.08,
+            stagger: 0.1,
             ease: 'power2.out',
           },
-          0.5
+          isNoImage ? 0.8 : 0.5
         );
+
+        // Divider draw-in animation - add class to trigger CSS transition
+        listItems.forEach((item, index) => {
+          tl.call(
+            () => {
+              item.classList.add('divider-revealed');
+            },
+            [],
+            (isNoImage ? 0.95 : 0.65) + index * 0.12
+          );
+        });
       }
 
       // GSAP ScrollTrigger PIN for with-image layout (replaces CSS sticky which breaks with Lenis)
