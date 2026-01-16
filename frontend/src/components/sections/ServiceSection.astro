@@ -596,6 +596,11 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
     margin: 0 0 var(--space-lg);
   }
 
+  /* Remove bottom margin when description is in the header-grid layout (no-image variant) */
+  .service-section__content-column .service-section__description {
+    margin-bottom: 0;
+  }
+
   .service-section__description :global(.portable-text) {
     color: inherit;
     line-height: inherit;
@@ -607,6 +612,7 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
 
   /* List wrapper */
   .service-section__list-wrapper {
+    margin-top: var(--space-xl);
   }
 
   .service-section__list-wrapper--boxed {
@@ -870,7 +876,6 @@ const serviceNumber = String(serviceIndex + 1).padStart(2, '0');
   /* Inline client logos (below outcomes list) */
   .service-section__case-studies--inline {
     margin-top: var(--space-xl);
-    padding-top: var(--space-lg);
   }
 
   .service-section__case-studies--inline .service-section__case-studies-logos {
