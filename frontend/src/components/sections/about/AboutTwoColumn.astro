@@ -57,6 +57,7 @@ interface Props {
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
   backgroundGradient?: GradientData;
+  headingLevel?: 'h2' | 'h3';
 }
 
 const {
@@ -75,6 +76,7 @@ const {
   backgroundColorShade = 95,
   backgroundCustomColor,
   backgroundGradient,
+  headingLevel = 'h3',
 } = Astro.props;
 
 // Fetch site settings for colors
@@ -134,9 +136,13 @@ const cssVars = [
     >
       <div class="two-column__images">
         {
-          title && titlePosition === 'image' && (
-            <h3 class="two-column__title">{title}</h3>
-          )
+          title &&
+            titlePosition === 'image' &&
+            (headingLevel === 'h2' ? (
+              <h2 class="two-column__title">{title}</h2>
+            ) : (
+              <h3 class="two-column__title">{title}</h3>
+            ))
         }
         {
           image?.asset && (
@@ -153,9 +159,13 @@ const cssVars = [
       <div class="two-column__content">
         <div class="two-column__content-text">
           {
-            title && titlePosition === 'text' && (
-              <h3 class="two-column__title">{title}</h3>
-            )
+            title &&
+              titlePosition === 'text' &&
+              (headingLevel === 'h2' ? (
+                <h2 class="two-column__title">{title}</h2>
+              ) : (
+                <h3 class="two-column__title">{title}</h3>
+              ))
           }
           {
             content && (

@@ -68,14 +68,32 @@ const sectionComponents: Record<string, any> = {
 
   <div class="about-page">
     {
-      page.sections?.map((section: any) => {
-        const Component = sectionComponents[section._type];
-        if (!Component) {
-          console.warn(`Unknown section type: ${section._type}`);
-          return null;
-        }
-        return <Component {...section} />;
-      })
+      (() => {
+        // Track if we've rendered an H2 yet (first section title gets H2)
+        let hasRenderedFirstH2 = false;
+
+        return page.sections?.map((section: any) => {
+          const Component = sectionComponents[section._type];
+          if (!Component) {
+            console.warn(`Unknown section type: ${section._type}`);
+            return null;
+          }
+
+          // sectionTitle component already uses H2, so reset the flag after it
+          if (section._type === 'sectionTitle') {
+            hasRenderedFirstH2 = true; // sectionTitle is H2, next content sections are H3
+            return <Component {...section} />;
+          }
+
+          // For content sections with titles, first one after H1 gets H2
+          const headingLevel = hasRenderedFirstH2 ? 'h3' : 'h2';
+          if (section.title && !hasRenderedFirstH2) {
+            hasRenderedFirstH2 = true;
+          }
+
+          return <Component {...section} headingLevel={headingLevel} />;
+        });
+      })()
     }
   </div>
 </BaseLayout>

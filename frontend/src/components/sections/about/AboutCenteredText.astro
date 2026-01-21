@@ -43,6 +43,7 @@ interface Props {
   backgroundColorShade?: number;
   backgroundCustomColor?: ColorData;
   backgroundGradient?: GradientData;
+  headingLevel?: 'h2' | 'h3';
 }
 
 const {
@@ -57,6 +58,7 @@ const {
   backgroundColorShade = 95,
   backgroundCustomColor,
   backgroundGradient,
+  headingLevel = 'h3',
 } = Astro.props;
 
 // Fetch site settings for colors
@@ -106,7 +108,14 @@ const cssVars = [
 <section class="centered-text" style={cssVars}>
   <div class="container">
     <div class="centered-text__content">
-      {title && <h3 class="centered-text__title">{title}</h3>}
+      {
+        title &&
+          (headingLevel === 'h2' ? (
+            <h2 class="centered-text__title">{title}</h2>
+          ) : (
+            <h3 class="centered-text__title">{title}</h3>
+          ))
+      }
       {content && <PortableText content={content} />}
     </div>
   </div>
