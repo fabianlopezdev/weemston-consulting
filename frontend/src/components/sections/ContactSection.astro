@@ -350,6 +350,7 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
     <div class="contact-section__form-wrapper">
       <form
         class="contact-section__form"
+        id="contact-form"
         name="contact"
         method="POST"
         data-netlify="true"
@@ -408,8 +409,16 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
           class="contact-section__submit"
           style={`--btn-radius: ${buttonRadius}px; --btn-padding-v: ${buttonPaddingV}px; --btn-padding-h: ${buttonPaddingH}px`}
         >
-          {formSubmitText}
+          <span class="contact-section__submit-text">{formSubmitText}</span>
+          <span class="contact-section__submit-sending">Sending...</span>
         </button>
+
+        <div class="contact-section__message contact-section__message--success">
+          Thank you! Your message has been sent.
+        </div>
+        <div class="contact-section__message contact-section__message--error">
+          Something went wrong. Please try again.
+        </div>
       </form>
     </div>
   </div>
@@ -607,4 +616,91 @@ const buttonPaddingH = buttonStyles?.horizontalPadding ?? 24;
   .hidden {
     display: none;
   }
+
+  /* Form states */
+  .contact-section__submit-sending {
+    display: none;
+  }
+
+  .contact-section__form.is-submitting .contact-section__submit-text {
+    display: none;
+  }
+
+  .contact-section__form.is-submitting .contact-section__submit-sending {
+    display: inline;
+  }
+
+  .contact-section__form.is-submitting .contact-section__submit {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .contact-section__message {
+    display: none;
+    padding: var(--space-md);
+    border-radius: var(--border-radius-card);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .contact-section__message--success {
+    background-color: rgb(220 252 231);
+    color: rgb(22 101 52);
+  }
+
+  .contact-section__message--error {
+    background-color: rgb(254 226 226);
+    color: rgb(153 27 27);
+  }
+
+  .contact-section__form.is-success .contact-section__message--success {
+    display: block;
+  }
+
+  .contact-section__form.is-error .contact-section__message--error {
+    display: block;
+  }
+
+  .contact-section__form.is-success .contact-section__field,
+  .contact-section__form.is-success .contact-section__submit {
+    display: none;
+  }
 </style>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Reset states
+    form.classList.remove('is-success', 'is-error');
+    form.classList.add('is-submitting');
+
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch('/forms.html', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(
+          formData as unknown as Record<string, string>
+        ).toString(),
+      });
+
+      form.classList.remove('is-submitting');
+
+      if (response.ok) {
+        form.classList.add('is-success');
+        form.reset();
+      } else {
+        form.classList.add('is-error');
+      }
+    } catch {
+      form.classList.remove('is-submitting');
+      form.classList.add('is-error');
+    }
+  });
+</script>
