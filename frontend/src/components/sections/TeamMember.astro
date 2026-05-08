@@ -1,9 +1,9 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import AboutSectionTitle from '@components/sections/about/AboutSectionTitle.astro';
 
 interface Props {
-  number: string;
   name: string;
   role: string;
   image: ImageMetadata;
@@ -13,7 +13,6 @@ interface Props {
 }
 
 const {
-  number,
   name,
   role,
   image,
@@ -21,56 +20,73 @@ const {
   bioParagraphs,
   reverse = false,
 } = Astro.props;
+
+// Build the PortableText block AboutSectionTitle expects.
+const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const titleBlocks = [
+  {
+    _type: 'block',
+    _key: `title-${slug}`,
+    style: 'normal',
+    markDefs: [],
+    children: [{ _type: 'span', _key: `span-${slug}`, text: name, marks: [] }],
+  },
+];
 ---
 
-<section
+<article
   class:list={['team-member', { 'team-member--reverse': reverse }]}
   data-team-member
 >
-  <div class="container">
-    <div class="team-member__grid">
-      <figure class="team-member__portrait" data-team-portrait>
-        <Image
-          src={image}
-          alt={imageAlt}
-          format="webp"
-          quality={82}
-          widths={[480, 720, 960, 1200]}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 38vw, 480px"
-          class="team-member__image"
-        />
-      </figure>
-      <div class="team-member__content">
-        <p class="team-member__eyebrow" data-team-eyebrow>
-          <span class="team-member__number">{number}</span>
-          <span class="team-member__rule" aria-hidden="true"></span>
-          <span class="team-member__role">{role}</span>
-        </p>
-        <h2 class="team-member__name" data-team-name>{name}</h2>
-        <div class="team-member__bio">
-          {bioParagraphs.map((paragraph) => <p data-team-bio>{paragraph}</p>)}
+  <AboutSectionTitle
+    backgroundType="color"
+    backgroundColorType="default"
+    backgroundColorShade={0}
+    title={titleBlocks}
+    titleColorType="accent"
+  />
+
+  <div class="team-member__body">
+    <div class="container">
+      <div class="team-member__grid">
+        <figure class="team-member__portrait" data-team-portrait>
+          <Image
+            src={image}
+            alt={imageAlt}
+            format="webp"
+            quality={82}
+            widths={[480, 720, 960, 1200]}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 38vw, 480px"
+            class="team-member__image"
+          />
+        </figure>
+        <div class="team-member__content">
+          <p class="team-member__role" data-team-role>{role}</p>
+          <div class="team-member__bio">
+            {bioParagraphs.map((paragraph) => <p data-team-bio>{paragraph}</p>)}
+          </div>
         </div>
       </div>
     </div>
   </div>
-</section>
+</article>
 
 <style>
   .team-member {
-    padding-block: clamp(4rem, 9vw, 8rem);
     color: var(--color-text);
   }
 
+  .team-member__body {
+    padding-block: clamp(3rem, 6vw, 5rem) clamp(4rem, 9vw, 8rem);
+  }
+
   .team-member {
-    /* Default: portrait left (narrow col), content right (wide col) */
     --tm-grid-cols: 5fr 7fr;
     --tm-portrait-pos: 1;
     --tm-content-pos: 2;
   }
 
   .team-member--reverse {
-    /* Reverse: column ratios flip, and elements swap positions —
-       content always lives in the wider column. */
     --tm-grid-cols: 7fr 5fr;
     --tm-portrait-pos: 2;
     --tm-content-pos: 1;
@@ -86,14 +102,6 @@ const {
   .team-member__portrait {
     grid-column: var(--tm-portrait-pos);
     grid-row: 1;
-  }
-
-  .team-member__content {
-    grid-column: var(--tm-content-pos);
-    grid-row: 1;
-  }
-
-  .team-member__portrait {
     margin: 0;
     aspect-ratio: 4 / 5;
     overflow: hidden;
@@ -110,14 +118,12 @@ const {
   }
 
   .team-member__content {
+    grid-column: var(--tm-content-pos);
+    grid-row: 1;
     max-width: 60ch;
   }
 
-  .team-member__eyebrow {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 0.875rem;
+  .team-member__role {
     margin: 0 0 clamp(1.25rem, 2vw, 1.75rem);
     font-family: var(--font-sans);
     font-size: var(--font-size-xs);
@@ -125,35 +131,6 @@ const {
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-text-muted);
-  }
-
-  .team-member__number {
-    font-feature-settings:
-      'tnum' on,
-      'lnum' on;
-    color: var(--color-text);
-  }
-
-  .team-member__rule {
-    flex-shrink: 0;
-    width: 1.75rem;
-    height: 1px;
-    background-color: currentColor;
-    opacity: 0.5;
-  }
-
-  .team-member__role {
-    font-weight: var(--font-weight-medium);
-  }
-
-  .team-member__name {
-    font-family: var(--font-heading);
-    font-size: clamp(1.875rem, 1.4rem + 2.4vw, 3rem);
-    font-weight: 500;
-    line-height: 1.1;
-    letter-spacing: -0.012em;
-    margin: 0 0 clamp(1.5rem, 3vw, 2.25rem);
-    color: var(--color-text);
   }
 
   .team-member__bio {
@@ -178,7 +155,6 @@ const {
       gap: var(--space-xl);
     }
 
-    /* Mobile: portrait always above text, regardless of reverse */
     .team-member__portrait,
     .team-member--reverse .team-member__portrait,
     .team-member__content,
@@ -195,16 +171,13 @@ const {
     .team-member__content,
     .team-member--reverse .team-member__content {
       order: 1;
+      max-width: 100%;
     }
 
     .team-member__portrait {
       max-width: 26rem;
       margin-inline: auto;
       width: 100%;
-    }
-
-    .team-member__content {
-      max-width: 100%;
     }
 
     .team-member__bio p {
@@ -225,12 +198,10 @@ const {
       const portrait = section.querySelector<HTMLElement>(
         '[data-team-portrait]'
       );
-      const eyebrow = section.querySelector<HTMLElement>('[data-team-eyebrow]');
-      const name = section.querySelector<HTMLElement>('[data-team-name]');
+      const role = section.querySelector<HTMLElement>('[data-team-role]');
       const bioParas = section.querySelectorAll<HTMLElement>('[data-team-bio]');
 
-      // Set initial state
-      const targets = [portrait, eyebrow, name, ...bioParas].filter(
+      const targets = [portrait, role, ...bioParas].filter(
         (el): el is HTMLElement => el !== null
       );
       gsap.set(targets, { y: 24, autoAlpha: 0 });
@@ -245,13 +216,12 @@ const {
       });
 
       if (portrait) tl.to(portrait, { y: 0, autoAlpha: 1 }, 0);
-      if (eyebrow) tl.to(eyebrow, { y: 0, autoAlpha: 1, duration: 0.7 }, 0.15);
-      if (name) tl.to(name, { y: 0, autoAlpha: 1, duration: 0.8 }, 0.22);
+      if (role) tl.to(role, { y: 0, autoAlpha: 1, duration: 0.7 }, 0.15);
       if (bioParas.length)
         tl.to(
           bioParas,
           { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.08 },
-          0.32
+          0.25
         );
     });
 
