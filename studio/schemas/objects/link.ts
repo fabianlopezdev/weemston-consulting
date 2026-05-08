@@ -43,6 +43,7 @@ export default defineType({
           { title: 'Case Studies Page', value: 'caseStudiesPage' },
           { title: 'Contact Page', value: 'contactPage' },
           { title: 'The Journey', value: 'aboutPage' },
+          { title: 'Our Team', value: 'teamPage' },
           { title: 'Our Approach Page', value: 'approachPage' },
           { title: 'Individual Case Study', value: 'caseStudy' },
           { title: 'Legal Page', value: 'legal' },
@@ -172,6 +173,7 @@ export default defineType({
           caseStudiesPage: 'Case Studies Page',
           contactPage: 'Contact Page',
           aboutPage: 'The Journey',
+          teamPage: 'Our Team',
           approachPage: 'Our Approach Page',
         };
 

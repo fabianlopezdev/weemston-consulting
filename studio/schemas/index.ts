@@ -10,6 +10,8 @@ import experienceCard from './objects/experienceCard';
 import howWeWorkCard from './objects/howWeWorkCard';
 import approachValueCard from './objects/approachValueCard';
 import bioBit from './objects/bioBit';
+import pullQuote from './objects/pullQuote';
+import teamMemberBio from './objects/teamMemberBio';
 
 // Section types
 import heroSection from './objects/sections/heroSection';
@@ -29,6 +31,7 @@ import service from './documents/service';
 import caseStudy from './documents/caseStudy';
 import legal from './documents/legal';
 import testimonial from './documents/testimonial';
+import teamMember from './documents/teamMember';
 
 // Singletons
 import siteSettings from './singletons/siteSettings';
@@ -38,6 +41,7 @@ import caseStudiesPage from './singletons/caseStudiesPage';
 import contactPage from './singletons/contactPage';
 import aboutPage from './singletons/aboutPage';
 import approachPage from './singletons/approachPage';
+import teamPage from './singletons/teamPage';
 
 export const schemaTypes = [
   // Objects
@@ -52,6 +56,8 @@ export const schemaTypes = [
   howWeWorkCard,
   approachValueCard,
   bioBit,
+  pullQuote,
+  teamMemberBio,
   // Sections
   heroSection,
   featuredServicesSection,
@@ -69,6 +75,7 @@ export const schemaTypes = [
   caseStudy,
   legal,
   testimonial,
+  teamMember,
   // Singletons
   siteSettings,
   homepage,
@@ -77,4 +84,5 @@ export const schemaTypes = [
   contactPage,
   aboutPage,
   approachPage,
+  teamPage,
 ];

@@ -19,6 +19,7 @@ import {
   HiTrendingUp,
   HiChatAlt,
   HiLightBulb,
+  HiUserGroup,
 } from 'react-icons/hi';
 import { DocumentListWithBanner } from './components/DocumentListWithBanner';
 
@@ -31,6 +32,7 @@ const singletonTypes = new Set([
   'contactPage',
   'aboutPage',
   'approachPage',
+  'teamPage',
 ]);
 
 export default defineConfig({
@@ -163,6 +165,39 @@ export default defineConfig({
                 S.document()
                   .schemaType('approachPage')
                   .documentId('approachPage')
+              ),
+            // Our Team Page
+            S.listItem()
+              .title('Our Team Page')
+              .icon(HiUserGroup)
+              .id('teamPage-singleton')
+              .child(
+                isMultiLanguage
+                  ? S.list()
+                      .title('Our Team Page by Language')
+                      .items(
+                        supportedLanguages.map((lang) =>
+                          S.listItem()
+                            .title(lang.title)
+                            .child(
+                              S.document()
+                                .schemaType('teamPage')
+                                .documentId(`teamPage-${lang.id}`)
+                            )
+                        )
+                      )
+                  : S.document()
+                      .schemaType('teamPage')
+                      .documentId(`teamPage-${baseLanguage?.id || 'en'}`)
+              ),
+            // Team Members
+            S.listItem()
+              .title('Team Members')
+              .icon(HiUserGroup)
+              .child(
+                S.documentTypeList('teamMember')
+                  .title('Team Members')
+                  .defaultOrdering([{ field: 'order', direction: 'asc' }])
               ),
             // Legal Pages
             S.listItem()
