@@ -41,7 +41,7 @@ const PAGE_TYPE_URLS: Record<string, string> = {
   servicesPage: '/services',
   caseStudiesPage: '/case-studies',
   contactPage: '/contact',
-  aboutPage: '/about',
+  aboutPage: '/the-journey',
   approachPage: '/approach',
 };
 

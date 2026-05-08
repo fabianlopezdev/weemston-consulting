@@ -173,7 +173,7 @@ const backgroundColorFields = [
 
 export default defineType({
   name: 'aboutPage',
-  title: 'About Page',
+  title: 'The Journey Page',
   type: 'document',
   fieldsets: [
     {

@@ -37,6 +37,9 @@ export default defineConfig({
   // TODO: Change back to 'static' when content is finalized
   output: 'server',
   adapter: netlify(),
+  redirects: {
+    '/about': '/the-journey',
+  },
   server: {
     open: true,
   },

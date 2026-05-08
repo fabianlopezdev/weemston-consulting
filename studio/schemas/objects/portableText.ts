@@ -54,7 +54,7 @@ export default defineType({
                     { title: 'Services Page', value: 'servicesPage' },
                     { title: 'Case Studies Page', value: 'caseStudiesPage' },
                     { title: 'Contact Page', value: 'contactPage' },
-                    { title: 'About Page', value: 'aboutPage' },
+                    { title: 'The Journey', value: 'aboutPage' },
                     { title: 'Individual Service', value: 'service' },
                     { title: 'Individual Case Study', value: 'caseStudy' },
                     { title: 'Legal Page', value: 'legal' },

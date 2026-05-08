@@ -130,9 +130,9 @@ export default defineConfig({
                       .schemaType('contactPage')
                       .documentId(`contactPage-${baseLanguage?.id || 'en'}`)
               ),
-            // About Page
+            // The Journey Page (formerly About Page)
             S.listItem()
-              .title('About Page')
+              .title('The Journey Page')
               .icon(HiInformationCircle)
               .id('aboutPage-singleton')
               .child(
