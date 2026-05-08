@@ -4,6 +4,7 @@ import portableText from './objects/portableText';
 import media from './objects/media';
 import link from './objects/link';
 import navigationLink from './objects/navigationLink';
+import navigationGroup from './objects/navigationGroup';
 import buttonColor from './objects/buttonColor';
 import experienceCard from './objects/experienceCard';
 import howWeWorkCard from './objects/howWeWorkCard';
@@ -45,6 +46,7 @@ export const schemaTypes = [
   media,
   link,
   navigationLink,
+  navigationGroup,
   buttonColor,
   experienceCard,
   howWeWorkCard,

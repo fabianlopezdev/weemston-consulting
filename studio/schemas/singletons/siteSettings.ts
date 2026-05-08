@@ -149,7 +149,7 @@ export default defineType({
       name: 'navigation',
       title: 'Navigation Links (optional)',
       type: 'array',
-      of: [{ type: 'navigationLink' }],
+      of: [{ type: 'navigationLink' }, { type: 'navigationGroup' }],
     },
     {
       name: 'footer',
@@ -175,7 +175,7 @@ export default defineType({
           name: 'links',
           title: 'Footer Links (optional)',
           type: 'array',
-          of: [{ type: 'navigationLink' }],
+          of: [{ type: 'navigationLink' }, { type: 'navigationGroup' }],
         },
       ],
     },
