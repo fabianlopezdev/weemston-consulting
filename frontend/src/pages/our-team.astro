@@ -2,76 +2,66 @@
 /**
  * Our Team Page
  *
- * Hardcoded for now — bios and images live in this file so editors can
- * iterate on copy + design quickly. When the team grows, migrate to a
- * Sanity `teamMember` document type and feed `<TeamMember />` from a query.
+ * Fully CMS-driven: hero comes from the `teamPage` singleton; member sections
+ * come from the `teamMember` document type, ordered ascending by `order`.
+ * Visual rhythm (portrait side + bg tone) alternates automatically by
+ * position, so the editor only needs to reorder members.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
+import { sanityClient as client } from 'sanity:client';
+import { teamPageQuery } from '@lib/sanity/queries';
 import InternalPageHero from '@components/sections/InternalPageHero.astro';
 import TeamMember from '@components/sections/TeamMember.astro';
 
-import jenniferImage from '@assets/team/jennifer-scully.png';
-import sarahImage from '@assets/team/sarah-przybocki.jpeg';
+const data = await client.fetch(teamPageQuery);
+const page = data?.page ?? null;
+const members = Array.isArray(data?.members) ? data.members : [];
 
-const jennifer = {
-  name: 'Jennifer L. Scully, Ed.D.',
-  nameAccent: 'Scully',
-  role: 'Office Manager',
-  tone: 'plain' as const,
-  image: jenniferImage,
-  imageAlt:
-    'Portrait of Jennifer L. Scully, Office Manager at Weemston Consulting',
-  bioParagraphs: [
-    "Jennifer L. Scully, Ed.D., is Weemston Consulting's Office Manager, keeping the practice running behind the scenes so client work stays the focus. She owns the operational rhythm of the firm, from internal systems and cross-client coordination to invoicing and scheduling.",
-    'Jenn brings more than 30 years of leadership experience, with a career spent building the systems, structures, and culture that allow organizations to run well and people to do their best work. She has led teams through growth, change, and complexity, and that operational instinct, combined with a steady, people-first approach, is what she brings to Weemston every day.',
-    'Her leadership career has been in education, in roles including teacher, coach, Dean of Admissions, Assistant Head of School, and Head of School at Maplebrook School. Her work has long centered on coaching, mentoring, crisis management, and strategic planning, and she has developed and implemented mentoring programs for schools and organizations and presented on these topics at national and international conferences. She currently serves as Professor of Practice in the School of Education at Marymount University and remains actively engaged in professional service, including as an editor for the International Journal of Mentoring and Coaching in Education.',
-    "Jenn also supports Jessica's coaching practice, The Authentic Collective, putting her deep background in mentoring, program design, and human development to work programmatically as the practice grows.",
-  ],
-  pullQuote:
-    'A steady, people-first approach is what she brings to Weemston every day.',
-  pullQuoteAfter: 0,
-};
+if (!page) {
+  return Astro.redirect('/404');
+}
 
-const sarah = {
-  name: 'Sarah Przybocki',
-  nameAccent: 'Przybocki',
-  role: 'Client Engagement and Events Manager',
-  tone: 'cream' as const,
-  image: sarahImage,
-  imageAlt:
-    'Portrait of Sarah Przybocki, Client Engagement and Events Manager at Weemston Consulting',
-  bioParagraphs: [
-    "Sarah Przybocki is Weemston Consulting's Client Engagement and Events Manager. She is a project manager with extensive events experience and a background in HR initiatives and cross-functional projects, where she has built a reputation for keeping complex work on track and the people inside it well-supported.",
-    "Sarah holds a B.S. in Psychology from the University of Maryland and a Graduate Certificate in Project Management from the University of Maryland Global Campus. That combination shows up in how she works, with one foot in the operational rhythm of a project and the other in the human dynamics that make it succeed. She brings a human-centered, systems-thinking approach to everything she touches, whether she's holding the operational rhythm of a complex engagement, managing a client relationship, or supporting an event from planning through onsite. Sarah is at her best working behind the scenes so leaders and teams can stay focused on what only they can do.",
-    'Beyond project delivery, Sarah is a natural mentor and team builder. She regularly supports early-career colleagues, gathers actionable feedback, and develops resources and frameworks that help teams grow into high-performing, collaborative cultures. Clients and colleagues describe her as steady, thoughtful, and quietly indispensable.',
-    'Outside of work, Sarah is usually outside, with family and friends, or trying her hand at a new craft.',
-  ],
-  pullQuote: 'Steady, thoughtful, and quietly indispensable.',
-  pullQuoteAfter: 1,
-};
-
-const pageTitle = 'Our Team | Weemston Consulting';
+const pageTitle = page.title || 'Our Team | Weemston Consulting';
 const pageDescription =
-  'Meet the people behind Weemston Consulting — Jennifer L. Scully, Ed.D. and Sarah Przybocki.';
+  page.metaDescription || 'Meet the people behind Weemston Consulting.';
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
   <InternalPageHero
-    heading="Our Team"
-    headingHighlight="Team"
-    tagline="The people behind Weemston Consulting"
+    heading={page.heroHeading}
+    headingHighlight={page.heroHeadingHighlight}
+    tagline={page.heroTagline}
   />
 
-  <div class="team-members">
-    <TeamMember {...jennifer} />
-    <TeamMember {...sarah} reverse />
-  </div>
+  {
+    members.length > 0 ? (
+      <div class="team-members">
+        {members.map((member: any, i: number) => (
+          <TeamMember member={member} index={i} />
+        ))}
+      </div>
+    ) : (
+      <section class="team-members__empty">
+        <div class="container">
+          <p>Team members coming soon.</p>
+        </div>
+      </section>
+    )
+  }
 </BaseLayout>
 
 <style is:global>
-  /* Subtle hairline between team members keeps the editorial rhythm */
+  /* Subtle hairline between team members keeps the editorial rhythm. */
   .team-members > .team-member ~ .team-member {
     border-block-start: 1px solid
       color-mix(in srgb, var(--color-text) 8%, transparent);
+  }
+</style>
+
+<style>
+  .team-members__empty {
+    padding-block: clamp(4rem, 9vw, 8rem);
+    text-align: center;
+    color: var(--color-text-muted);
   }
 </style>

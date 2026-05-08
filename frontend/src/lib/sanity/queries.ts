@@ -1094,3 +1094,33 @@ export const servicesPageNewQuery = groq`
     }
   }
 `;
+
+// Our Team Page (singleton hero + all teamMember documents)
+// PortableText `bio` is fetched in full so block + custom pullQuote children
+// pass through to the renderer untouched.
+export const teamPageQuery = groq`
+  {
+    "page": *[_type == "teamPage"][0] {
+      _id,
+      title,
+      metaDescription,
+      ogImage {
+        ${imageProjection}
+      },
+      heroHeading,
+      heroHeadingHighlight,
+      heroTagline
+    },
+    "members": *[_type == "teamMember"] | order(order asc, _createdAt asc) {
+      _id,
+      name,
+      nameAccent,
+      role,
+      image {
+        ${imageProjection}
+      },
+      bio,
+      order
+    }
+  }
+`;

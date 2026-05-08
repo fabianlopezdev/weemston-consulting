@@ -1,0 +1,20 @@
+---
+/**
+ * Renderer for the `pullQuote` PortableText block embedded in a team member's
+ * bio. Receives the parsed block as `node` from astro-portabletext and emits
+ * the same markup the hardcoded version used so the existing CSS continues to
+ * apply.
+ */
+interface Props {
+  node?: { text?: string };
+}
+
+const { node } = Astro.props;
+const text = typeof node?.text === 'string' ? node.text : '';
+
+if (!text) return null;
+---
+
+<blockquote class="team-member__pull-quote" data-team-quote>
+  {text}
+</blockquote>

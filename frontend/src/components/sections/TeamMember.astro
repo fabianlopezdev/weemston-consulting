@@ -2,65 +2,72 @@
 /**
  * TeamMember
  *
- * Editorial bio section for the Our Team page. Mirrors the title typography
- * used by AboutTwoColumn on the journey page (Lora serif, --font-size-3xl,
- * weight 400, accent color, left-aligned), so a "Sarah Przybocki" or
- * "Jennifer L. Scully, Ed.D." here reads as the same kind of section title
- * as "The Woman Behind Weemston Consulting" there.
+ * Editorial bio section for /our-team. Receives a Sanity teamMember document
+ * and a positional `index`; layout rhythm (portrait side + bg tone) is
+ * derived from the index automatically — even members get plain bg with
+ * portrait left, odd members get a soft cream tint with portrait right.
  *
- * Layout: asymmetric two-column grid. Portrait in the narrower column;
- * eyebrow (role) + name + bio (with optional inline pull quote) in the wider
- * column. The `reverse` prop swaps which side the portrait sits on for
- * editorial rhythm.
+ * Mirrors the title typography of AboutTwoColumn on /the-journey (Lora
+ * serif, --font-size-3xl, weight 400, accent color, left-aligned) and reuses
+ * the hover/portrait treatment used by the about sections.
  *
- * Optional editorial flourishes:
- *   - `nameAccent`: substring of `name` to italicize (matches the hero's
- *     "Our *Team*" treatment).
- *   - `pullQuote` + `pullQuoteAfter`: a Lora italic callout placed inline
- *     between bio paragraphs, with a thin top rule.
- *   - `tone`: 'plain' (no bg) or 'cream' (barely-visible warm tint) for
- *     subtle alternation between members.
- *   - First paragraph of each bio gets a drop cap.
+ * The bio is PortableText. Inserting a `pullQuote` block in the studio
+ * renders as a centered italic Lora callout between the surrounding
+ * paragraphs (see TeamMemberPullQuote.astro).
  */
-import { Image } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
+import { PortableText } from 'astro-portabletext';
+import type { PortableTextBlock } from '@portabletext/types';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+import Image from '@components/media/Image.astro';
+import TeamMemberPullQuote from './TeamMemberPullQuote.astro';
 
-interface Props {
+interface SanityImage {
+  asset?: SanityImageSource;
+  alt?: string;
+  hotspot?: { x: number; y: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface Member {
+  _id?: string;
   name: string;
   nameAccent?: string;
   role: string;
-  image: ImageMetadata;
-  imageAlt: string;
-  bioParagraphs: string[];
-  pullQuote?: string;
-  pullQuoteAfter?: number;
-  tone?: 'plain' | 'cream';
-  reverse?: boolean;
+  image: SanityImage;
+  bio: PortableTextBlock[];
 }
 
-const {
-  name,
-  nameAccent,
-  role,
-  image,
-  imageAlt,
-  bioParagraphs,
-  pullQuote,
-  pullQuoteAfter = 0,
-  tone = 'plain',
-  reverse = false,
-} = Astro.props;
+interface Props {
+  member: Member;
+  index: number;
+}
 
-// Compute name parts for the italic accent (if any).
+const { member, index } = Astro.props;
+const { name, nameAccent, role, image, bio } = member;
+
+// Layout rhythm derived from position: even = plain bg / portrait left,
+// odd = cream tint / portrait right.
+const reverse = index % 2 === 1;
+const tone: 'plain' | 'cream' = reverse ? 'cream' : 'plain';
+
+// Italicize the configured substring of the name (if any) without
+// introducing JSX-whitespace artifacts.
 const accentIndex =
   nameAccent && name.includes(nameAccent) ? name.indexOf(nameAccent) : -1;
 const namePartBefore = accentIndex > -1 ? name.slice(0, accentIndex) : name;
 const namePartAccent =
   accentIndex > -1
-    ? name.slice(accentIndex, accentIndex + nameAccent!.length)
+    ? name.slice(accentIndex, accentIndex + (nameAccent?.length ?? 0))
     : '';
 const namePartAfter =
-  accentIndex > -1 ? name.slice(accentIndex + nameAccent!.length) : '';
+  accentIndex > -1 ? name.slice(accentIndex + (nameAccent?.length ?? 0)) : '';
+
+// Custom serializer: route the `pullQuote` block type to our component.
+const portableTextComponents = {
+  type: {
+    pullQuote: TeamMemberPullQuote,
+  },
+};
 ---
 
 <article
@@ -72,16 +79,12 @@ const namePartAfter =
     <div class="team-member__grid">
       <figure class="team-member__portrait" data-team-portrait>
         <Image
-          src={image}
-          alt={imageAlt}
-          format="webp"
-          quality={82}
-          widths={[480, 720, 960, 1200]}
+          image={image as SanityImageSource}
+          alt={image?.alt || `Portrait of ${name}`}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 38vw, 480px"
-          class="team-member__image"
         />
       </figure>
-      <div class="team-member__content">
+      <div class="team-member__content" data-team-content>
         <p class="team-member__eyebrow" data-team-eyebrow>{role}</p>
         <h2
           class="team-member__name"
@@ -90,20 +93,8 @@ const namePartAfter =
             ? `${namePartBefore}<em>${namePartAccent}</em>${namePartAfter}`
             : name}
         />
-
-        <div class="team-member__bio">
-          {
-            bioParagraphs.map((paragraph, i) => (
-              <>
-                <p data-team-bio>{paragraph}</p>
-                {pullQuote && i === pullQuoteAfter && (
-                  <blockquote class="team-member__pull-quote" data-team-quote>
-                    {pullQuote}
-                  </blockquote>
-                )}
-              </>
-            ))
-          }
+        <div class="team-member__bio" data-team-bio>
+          <PortableText value={bio} components={portableTextComponents} />
         </div>
       </div>
     </div>
@@ -116,9 +107,6 @@ const namePartAfter =
     padding-block: clamp(4rem, 9vw, 8rem);
   }
 
-  /* Subtle warm tint for alternating members. var(--color-primary) is the
-     project cream (#fff4e6); mixed 35% with white gives ~#fffaf3 — present
-     but quiet. */
   .team-member[data-tone='cream'] {
     background-color: color-mix(in srgb, var(--color-primary) 35%, white);
   }
@@ -155,7 +143,8 @@ const namePartAfter =
 
   /* Mirrors the image hover treatment used by AboutTwoColumn/AboutTwoPhotos/
      AboutTextWrap on the journey page (scale 1.03, 0.5s ease). */
-  .team-member__image {
+  .team-member__portrait :global(img),
+  .team-member__portrait :global(.image-blur-wrapper) {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -163,7 +152,7 @@ const namePartAfter =
     transition: transform 0.5s ease;
   }
 
-  .team-member__portrait:hover .team-member__image {
+  .team-member__portrait:hover :global(img) {
     transform: scale(1.03);
   }
 
@@ -194,7 +183,7 @@ const namePartAfter =
     margin: 0 0 clamp(1.25rem, 2.4vw, 1.75rem);
   }
 
-  .team-member__name em {
+  .team-member__name :global(em) {
     font-style: italic;
   }
 
@@ -208,13 +197,13 @@ const namePartAfter =
     color: color-mix(in srgb, var(--color-text) 88%, transparent);
   }
 
-  .team-member__bio p {
+  .team-member__bio :global(p) {
     margin: 0;
     max-width: 58ch;
   }
 
   /* Drop cap on the first paragraph of each bio. */
-  .team-member__bio p:first-of-type::first-letter {
+  .team-member__bio :global(p:first-of-type::first-letter) {
     float: left;
     font-family: var(--font-heading);
     font-size: 3.4em;
@@ -225,7 +214,7 @@ const namePartAfter =
   }
 
   /* Inline pull quote — sits between bio paragraphs, centered in the column. */
-  .team-member__pull-quote {
+  .team-member__bio :global(.team-member__pull-quote) {
     margin: clamp(0.75rem, 1.2vw, 1.25rem) auto;
     max-width: 50ch;
     font-family: var(--font-heading);
@@ -234,6 +223,27 @@ const namePartAfter =
     line-height: 1.4;
     color: var(--color-accent);
     text-align: center;
+  }
+
+  /* Inline marks inside bio */
+  .team-member__bio :global(em) {
+    font-style: italic;
+  }
+
+  .team-member__bio :global(strong) {
+    font-weight: var(--font-weight-medium);
+  }
+
+  .team-member__bio :global(a) {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    transition: opacity var(--transition-fast);
+  }
+
+  .team-member__bio :global(a:hover) {
+    opacity: 0.8;
   }
 
   @media (max-width: 768px) {
@@ -268,7 +278,7 @@ const namePartAfter =
       width: 100%;
     }
 
-    .team-member__bio p {
+    .team-member__bio :global(p) {
       max-width: 100%;
     }
   }
@@ -288,10 +298,9 @@ const namePartAfter =
       );
       const eyebrow = section.querySelector<HTMLElement>('[data-team-eyebrow]');
       const name = section.querySelector<HTMLElement>('[data-team-name]');
-      const bioParas = section.querySelectorAll<HTMLElement>('[data-team-bio]');
-      const quote = section.querySelector<HTMLElement>('[data-team-quote]');
+      const bio = section.querySelector<HTMLElement>('[data-team-bio]');
 
-      const targets = [portrait, eyebrow, name, ...bioParas, quote].filter(
+      const targets = [portrait, eyebrow, name, bio].filter(
         (el): el is HTMLElement => el !== null
       );
       gsap.set(targets, { y: 24, autoAlpha: 0 });
@@ -308,13 +317,7 @@ const namePartAfter =
       if (portrait) tl.to(portrait, { y: 0, autoAlpha: 1 }, 0);
       if (eyebrow) tl.to(eyebrow, { y: 0, autoAlpha: 1, duration: 0.7 }, 0.15);
       if (name) tl.to(name, { y: 0, autoAlpha: 1, duration: 0.8 }, 0.22);
-      if (bioParas.length)
-        tl.to(
-          bioParas,
-          { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.08 },
-          0.32
-        );
-      if (quote) tl.to(quote, { y: 0, autoAlpha: 1, duration: 0.8 }, 0.45);
+      if (bio) tl.to(bio, { y: 0, autoAlpha: 1, duration: 0.9 }, 0.32);
     });
 
     ScrollTrigger.refresh();
