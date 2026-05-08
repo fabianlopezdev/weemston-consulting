@@ -46,16 +46,16 @@ const footerLogoUrl = footerLogo
     {
       footerLinks.length > 0 && (
         <nav class="footer-content" aria-label={t('aria.footer_navigation')}>
-          <div class="footer-columns">
+          <ul class="footer-links">
             {footerLinks.map((item: any) => {
               if (item._type === 'navigationGroup') {
                 const children = Array.isArray(item.children)
                   ? item.children
                   : [];
                 return (
-                  <div class="footer-column footer-column--group">
-                    <h3 class="footer-column-heading">{item.label}</h3>
-                    <ul class="footer-column-links">
+                  <li class="footer-group">
+                    <span class="footer-group__heading">{item.label}</span>
+                    <ul class="footer-group__links">
                       {children.map((child: any) => {
                         const childHref = resolveLinkUrl(child);
                         const isChildExternal =
@@ -78,14 +78,14 @@ const footerLogoUrl = footerLogo
                         );
                       })}
                     </ul>
-                  </div>
+                  </li>
                 );
               }
               const href = resolveLinkUrl(item);
               const isExternal =
                 item.openInNewTab || item.linkType === 'external';
               return (
-                <div class="footer-column">
+                <li>
                   <a
                     href={href}
                     {...(isExternal
@@ -98,10 +98,10 @@ const footerLogoUrl = footerLogo
                   >
                     {item.text}
                   </a>
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </nav>
       )
     }
@@ -181,42 +181,46 @@ const footerLogoUrl = footerLogo
     z-index: 2;
   }
 
-  .footer-columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
-    gap: var(--space-2xl) var(--space-3xl);
-    align-items: start;
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-sm) var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 
-  .footer-column {
+  .footer-links a {
+    color: var(--color-text);
+    transition: opacity var(--transition-fast);
+  }
+
+  .footer-links a:hover {
+    opacity: 0.8;
+  }
+
+  /* Optional grouped column (only renders when a navigationGroup exists in CMS) */
+  .footer-group {
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
+    /* Reserve a column-like footprint so the group reads as a heading + list */
+    margin-inline-end: var(--space-lg);
   }
 
-  .footer-column-heading {
-    font-size: var(--font-size-base, 1rem);
-    font-weight: var(--font-weight-bold, 600);
-    margin: 0 0 var(--space-sm) 0;
+  .footer-group__heading {
+    font-weight: var(--font-weight-medium);
     color: var(--color-text);
   }
 
-  .footer-column-links {
+  .footer-group__links {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
-  }
-
-  .footer-column a {
-    color: var(--color-text);
-    transition: opacity var(--transition-fast);
-  }
-
-  .footer-column a:hover {
-    opacity: 0.8;
+    gap: var(--space-xs);
   }
 
   .footer-credit {
@@ -283,19 +287,15 @@ const footerLogoUrl = footerLogo
       margin-block-end: var(--space-2xl);
     }
 
-    .footer-columns {
-      grid-template-columns: 1fr;
-      justify-items: center;
-      gap: var(--space-xl);
+    .footer-links {
+      flex-direction: column;
+      align-items: center;
     }
 
-    .footer-column {
+    .footer-group {
       align-items: center;
       text-align: center;
-    }
-
-    .footer-column-links {
-      align-items: center;
+      margin-inline-end: 0;
     }
 
     .footer-logo-image {
