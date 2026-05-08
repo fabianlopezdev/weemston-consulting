@@ -61,6 +61,48 @@ const showText =
         <ul class="nav-list">
           {
             navigation.map((item: any) => {
+              if (item._type === 'navigationGroup') {
+                const children = Array.isArray(item.children)
+                  ? item.children
+                  : [];
+                return (
+                  <li class="nav-item nav-item--group">
+                    <button
+                      type="button"
+                      class="nav-trigger"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                    >
+                      {item.label}
+                    </button>
+                    <ul class="nav-submenu" role="menu">
+                      {children.map((child: any) => {
+                        const childHref = resolveLinkUrl(child);
+                        const isChildExternal =
+                          child.openInNewTab || child.linkType === 'external';
+                        const childExternalAttrs = isChildExternal
+                          ? {
+                              target: '_blank',
+                              rel: 'noopener noreferrer',
+                              'aria-label': `${child.text} (${t('aria.external_link')})`,
+                            }
+                          : {};
+                        return (
+                          <li role="none">
+                            <a
+                              href={childHref}
+                              role="menuitem"
+                              {...childExternalAttrs}
+                            >
+                              {child.text}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                );
+              }
               const href = resolveLinkUrl(item);
               const isExternal =
                 item.openInNewTab || item.linkType === 'external';
@@ -160,6 +202,89 @@ const showText =
     opacity: 0.8;
   }
 
+  /* Dropdown trigger (non-clickable parent that opens submenu) */
+  .nav-item--group {
+    position: relative;
+  }
+
+  .nav-trigger {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: var(--color-text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: opacity var(--transition-fast);
+  }
+
+  .nav-trigger:hover {
+    opacity: 0.8;
+  }
+
+  .nav-trigger::after {
+    content: '';
+    display: inline-block;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform var(--transition-fast);
+  }
+
+  .nav-submenu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 769px) {
+    .nav-submenu {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translate(-50%, -8px);
+      min-width: 12rem;
+      padding-block: var(--space-sm);
+      background-color: rgba(255, 255, 255, 0.95);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border-radius: 6px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0.2s;
+    }
+
+    .nav-item--group:hover .nav-submenu,
+    .nav-item--group:focus-within .nav-submenu,
+    .nav-trigger[aria-expanded='true'] + .nav-submenu {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
+
+    .nav-item--group:hover .nav-trigger::after,
+    .nav-item--group:focus-within .nav-trigger::after,
+    .nav-trigger[aria-expanded='true']::after {
+      transform: translateY(2px) rotate(225deg);
+    }
+
+    .nav-submenu a {
+      display: block;
+      padding: var(--space-sm) var(--space-md);
+      color: var(--color-text);
+      white-space: nowrap;
+    }
+  }
+
   /* Hamburger button - hidden on desktop */
   .hamburger {
     display: none;
@@ -248,6 +373,32 @@ const showText =
       display: block;
       padding: var(--space-sm) 0;
     }
+
+    .nav-trigger {
+      width: 100%;
+      justify-content: center;
+      padding: var(--space-sm) 0;
+    }
+
+    .nav-submenu {
+      display: none;
+      padding-block-start: var(--space-xs);
+    }
+
+    .nav-trigger[aria-expanded='true'] + .nav-submenu {
+      display: block;
+    }
+
+    .nav-trigger[aria-expanded='true']::after {
+      transform: translateY(2px) rotate(225deg);
+    }
+
+    .nav-submenu a {
+      display: block;
+      padding: var(--space-xs) 0;
+      color: var(--color-text);
+      opacity: 0.85;
+    }
   }
 </style>
 
@@ -334,4 +485,38 @@ const showText =
       }
     });
   }
+
+  // Dropdown trigger toggle (header nav groups)
+  const navTriggers =
+    document.querySelectorAll<HTMLButtonElement>('.nav-trigger');
+
+  function closeAllDropdowns(except?: HTMLButtonElement) {
+    navTriggers.forEach((t) => {
+      if (t !== except) t.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  navTriggers.forEach((trigger) => {
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isExpanded = trigger.getAttribute('aria-expanded') === 'true';
+      closeAllDropdowns(trigger);
+      trigger.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+    });
+  });
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', (e) => {
+    const target = e.target as Element | null;
+    if (!target?.closest('.nav-item--group')) {
+      closeAllDropdowns();
+    }
+  });
+
+  // Close dropdowns on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeAllDropdowns();
+    }
+  });
 </script>

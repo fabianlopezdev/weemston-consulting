@@ -46,29 +46,62 @@ const footerLogoUrl = footerLogo
     {
       footerLinks.length > 0 && (
         <nav class="footer-content" aria-label={t('aria.footer_navigation')}>
-          <ul class="footer-links">
-            {footerLinks.map((link: any) => {
-              const href = resolveLinkUrl(link);
+          <div class="footer-columns">
+            {footerLinks.map((item: any) => {
+              if (item._type === 'navigationGroup') {
+                const children = Array.isArray(item.children)
+                  ? item.children
+                  : [];
+                return (
+                  <div class="footer-column footer-column--group">
+                    <h3 class="footer-column-heading">{item.label}</h3>
+                    <ul class="footer-column-links">
+                      {children.map((child: any) => {
+                        const childHref = resolveLinkUrl(child);
+                        const isChildExternal =
+                          child.openInNewTab || child.linkType === 'external';
+                        return (
+                          <li>
+                            <a
+                              href={childHref}
+                              {...(isChildExternal
+                                ? {
+                                    target: '_blank',
+                                    rel: 'noopener noreferrer',
+                                    'aria-label': `${child.text} (${t('aria.external_link')})`,
+                                  }
+                                : {})}
+                            >
+                              {child.text}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                );
+              }
+              const href = resolveLinkUrl(item);
               const isExternal =
-                link.openInNewTab || link.linkType === 'external';
+                item.openInNewTab || item.linkType === 'external';
               return (
-                <li>
+                <div class="footer-column">
                   <a
                     href={href}
                     {...(isExternal
                       ? {
                           target: '_blank',
                           rel: 'noopener noreferrer',
-                          'aria-label': `${link.text} (${t('aria.external_link')})`,
+                          'aria-label': `${item.text} (${t('aria.external_link')})`,
                         }
                       : {})}
                   >
-                    {link.text}
+                    {item.text}
                   </a>
-                </li>
+                </div>
               );
             })}
-          </ul>
+          </div>
         </nav>
       )
     }
@@ -148,19 +181,41 @@ const footerLogoUrl = footerLogo
     z-index: 2;
   }
 
-  .footer-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-sm) var(--space-md);
-    list-style: none;
+  .footer-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
+    gap: var(--space-2xl) var(--space-3xl);
+    align-items: start;
   }
 
-  .footer-links a {
+  .footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .footer-column-heading {
+    font-size: var(--font-size-base, 1rem);
+    font-weight: var(--font-weight-bold, 600);
+    margin: 0 0 var(--space-sm) 0;
+    color: var(--color-text);
+  }
+
+  .footer-column-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .footer-column a {
     color: var(--color-text);
     transition: opacity var(--transition-fast);
   }
 
-  .footer-links a:hover {
+  .footer-column a:hover {
     opacity: 0.8;
   }
 
@@ -228,8 +283,18 @@ const footerLogoUrl = footerLogo
       margin-block-end: var(--space-2xl);
     }
 
-    .footer-links {
-      flex-direction: column;
+    .footer-columns {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      gap: var(--space-xl);
+    }
+
+    .footer-column {
+      align-items: center;
+      text-align: center;
+    }
+
+    .footer-column-links {
       align-items: center;
     }
 

@@ -81,13 +81,29 @@ export const siteSettingsQuery = groq`
     },
     navigation[] {
       _key,
-      ${linkProjection}
+      _type,
+      _type == "navigationLink" => { ${linkProjection} },
+      _type == "navigationGroup" => {
+        label,
+        children[] {
+          _key,
+          ${linkProjection}
+        }
+      }
     },
     footer {
       logoVariant,
       links[] {
         _key,
-        ${linkProjection}
+        _type,
+        _type == "navigationLink" => { ${linkProjection} },
+        _type == "navigationGroup" => {
+          label,
+          children[] {
+            _key,
+            ${linkProjection}
+          }
+        }
       }
     }
   }
