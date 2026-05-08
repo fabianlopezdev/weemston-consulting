@@ -9,7 +9,8 @@
     "build": "sanity build",
     "deploy": "sanity deploy",
     "migrate": "sanity exec migrations/v1-initial.ts --with-user-token",
-    "seed": "sanity exec seed/initial.ts --with-user-token"
+    "seed": "sanity exec seed/initial.ts --with-user-token",
+    "seed:team": "sanity exec seed/team-members.ts --with-user-token"
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",
