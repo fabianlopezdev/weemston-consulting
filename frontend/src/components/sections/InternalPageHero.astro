@@ -42,7 +42,11 @@ interface Props {
 const {
   heading,
   headingHighlight,
-  highlightColorType = 'accent',
+  // Defaults mirror the project's standard internal-page hero treatment
+  // (cream bg, italic gray highlight, gray divider). Sanity-driven pages
+  // still override these per-document; hardcoded pages get the right look
+  // out of the box.
+  highlightColorType = 'secondary',
   highlightColorShade = 0,
   highlightCustomColor,
   showDivider = true,
@@ -53,7 +57,7 @@ const {
   taglineColor = 'muted',
   backgroundColorType = 'primary',
   backgroundColorMode = 'solid',
-  backgroundColorShade = 90,
+  backgroundColorShade = 0,
   backgroundCustomColor,
   backgroundGradient,
 } = Astro.props;
