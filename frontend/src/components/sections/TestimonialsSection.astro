@@ -750,19 +750,33 @@ const cards = testimonials.map(renderCard);
 
         // Scroll to the section even when the linked testimonial is not in
         // the homepage list, so the deep link never strands the visitor at
-        // the hero. Delay to ensure the page is fully rendered.
-        setTimeout(() => {
-          const section = document.querySelector('.testimonials-section');
-          section?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // the hero. A smooth scroll computes its target once, but images and
+        // pinned sections above keep growing the page during load, so it
+        // lands short. Instead: wait for the full page load, jump instantly,
+        // and re-assert once more after layout settles.
+        const jumpToSection = () => {
+          document
+            .querySelector('.testimonials-section')
+            ?.scrollIntoView({ behavior: 'auto', block: 'center' });
+        };
+        const runDeepLink = () => {
+          requestAnimationFrame(() => {
+            jumpToSection();
+            setTimeout(jumpToSection, 400);
 
-          if (targetCard) {
-            // Highlight the card after scroll starts
-            targetCard.classList.add('testimonial-card--highlighted');
-            setTimeout(() => {
-              targetCard.classList.remove('testimonial-card--highlighted');
-            }, 2000);
-          }
-        }, 100);
+            if (targetCard) {
+              targetCard.classList.add('testimonial-card--highlighted');
+              setTimeout(() => {
+                targetCard.classList.remove('testimonial-card--highlighted');
+              }, 2400);
+            }
+          });
+        };
+        if (document.readyState === 'complete') {
+          runDeepLink();
+        } else {
+          window.addEventListener('load', runDeepLink, { once: true });
+        }
 
         // Clear hash from URL
         history.replaceState(null, '', window.location.pathname);
@@ -784,11 +798,20 @@ const cards = testimonials.map(renderCard);
 
       // Deep link from case study testimonials (reduced motion: jump, no smooth scroll)
       if (window.location.hash.startsWith('#testimonial-')) {
-        setTimeout(() => {
+        const jumpToSection = () => {
           document
             .querySelector('.testimonials-section')
             ?.scrollIntoView({ block: 'center' });
-        }, 100);
+        };
+        const runDeepLink = () => {
+          jumpToSection();
+          setTimeout(jumpToSection, 400);
+        };
+        if (document.readyState === 'complete') {
+          runDeepLink();
+        } else {
+          window.addEventListener('load', runDeepLink, { once: true });
+        }
         history.replaceState(null, '', window.location.pathname);
       }
     }
