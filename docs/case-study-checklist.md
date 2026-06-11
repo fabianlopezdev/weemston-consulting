@@ -52,6 +52,7 @@ Studio → **Case Study** → "Create new"
 | **Contributions Section Title** | Optional        | Defaults to "KEY CONTRIBUTIONS" — leave as-is unless you want a different heading.                      |
 | **Key Contributions**           | Optional        | Add one entry per achievement/deliverable. These become the bullet list.                                |
 | **Related Service**             | Optional        | Links to a **Service** so the case study gets a filter tag on the grid. The service must already exist. |
+| **Testimonial**                 | Optional        | Pick the quote to show in this case study (create it in Step 2 first). Preferred over auto-matching.    |
 | **Language**                    | Auto            | Leave the default unless you're adding a translated version.                                            |
 
 **Publish** the document.
@@ -74,12 +75,13 @@ Studio → **Testimonial** → "Create new"
 | **Avatar**      | Optional                         | If you add a photo, **Alt Text is required**.                      |
 | **Featured**    | Optional                         | A simple on/off flag for filtering; doesn't change how it appears. |
 
-> 🔗 **How a quote connects to a case study:** there is **no "pick a case study" dropdown.**
-> The site matches them automatically by comparing the testimonial's **Company** to the case
-> study's **Client Name**. They don't have to be identical (it ignores "Inc/LLC/Group" etc.),
-> but one has to contain the other. If the **Company field is blank, or doesn't match the
-> Client Name, the quote will NOT appear** in the case study. This is the most common reason a
-> testimonial goes missing.
+> 🔗 **How a quote connects to a case study:** the best way is the **Testimonial field on the
+> Case Study itself** (Case Study → Details tab → Testimonial) — pick the testimonial from the
+> dropdown and you're done. If that field is left empty, the site falls back to matching
+> automatically by comparing the testimonial's **Company** to the case study's **Client Name**
+> (they don't have to be identical — it ignores "Inc/LLC/Group" etc. — but one has to contain
+> the other). **Always prefer the dropdown**: if two case studies have similar client names
+> (e.g. two Nature Conservancy projects), automatic matching can attach the wrong quote.
 
 **Publish** the testimonial.
 
@@ -125,7 +127,8 @@ Studio → **Homepage** → **Featured Case Studies Section**
 
 **Required only if you want a quote to show:**
 
-- Testimonial Name + Quote + **Company that matches the Client Name**
+- Testimonial Name + Quote, **linked via the Testimonial field on the Case Study** (or a
+  Company that matches the Client Name as fallback)
 
 **Everything else is optional** (logo, date, description, contributions, related service,
 position, avatar, website URL, homepage feature).
