@@ -65,28 +65,43 @@ interface TestimonialMatch {
 
 const caseStudyTestimonials = new Map<string, TestimonialMatch>();
 
-caseStudies.forEach((cs: { _id: string; client: string }) => {
-  const normalizedClient = normalizeCompanyName(cs.client);
+// Testimonials explicitly assigned to a case study (via the reference field
+// in Sanity) are excluded from fuzzy matching, so the same quote can't also
+// attach to another case study with a similar client name.
+const explicitlyReferencedIds = new Set(
+  (caseStudies as { testimonial?: Testimonial }[])
+    .map((cs) => cs.testimonial?._id)
+    .filter(Boolean)
+);
 
-  // Find matching testimonial - check if either name contains the other
-  const matchingTestimonial = (testimonials as Testimonial[]).find((t) => {
-    if (!t.company) return false;
-    const normalizedCompany = normalizeCompanyName(t.company);
-    return (
-      normalizedClient.includes(normalizedCompany) ||
-      normalizedCompany.includes(normalizedClient)
-    );
-  });
+caseStudies.forEach(
+  (cs: { _id: string; client: string; testimonial?: Testimonial }) => {
+    const normalizedClient = normalizeCompanyName(cs.client);
 
-  if (matchingTestimonial) {
-    caseStudyTestimonials.set(cs._id, {
-      _id: matchingTestimonial._id,
-      quote: getFirstSentence(matchingTestimonial.quote),
-      authorName: matchingTestimonial.name,
-      authorPosition: matchingTestimonial.position,
-    });
+    // Explicit reference set in Sanity wins; otherwise fall back to
+    // matching the testimonial company against the client name.
+    const matchingTestimonial =
+      cs.testimonial ??
+      (testimonials as Testimonial[]).find((t) => {
+        if (explicitlyReferencedIds.has(t._id)) return false;
+        if (!t.company) return false;
+        const normalizedCompany = normalizeCompanyName(t.company);
+        return (
+          normalizedClient.includes(normalizedCompany) ||
+          normalizedCompany.includes(normalizedClient)
+        );
+      });
+
+    if (matchingTestimonial) {
+      caseStudyTestimonials.set(cs._id, {
+        _id: matchingTestimonial._id,
+        quote: getFirstSentence(matchingTestimonial.quote),
+        authorName: matchingTestimonial.name,
+        authorPosition: matchingTestimonial.position,
+      });
+    }
   }
-});
+);
 
 // Add testimonial data to each case study for the modal
 const caseStudiesWithQuotes = caseStudies.map((cs: any) => ({

@@ -98,6 +98,15 @@ export default defineType({
       to: [{ type: 'service' }],
       description: 'Link this case study to a service',
     },
+    {
+      name: 'testimonial',
+      title: 'Testimonial',
+      type: 'reference',
+      group: 'details',
+      to: [{ type: 'testimonial' }],
+      description:
+        'Pick the testimonial to show in this case study. If left empty, the site falls back to matching the testimonial company to the client name.',
+    },
     { ...defineLanguageField(), group: 'details' },
   ],
   orderings: [
