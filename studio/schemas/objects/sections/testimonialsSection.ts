@@ -419,8 +419,8 @@ export default defineType({
           if (!items || items.length === 0) {
             return 'At least 1 testimonial required when section is enabled';
           }
-          if (items.length > 6) {
-            return 'Maximum 6 testimonials allowed';
+          if (items.length > 12) {
+            return 'Maximum 12 testimonials allowed';
           }
           return true;
         }),

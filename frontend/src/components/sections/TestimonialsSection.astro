@@ -746,22 +746,26 @@ const cards = testimonials.map(renderCard);
           const centerOffset =
             (marquee.offsetWidth - targetCard.offsetWidth) / 2;
           gsap.set(track, { x: -cardOffset + centerOffset });
+        }
 
-          // Delay scroll to ensure page is fully rendered
-          setTimeout(() => {
-            const section = document.querySelector('.testimonials-section');
-            section?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Scroll to the section even when the linked testimonial is not in
+        // the homepage list, so the deep link never strands the visitor at
+        // the hero. Delay to ensure the page is fully rendered.
+        setTimeout(() => {
+          const section = document.querySelector('.testimonials-section');
+          section?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
+          if (targetCard) {
             // Highlight the card after scroll starts
             targetCard.classList.add('testimonial-card--highlighted');
             setTimeout(() => {
               targetCard.classList.remove('testimonial-card--highlighted');
             }, 2000);
-          }, 100);
+          }
+        }, 100);
 
-          // Clear hash from URL
-          history.replaceState(null, '', window.location.pathname);
-        }
+        // Clear hash from URL
+        history.replaceState(null, '', window.location.pathname);
       }
     } else {
       // Reduced motion mode: arrows still work for manual scroll
@@ -776,6 +780,16 @@ const cards = testimonials.map(renderCard);
 
         prevBtn.addEventListener('click', () => scrollByCard('prev'));
         nextBtn.addEventListener('click', () => scrollByCard('next'));
+      }
+
+      // Deep link from case study testimonials (reduced motion: jump, no smooth scroll)
+      if (window.location.hash.startsWith('#testimonial-')) {
+        setTimeout(() => {
+          document
+            .querySelector('.testimonials-section')
+            ?.scrollIntoView({ block: 'center' });
+        }, 100);
+        history.replaceState(null, '', window.location.pathname);
       }
     }
 
