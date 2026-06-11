@@ -421,8 +421,21 @@ const modalCssVars = [
   }
 
   @media (min-width: 768px) {
+    /* On desktop only the right (content) panel scrolls; the left panel stays
+       fixed so the title and testimonial keep their place. */
+    .case-study-modal {
+      overflow: hidden;
+    }
+
     .case-study-modal__grid {
       grid-template-columns: 5fr 7fr;
+      max-height: calc(100vh - var(--space-xl));
+    }
+
+    .case-study-modal__right {
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      max-height: calc(100vh - var(--space-xl));
     }
   }
 
