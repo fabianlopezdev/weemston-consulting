@@ -344,6 +344,7 @@ const modalCssVars = [
     padding: var(--space-md);
     background: rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(8px);
+    overscroll-behavior: none;
     opacity: 0;
     visibility: hidden;
     transition:
@@ -362,6 +363,8 @@ const modalCssVars = [
     max-width: 60rem;
     max-height: calc(100vh - var(--space-xl));
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     background: var(--color-background);
     border-radius: 0.75rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
@@ -625,6 +628,27 @@ const modalCssVars = [
     ).matches;
 
     let lastFocusedElement: HTMLElement | null = null;
+    let scrollLockY = 0;
+
+    // Robust body scroll lock (iOS-safe): pin the body in place rather than
+    // relying on `overflow: hidden`, which Safari ignores for touch scrolling.
+    function lockScroll() {
+      scrollLockY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollLockY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
+    }
+
+    function unlockScroll() {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      window.scrollTo(0, scrollLockY);
+    }
 
     function openModal(id: string) {
       // Store focus
@@ -639,7 +663,7 @@ const modalCssVars = [
 
       // Show backdrop
       backdrop?.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
+      lockScroll();
 
       // Animate if motion is OK
       if (!prefersReducedMotion) {
@@ -673,13 +697,13 @@ const modalCssVars = [
           ease: 'power2.in',
           onComplete: () => {
             backdrop?.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
+            unlockScroll();
             lastFocusedElement?.focus();
           },
         });
       } else {
         backdrop?.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
+        unlockScroll();
         lastFocusedElement?.focus();
       }
     }
